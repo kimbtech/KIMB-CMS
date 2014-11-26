@@ -1,8 +1,7 @@
 <?php
 
-require_once('kimbdbf.php');
-require_once('cache.php');
-require_once('funktionen.php');
-require_once('output.php');
+require_once(__DIR__.'/kimbdbf.php');
+require_once(__DIR__.'/cache.php');
+require_once(__DIR__.'/output.php');
 
 ?>

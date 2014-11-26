@@ -299,6 +299,13 @@ class KIMBdbf {
 			return false;
 		}
 	}
+
+	public function read_kimb_all_xxxid($id) {
+		$id = $this->umbruch_weg($id);
+		$idinfo = $this->read_kimb_one($id);
+		$idteile = explode('==', $idinfo);
+		return $idteile;
+	}
 	
 	public function search_kimb_id($search, $id) {
 		$search = $this->umbruch_weg($search);
