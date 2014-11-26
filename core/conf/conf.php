@@ -14,7 +14,7 @@ header('X-Robots-Tag: '.$allgsysconf['robots']);
 
 //wichtige Objekte
 
-$sitecontent = new system_output();
+$sitecontent = new system_output($allgsysconf);
 
 if($allgsysconf['cache'] == 'on'){
 	$sitecache = new cacheCMS();

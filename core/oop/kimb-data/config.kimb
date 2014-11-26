@@ -3,7 +3,7 @@
 <[001-sitename]>KIMB CMS<[001-sitename]>
 <[001-sitefavi]>http://localhost:8000/load/system/KIMB.ico<[001-sitefavi]>
 <[001-loginokay]>rggfdgfd<[001-loginokay]>
-<[001-siteurl]>http://localhost:8000/<[001-siteurl]>
+<[001-siteurl]>http://localhost:8000<[001-siteurl]>
 <[001-description]>vbxccx<[001-description]>
 <[001-admingetvari]>admin<[001-admingetvari]>
 <[001-urlweitermeth]>1<[001-urlweitermeth]>
