@@ -109,10 +109,10 @@ class system_output{
 				echo($this->footer);
 				echo("\n\r");
 
-			echo('</div>'."\n\r");
+			echo('</div></div>'."\n\r");
 		echo('</body> </html>');
 	}
-	//caches anlegen, Prüfung übernimmt generate ids
+
 
 }
 
