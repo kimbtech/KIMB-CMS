@@ -2,71 +2,62 @@
 
 class cacheCMS{
 
-	protected $menue, $site, $siteid, $menueid;
+	protected $menuefile, $sitefile;
 
 	public function __construct($allgsysconf){
 		$this->allgsysconf = $allgsysconf;
 	}
 
-	public function cache_menue($id, $inhalt, $niveau){
-		if( $this->menueid == ''){
-			$this->menueid = $id;
+	public function cache_menue($id, $name, $link, $niveau){
+		if(!is_object($this->menuefile)){
+			$this->menuefile = new KIMBdbf('/cache/menue_'.$id.'.kimb');
+			$this->menuefile->write_kimb_new( 'time' , time() );
 		}
-		if( $this->menueid != $id ){
-			return false;
-		} 
-
-		if( $this->menue[$niveau] == '' ){
-			$this->menue[$niveau] = time()."\n\r";
-		}
-		$this->menue[$niveau] .= $inhalt."\n\r";
+		$fileid = $this->menuefile->next_kimb_id();
+		$this->menuefile->write_kimb_id( $fileid , 'add' , 'link' , $link );
+		$this->menuefile->write_kimb_id( $fileid , 'add' , 'name' , $name );
+		$this->menuefile->write_kimb_id( $fileid , 'add' , 'niveau' , $niveau );
 
 		return true;
 	}
 	public function cache_site($id, $inhalt){
-		if( $this->siteid == ''){
-			$this->siteid = $id;
+		if(!is_object($this->sitefile)){
+			$this->sitefile = new KIMBdbf('/cache/site_'.$id.'.kimb');
+			$this->sitefile->write_kimb_new( 'time' , time() );
 		}
-		if( $this->siteid != $id ){
-			return false;
-		} 
-
-		if( $this->site == '' ){
-			$this->site = time()."\n\r";
-		}
-		$this->site .= $inhalt."\n\r";
+		$this->sitefile->write_kimb_new( 'inhalt' , $inhalt );
 		
 		return true;
 	}
 
-	public function __destruct(){
-
-		$i = '1';
-		foreach ( $this->menue as $inhalt ){
-			if($inhalt != ''){
-				$handle = fopen(__DIR__.'/../cache/menue'.$id.'_niveau'.$i.'.cache', 'w+');
-				fwrite($handle, $inhalt);
-				fclose($handle);
-			}
-			$i++;
-		}
-
-		if($this->site != '' ){
-			$handle = fopen(__DIR__.'/../cache/site'.$id.'.cache', 'w+');
-			fwrite($handle, $this->site);
-			fclose($handle);
-		}
-	}
-
 	public function get_cached_menue($id){
-		echo 'max';
+		if(!is_object($this->menuefile)){
+			$this->menuefile = new KIMBdbf('/cache/menue_'.$id.'.kimb');
+		}
+		$time = $this->menuefile->read_kimb_one( 'time' );
+		if( time()-$time <= '172800' ){
+			$fileid = '1';
+			$i = '0';
+			while($read[$i]['name'] != ''){
+				$read[$i] = $this->menuefile->read_kimb_id( $fileid );
+				$i++;
+				$fileid++;
+			}
+			return $read;
+		}
+		return false;
 	}
 
 	public function get_cached_site($id){
-		if( file_exists( __DIR__.'/../cache/site'.$id.'.cache' ) ){
-			//zeile 1 Zeit okay ??
-			//zeile für Zeile vorlesen in array (0- XX)
+		if(!is_object($this->sitefile)){
+			$this->sitefile = new KIMBdbf('/cache/site_'.$id.'.kimb');
 		}
+		$time = $this->sitefile->read_kimb_one( 'time' );
+		if( time()-$time <= '172800' ){
+			return $this->sitefile->read_kimb_all( 'inhalt' );
+		}
+		return false;
+		
 	}
 
 }
