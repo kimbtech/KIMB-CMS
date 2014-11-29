@@ -143,3 +143,10 @@ a.menu:active  { color:#0000ff; background-color:#EEC900; border:solid 2px #ffff
 	border:solid 2px #ffffff;
 }
 
+#errorbox{
+	background-color:#cccccc;
+	border-radius:15px;
+	padding:20px;
+
+}
+

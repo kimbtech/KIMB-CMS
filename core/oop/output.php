@@ -42,18 +42,15 @@ class system_output{
 	public function echo_error($message = '', $art = 'unknown'){
 		if( $art == '404' ){
 			$errmsg = $this->sonderfile->read_kimb_one('error-404');
-			$this->sitecontent = '<h1>Error - 404</h1>'.$errmsg.'<br /><br /><i>'.$message.'</i>'."\n\r";
+			$this->sitecontent = '<div id="errorbox"><h1>Error - 404</h1>'.$errmsg.'<br /><br /><i>'.$message.'</i></div>'."\n\r";
 		}
 		elseif( $art == '403' ){
 			$errmsg = $this->sonderfile->read_kimb_one('error-403');
-			$this->sitecontent = '<h1>Error - 403</h1>'.$errmsg.'<br /><br /><i>'.$message.'</i>'."\n\r";
+			$this->sitecontent = '<div id="errorbox"><h1>Error - 403</h1>'.$errmsg.'<br /><br /><i>'.$message.'</i></div>'."\n\r";
 		}
 		else{
-			$this->sitecontent = '<h1>Error - Fehler</h1>'.$message."\n\r";
+			$this->sitecontent = '<div id="errorbox"><h1>Error - Fehler</h1>'.$message.'</div>'."\n\r";
 		}
-
-		$this->output_complete_site();
-		die;
 
 	}
 
