@@ -1,5 +1,5 @@
 <[about:doc]>KIMB dbf V3.00B - KIMB-technologies<[about:doc]>
-<[001]>sitename==sitefavi==loginokay==siteurl==description==admingetvari==urlweitermeth==adminmail==robots==mailvon==cache==sitespr==systemversion<[001]>
+<[001]>sitename==sitefavi==loginokay==siteurl==description==admingetvari==urlweitermeth==adminmail==robots==mailvon==cache==sitespr==systemversion==urlrewrite<[001]>
 <[001-sitename]>KIMB CMS<[001-sitename]>
 <[001-sitefavi]>http://localhost:8000/load/system/KIMB.ico<[001-sitefavi]>
 <[001-loginokay]>rggfdgfd<[001-loginokay]>
@@ -13,3 +13,5 @@
 <[001-cache]>on<[001-cache]>
 <[001-sitespr]>auto<[001-sitespr]>
 <[001-systemversion]>0.00Alpha<[001-systemversion]>
+<[001-urlrewrite]>off<[001-urlrewrite]>
+

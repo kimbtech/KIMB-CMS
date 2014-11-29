@@ -13,14 +13,14 @@ if( isset($_GET['url']) ){
 		$i++;
 	}
 
-	$file = new KIMBdbf('/url/first.kimb');
+	$file = new KIMBdbf('url/first.kimb');
 	$ok = $file->search_kimb_xxxid( $urlteile[$i] , 'path' );
 	if( $ok != false){
 		$nextid = $file->read_kimb_id( $ok , 'nextid' );
 		$i++;
 		if( is_numeric( $nextid ) && $nextid != '' && $urlteile[$i] != '' ){
 			while( 5 == 5 ){
-				$file = new KIMBdbf('/url/nextid_'.$nextid.'.kimb');
+				$file = new KIMBdbf('url/nextid_'.$nextid.'.kimb');
 				$ok = $file->search_kimb_xxxid( $urlteile[$i] , 'path' );
 				if( $ok != false){
 					$nextid = $file->read_kimb_id( $ok , 'nextid' );
@@ -32,9 +32,11 @@ if( isset($_GET['url']) ){
 						$_GET['id'] = $file->read_kimb_id( $ok , 'requestid' );
 						if( $urlteile[$i] != '' ){
 							$sitecontent->echo_error( 'Diese URL zeigt auf keine Seite!' , '404' );
+							$allgerr = '404';
 						}
 						if( !is_numeric($_GET['id']) || $_GET['id'] == '' ){
 							$sitecontent->echo_error( 'Fehlerhafte RequestURL !' );
+							$allgerr = 'unknown';
 							$_GET['id'] = '1';
 						}
 						break;
@@ -42,7 +44,7 @@ if( isset($_GET['url']) ){
 				}
 				else{
 					$sitecontent->echo_error( 'Diese URL zeigt auf keine Seite!' , '404' );
-					$err = 404;
+					$allgerr = '404';
 					break;
 				}
 			}		
@@ -51,16 +53,18 @@ if( isset($_GET['url']) ){
 			$_GET['id'] = $file->read_kimb_id( $ok , 'requestid' );
 			if( $urlteile[$i] != '' ){
 				$sitecontent->echo_error( 'Diese URL zeigt auf keine Seite!' , '404' );
+				$allgerr = '404';
 			}
 			if( !is_numeric($_GET['id']) || $_GET['id'] == '' ){
 				$sitecontent->echo_error( 'Fehlerhafte RequestURL !' );
+				$allgerr = 'unknown';
 				$_GET['id'] = '1';
 			}
 		}
 	}
 	else{
 		$sitecontent->echo_error( 'Diese URL zeigt auf keine Seite!' , '404' );
-		$err = 404;
+		$allgerr = '404';
 	}
 	
 }
@@ -70,7 +74,7 @@ elseif( isset($_GET['id']) ){
 
 	if( !is_numeric($_GET['id']) ){
 		$sitecontent->echo_error( 'Fehlerhafte RequestID !' );
-
+		$allgerr = 'unknown';
 		$_GET['id'] = '1';
 
 	}
@@ -81,13 +85,19 @@ else{
 
 }
 
-// get MenueID
+// get MenueID && get SiteID
 
-echo '<br />RequestID: '.$_GET['id'];
+$idfile = new KIMBdbf('menue/allids.kimb');
 
-// get SiteID
+$allgsiteid = $idfile->read_kimb_id($_GET['id'], 'siteid');
 
+$allgmenueid = $idfile->read_kimb_id($_GET['id'], 'menueid');
 
+if( $allgsiteid == ''  || $allgmenueid == '' || $allgsiteid == false  || $allgmenueid == false ){
+	$sitecontent->echo_error( 'Fehlerhafte RequestID Zuordnung!' , '404' );
+	$allgerr = '404';
+}
 
+//Weitergabe von $allgsiteid, $allgmenueid, $allgerr
 
 ?>
