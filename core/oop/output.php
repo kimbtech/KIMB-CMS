@@ -10,12 +10,30 @@ class system_output{
 		$this->footer = $this->sonderfile->read_kimb_one('footer')."\n\r";
 	}
 
-	public function add_menue_one_entry($name, $link, $niveau){
+	public function add_menue_one_entry($name, $link, $niveau, $clicked ){
 		if( $niveau == '1' ){
-			$this->menue[1] .=  '<a class="menu" href="'.$link.'">'.$name.'</a>'."\n\r";
+			if( $clicked == 'yes' ){
+				$this->menue[1] .=  '<a style="color:#0000ff; background-color:#EEC900; border:solid 2px #ffffff;" class="menu" href="'.$link.'">'.$name.'</a>'."\n\r";
+			}
+			else{
+				$this->menue[1] .=  '<a class="menu" href="'.$link.'">'.$name.'</a>'."\n\r";
+			}
+		}
+		elseif( $niveau == '2'){
+			if( $clicked == 'yes' ){
+				$this->menue[2] .=  '<li><a style="color:red;" href="'.$link.'">'.$name.'</a></li>'."\n\r";
+			}
+			else{
+				$this->menue[2] .=  '<li><a href="'.$link.'">'.$name.'</a></li>'."\n\r";
+			}
 		}
 		else{
-			$this->menue[2] .=  '<li><a href="'.$link.'">'.$name.'</a></li>'."\n\r";
+			if( $clicked == 'yes' ){
+				$this->menue[3] .=  '<li><a style="color:red;" href="'.$link.'">'.$name.'</a></li>'."\n\r";
+			}
+			else{
+				$this->menue[3] .=  '<li><a href="'.$link.'">'.$name.'</a></li>'."\n\r";
+			}
 		}
 	}
 
@@ -88,6 +106,13 @@ class system_output{
 
 						echo($this->menue[2]);
 						echo("\n\r");
+
+						echo('<li style="list-style-type:none" ><ul>');
+
+						echo($this->menue[3]);
+						echo("\n\r");
+
+						echo('</li></ul>');
 
 					echo('</ul></div>'."\n\r");
 

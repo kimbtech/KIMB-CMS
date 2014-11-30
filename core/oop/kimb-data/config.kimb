@@ -13,5 +13,5 @@
 <[001-cache]>on<[001-cache]>
 <[001-sitespr]>auto<[001-sitespr]>
 <[001-systemversion]>0.00Alpha<[001-systemversion]>
-<[001-urlrewrite]>off<[001-urlrewrite]>
+<[001-urlrewrite]>on<[001-urlrewrite]>
 
