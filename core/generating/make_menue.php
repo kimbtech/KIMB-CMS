@@ -75,21 +75,30 @@ if( $allgsysconf['urlrewrite'] == 'on' ){
 
 }
 else{
+	$menuenames = new KIMBdbf('menue/menue_names.kimb');
 
-	//mit id generieren
-	echo 'max';
+	$file = new KIMBdbf('url/first.kimb');
+	$ii = '1';
+	while( 5 == 5){
+		$path = $file->read_kimb_id($ii, 'path');
+		$requid = $file->read_kimb_id($ii, 'requestid');
+		if( $allgrequestid == $requid ){
+			$clicked = 'yes';
+		}
+		else{
+			$clicked = 'no';
+		}
+		$menuname = $menuenames->read_kimb_one( $requid );
 
+		if( $path == '' ){
+			break;
+		}
+		$sitecontent->add_menue_one_entry( $menuname , $allgsysconf['siteurl'].'/index.php?id='.$requid , '1', $clicked);
+		$ii++;
+	}
+	
+	
+	//alle weiteren nextid durchsuchen, nach requid (max 3 tief), wenn gefunden Menue machen
 }
-$sitecontent->add_site_content($allgmenueid.'(Menue)<br /><br />');
-
-//lese SiteID in Ausgabe
-
-//$sitecontent->add_menue_one_entry('Google', 'http://google.com', '1');
-
-//$sitecontent->add_menue_one_entry('Google', 'http://google.com', '2');
-
-
 //nach cache suchen und erstellen
-
-//mit err umgehen
 ?>

@@ -43,6 +43,20 @@ function check_for_kimb_file($datei){
 	}
 }
 
+function scan_kimb_dir($datei){
+	$datei = preg_replace('/[\r\n]+/', '', $datei);
+	$datei = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '..'),array('ae','oe','ue','ss','Ae','Oe','Ue', '', '.'), $datei);
+	$files = scandir(__DIR__.'/../oop/kimb-data/'.$datei);
+	$i = 0;
+	foreach ( $files as $file ){
+		if( $file != '.' && $file != '..' && $file != 'index.kimb' ){
+			$return[$i] .= $file;
+			$i++;
+		}
+	}
+	return $return;
+}
+
 function godeeper_menue($allgrequestid, $nextidg , $menuenames , $urlteile, $i , $niveau = '3'){
 	global $sitecontent;
 	$file = new KIMBdbf('url/nextid_'.$nextidg.'.kimb');
