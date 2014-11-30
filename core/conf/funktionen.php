@@ -82,6 +82,7 @@ function godeeper_menue($allgrequestid, $nextidg , $menuenames , $urlteile, $i ,
 				break;
 			}
 			$sitecontent->add_menue_one_entry( $menuname.'funk'.$niveau , $allgsysconf['siteurl'].'/index.php?url=/'.$urlt.'/'.$path.'/' , $niveau , $clicked);
+			//$sitecontent->add_menue_one_entry( $menuname.'funk'.$niveau , $allgsysconf['siteurl'].'/'.$urlt.'/'.$path.'/' , $niveau , $clicked);
 			$ii++;
 		}
 		$return['file'] = new KIMBdbf('url/nextid_'.$nextidg.'.kimb');
