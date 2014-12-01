@@ -11,7 +11,13 @@ else{
 	$allgrequestid = search_kimb_xxxid( $allgmenueid , 'menueid' );
 }
 
-if( $allgsysconf['urlrewrite'] == 'on' ){
+if( $allgsysconf['cache'] == 'on' ){
+	if( $sitecache->load_cached_menue($allgmenueid) ){
+		$menuecache = 'loaded';
+	}
+}
+
+if( $allgsysconf['urlrewrite'] == 'on' && $menuecache != 'loaded'){
 
 	$menuenames = new KIMBdbf('menue/menue_names.kimb');
 
@@ -31,8 +37,12 @@ if( $allgsysconf['urlrewrite'] == 'on' ){
 		if( $path == '' ){
 			break;
 		}
-		$sitecontent->add_menue_one_entry( $menuname , $allgsysconf['siteurl'].'/index.php?url=/'.$path.'/' , '1', $clicked);
-		//$sitecontent->add_menue_one_entry( $menuname , $allgsysconf['siteurl'].'/'.$path.'/' , '1', $clicked);
+		//$sitecontent->add_menue_one_entry( $menuname , $allgsysconf['siteurl'].'/index.php?url=/'.$path.'/' , '1', $clicked);
+		$sitecontent->add_menue_one_entry( $menuname , $allgsysconf['siteurl'].'/'.$path.'/' , '1', $clicked);
+		if(is_object($sitecache)){
+			//$sitecache->cache_menue($allgmenueid, $menuname, $allgsysconf['siteurl'].'/index.php?url=/'.$path.'/', '1', $clicked);
+			$sitecache->cache_menue($allgmenueid, $menuname, $allgsysconf['siteurl'].'/'.$path.'/', '1', $clicked);
+		}
 		$ii++;
 	}	
 
@@ -44,7 +54,7 @@ if( $allgsysconf['urlrewrite'] == 'on' ){
 	if( $ok != false){
 		$nextid = $file->read_kimb_id( $ok , 'nextid' );
 		if( $allgerr == '' && !$file->search_kimb_xxxid( $allgrequestid , 'requestid' ) ){
-			$return = godeeper_menue($allgrequestid, $nextid, $menuenames, $urlteile, $i);
+			$return = godeeper_menue($allgrequestid, $nextid, $menuenames, $urlteile, $i, $allgmenueid);
 			$file = $return['file'];
 			$niveau = $return['niveau'];
 		}
@@ -69,14 +79,18 @@ if( $allgsysconf['urlrewrite'] == 'on' ){
 			if( $path == '' ){
 				break;
 			}
-			$sitecontent->add_menue_one_entry( $menuname.$niveau , $allgsysconf['siteurl'].'/index.php?url=/'.$urlteile[$i].'/'.$path.'/' , $niveau, $clicked);
-			//$sitecontent->add_menue_one_entry( $menuname.$niveau , $allgsysconf['siteurl'].'/'.$urlteile[$i].'/'.$path.'/' , $niveau, $clicked);
+			//$sitecontent->add_menue_one_entry( $menuname , $allgsysconf['siteurl'].'/index.php?url=/'.$urlteile[$i].'/'.$path.'/' , $niveau, $clicked);
+			$sitecontent->add_menue_one_entry( $menuname , $allgsysconf['siteurl'].'/'.$urlteile[$i].'/'.$path.'/' , $niveau, $clicked);
+			if(is_object($sitecache)){
+				//$sitecache->cache_menue($allgmenueid, $menuname, $allgsysconf['siteurl'].'/index.php?url=/'.$urlteile[$i].'/'.$path.'/', $niveau, $clicked);
+				$sitecache->cache_menue($allgmenueid, $menuname, $allgsysconf['siteurl'].'/'.$urlteile[$i].'/'.$path.'/', $niveau, $clicked);
+			}
 			$ii++;
 		}
 	}
 
 }
-else{
+elseif( $menuecache != 'loaded'){
 	$menuenames = new KIMBdbf('menue/menue_names.kimb');
 
 	$file = new KIMBdbf('url/first.kimb');
@@ -96,6 +110,9 @@ else{
 			break;
 		}
 		$sitecontent->add_menue_one_entry( $menuname , $allgsysconf['siteurl'].'/index.php?id='.$requid , '1', $clicked);
+		if(is_object($sitecache)){
+			$sitecache->cache_menue($allgmenueid, $menuname , $allgsysconf['siteurl'].'/index.php?id='.$requid , '1', $clicked);
+		}
 		$ii++;
 	}
 
@@ -178,6 +195,9 @@ else{
 			break;
 		}
 		$sitecontent->add_menue_one_entry( $menuname , $allgsysconf['siteurl'].'/index.php?id='.$requid , $niveau , $clicked);
+		if(is_object($sitecache)){
+			$sitecache->cache_menue($allgmenueid, $menuname, $allgsysconf['siteurl'].'/index.php?id='.$requid , $niveau , $clicked);
+		}
 		$ii++;
 	}
 
@@ -201,12 +221,13 @@ else{
 				break;
 			}
 			$sitecontent->add_menue_one_entry( $menuname , $allgsysconf['siteurl'].'/index.php?id='.$requid , $niveau, $clicked);
+			if(is_object($sitecache)){
+				$sitecache->cache_menue($allgmenueid, $menuname, $allgsysconf['siteurl'].'/index.php?id='.$requid , $niveau , $clicked);
+			}
 			$ii++;
 		}
 		$niveau++;
 	}
-		
-	//alle weiteren nextid durchsuchen, nach requid (max 3 tief), wenn gefunden Menue machen
 }
-//nach cache suchen und erstellen
+
 ?>

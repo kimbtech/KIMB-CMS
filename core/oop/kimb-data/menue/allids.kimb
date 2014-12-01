@@ -19,6 +19,10 @@
 <[55-siteid]>5<[55-siteid]>
 <[55-menueid]>5<[55-menueid]>
 
+<[65]>siteid==menueid<[65]>
+<[65-siteid]>65<[65-siteid]>
+<[65-menueid]>65<[65-menueid]>
+
 <[66]>siteid==menueid<[66]>
 <[66-siteid]>6<[66-siteid]>
 <[66-menueid]>6<[66-menueid]>

@@ -9,7 +9,7 @@ $allgsysconf = $conffile->read_kimb_id('001');
 //session, ...
 
 session_start();
-error_reporting('E_ALL');
+error_reporting('0');
 header('X-Robots-Tag: '.$allgsysconf['robots']);
 
 //wichtige Objekte
@@ -17,7 +17,7 @@ header('X-Robots-Tag: '.$allgsysconf['robots']);
 $sitecontent = new system_output($allgsysconf);
 
 if($allgsysconf['cache'] == 'on'){
-	$sitecache = new cacheCMS($allgsysconf);
+	$sitecache = new cacheCMS($allgsysconf, $sitecontent);
 }
 
 $kimbcmsinfo = '<!--

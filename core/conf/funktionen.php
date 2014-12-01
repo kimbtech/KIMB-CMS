@@ -57,8 +57,8 @@ function scan_kimb_dir($datei){
 	return $return;
 }
 
-function godeeper_menue($allgrequestid, $nextidg , $menuenames , $urlteile, $i , $niveau = '3'){
-	global $sitecontent;
+function godeeper_menue($allgrequestid, $nextidg , $menuenames , $urlteile, $i , $allgmenueid , $niveau = '3'){
+	global $sitecontent, $sitecache;
 	$file = new KIMBdbf('url/nextid_'.$nextidg.'.kimb');
 	$i1 = $i+1;
 	$ok = $file->search_kimb_xxxid( $urlteile[$i1] , 'path' );
@@ -81,8 +81,12 @@ function godeeper_menue($allgrequestid, $nextidg , $menuenames , $urlteile, $i ,
 			if( $path == '' ){
 				break;
 			}
-			$sitecontent->add_menue_one_entry( $menuname.'funk'.$niveau , $allgsysconf['siteurl'].'/index.php?url=/'.$urlt.'/'.$path.'/' , $niveau , $clicked);
-			//$sitecontent->add_menue_one_entry( $menuname.'funk'.$niveau , $allgsysconf['siteurl'].'/'.$urlt.'/'.$path.'/' , $niveau , $clicked);
+			//$sitecontent->add_menue_one_entry( $menuname , $allgsysconf['siteurl'].'/index.php?url=/'.$urlt.'/'.$path.'/' , $niveau , $clicked);
+			$sitecontent->add_menue_one_entry( $menuname , $allgsysconf['siteurl'].'/'.$urlt.'/'.$path.'/' , $niveau , $clicked);
+			if(is_object($sitecache)){
+				//$sitecache->cache_menue($allgmenueid, $menuname, $allgsysconf['siteurl'].'/index.php?url=/'.$urlt.'/'.$path.'/' , $niveau , $clicked);
+				$sitecache->cache_menue($allgmenueid, $menuname, $allgsysconf['siteurl'].'/'.$urlt.'/'.$path.'/' , $niveau , $clicked);
+			}
 			$ii++;
 		}
 		$return['file'] = new KIMBdbf('url/nextid_'.$nextidg.'.kimb');

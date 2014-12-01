@@ -2,6 +2,10 @@
 
 //mache aus Links oder RequestID => MenueID und SiteID
 
+if( isset($_SERVER['REQUEST_URI']) && $allgsysconf['urlrewrite'] == 'on' ){
+	$_GET['url'] = $_SERVER['REQUEST_URI'];
+}
+
 if( isset($_GET['url']) ){
 
 	// URL => RequestID
