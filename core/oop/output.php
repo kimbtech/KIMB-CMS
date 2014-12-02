@@ -43,8 +43,22 @@ class system_output{
 		$this->menue[$niveau] = '';
 	}
 
+	public function add_site($content){
+		//$this->sitecontent .= $content."\n\r";
+		$this->set_title($content['title']);
+		$this->add_html_header($content['header']);
+		$this->add_html_header('<meta name="description" content="'.$content['description'].'">');
+		$this->add_html_header('<meta name="keywords" content="'.$content['keywords'].'">');
+		$this->sitecontent .= $content['inhalt']."\n\r";
+		$this->add_footer($content['footer']);
+		$time = date( "d.m.Y" , $content['time'] );
+		$schlusszeile .= '<div style="position: absolute; bottom:2px; right:2px; border:solid 2px #aaaaaa; border-radius:2px; padding:4px;">Erstellt von '.$content['made_user'].' am '.$time.'</div>';
+		$schlusszeile .= '<div style="position: absolute; bottom:2px; left:2px; border:solid 2px #aaaaaa; border-radius:2px; padding:4px;">Permalink: <a href="'.$this->allgsysconf['siteurl'].'/index.php?id='.$content['req_id'].'">'.$this->allgsysconf['siteurl'].'/index.php?id='.$content['req_id'].'</a></div>';
+		$this->sitecontent .= $schlusszeile."\n\r";
+	}
+
 	public function add_site_content($content){
-		$this->sitecontent .= $content."\n\r";
+		$this->sitecontent .= $content;
 	}
 
 	public function add_addon_area($inhalt, $style = '', $cssclass = ''){
@@ -66,17 +80,17 @@ class system_output{
 	public function echo_error($message = '', $art = 'unknown'){
 		if( $art == '404' ){
 			$errmsg = $this->sonderfile->read_kimb_one('error-404');
-			$this->sitecontent = '<div id="errorbox"><h1>Error - 404</h1>'.$errmsg.'<br /><br /><i>'.$message.'</i></div>'."\n\r";
+			$this->sitecontent .= '<div id="errorbox"><h1>Error - 404</h1>'.$errmsg.'<br /><br /><i>'.$message.'</i></div>'."\n\r";
 			header("HTTP/1.0 404 Not Found");
 
 		}
 		elseif( $art == '403' ){
 			$errmsg = $this->sonderfile->read_kimb_one('error-403');
-			$this->sitecontent = '<div id="errorbox"><h1>Error - 403</h1>'.$errmsg.'<br /><br /><i>'.$message.'</i></div>'."\n\r";
+			$this->sitecontent .= '<div id="errorbox"><h1>Error - 403</h1>'.$errmsg.'<br /><br /><i>'.$message.'</i></div>'."\n\r";
 			header('HTTP/1.0 403 Forbidden');
 		}
 		else{
-			$this->sitecontent = '<div id="errorbox"><h1>Error - Fehler</h1>'.$message.'</div>'."\n\r";
+			$this->sitecontent .= '<div id="errorbox"><h1>Error - Fehler</h1>'.$message.'</div>'."\n\r";
 		}
 
 	}
@@ -128,7 +142,7 @@ class system_output{
 						echo($this->addon);
 						echo("\n\r");
 
-					echo('<div id="content-apps">'."\n\r");
+					echo('<div id="content-apps" style="position: relative; padding-bottom:30px;">'."\n\r");
 
 						echo($this->sitecontent);
 						echo("\n\r");

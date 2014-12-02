@@ -19,7 +19,7 @@ if( $allgsysconf['cache'] == 'on' ){
 	}
 }
 
-if( $allgsysconf['urlrewrite'] == 'on' && $menuecache != 'loaded'){
+if( $allgsysconf['urlrewrite'] == 'on' && $menuecache != 'loaded' && isset($_GET['url']) ){
 
 	$menuenames = new KIMBdbf('menue/menue_names.kimb');
 

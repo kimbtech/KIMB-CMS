@@ -4,7 +4,7 @@ defined('KIMB_CMS') or die('No clean Request');
 
 //mache aus Links oder RequestID => MenueID und SiteID
 
-if( isset($_SERVER['REQUEST_URI']) && $allgsysconf['urlrewrite'] == 'on' ){
+if( isset($_SERVER['REQUEST_URI']) && $allgsysconf['urlrewrite'] == 'on' && !isset($_GET['id']) ){
 	$_GET['url'] = $_SERVER['REQUEST_URI'];
 }
 
