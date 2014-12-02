@@ -1,4 +1,8 @@
 <?php
+define("KIMB_CMS", "Clean Request");
+
+defined('KIMB_CMS') or die('No clean Request');
+
 //Klassen und Funktionen
 require_once(__DIR__.'/core/oop/all_oop.php');
 //Konfiguration laden

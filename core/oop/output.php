@@ -1,5 +1,7 @@
 <?php
 
+defined('KIMB_CMS') or die('No clean Request');
+
 class system_output{
 
 	protected $title, $header, $allgsysconf, $menue, $sitecontent, $addon, $footer, $sonderfile;
@@ -37,6 +39,10 @@ class system_output{
 		}
 	}
 
+	public function unset_menue( $niveau ){
+		$this->menue[$niveau] = '';
+	}
+
 	public function add_site_content($content){
 		$this->sitecontent .= $content."\n\r";
 	}
@@ -61,10 +67,13 @@ class system_output{
 		if( $art == '404' ){
 			$errmsg = $this->sonderfile->read_kimb_one('error-404');
 			$this->sitecontent = '<div id="errorbox"><h1>Error - 404</h1>'.$errmsg.'<br /><br /><i>'.$message.'</i></div>'."\n\r";
+			header("HTTP/1.0 404 Not Found");
+
 		}
 		elseif( $art == '403' ){
 			$errmsg = $this->sonderfile->read_kimb_one('error-403');
 			$this->sitecontent = '<div id="errorbox"><h1>Error - 403</h1>'.$errmsg.'<br /><br /><i>'.$message.'</i></div>'."\n\r";
+			header('HTTP/1.0 403 Forbidden');
 		}
 		else{
 			$this->sitecontent = '<div id="errorbox"><h1>Error - Fehler</h1>'.$message.'</div>'."\n\r";

@@ -1,5 +1,7 @@
 <?php
 
+defined('KIMB_CMS') or die('No clean Request');
+
 if(!is_object( $idfile )){
 	$idfile = new KIMBdbf('menue/allids.kimb');
 }

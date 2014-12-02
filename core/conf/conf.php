@@ -1,5 +1,7 @@
 <?php
 
+defined('KIMB_CMS') or die('No clean Request');
+
 //erstelle globale conf Variablen aus config.kimb
 
 $conffile = new KIMBdbf('config.kimb');

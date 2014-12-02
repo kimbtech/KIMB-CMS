@@ -1,5 +1,7 @@
 <?php
 
+defined('KIMB_CMS') or die('No clean Request');
+
 //lese MenuID in Ausgabe
 
 //nach cache suchen und erstellen

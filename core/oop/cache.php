@@ -1,5 +1,7 @@
 <?php
 
+defined('KIMB_CMS') or die('No clean Request');
+
 class cacheCMS{
 
 	protected $menuefile, $sitefile, $sitecontent, $allgsysconf, $menue, $addon;
@@ -54,7 +56,7 @@ class cacheCMS{
 	}
 
 
-	public function cache_addon($id, $inhalt){
+	public function cache_addon( $id , $inhalt , $name = 'unknown'){
 		if(!is_object($this->sitefile)){
 			$this->sitefile = new KIMBdbf('/cache/addon_'.$id.'.kimb');
 		}
@@ -64,18 +66,18 @@ class cacheCMS{
 			$this->addon = 'yes';
 		}
 
-		$this->sitefile->write_kimb_new( 'inhalt' , $inhalt );
+		$this->sitefile->write_kimb_new( 'inhalt-'.$name , $inhalt );
 		
 		return true;
 	}
 
-	public function get_cached_addon($id){
+	public function get_cached_addon( $id , $name = 'unknown' ){
 		if(!is_object($this->sitefile)){
 			$this->sitefile = new KIMBdbf('/cache/addon_'.$id.'.kimb');
 		}
 		$time = $this->sitefile->read_kimb_one( 'time' );
 		if(( time()-$time <= $this->allgsysconf['cachelifetime'] || $this->allgsysconf['cachelifetime'] == 'always' ) && $time != '' ){
-			return $this->sitefile->read_kimb_all( 'inhalt' );
+			return $this->sitefile->read_kimb_all( 'inhalt-'.$name );
 		}
 		return false;
 		

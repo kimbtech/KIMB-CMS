@@ -1,5 +1,7 @@
 <?php
 
+defined('KIMB_CMS') or die('No clean Request');
+
 function send_mail($to, $inhalt){
 	global $allgsysconf;
 	if( $inhalt == '' || $to == ''){

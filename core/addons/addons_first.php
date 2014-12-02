@@ -1,5 +1,7 @@
 <?php
 
+defined('KIMB_CMS') or die('No clean Request');
+
 //includes addons die first wollen
 
 //evtl siteid, menueid, err verarbeiten
