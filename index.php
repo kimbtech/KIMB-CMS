@@ -22,5 +22,5 @@ require_once(__DIR__.'/core/generating/make_content.php');
 require_once(__DIR__.'/core/addons/addons_second.php');
 
 
-echo $sitecontent->output_complete_site();
+$sitecontent->output_complete_site();
 ?>
