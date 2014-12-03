@@ -1,0 +1,83 @@
+body { background-color:#494949;
+	font-family: Ubuntu;
+	font-size:14px;
+	color:#000000;
+}
+h1 {
+	font-size:22px;
+	color:#0000ff;
+	text-align:center;
+	margin: auto;
+}
+h2 {
+	font-size:18px;
+	color:#0000ff;
+	text-align:center;
+	margin: auto;
+}
+
+/*Definitionen <div>*/
+
+#page {
+  	width:950px;
+	margin:auto;
+	text-align:left;
+	border-radius: 15px;
+}
+
+#header{
+	width:950px;
+	height:100px;
+	font-size:10px;
+	color:#0000ff;
+	background-color:#EEC900;
+	border-radius: 15px;
+	margin-top:10px;
+	margin-bottom:0px;
+	border:solid 2px #ffffff;
+	text-align:center;
+}
+
+#menu{
+	padding:05px;
+	font-size:15px;
+	margin-bottom:20px;
+	border:solid 2px #EEC900; 
+	border-radius:15px;
+	color:#0000ff;
+	background-color:#ffffff;
+
+}
+
+#content{
+	height:auto;
+	min-height:250px;
+	padding-top:10px;
+	padding-bottom:10px;
+	padding-right:05px;
+	padding-left:05px;
+	border-radius: 15px;
+	background-color:#ffffff;
+	border:solid 2px #EEC900;
+}
+
+#footer{
+	height:auto;
+	padding-top:10px;
+	padding-bottom:10px;
+	text-align:center;
+	font-size:12px;
+	color:#000000;
+	background-color:#EEC900;
+	border-radius: 15px;
+	margin-top:20px;
+	border:solid 2px #ffffff;
+}
+
+#errorbox{
+	background-color:#cccccc;
+	border-radius:15px;
+	padding:20px;
+
+}
+
