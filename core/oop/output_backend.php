@@ -12,7 +12,7 @@ class backend_output{
 	}
 
 	public function add_site_content($content){
-		$this->sitecontent .= $content;
+		$this->sitecontent .= $content."\r\n";
 	}
 
 	public function add_html_header($inhalt){
@@ -65,6 +65,16 @@ class backend_output{
 			echo ('<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/hash.js"></script>'."\r\n");
 			echo ('<script>'."\r\n");
 			echo ('$(function() {'."\r\n");
+			if( $_SESSION['permission'] == 'more' ){
+
+			}
+			elseif( $_SESSION['loginokay'] == $this->allgsysconf['loginokay'] ){
+				echo ('	$( "#menu li .admin" ).addClass("ui-state-disabled");'."\r\n");
+			}
+			else{
+				echo ('	$( "#menu li" ).switchClass( "admin" , "ui-state-disabled");'."\r\n");
+				echo ('	$( "#menu li" ).switchClass( "editor" , "ui-state-disabled");'."\r\n");
+			}
 			echo ('	$( document ).tooltip();'."\r\n");
 			echo ('	$( "#menu" ).menu();'."\r\n");
 			echo ('});'."\r\n");
@@ -80,8 +90,19 @@ class backend_output{
 				echo('<div id="page">'."\r\n");
 				echo('<div id="userinfo">'."\r\n");
 				if( $_SESSION['loginokay'] == $this->allgsysconf['loginokay'] ){
-					echo ('Hallo User <i>'.$_SESSION['name'].'</i><br />'."\r\n");
+					echo ('Hallo User <i><u>'.$_SESSION['name'].'</u></i>'."\r\n");
+					echo ('<div style="float:right; position:absolute; right:10px; top:0px;">');
 					echo ('<a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/user.php?todo=edit&amp;user='.$_SESSION['name'].'" title="Usereinstellungen bearbeiten"><span class="ui-icon ui-icon-pencil"></span></a>'."\r\n");
+					echo ('<a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/index.php?todo=logout" title="Abmelden und die Sitzung beenden!"><span class="ui-icon ui-icon-power"></span></a>'."\r\n");
+					echo ('<a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/index.php" title="Hauptseite des Backends ( Login, ... )"><span class="ui-icon ui-icon-home"></span></a>'."\r\n");
+					echo ('</div><br />');
+					if( $_SESSION['permission'] == 'more' ){
+						echo ('<i title="Sie haben alle Rechte in Backend!" >Admin</i>'."\r\n");
+					}
+					else{
+						echo ('<i title="Sie haben eingeschränkte Rechte in Backend, einige Links sind im Menue deaktiviert!" >Editor</i>'."\r\n");
+					}
+ 
 				}
 				else{
 					echo('Nicht eingeloggt!<br /><span class="ui-icon ui-icon-cancel"></span>'."\r\n");
@@ -93,21 +114,46 @@ echo('
 <!-- Menue - jQuery UI -->
 
 			<ul id="menu">
-			<li class="ui-state-disabled">Aberdeen</li>
-			<li>Ada</li>
-			<li>Adamsville</li>
-			<li>Addyston</li>
-			<li>Delphi
+			<li class="editor" class="ui-state-disabled" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/sites.php" title="Seiten erstellen, löschen, bearbeiten"><span class="ui-icon ui-icon-document"></span>Seiten</a>
+			<ul>
+					<li class="editor" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=new" title="Eine neue Seite erstellen."><span class="ui-icon ui-icon-plusthick"></span>Erstellen</a></li>
+					<li class="editor" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=list" title="Alle Seiten zum Bearbeiten, De-, Aktivieren und Löschen auflisten."><span class="ui-icon ui-icon-calculator"></span>Auflisten</a></li>
+			</ul>
+			</li>
+			<li class="editor" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/menue.php" title="Menüs erstellen, löschen, bearbeiten"><span class="ui-icon ui-icon-newwin"></span>Menue</a>
 				<ul>
-				<li class="ui-state-disabled">Ada</li>
-				<li>Saarland</li>
-				<li>Salzburg an der schönen Donau</li>
+					<li class="admin" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=new" title="Einen neuen Menüpunkt erstellen."><span class="ui-icon ui-icon-plusthick"></span>Erstellen</a></li>
+					<li class="editor" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=connect" title="Einen Seite einem Menüpunkt zuordnen."><span class="ui-icon ui-icon-arrowthick-2-e-w"></span>Zuordnen</a></li>
+					<li class="admin" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=list" title="Die gesamte Menüstruktur zum Bearbeiten und Löschen darstellen."><span class="ui-icon ui-icon-calculator"></span>Auflisten</a></li>
+				</ul>
+			</li>
+			<li class="admin" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/user.php" title="Backenduser erstellen, löschen, bearbeiten"><span class="ui-icon ui-icon-person"></span>User</a>
+				<ul>
+					<li class="admin" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/user.php?todo=new" title="Einen neuen Backenduser erstellen."><span class="ui-icon ui-icon-plusthick"></span>Erstellen</a></li>
+					<li class="admin" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/user.php?todo=list" title="Alle Backenduser zum Bearbeiten und Löschen auflisten."><span class="ui-icon ui-icon-calculator"></span>Auflisten</a></li>
+				</ul>
+			</li>
+			<li class="admin" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/syseinst.php" title="Systemkonfiguration anpassen"><span class="ui-icon ui-icon-gear"></span>Konfiguration</a></li>
+			<li class="editor" ><span class="ui-icon ui-icon-plusthick"></span>Add-ons
+				<ul>
+					<li class="editor" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=less" title="Add-on Nutzung als Editor"><span class="ui-icon ui-icon-plusthick"></span>Nutzung</a></li>
+					<li class="admin" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=more" title="Add-on Konfiguration als Admin"><span class="ui-icon ui-icon-wrench"></span>Konfiguration</a></li>
+					<li class="admin" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/addon_inst.php" title="Add-ons installieren, löschen, de-, aktivieren"><span class="ui-icon ui-icon-circle-arrow-n"></span>Installation</a></li>
+				</ul>
+			</li>
+			<li class="editor" ><span class="ui-icon ui-icon-help"></span>Other
+				<ul>
+					<li class="editor" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/other_filemanager.php" title="Dateien zum, Einbinden in Ihrer Seite, hochladen und verwalten, &apos;&apos;sichere&apos;&apos; Speicherung"><span class="ui-icon ui-icon-image"></span>Filemanager</a></li>
 				</ul>
 			</li>
 			</ul>
 
 <!-- Menue - jQuery UI -->
 <!-- Menue - jQuery UI -->
+
+
+
+<!-- class="ui-state-disabled" -->
 ');
 				echo ('</div>'."\r\n");
 				echo ('<div id="version">'."\r\n");
