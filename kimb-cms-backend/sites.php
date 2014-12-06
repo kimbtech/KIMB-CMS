@@ -9,6 +9,9 @@ require_once(__DIR__.'/../core/conf/conf_backend.php');
 
 //Seite erstellen, zuordnen
 
+check_backend_login();
+
+echo 'sdfdsf';
 
 $sitecontent->output_complete_site();
 ?>

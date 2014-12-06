@@ -69,11 +69,12 @@ class backend_output{
 
 			}
 			elseif( $_SESSION['loginokay'] == $this->allgsysconf['loginokay'] ){
-				echo ('	$( "#menu li .admin" ).addClass("ui-state-disabled");'."\r\n");
+				echo ('	$( "ul#menu li.admin" ).addClass("ui-state-disabled");'."\r\n");
+
 			}
 			else{
-				echo ('	$( "#menu li" ).switchClass( "admin" , "ui-state-disabled");'."\r\n");
-				echo ('	$( "#menu li" ).switchClass( "editor" , "ui-state-disabled");'."\r\n");
+				echo ('	$( "ul#menu li.admin" ).addClass("ui-state-disabled");'."\r\n");
+				echo ('	$( "ul#menu li.editor" ).addClass("ui-state-disabled");'."\r\n");
 			}
 			echo ('	$( document ).tooltip();'."\r\n");
 			echo ('	$( "#menu" ).menu();'."\r\n");
@@ -102,6 +103,7 @@ class backend_output{
 					else{
 						echo ('<i title="Sie haben eingeschränkte Rechte in Backend, einige Links sind im Menue deaktiviert!" >Editor</i>'."\r\n");
 					}
+					echo ('<div style="float:right; position:absolute; right:40px; bottom:7px;"><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/syseinst.php?todo=purgecache" title="Den Cache leeren. (Dies ist nur nach einer Änderung im Menü oder für bestimmte Add-ons nötig!)"><span class="ui-icon 	ui-icon-refresh"></span></a></div>'."\r\n");
  
 				}
 				else{
@@ -114,7 +116,7 @@ echo('
 <!-- Menue - jQuery UI -->
 
 			<ul id="menu">
-			<li class="editor" class="ui-state-disabled" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/sites.php" title="Seiten erstellen, löschen, bearbeiten"><span class="ui-icon ui-icon-document"></span>Seiten</a>
+			<li class="editor" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/sites.php" title="Seiten erstellen, löschen, bearbeiten"><span class="ui-icon ui-icon-document"></span>Seiten</a>
 			<ul>
 					<li class="editor" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=new" title="Eine neue Seite erstellen."><span class="ui-icon ui-icon-plusthick"></span>Erstellen</a></li>
 					<li class="editor" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=list" title="Alle Seiten zum Bearbeiten, De-, Aktivieren und Löschen auflisten."><span class="ui-icon ui-icon-calculator"></span>Auflisten</a></li>
@@ -147,13 +149,8 @@ echo('
 				</ul>
 			</li>
 			</ul>
-
 <!-- Menue - jQuery UI -->
 <!-- Menue - jQuery UI -->
-
-
-
-<!-- class="ui-state-disabled" -->
 ');
 				echo ('</div>'."\r\n");
 				echo ('<div id="version">'."\r\n");
@@ -169,8 +166,6 @@ echo('
 				echo('</div></div>'."\r\n");
 		echo('</body> </html>');
 	}
-
-
 }
 
 ?>

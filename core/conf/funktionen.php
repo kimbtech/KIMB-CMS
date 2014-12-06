@@ -102,4 +102,21 @@ function godeeper_menue($allgrequestid, $nextidg , $menuenames , $urlteile, $i ,
 
 }
 
+function check_backend_login( $permiss = 'none'){
+	global $sitecontent, $allgsysconf;
+	if( $_SESSION['loginokay'] == $allgsysconf['loginokay'] && $_SESSION["ip"] == $_SERVER['REMOTE_ADDR'] && $_SESSION["useragent"] == $_SERVER['HTTP_USER_AGENT'] ){
+		if( $permiss == 'more' && $_SESSION['permission'] != 'more' ){
+			$sitecontent->echo_error( 'Sie haben keine Rechte diese Seite zu sehen!' , '403');
+			$sitecontent->output_complete_site();
+			die;
+		}
+		return true;
+	}
+	else{
+		$sitecontent->echo_error( 'Sie haben keine Rechte diese Seite zu sehen!' , '403');
+		$sitecontent->output_complete_site();
+		die;
+	}
+}
+
 ?>

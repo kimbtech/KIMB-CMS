@@ -9,6 +9,10 @@ require_once(__DIR__.'/../core/conf/conf_backend.php');
 
 //Systemeinstellungen in config.kimb ( eigenes Feld möglich )
 
+check_backend_login('more');
+
+echo 'sdfsd';
+
 
 $sitecontent->output_complete_site();
 ?>

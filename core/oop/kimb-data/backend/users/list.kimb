@@ -1,0 +1,13 @@
+<[about:doc]>KIMB Datei V.0.1 KIMB CMS<[about:doc]>
+
+<[1]>passw==user==permiss==name<[1]>
+<[1-passw]>a94a8fe5ccb19ba61c4c0873d391e987982fbbd3<[1-passw]>
+<[1-user]>test<[1-user]>
+<[1-permiss]>less<[1-permiss]>
+<[1-name]>Test<[1-name]>
+
+<[2]>passw==user==permiss==name<[2]>
+<[2-passw]>d033e22ae348aeb5660fc2140aec35850c4da997<[2-passw]>
+<[2-user]>admin<[2-user]>
+<[2-permiss]>more<[2-permiss]>
+<[2-name]>Admin<[2-name]>
