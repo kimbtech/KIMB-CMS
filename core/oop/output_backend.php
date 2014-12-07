@@ -63,6 +63,7 @@ class backend_output{
 			echo ('<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/jquery/jquery.min.js"></script>'."\r\n");
 			echo ('<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/jquery/jquery-ui.min.js"></script>'."\r\n");
 			echo ('<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/hash.js"></script>'."\r\n");
+			echo ('<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/nicEdit.js"></script>'."\r\n");
 			echo ('<script>'."\r\n");
 			echo ('$(function() {'."\r\n");
 			if( $_SESSION['permission'] == 'more' ){

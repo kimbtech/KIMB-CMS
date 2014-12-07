@@ -86,6 +86,21 @@ h2 {
 	border:3px solid #FFB90F;
 }
 
+#startbox{
+	display:inline-block;
+	height:100px;
+	background-color:#cccccc;
+	border:2px solid #000000;
+	text-align:center;
+	border-radius:3px;
+	text-decoration:none;
+	color:#000000;
+}
+
+#startbox span{
+	margin:auto;
+}
+
 /* jQuery UI Styles */
 label {
 	display: inline-block;

@@ -119,4 +119,12 @@ function check_backend_login( $permiss = 'none'){
 	}
 }
 
+function rename_kimbdbf( $datei1 , $datei2 ){
+	$datei1 = preg_replace('/[\r\n]+/', '', $datei1);
+	$datei1 = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '..'),array('ae','oe','ue','ss','Ae','Oe','Ue', '', '.'), $datei1);
+	$datei2 = preg_replace('/[\r\n]+/', '', $datei2);
+	$datei2 = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '..'),array('ae','oe','ue','ss','Ae','Oe','Ue', '', '.'), $datei2);
+
+	return rename( __DIR__.'/../oop/kimb-data/'.$datei1 , __DIR__.'/../oop/kimb-data/'.$datei2 );
+}
 ?>
