@@ -22,23 +22,55 @@ elseif( $_GET['todo'] == 'list' ){
 
 	$sitecontent->add_html_header('<style>td { border:1px solid #000000; padding:2px;} td a { text-decoration:none; }</style>');
 
+	$sitecontent->add_html_header('<script>
+	var del = function( id ) {
+		$( "#del-confirm" ).show( "fast" );
+		$( "#del-confirm" ).dialog({
+		resizable: false,
+		height:200,
+		modal: true,
+		buttons: {
+			"Delete": function() {
+				$( this ).dialog( "close" );
+				window.location = "'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=del&id="+id;
+				return true;
+			},
+			Cancel: function() {
+				$( this ).dialog( "close" );
+				return false;
+			}
+		}
+		});
+	}
+	function search(){
+		var search = $( "input.search" ).val();
+		window.location = "'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=list#" + search;
+	}
+		</script>');
+
 	$sites = scan_kimb_dir('site/');
 
-	$sitecontent->add_site_content('<table width="100%"><tr><th width="40px;" >ID</th><th>Name</th><th width="20px;">Status</th></tr>');
+	$sitecontent->add_site_content('<span><a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=new"><span class="ui-icon ui-icon-plus" title="Eine neue Seite erstellen."></span></a>');
+	$sitecontent->add_site_content('<input type="text" class="search"><button onclick="search();" title="Nach Seitenamen suchen ( genauer Seitenname nötig ).">Suchen</button></span><hr />');
+	$sitecontent->add_site_content('<table width="100%"><tr><th width="40px;" >ID</th><th>Name</th><th width="20px;">Status</th><th width="20px;">Löschen</th></tr>');
 
 	foreach ( $sites as $site ){
 		$sitef = new KIMBdbf('site/'.$site);
 		$id = substr( $site , 5, -5); 
-		$name = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=edit&amp;id='.$id.'">'.$sitef->read_kimb_one('title').'</a>';
+		$title = $sitef->read_kimb_one('title');
+		$name = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=edit&amp;id='.$id.'" title="Seite bearbeiten.">'.$title.'</a>';
 		if ( strpos( $site , 'deak' ) !== false ){
 			$status = '<span class="ui-icon ui-icon-close" title="Diese Seite ist zu Zeit deaktiviert, also nicht auffindbar."></span>';
 		}
 		else{
 			$status = '<span class="ui-icon ui-icon-check" title="Diese Seite ist zu Zeit aktiviert, also sichtbar."></span>';
 		}
-		$sitecontent->add_site_content('<tr><td>'.$id.'</td><td>'.$name.'</td><td>'.$status.'</td></tr>');
+		$del = '<span onclick="var delet = del( '.$id.' ); delet();"><span class="ui-icon ui-icon-trash" title="Diese Seite löschen."></span></span>';
+		$sitecontent->add_site_content('<tr><td>'.$id.'</td><td id="'.$title.'">'.$name.'</td><td>'.$status.'</td><td>'.$del.'</td></tr>');
 	}
 	$sitecontent->add_site_content('</table>');
+
+	$sitecontent->add_site_content('<div style="display:none;"><div id="del-confirm" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Möchten Sie die Seite wirklich löschen?</p></div></div>');
 
 }
 elseif( $_GET['todo'] == 'edit' && is_numeric( $_GET['id'] ) ){
@@ -54,6 +86,11 @@ elseif( $_GET['todo'] == 'edit' && is_numeric( $_GET['id'] ) ){
 	if( !is_object( $sitef ) ){
 		if( check_for_kimb_file( '/site/site_'.$_GET['id'].'.kimb' ) ){
 			$sitef = new KIMBdbf( '/site/site_'.$_GET['id'].'.kimb' );
+		}
+		else{
+			$sitecontent->echo_error('Die Seite wurde nicht gefunden' , '404');
+			$sitecontent->output_complete_site();
+			die;
 		}
 	}
 	
@@ -81,7 +118,12 @@ elseif( $_GET['todo'] == 'edit' && is_numeric( $_GET['id'] ) ){
 	$sitecontent->add_site_content('<input class="select" type="text" value="'.htmlentities('<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/system/hash.js"></script>').'" style="width:74%;"> <b>MD5, SHA1, SHA256</b><br />');
 
 }
+elseif( $_GET['todo'] == 'del' && is_numeric( $_GET['id'] ) ){
 
+}
+else{
+	$sitecontent->add_site_content('<h2>Seiten</h2>');
+}
 
 
 $sitecontent->output_complete_site();

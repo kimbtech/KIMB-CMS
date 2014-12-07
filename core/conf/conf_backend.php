@@ -33,4 +33,8 @@ $sitecontent->add_html_header($kimbcmsinfo);
 //allgemeine Funktionen
 
 require_once(__DIR__.'/funktionen.php');
+
+//Backend Add-ons
+
+require_once(__DIR__.'/../addons/addons_backend.php');
 ?>
