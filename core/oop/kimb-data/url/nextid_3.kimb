@@ -1,16 +1,19 @@
 <[about:doc]>KIMB Datei V.0.1 KIMB CMS<[about:doc]>
-<[1]>path==nextid==requestid<[1]>
+<[1]>path==nextid==requestid==status<[1]>
 <[1-path]>jjj<[1-path]>
-<[1-nextid]>4<[1-nextid]>
+<[1-nextid]>5<[1-nextid]>
 <[1-requestid]>99<[1-requestid]>
+<[1-status]>on<[1-status]>
 
-<[2]>path==nextid==requestid<[2]>
+<[2]>path==nextid==requestid==status<[2]>
 <[2-path]>kkk<[2-path]>
-<[2-nextid]><[2-nextid]>
+<[2-nextid]>4<[2-nextid]>
 <[2-requestid]>111<[2-requestid]>
+<[2-status]>on<[2-status]>
 
-<[3]>path==nextid==requestid<[3]>
+<[3]>path==nextid==requestid==status<[3]>
 <[3-path]>lll<[3-path]>
 <[3-nextid]><[3-nextid]>
 <[3-requestid]>122<[3-requestid]>
+<[3-status]>on<[3-status]>
 

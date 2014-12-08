@@ -59,6 +59,76 @@ function scan_kimb_dir($datei){
 	return $return;
 }
 
+function check_backend_login( $permiss = 'none'){
+	global $sitecontent, $allgsysconf;
+	if( $_SESSION['loginokay'] == $allgsysconf['loginokay'] && $_SESSION["ip"] == $_SERVER['REMOTE_ADDR'] && $_SESSION["useragent"] == $_SERVER['HTTP_USER_AGENT'] ){
+		if( $permiss == 'more' && $_SESSION['permission'] != 'more' ){
+			$sitecontent->echo_error( 'Sie haben keine Rechte diese Seite zu sehen!' , '403');
+			$sitecontent->output_complete_site();
+			die;
+		}
+		return true;
+	}
+	else{
+		$sitecontent->echo_error( 'Sie haben keine Rechte diese Seite zu sehen!' , '403');
+		$sitecontent->output_complete_site();
+		die;
+	}
+}
+
+function rename_kimbdbf( $datei1 , $datei2 ){
+	$datei1 = preg_replace('/[\r\n]+/', '', $datei1);
+	$datei1 = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '..'),array('ae','oe','ue','ss','Ae','Oe','Ue', '', '.'), $datei1);
+	$datei2 = preg_replace('/[\r\n]+/', '', $datei2);
+	$datei2 = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '..'),array('ae','oe','ue','ss','Ae','Oe','Ue', '', '.'), $datei2);
+
+	return rename( __DIR__.'/../oop/kimb-data/'.$datei1 , __DIR__.'/../oop/kimb-data/'.$datei2 );
+}
+
+
+function rm_r($dir){
+	$files = scandir($dir);
+	foreach ($files as $file) {
+		if($file == '.' || $file == '..'){
+			//nichts
+		}
+		else{
+			if(is_dir($dir.'/'.$file)){
+				rmdirrec($dir.'/'.$file);
+			}
+			else{
+				unlink($dir.'/'.$file);
+			}
+		}
+	}
+	return rmdir($dir);
+}
+
+function zip_r($zip, $dir, $base = '/'){
+	if (!file_exists($dir)){
+		return false;
+	}
+	$files = scandir($dir);
+
+	foreach ($files as $file){
+		if ($file == '..' || $file == '.'){
+			//nichts
+		}
+		else{
+
+			if (is_file($dir.'/'.$file)){
+				$zip->addFile($dir.'/'.$file, $base.$file);
+			}
+       			elseif (is_dir($dir.'/'.$file)){
+				$zip->addEmptyDir($base.$file);
+				zipDir($zip, $dir.'/'.$file, $base.$file.'/');
+			}
+		}
+	}
+	return true;
+}
+
+//Menue
 function godeeper_menue($allgrequestid, $nextidg , $menuenames , $urlteile, $i , $allgmenueid , $niveau = '3'){
 	global $sitecontent, $sitecache;
 	$file = new KIMBdbf('url/nextid_'.$nextidg.'.kimb');
@@ -102,29 +172,45 @@ function godeeper_menue($allgrequestid, $nextidg , $menuenames , $urlteile, $i ,
 
 }
 
-function check_backend_login( $permiss = 'none'){
-	global $sitecontent, $allgsysconf;
-	if( $_SESSION['loginokay'] == $allgsysconf['loginokay'] && $_SESSION["ip"] == $_SERVER['REMOTE_ADDR'] && $_SESSION["useragent"] == $_SERVER['HTTP_USER_AGENT'] ){
-		if( $permiss == 'more' && $_SESSION['permission'] != 'more' ){
-			$sitecontent->echo_error( 'Sie haben keine Rechte diese Seite zu sehen!' , '403');
-			$sitecontent->output_complete_site();
-			die;
+function gen_menue_id( $allgrequestid , $fileg , $menuenames ){
+	global $sitecache, $sitecontent, $wayfile;
+
+	$ok = $fileg->search_kimb_xxxid( $allgrequestid , 'requestid' );
+	if( $ok == false ){
+		$i = 1;
+		while( 5 == 5 ){
+			$nextid = $fileg->read_kimb_id( $i , 'nextid');
+			if( $nextid != '' ){
+				$file = new KIMBdbf('url/nextid_'.$nextid.'.kimb');
+				$ok = $file->search_kimb_xxxid( $allgrequestid , 'requestid' );
+				if( $ok == false ){
+					if( gen_menue_id( $allgrequestid , $file , $menuenames ) ){
+						$wayid = $nextid;
+						break;
+					}
+				}
+				else{
+					$wayid = $nextid;
+					break;
+				}
+			}
+			elseif( $fileg->read_kimb_id( $i , 'requestid') == '' ){
+				break;
+			}
+			$i++;
 		}
-		return true;
+		$wayfile[] = $wayid;
+		
+		if( $wayid == '' || $nextid == '' ){
+			return false;
+		}
+		else{
+			return true;
+		}
 	}
 	else{
-		$sitecontent->echo_error( 'Sie haben keine Rechte diese Seite zu sehen!' , '403');
-		$sitecontent->output_complete_site();
-		die;
+		return 'none';
 	}
 }
 
-function rename_kimbdbf( $datei1 , $datei2 ){
-	$datei1 = preg_replace('/[\r\n]+/', '', $datei1);
-	$datei1 = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '..'),array('ae','oe','ue','ss','Ae','Oe','Ue', '', '.'), $datei1);
-	$datei2 = preg_replace('/[\r\n]+/', '', $datei2);
-	$datei2 = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '..'),array('ae','oe','ue','ss','Ae','Oe','Ue', '', '.'), $datei2);
-
-	return rename( __DIR__.'/../oop/kimb-data/'.$datei1 , __DIR__.'/../oop/kimb-data/'.$datei2 );
-}
 ?>
