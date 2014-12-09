@@ -176,4 +176,32 @@ function gen_menue( $allgrequestid , $filename = 'url/first.kimb' , $grpath = '/
 	}
 }
 
+function make_menue_array( $filename = 'url/first.kimb' , $niveau = '1'){
+	global $menuenames, $idfile, $menuearray;
+
+	$file = new KIMBdbf( $filename );
+	$id = 1;
+	while( 5 == 5 ){
+		$path = $file->read_kimb_id( $id , 'path' );
+		$nextid = $file->read_kimb_id( $id , 'nextid' );
+		$requid = $file->read_kimb_id( $id , 'requestid' );
+		$status = $file->read_kimb_id( $id , 'status');
+		$menuname = $menuenames->read_kimb_one( $requid );
+		$siteid = $idfile->read_kimb_id( $requid , 'siteid' );
+		$menueid = $idfile->read_kimb_id( $requid , 'menueid' );
+		
+		if( $path == '' ){
+			return true;
+		}
+
+		$menuearray[] = array( 'niveau' => $niveau, 'path' => $path, 'nextid' => $nextid , 'requid' => $requid, 'status' => $status, 'menuname' => $menuname, 'siteid' => $siteid, 'menueid' => $menueid);
+
+		if( $nextid != '' ){
+			$newniveau = $niveau + 1;
+			make_menue_array( 'url/nextid_'.$nextid.'.kimb' , $newniveau);
+		}
+		$id++;
+	}
+}
+
 ?>
