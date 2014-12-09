@@ -147,6 +147,7 @@ echo('
 			<li class="editor" ><span class="ui-icon ui-icon-help"></span>Other
 				<ul>
 					<li class="editor" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/other_filemanager.php" title="Dateien zum, Einbinden in Ihrer Seite, hochladen und verwalten, &apos;&apos;sichere&apos;&apos; Speicherung"><span class="ui-icon ui-icon-image"></span>Filemanager</a></li>
+					<li class="admin" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/other_themes.php" title="Verändern Sie das Design des Frontends mit KIMB-CMS Themes"><span class="ui-icon ui-icon-contact"></span>Themes</a></li>
 				</ul>
 			</li>
 			</ul>

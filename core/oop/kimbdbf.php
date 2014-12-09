@@ -164,10 +164,10 @@ class KIMBdbf {
 		$inhalt = $this->umbruch_weg($inhalt);
 		$teil =  $this->umbruch_weg($teil);
 		if($this->write_kimb_new_pr($teil, $inhalt)){
-			return false;
+			return true;
 		}	
 		else{
-			return true;
+			return false;
 		}
 	}
 	
@@ -175,20 +175,20 @@ class KIMBdbf {
 		$inhalt = $this->umbruch_weg($inhalt);
 		$teil =  $this->umbruch_weg($teil);
 		if($this->write_kimb_replace_pr($teil, $inhalt)){
-			return false;
+			return true;
 		}	
 		else{
-			return true;
+			return false;
 		}
 	}
 	
 	public function write_kimb_delete($teil){  //teil darf nur einmal vorhanden sein !!
 		$teil = $this->umbruch_weg($teil);
 		if($this->write_kimb_delete_pr($teil)){
-			return false;
-		}
-		else{
 			return true;
+		}	
+		else{
+			return false;
 		}
 	}
 

@@ -66,7 +66,7 @@ if( $_SESSION['loginokay'] != $allgsysconf['loginokay'] ){
 	$_SESSION["loginsalt"] = $loginsalt;
 
 	$sitecontent->add_site_content( '<h2>Login</h2>' );
-	$sitecontent->add_site_content( '<form action="index.php" method="post" onsubmit="document.getElementById(\'pass\').value = SHA1(SHA1(document.getElementById(\'pass\').value)+\''.$loginsalt.'\');">
+	$sitecontent->add_site_content( '<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/index.php" method="post" onsubmit="document.getElementById(\'pass\').value = SHA1(SHA1(document.getElementById(\'pass\').value)+\''.$loginsalt.'\');">
 		<table><tr><td>Username:</td><td><input type="text" name="user"><br /></td></tr>
 		<tr><td>Passwort:</td><td><input type="password" name="pass" id="pass" maxlength="32"><br /></td></tr></table>
 		<input type="submit" value="Absenden">
