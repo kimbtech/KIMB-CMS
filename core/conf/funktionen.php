@@ -2,6 +2,7 @@
 
 defined('KIMB_CMS') or die('No clean Request');
 
+//email versenden
 function send_mail($to, $inhalt){
 	global $allgsysconf;
 	if( $inhalt == '' || $to == ''){
@@ -16,7 +17,7 @@ function send_mail($to, $inhalt){
 	}
 }
 
-
+//browser an url weiterleiten
 function open_url($url, $area = 'insystem'){
 	global $allgsysconf;
 
@@ -34,6 +35,7 @@ function open_url($url, $area = 'insystem'){
 	}
 }
 
+//schaauen ob kimb datei vorhanden
 function check_for_kimb_file($datei){
 	$datei = preg_replace('/[\r\n]+/', '', $datei);
 	$datei = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '..'),array('ae','oe','ue','ss','Ae','Oe','Ue', '', '.'), $datei);
@@ -45,6 +47,7 @@ function check_for_kimb_file($datei){
 	}
 }
 
+//alle kimb dateien in verzeichnis ausgeben
 function scan_kimb_dir($datei){
 	$datei = preg_replace('/[\r\n]+/', '', $datei);
 	$datei = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '..'),array('ae','oe','ue','ss','Ae','Oe','Ue', '', '.'), $datei);
@@ -59,6 +62,7 @@ function scan_kimb_dir($datei){
 	return $return;
 }
 
+//backendlogin prüfen und error ausgeben
 function check_backend_login( $permiss = 'none'){
 	global $sitecontent, $allgsysconf;
 	if( $_SESSION['loginokay'] == $allgsysconf['loginokay'] && $_SESSION["ip"] == $_SERVER['REMOTE_ADDR'] && $_SESSION["useragent"] == $_SERVER['HTTP_USER_AGENT'] ){
@@ -76,6 +80,7 @@ function check_backend_login( $permiss = 'none'){
 	}
 }
 
+//kimb datei umbenennen
 function rename_kimbdbf( $datei1 , $datei2 ){
 	$datei1 = preg_replace('/[\r\n]+/', '', $datei1);
 	$datei1 = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '..'),array('ae','oe','ue','ss','Ae','Oe','Ue', '', '.'), $datei1);
@@ -85,7 +90,7 @@ function rename_kimbdbf( $datei1 , $datei2 ){
 	return rename( __DIR__.'/../oop/kimb-data/'.$datei1 , __DIR__.'/../oop/kimb-data/'.$datei2 );
 }
 
-
+//rekursiv leoschen
 function rm_r($dir){
 	$files = scandir($dir);
 	foreach ($files as $file) {
@@ -104,6 +109,7 @@ function rm_r($dir){
 	return rmdir($dir);
 }
 
+//rekursiv zippen
 function zip_r($zip, $dir, $base = '/'){
 	if (!file_exists($dir)){
 		return false;
@@ -129,87 +135,44 @@ function zip_r($zip, $dir, $base = '/'){
 }
 
 //Menue
-function godeeper_menue($allgrequestid, $nextidg , $menuenames , $urlteile, $i , $allgmenueid , $niveau = '3'){
-	global $sitecontent, $sitecache;
-	$file = new KIMBdbf('url/nextid_'.$nextidg.'.kimb');
-	$i1 = $i+1;
-	$ok = $file->search_kimb_xxxid( $urlteile[$i1] , 'path' );
-	if( $ok != false){
-		$nextid = $file->read_kimb_id( $ok , 'nextid' );
-		$file = new KIMBdbf('url/nextid_'.$nextid.'.kimb');
-		$ii = '1';
-		$urlt .= $urlteile[$i].'/'.$urlteile[$i+1];
-		while( 5 == 5){
-			$path = $file->read_kimb_id($ii, 'path');
-			$requid = $file->read_kimb_id($ii, 'requestid');
-			if( $allgrequestid == $requid ){
-				$clicked = 'yes';
-			}
-			else{
-				$clicked = 'no';
-			}
-			$menuname = $menuenames->read_kimb_one( $requid );
+function gen_menue( $allgrequestid , $filename = 'url/first.kimb' , $grpath = '/' , $niveau = '1'){
+	global $sitecache, $sitecontent, $menuenames, $allgsysconf, $allgmenueid;
 
-			if( $path == '' ){
-				break;
-			}
-			//$sitecontent->add_menue_one_entry( $menuname , $allgsysconf['siteurl'].'/index.php?url=/'.$urlt.'/'.$path.'/' , $niveau , $clicked);
-			$sitecontent->add_menue_one_entry( $menuname , $allgsysconf['siteurl'].'/'.$urlt.'/'.$path.'/' , $niveau , $clicked);
-			if(is_object($sitecache)){
-				//$sitecache->cache_menue($allgmenueid, $menuname, $allgsysconf['siteurl'].'/index.php?url=/'.$urlt.'/'.$path.'/' , $niveau , $clicked);
-				$sitecache->cache_menue($allgmenueid, $menuname, $allgsysconf['siteurl'].'/'.$urlt.'/'.$path.'/' , $niveau , $clicked);
-			}
-			$ii++;
-		}
-		$return['file'] = new KIMBdbf('url/nextid_'.$nextidg.'.kimb');
-		$return['niveau'] = $niveau-1;
-		return $return;
-	}
-	else{
-		return false;
-	}
-
-
-}
-
-function gen_menue_id( $allgrequestid , $fileg , $menuenames ){
-	global $sitecache, $sitecontent, $wayfile;
-
-	$ok = $fileg->search_kimb_xxxid( $allgrequestid , 'requestid' );
-	if( $ok == false ){
-		$i = 1;
-		while( 5 == 5 ){
-			$nextid = $fileg->read_kimb_id( $i , 'nextid');
-			if( $nextid != '' ){
-				$file = new KIMBdbf('url/nextid_'.$nextid.'.kimb');
-				$ok = $file->search_kimb_xxxid( $allgrequestid , 'requestid' );
-				if( $ok == false ){
-					if( gen_menue_id( $allgrequestid , $file , $menuenames ) ){
-						$wayid = $nextid;
-						break;
-					}
-				}
-				else{
-					$wayid = $nextid;
-					break;
-				}
-			}
-			elseif( $fileg->read_kimb_id( $i , 'requestid') == '' ){
-				break;
-			}
-			$i++;
-		}
-		$wayfile[] = $wayid;
-		
-		if( $wayid == '' || $nextid == '' ){
-			return false;
+	$file = new KIMBdbf( $filename );
+	$id = 1;
+	while( 5 == 5 ){
+		$requid = $file->read_kimb_id( $id , 'requestid' );
+		$path = $file->read_kimb_id( $id , 'path' );
+		$menuname = $menuenames->read_kimb_one( $requid );
+		if( $allgrequestid == $requid ){
+			$clicked = 'yes';
 		}
 		else{
+			$clicked = 'no';
+		}
+		if( $path == '' ){
 			return true;
 		}
-	}
-	else{
-		return 'none';
+		if( $file->read_kimb_id( $id , 'status') == 'on' ){
+			if( $allgsysconf['urlrewrite'] == 'on' ){
+				$sitecontent->add_menue_one_entry( $menuname , $allgsysconf['siteurl'].$grpath.$path , $niveau, $clicked);
+				if(is_object($sitecache)){
+					$sitecache->cache_menue($allgmenueid, $menuname , $allgsysconf['siteurl'].'/index.php?id='.$requid , $niveau , $clicked);
+				}
+			}
+			else{
+				$sitecontent->add_menue_one_entry( $menuname , $allgsysconf['siteurl'].'/index.php?id='.$requid , $niveau, $clicked);
+				if(is_object($sitecache)){
+					$sitecache->cache_menue($allgmenueid, $menuname , $allgsysconf['siteurl'].'/index.php?id='.$requid , $niveau , $clicked);
+				}
+			}
+		}
+		$nextid = $file->read_kimb_id( $id , 'nextid');
+		if( $nextid != '' ){
+			$newniveau = $niveau + 1;
+			gen_menue( $allgrequestid , 'url/nextid_'.$nextid.'.kimb' , $grpath.$path.'/' , $newniveau);
+		}
+		$id++;
 	}
 }
 

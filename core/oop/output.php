@@ -21,7 +21,7 @@ class system_output{
 				$this->menue[1] .=  '<a class="menu" href="'.$link.'">'.$name.'</a>'."\r\n";
 			}
 		}
-		elseif( $niveau == '2'){
+		if( $niveau == '1' ){
 			if( $clicked == 'yes' ){
 				$this->menue[2] .=  '<li><a style="color:red;" href="'.$link.'">'.$name.'</a></li>'."\r\n";
 			}
@@ -29,20 +29,52 @@ class system_output{
 				$this->menue[2] .=  '<li><a href="'.$link.'">'.$name.'</a></li>'."\r\n";
 			}
 		}
-		elseif( $niveau == '3'){
+		elseif( $niveau == '2'){
 			if( $clicked == 'yes' ){
-				$this->menue[3] .=  '<li><a style="color:red;" href="'.$link.'">'.$name.'</a></li>'."\r\n";
+				$this->menue[2] .=  '<li style="list-style-type:none" ><ul>';
+				$this->menue[2] .=  '<li><a style="color:red;" href="'.$link.'">'.$name.'</a></li>'."\r\n";
+				$this->menue[2] .=  '</li></ul>';
 			}
 			else{
-				$this->menue[3] .=  '<li><a href="'.$link.'">'.$name.'</a></li>'."\r\n";
+				$this->menue[2] .=  '<li style="list-style-type:none" ><ul>';
+				$this->menue[2] .=  '<li><a href="'.$link.'">'.$name.'</a></li>'."\r\n";
+				$this->menue[2] .=  '</li></ul>';
+			}
+		}
+		elseif( $niveau == '3'){
+			if( $clicked == 'yes' ){
+				$this->menue[2] .=  '<li style="list-style-type:none" ><ul>';
+				$this->menue[2] .=  '<li style="list-style-type:none" ><ul>';
+				$this->menue[2] .=  '<li><a style="color:red;" href="'.$link.'">'.$name.'</a></li>'."\r\n";
+				$this->menue[2] .=  '</li></ul>';
+				$this->menue[2] .=  '</li></ul>';
+			}
+			else{
+				$this->menue[2] .=  '<li style="list-style-type:none" ><ul>';
+				$this->menue[2] .=  '<li style="list-style-type:none" ><ul>';
+				$this->menue[2] .=  '<li><a href="'.$link.'">'.$name.'</a></li>'."\r\n";
+				$this->menue[2] .=  '</li></ul>';
+				$this->menue[2] .=  '</li></ul>';
 			}
 		}
 		else{
 			if( $clicked == 'yes' ){
-				$this->menue[4] .=  '<li><a style="color:red;" href="'.$link.'">'.$name.'</a></li>'."\r\n";
+				$this->menue[2] .=  '<li style="list-style-type:none" ><ul>';
+				$this->menue[2] .=  '<li style="list-style-type:none" ><ul>';
+				$this->menue[2] .=  '<li style="list-style-type:none" ><ul>';
+				$this->menue[2] .=  '<li><a style="color:red;" href="'.$link.'">'.$name.'</a></li>'."\r\n";
+				$this->menue[2] .=  '</li></ul>';
+				$this->menue[2] .=  '</li></ul>';
+				$this->menue[2] .=  '</li></ul>';
 			}
 			else{
-				$this->menue[4] .=  '<li><a href="'.$link.'">'.$name.'</a></li>'."\r\n";
+				$this->menue[2] .=  '<li style="list-style-type:none" ><ul>';
+				$this->menue[2] .=  '<li style="list-style-type:none" ><ul>';
+				$this->menue[2] .=  '<li style="list-style-type:none" ><ul>';
+				$this->menue[2] .=  '<li><a href="'.$link.'">'.$name.'</a></li>'."\r\n";
+				$this->menue[2] .=  '</li></ul>';
+				$this->menue[2] .=  '</li></ul>';
+				$this->menue[2] .=  '</li></ul>';
 			}
 		}
 	}
@@ -137,21 +169,6 @@ class system_output{
 
 						echo($this->menue[2]);
 						echo("\r\n");
-
-						echo('<li style="list-style-type:none" ><ul>');
-
-						echo($this->menue[3]);
-						echo("\r\n");
-
-						echo('<li style="list-style-type:none" ><ul>');
-
-						echo($this->menue[4]);
-						echo("\r\n");
-
-						echo('</li></ul>');
-
-						echo('</li></ul>');
-
 
 					echo('</ul></div>'."\r\n");
 
