@@ -176,7 +176,7 @@ function gen_menue( $allgrequestid , $filename = 'url/first.kimb' , $grpath = '/
 	}
 }
 
-function make_menue_array( $filename = 'url/first.kimb' , $niveau = '1'){
+function make_menue_array( $filename = 'url/first.kimb' , $niveau = '1' , $fileid = 'first'){
 	global $menuenames, $idfile, $menuearray;
 
 	$file = new KIMBdbf( $filename );
@@ -194,11 +194,11 @@ function make_menue_array( $filename = 'url/first.kimb' , $niveau = '1'){
 			return true;
 		}
 
-		$menuearray[] = array( 'niveau' => $niveau, 'path' => $path, 'nextid' => $nextid , 'requid' => $requid, 'status' => $status, 'menuname' => $menuname, 'siteid' => $siteid, 'menueid' => $menueid);
+		$menuearray[] = array( 'niveau' => $niveau, 'path' => $path, 'nextid' => $nextid , 'requid' => $requid, 'status' => $status, 'menuname' => $menuname, 'siteid' => $siteid, 'menueid' => $menueid, 'fileid' => $fileid);
 
 		if( $nextid != '' ){
 			$newniveau = $niveau + 1;
-			make_menue_array( 'url/nextid_'.$nextid.'.kimb' , $newniveau);
+			make_menue_array( 'url/nextid_'.$nextid.'.kimb' , $newniveau , $nextid);
 		}
 		$id++;
 	}
