@@ -273,7 +273,7 @@ class KIMBdbf {
 	
 	//kimb datei loeschen
 	public function delete_kimb_file(){
-		if(unlink($this->path.'/kimb-data/'.$this->datei)){ return true;}
+		if(unlink($this->path.'/kimb-data/'.$this->datei)){ $this->dateicont = ''; return true;}
 		else{return false;}
 	}
 	
@@ -356,7 +356,10 @@ class KIMBdbf {
 		$idinfos = explode('==', $idinfo);
 	
 		if($todo == 'add' && $inhalt != '' && $xxxid != 'none'){
-			if($this->read_kimb_one($id.'-'.$xxxid) == ''){
+			if( $inhalt == '---empty---' ){
+				$inhalt = '';
+			}
+			if( !in_array( $xxxid , $idinfos ) ){
 				$this->write_kimb_new_pr($id.'-'.$xxxid, $inhalt);
 				$newxxx = 'yes';
 			}

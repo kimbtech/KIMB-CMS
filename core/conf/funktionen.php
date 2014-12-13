@@ -176,8 +176,15 @@ function gen_menue( $allgrequestid , $filename = 'url/first.kimb' , $grpath = '/
 	}
 }
 
-function make_menue_array( $filename = 'url/first.kimb' , $niveau = '1' , $fileid = 'first'){
-	global $menuenames, $idfile, $menuearray;
+function make_menue_array( $filename = 'url/first.kimb' , $niveau = '1' , $fileid = 'first' , $oldfilelisti = 'none'){
+	global $menuenames, $idfile, $menuearray, $fileidlist, $filelisti;
+
+	if( !isset( $filelisti ) ){
+		$filelisti = 0;
+	}
+	else{
+		$filelisti++;
+	}
 
 	$file = new KIMBdbf( $filename );
 	$id = 1;
@@ -189,16 +196,19 @@ function make_menue_array( $filename = 'url/first.kimb' , $niveau = '1' , $filei
 		$menuname = $menuenames->read_kimb_one( $requid );
 		$siteid = $idfile->read_kimb_id( $requid , 'siteid' );
 		$menueid = $idfile->read_kimb_id( $requid , 'menueid' );
-		
+		$fileidbefore = $fileidlist[$oldfilelisti];
+
 		if( $path == '' ){
 			return true;
 		}
 
-		$menuearray[] = array( 'niveau' => $niveau, 'path' => $path, 'nextid' => $nextid , 'requid' => $requid, 'status' => $status, 'menuname' => $menuname, 'siteid' => $siteid, 'menueid' => $menueid, 'fileid' => $fileid);
+		$fileidlist[$filelisti] = $fileid;
+
+		$menuearray[] = array( 'niveau' => $niveau, 'path' => $path, 'nextid' => $nextid , 'requid' => $requid, 'status' => $status, 'menuname' => $menuname, 'siteid' => $siteid, 'menueid' => $menueid, 'fileid' => $fileid , 'fileidbefore' => $fileidbefore );
 
 		if( $nextid != '' ){
 			$newniveau = $niveau + 1;
-			make_menue_array( 'url/nextid_'.$nextid.'.kimb' , $newniveau , $nextid);
+			make_menue_array( 'url/nextid_'.$nextid.'.kimb' , $newniveau , $nextid , $filelisti );
 		}
 		$id++;
 	}

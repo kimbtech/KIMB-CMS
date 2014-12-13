@@ -94,7 +94,7 @@ class backend_output{
 				if( $_SESSION['loginokay'] == $this->allgsysconf['loginokay'] ){
 					echo ('Hallo User <i><u>'.$_SESSION['name'].'</u></i>'."\r\n");
 					echo ('<div style="float:right; position:absolute; right:10px; top:0px;">');
-					echo ('<a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/user.php?todo=edit&amp;user='.$_SESSION['name'].'" title="Usereinstellungen bearbeiten"><span class="ui-icon ui-icon-pencil"></span></a>'."\r\n");
+					echo ('<a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/user.php?todo=edit&amp;user='.$_SESSION['user'].'" title="Usereinstellungen bearbeiten"><span class="ui-icon ui-icon-pencil"></span></a>'."\r\n");
 					echo ('<a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/index.php?todo=logout" title="Abmelden und die Sitzung beenden!"><span class="ui-icon ui-icon-power"></span></a>'."\r\n");
 					echo ('<a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/index.php" title="Hauptseite des Backends ( Login, ... )"><span class="ui-icon ui-icon-home"></span></a>'."\r\n");
 					echo ('</div><br />');

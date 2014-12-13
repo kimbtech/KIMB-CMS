@@ -66,7 +66,7 @@ elseif( $_GET['todo'] == 'list' ){
 	check_backend_login('more');
 
 	$sitecontent->add_html_header('<script>
-	var del = function( fileid , requid ) {
+	var del = function( fileid , requid , fileidbefore) {
 		$( "#del-confirm" ).show( "fast" );
 		$( "#del-confirm" ).dialog({
 		resizable: false,
@@ -75,7 +75,7 @@ elseif( $_GET['todo'] == 'list' ){
 		buttons: {
 			"Delete": function() {
 				$( this ).dialog( "close" );
-				window.location = "'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=del&file=" + fileid + "&reqid=" + requid;
+				window.location = "'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=del&file=" + fileid + "&reqid=" + requid + "&fileidbefore=" + fileidbefore;
 				return true;
 			},
 			Cancel: function() {
@@ -115,7 +115,7 @@ elseif( $_GET['todo'] == 'list' ){
 		$requid = $menuear['requid'].'<a href="'.$allgsysconf['siteurl'].'/index.php?id='.$menuear['requid'].'" target="_blank"><span class="ui-icon ui-icon-newwin" title="Diese Seite aufrufen."></span></a>';
 
 		if( $menuear['nextid'] == ''){	
-			$del = '<span onclick="var delet = del( \''.$menuear['fileid'].'\' , '.$menuear['requid'].' ); delet();"><span class="ui-icon ui-icon-trash" title="Dieses Menue löschen."></span></span>';
+			$del = '<span onclick="var delet = del( \''.$menuear['fileid'].'\' , '.$menuear['requid'].' , \''.$menuear['fileidbefore'].'\' ); delet();"><span class="ui-icon ui-icon-trash" title="Dieses Menue löschen."></span></span>';
 		}
 		else{
 			$del = '<span onclick="delimp();"><span class="ui-icon ui-icon-trash" title="Dieses Menue löschen."></span></span>';
@@ -138,16 +138,75 @@ elseif( $_GET['todo'] == 'edit' ){
 elseif( $_GET['todo'] == 'del' ){
 	check_backend_login('more');
 
-	echo $_GET['file'] .'---'. $_GET['reqid'];
+	if( ( $_GET['file'] == 'first' || is_numeric( $_GET['file'] ) ) && is_numeric( $_GET['reqid'] ) && ( $_GET['fileidbefore'] == 'first' || is_numeric( $_GET['fileidbefore'] ) || $_GET['fileidbefore'] == '' ) ){
+		if( $_GET['file'] == 'first' ){
+			$file = new KIMBdbf( 'url/first.kimb' );
+		}
+		else{
+			$file = new KIMBdbf( 'url/nextid_'.$_GET['file'].'.kimb' );
+		}
+		$id = $file->search_kimb_xxxid( $_GET['reqid'] , 'requestid');
+		$nextid = $file->read_kimb_id( $id , 'nextid');
+		if( $id  != false && $nextid == ''){
+			$wid = 1;
+			while( 5 == 5 ){
+				if( $wid != $id ){
+					$wpath = $file->read_kimb_id( $wid , 'path' );
+					$wnextid = $file->read_kimb_id( $wid , 'nextid' );
+					$wrequid = $file->read_kimb_id( $wid , 'requestid' );
+					$wstatus = $file->read_kimb_id( $wid , 'status');
+				}
+				if( $wpath == '' && $wid != $id ){
+					break;
+				}
+				if( $wid != $id ){
+					if( $wnextid == '' ){
+						$wnextid = '---empty---';
+					}
+					$newmenuefile[] = array( 'path' => $wpath, 'nextid' => $wnextid , 'requid' => $wrequid, 'status' => $wstatus );
+				}
+				$wid++;
+			}
+			$inhalt = 'none';
+			$i = 1;
+			$file->delete_kimb_file();
+			foreach( $newmenuefile as $newmenue ){
+				print_r( $newmenue );
+				$file->write_kimb_id( $i , 'add' , 'path' , $newmenue['path'] );
+				$file->write_kimb_id( $i , 'add' , 'nextid' , $newmenue['nextid'] );
+				$file->write_kimb_id( $i , 'add' , 'requestid' , $newmenue['requid'] );
+				$file->write_kimb_id( $i , 'add' , 'status' , $newmenue['status'] );
+				$inhalt = 'something';
+				$i++;
+			}
+			if( $inhalt == 'none' && $_GET['file'] != 'first'){
+				if( $_GET['fileidbefore'] == 'first' ){
+					$filebef = new KIMBdbf( 'url/first.kimb' );
+				}
+				else{
+					$filebef = new KIMBdbf( 'url/nextid_'.$_GET['file'].'.kimb' );
+				}
+				$befid = $filebef->search_kimb_xxxid( $_GET['file'] , 'nextid');
+				if( $befid  != false ){
+					$filebef->write_kimb_id( $befid , 'add' , 'nextid' , '---empty---' );
+				}				
+			}
+			else{
+				echo 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
+			}
+			$menuenames->write_kimb_id( $_GET['reqid'] , 'del' );
+			$idfile->write_kimb_id( $_GET['reqid'] , 'del' );
 
-	//Untermenue ??
-		//kein -> gesamte Datei lesen und neu schreiben ohne doofes Menue
-			//OK Medlung
-	//noch -> Fehler
-
-	//open_url('/kimb-cms-backend/menue.php?todo=list');
-	//die;
-
+			open_url('/kimb-cms-backend/menue.php?todo=list');
+			die;
+		}
+		else{
+			$sitecontent->echo_error( 'Ihre Anfrage war fehlerhaft!' , 'unknown');
+		}
+	}
+	else{
+		$sitecontent->echo_error( 'Ihre Anfrage war fehlerhaft!' , 'unknown');
+	}
 }
 elseif( $_GET['todo'] == 'deakch' ){
 	if( ( $_GET['file'] == 'first' || is_numeric( $_GET['file'] ) ) && is_numeric( $_GET['reqid'] ) ){
@@ -187,6 +246,10 @@ else{
 
 }
 
+
+//
+//Menue verschieben
+//
 
 $sitecontent->output_complete_site();
 ?>
