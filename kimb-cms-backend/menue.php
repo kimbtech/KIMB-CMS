@@ -18,10 +18,32 @@ $sitecontent->add_html_header('<style>td { border:1px solid #000000; padding:2px
 if( $_GET['todo'] == 'new' ){
 	check_backend_login('more');
 
-	//!!!!!!!!!!!!!!!!!!!
-	//!!!!!!!!!!!!!!!!!!!
-	//!!!!!!!!!!!!!!!!!!!
+	$sitecontent->add_site_content('<h2>Ein neues Menue erstellen</h2>');
 
+	if( ( is_numeric( $_GET['file'] ) || $_GET['file'] == 'first' )  && ( $_GET['niveau'] == 'same' || $_GET['niveau'] == 'deeper' ) && ( is_numeric( $_GET['requid'] ) || !isset( $_GET['requid'] ) ) ){
+
+		if( isset( $_POST['name'] ) ){
+			if( $_GET['niveau'] == 'deeper' ){
+
+				//neue Datei und nextid eintragen
+
+			}
+			//url file schreiben
+			//idfile schreiben
+			//menuename schreiben
+		}
+
+		$sitecontent->add_site_content('<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=new&amp;file='.$_GET['file'].'&amp;niveau='.$_GET['niveau'].'&amp;requid='.$_GET['requid'].'" method="post">');
+		$sitecontent->add_site_content('<input type="text" name="name" > <i title="Pflichtfeld">(Menuename *)</i><br />');
+		$sitecontent->add_site_content('<input type="text" name="pfad" > <i title="Manuell oder automatisch aus Menuename">(Menuepfad)</i><br />');
+		$sitecontent->add_site_content('<input type="text" name="siteid" > <i title="Auch später über Zuordnung zu definieren">(SiteID)</i><br />');
+		$sitecontent->add_site_content('<input type="submit" value="Ändern" ><br />');
+		$sitecontent->add_site_content('</form>');
+
+	}
+	else{
+		$sitecontent->echo_message( 'Bitte wählen Sie zuerste eine Stelle über Menue -> Anpassen! <br />( Rechts in der Spalte Neu )<br /><a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=list"><button>Los geht&apos;s!</button></a>' );
+	}
 }
 elseif( $_GET['todo'] == 'connect' ){
 
@@ -39,6 +61,8 @@ elseif( $_GET['todo'] == 'connect' ){
 			$i++;
 		}
 	}
+
+	$sitecontent->add_site_content('<h2>Ein Menue einer Seite zuordnen</h2>');
 
 	make_menue_array();
 	$sitecontent->add_site_content('<form method="post" action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=connect">');
@@ -64,6 +88,8 @@ elseif( $_GET['todo'] == 'connect' ){
 }
 elseif( $_GET['todo'] == 'list' ){
 	check_backend_login('more');
+
+	$sitecontent->add_site_content('<h2>Alle Menues auflisten</h2>');
 
 	$sitecontent->add_html_header('<script>
 	var del = function( fileid , requid , fileidbefore) {
@@ -102,7 +128,7 @@ elseif( $_GET['todo'] == 'list' ){
 	</script>');
 
 	make_menue_array();
-	$sitecontent->add_site_content('<table width="100%"><tr> <th title="Jedes Menü hat eine Tiefe, ein Niveau. ( ein ==> ist eine Tiefe tiefer ) ">Niveau</th> <th title="Dieser Name wird Besuchern im Frontend angezeigt">MenueName</th> <th title="Pfad-Teil des Menues für URL-Rewriting">Pfad</th> <th title="ID für Aufruf /index.php?id=XXX">RequestID</th> <th>Status</th> <th title="ID der zugeordnenten Seite">SiteID</th> <th title="ID des Menüs ( Systemintern )">MenueID</th> <th>Löschen</th> </tr>');
+	$sitecontent->add_site_content('<table width="100%"><tr> <th title="Jedes Menü hat eine Tiefe, ein Niveau. ( ein ==> ist eine Tiefe tiefer ) ">Niveau</th> <th title="Dieser Name wird Besuchern im Frontend angezeigt">MenueName</th> <th title="Pfad-Teil des Menues für URL-Rewriting">Pfad</th> <th title="ID für Aufruf /index.php?id=XXX">RequestID</th> <th>Status</th> <th title="ID der zugeordnenten Seite">SiteID</th> <th title="ID des Menüs ( Systemintern )">MenueID</th> <th>Löschen</th> <th>Neu</th> </tr>');
 	foreach( $menuearray as $menuear ){
 
 		$menuear['niveau'] = str_repeat( '==>' , $menuear['niveau'] );
@@ -113,6 +139,7 @@ elseif( $_GET['todo'] == 'list' ){
 			$menuear['status'] = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=deakch&amp;file='.$menuear['fileid'].'&amp;reqid='.$menuear['requid'].'"><span class="ui-icon ui-icon-check" title="Dieses Menue ist zu Zeit aktiviert, also sichtbar. ( click -> ändern ) ((Eine Änderung wirkt sich nicht auf Untermenüs aus!))"></span></a>';
 		}
 		$requid = $menuear['requid'].'<a href="'.$allgsysconf['siteurl'].'/index.php?id='.$menuear['requid'].'" target="_blank"><span class="ui-icon ui-icon-newwin" title="Diese Seite aufrufen."></span></a>';
+		$menuename = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=edit&amp;file='.$menuear['fileid'].'&amp;reqid='.$menuear['requid'].'" title="Dieses Menue bearbeiten." >'.$menuear['menuname'].'</a>';
 
 		if( $menuear['nextid'] == ''){	
 			$del = '<span onclick="var delet = del( \''.$menuear['fileid'].'\' , '.$menuear['requid'].' , \''.$menuear['fileidbefore'].'\' ); delet();"><span class="ui-icon ui-icon-trash" title="Dieses Menue löschen."></span></span>';
@@ -120,8 +147,12 @@ elseif( $_GET['todo'] == 'list' ){
 		else{
 			$del = '<span onclick="delimp();"><span class="ui-icon ui-icon-trash" title="Dieses Menue löschen."></span></span>';
 		}
+		$newmenue = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=new&amp;file='.$menuear['fileid'].'&amp;niveau=same" ><span class="ui-icon ui-icon-plusthick" title="Auf diesem Niveau ein weiteres Menue erstellen."></span></a>';
+		if( $menuear['nextid'] == ''){
+			$newmenue .= '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=new&amp;file='.$menuear['fileid'].'&amp;niveau=deeper&amp;requid='.$menuear['requid'].'"><span class="ui-icon ui-icon-arrow-1-se" title="Unter diesem Menue ein Untermenue erstellen."></span></a>';
+		}
 
-		$sitecontent->add_site_content('<tr> <td>'.$menuear['niveau'].'</td> <td>'.$menuear['menuname'].'</td> <td>'.$menuear['path'].'</td> <td>'.$requid.'</td> <td>'.$menuear['status'].'</td> <td>'.$menuear['siteid'].'</td> <td>'.$menuear['menueid'].'</td> <td>'.$del.'</td> </tr>');
+		$sitecontent->add_site_content('<tr> <td>'.$menuear['niveau'].'</td> <td>'.$menuename.'</td> <td>'.$menuear['path'].'</td> <td>'.$requid.'</td> <td>'.$menuear['status'].'</td> <td>'.$menuear['siteid'].'</td> <td>'.$menuear['menueid'].'</td> <td>'.$del.'</td> <td>'.$newmenue.'</td> </tr>');
 	}
 	$sitecontent->add_site_content('</table>');
 	$sitecontent->add_site_content('<div style="display:none;"><div id="del-confirm" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Möchten Sie das Menue wirklich löschen?</p></div></div>');
@@ -130,13 +161,78 @@ elseif( $_GET['todo'] == 'list' ){
 elseif( $_GET['todo'] == 'edit' ){
 	check_backend_login('more');
 
-	//!!!!!!!!!!!!!!!!!!!
-	//!!!!!!!!!!!!!!!!!!!
-	//!!!!!!!!!!!!!!!!!!!
+	$sitecontent->add_site_content('<h2>Ein Menue bearbeiten</h2>');
 
+	if( ( $_GET['file'] == 'first' || is_numeric( $_GET['file'] ) ) && is_numeric( $_GET['reqid'] ) ){
+		if( $_GET['file'] == 'first' ){
+			$file = new KIMBdbf( 'url/first.kimb' );
+		}
+		else{
+			$file = new KIMBdbf( 'url/nextid_'.$_GET['file'].'.kimb' );
+		}
+		$id = $file->search_kimb_xxxid( $_GET['reqid'] , 'requestid');
+		if( $id  != false ){
+
+			if( isset( $_POST['name'] ) && isset( $_POST['pfad'] ) ){
+				$_POST['pfad'] = preg_replace("/[^0-9A-Za-z_-]/","", $_POST['pfad']);
+				$ok = $file->search_kimb_xxxid( $_POST['pfad'] , 'path');
+				if( $ok == false || $ok == $id ){
+					$file->write_kimb_id( $id , 'add' , 'path' , $_POST['pfad'] );
+					$sitecontent->echo_message( 'Der Pfad wurde angepasst!' );
+				}
+				if( $_POST['name'] != '' ){
+					$menuenames->write_kimb_replace( $_GET['reqid'] , $_POST['name'] );
+					$sitecontent->echo_message( 'Der Name wurde angepasst!' );
+				}
+			}
+
+			$sitecontent->add_html_header('<script>
+			function checkpath(){
+				var pathinput = $( "input#pfad" ).val();
+				if( "'.$file->read_kimb_id( $id , 'path').'" != pathinput ){
+					$.get( "'.$allgsysconf['siteurl'].'/ajax.php?file=menue.php&urlfile='.$_GET['file'].'&search=" + pathinput , function( data ) {
+						$( "input#check" ).val( data );
+						if( data == "nok" ){
+							$("i#pfadtext").text("(Menuepfad -- Achtung dieser Pfad ist schon vergeben!!)");
+							$("i#pfadtext").css( "background-color", "red" );
+							$("i#pfadtext").css( "color", "white" );
+						}
+						else{
+							$("i#pfadtext").text("(Menuepfad)");
+							$("i#pfadtext").css( "background-color", "white" );
+							$("i#pfadtext").css( "color", "black" );
+						}
+					});
+				}
+				else{
+					$( "input#check" ).val( "ok" );
+					$("i#pfadtext").text("(Menuepfad)");
+					$("i#pfadtext").css( "background-color", "white" );
+					$("i#pfadtext").css( "color", "black" );
+				}
+			}
+			</script>');
+
+			$sitecontent->add_site_content('<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=edit&amp;file='.$_GET['file'].'&amp;reqid='.$_GET['reqid'].'" method="post" onsubmit="if( document.getElementById(\'check\').value == \'nok\' ){ return false; } ">');
+			$sitecontent->add_site_content('<input type="text" value="'.$menuenames->read_kimb_one( $_GET['reqid'] ).'" name="name" > <i>(Menuename)</i><br />');
+			$sitecontent->add_site_content('<input type="text" value="'.$file->read_kimb_id( $id , 'path').'" name="pfad" id="pfad" onchange="checkpath();"> <i id="pfadtext">(Menuepfad)</i><br />');
+			$sitecontent->add_site_content('<input type="text" value="'.$file->read_kimb_id( $id , 'status').'" name="status" readonly="readonly"> <i title="Veränderbar über Auflisten." >(Status)</i><br />');
+			$sitecontent->add_site_content('<input type="text" value="'.$file->read_kimb_id( $id , 'requestid').'" name="requid" readonly="readonly"> <i>(RequestID)</i><br />');
+			$sitecontent->add_site_content('<input type="text" value="'.$idfile->read_kimb_id( $_GET['reqid'] , 'siteid' ).'" name="siteid" readonly="readonly"> <i title="Veränderbar über Zuordnung." >(SiteID)</i><br />');
+			$sitecontent->add_site_content('<input type="hidden" value="ok" id="check">');
+			$sitecontent->add_site_content('<input type="submit" value="Ändern" ><br />');
+			$sitecontent->add_site_content('</form>');
+
+		}
+	}
+	else{
+		$sitecontent->echo_error( 'Ihre Anfrage war fehlerhaft!' , 'unknown');
+	}
 }
 elseif( $_GET['todo'] == 'del' ){
 	check_backend_login('more');
+
+	$sitecontent->add_site_content('<h2>Ein Menue löschen</h2>');
 
 	if( ( $_GET['file'] == 'first' || is_numeric( $_GET['file'] ) ) && is_numeric( $_GET['reqid'] ) && ( $_GET['fileidbefore'] == 'first' || is_numeric( $_GET['fileidbefore'] ) || $_GET['fileidbefore'] == '' ) ){
 		if( $_GET['file'] == 'first' ){
@@ -171,7 +267,6 @@ elseif( $_GET['todo'] == 'del' ){
 			$i = 1;
 			$file->delete_kimb_file();
 			foreach( $newmenuefile as $newmenue ){
-				print_r( $newmenue );
 				$file->write_kimb_id( $i , 'add' , 'path' , $newmenue['path'] );
 				$file->write_kimb_id( $i , 'add' , 'nextid' , $newmenue['nextid'] );
 				$file->write_kimb_id( $i , 'add' , 'requestid' , $newmenue['requid'] );
@@ -191,9 +286,6 @@ elseif( $_GET['todo'] == 'del' ){
 					$filebef->write_kimb_id( $befid , 'add' , 'nextid' , '---empty---' );
 				}				
 			}
-			else{
-				echo 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
-			}
 			$menuenames->write_kimb_id( $_GET['reqid'] , 'del' );
 			$idfile->write_kimb_id( $_GET['reqid'] , 'del' );
 
@@ -209,6 +301,9 @@ elseif( $_GET['todo'] == 'del' ){
 	}
 }
 elseif( $_GET['todo'] == 'deakch' ){
+
+	$sitecontent->add_site_content('<h2>Einen Menuestatus verändern</h2>');
+
 	if( ( $_GET['file'] == 'first' || is_numeric( $_GET['file'] ) ) && is_numeric( $_GET['reqid'] ) ){
 		if( $_GET['file'] == 'first' ){
 			$file = new KIMBdbf( 'url/first.kimb' );
@@ -238,6 +333,8 @@ elseif( $_GET['todo'] == 'deakch' ){
 	}
 }
 else{
+	$sitecontent->add_site_content('<h2>Startseite Menue</h2>');
+
 	check_backend_login('more');
 
 	//

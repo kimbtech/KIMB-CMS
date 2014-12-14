@@ -30,6 +30,27 @@ require_once(__DIR__.'/core/addons/addons_ajax.php');
 //Systemegeigen:
 //Systemegeigen:
 
-//...
+if( $_GET['file'] == 'menue.php' ){
+
+	if( $_GET['urlfile'] == 'first' || is_numeric( $_GET['urlfile'] ) ){
+		if( $_GET['urlfile'] == 'first' ){
+			$file = new KIMBdbf( 'url/first.kimb' );
+		}
+		else{
+			$file = new KIMBdbf( 'url/nextid_'.$_GET['urlfile'].'.kimb' );
+		}
+
+		$_GET['search'] = preg_replace("/[^0-9A-Za-z_-]/","", $_GET['search']);
+
+		if( !$file->search_kimb_xxxid( $_GET['search'] , 'path') ){
+			echo 'ok';
+		}
+		else{
+			echo 'nok';
+		}
+	}
+}
+
+
 
 ?>
