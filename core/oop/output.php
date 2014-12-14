@@ -155,7 +155,7 @@ class system_output{
 		echo('</head><body>'."\r\n");
 			echo('<div id="page">'."\r\n");
 				echo('<div id="header">'."\r\n");
-					echo('<a href="'.$this->allgsysconf['siteurl'].'/index.php"><div style="float:left;"><img src="'.$this->allgsysconf['siteurl'].'/load/system/theme/logo.png" style="border:none;"></div>'."\r\n");
+					echo('<a href="'.$this->allgsysconf['siteurl'].'/"><div style="float:left;"><img src="'.$this->allgsysconf['siteurl'].'/load/system/theme/logo.png" style="border:none;"></div>'."\r\n");
 					echo('<div style="line-height: 100px;">'.$this->allgsysconf['sitename'].'</div></a>'."\r\n");
 				echo('</div>'."\r\n");
 				echo('<div id="menu">'."\r\n");

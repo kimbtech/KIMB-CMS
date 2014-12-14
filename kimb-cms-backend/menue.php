@@ -20,22 +20,97 @@ if( $_GET['todo'] == 'new' ){
 
 	$sitecontent->add_site_content('<h2>Ein neues Menue erstellen</h2>');
 
-	if( ( is_numeric( $_GET['file'] ) || $_GET['file'] == 'first' )  && ( $_GET['niveau'] == 'same' || $_GET['niveau'] == 'deeper' ) && ( is_numeric( $_GET['requid'] ) || !isset( $_GET['requid'] ) ) ){
+	if( ( is_numeric( $_GET['file'] ) || $_GET['file'] == 'first' )  && ( $_GET['niveau'] == 'same' || $_GET['niveau'] == 'deeper' ) && ( is_numeric( $_GET['requid'] ) || !isset( $_GET['requid'] ) || $_GET['requid'] == '' ) ){
 
 		if( isset( $_POST['name'] ) ){
-			if( $_GET['niveau'] == 'deeper' ){
+			//nötige vars
+			$newm['name'] = $_POST['name'];
+			if( isset( $_POST['pfad'] ) ){
+				$newm['pfad'] = preg_replace("/[^0-9A-Za-z_-]/","", $_POST['name']);
+			}
+			else{
+				$newm['pfad'] = preg_replace("/[^0-9A-Za-z_-]/","", $_POST['pfad']);
+			}
+			$newm['nextid'] = '---empty---';
+			$newm['requestid'] = $idfile->next_kimb_id();
+			if( isset( $_POST['siteid'] ) && is_numeric( $_POST['siteid'] ) ){
+				$newm['siteid'] = $_POST['siteid'];
+			}
+			else{
+				$newm['siteid'] = '---empty---';
+			}
+			$newm['menueid'] = $newm['requestid'].mt_rand();
+			$newm['status'] = 'on';
 
-				//neue Datei und nextid eintragen
+
+
+			if( $_GET['file'] == 'first' ){
+				$file = new KIMBdbf( 'url/first.kimb' );
+			}
+			else{
+				$file = new KIMBdbf( 'url/nextid_'.$_GET['file'].'.kimb' );
+			}
+
+			if( $_GET['niveau'] == 'deeper' && is_numeric( $_GET['requid'] ) ){
+				$i = 1;
+				while( 5 == 5 ){
+					if( !check_for_kimb_file( 'url/nextid_'.$i.'.kimb' ) ){
+						break;
+					}
+					$i++;
+				}
+
+				//neue Datei und nextid eintragen				
+				$oldid = $file->search_kimb_xxxid( $_GET['requid'] , 'requestid');
+				if( $oldid == false ){
+					$sitecontent->echo_error( 'Ihre Anfrage war fehlerhaft!' , 'unknown');
+					$sitecontent->output_complete_site();
+					die;
+				}
+				$file->write_kimb_id( $oldid , 'add' , 'nextid' , $i );
+
+				if( $_GET['file'] == 'first' ){
+					$file = new KIMBdbf( 'url/first.kimb' );
+				}
+				else{
+					$file = new KIMBdbf( 'url/nextid_'.$i.'.kimb' );
+				}
+				$_GET['file'] = $i;
 
 			}
+			elseif( $_GET['niveau'] == 'deeper' ) {
+				$sitecontent->echo_error( 'Ihre Anfrage war fehlerhaft!' , 'unknown');
+				$sitecontent->output_complete_site();
+				die;
+			}
+			$id = $file->next_kimb_id();
+
+			$pfad = $newm['pfad'];
+			$i = 1;
+			while( $file->search_kimb_xxxid( $pfad , 'path') != false){
+				$pfad = $newm['pfad'].$i;
+				$i++;
+			}
+			$newm['pfad'] = $pfad;
+
 			//url file schreiben
+			$file->write_kimb_id( $id , 'add' , 'path' , $newm['pfad'] );
+			$file->write_kimb_id( $id , 'add' , 'nextid' , $newm['nextid'] );
+			$file->write_kimb_id( $id , 'add' , 'requestid' , $newm['requestid'] );
+			$file->write_kimb_id( $id , 'add' , 'status' , $newm['status'] );
 			//idfile schreiben
+			$idfile->write_kimb_id( $newm['requestid'] , 'add' , 'siteid' , $newm['siteid'] );
+			$idfile->write_kimb_id( $newm['requestid'] , 'add' , 'menueid' , $newm['menueid'] );
 			//menuename schreiben
+			$menuenames->write_kimb_new( $newm['requestid'] , $newm['name'] );
+
+			open_url('/kimb-cms-backend/menue.php?todo=edit&file='.$_GET['file'].'&reqid='.$newm['requestid']);
+			die;
 		}
 
 		$sitecontent->add_site_content('<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=new&amp;file='.$_GET['file'].'&amp;niveau='.$_GET['niveau'].'&amp;requid='.$_GET['requid'].'" method="post">');
 		$sitecontent->add_site_content('<input type="text" name="name" > <i title="Pflichtfeld">(Menuename *)</i><br />');
-		$sitecontent->add_site_content('<input type="text" name="pfad" > <i title="Manuell oder automatisch aus Menuename">(Menuepfad)</i><br />');
+		$sitecontent->add_site_content('<input type="text" name="pfad" > <i title="Manuell oder automatisch aus Menuename">(Pfad)</i><br />');
 		$sitecontent->add_site_content('<input type="text" name="siteid" > <i title="Auch später über Zuordnung zu definieren">(SiteID)</i><br />');
 		$sitecontent->add_site_content('<input type="submit" value="Ändern" ><br />');
 		$sitecontent->add_site_content('</form>');
@@ -66,7 +141,7 @@ elseif( $_GET['todo'] == 'connect' ){
 
 	make_menue_array();
 	$sitecontent->add_site_content('<form method="post" action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=connect">');
-	$sitecontent->add_site_content('<table width="100%"><tr> <th width="50px;"></th> <th>MenueName</th> <th>Status</th> <th>SiteID <span class="ui-icon ui-icon-info" title="Geben Sie einfach eine vorhadene SiteID in das Kästchen ein um die Seite zuzuordnen! Wenn ein Menue Widererwarten keine Seite haben soll geben Sie bitte &apos;none&apos; ein"></span></th> </tr>');
+	$sitecontent->add_site_content('<table width="100%"><tr> <th width="50px;"></th> <th>MenueName</th> <th>Status</th> <th>SiteID <span class="ui-icon ui-icon-info" title="Geben Sie einfach eine vorhadene SiteID in das Kästchen ein um die Seite zuzuordnen! Wenn ein Menue widererwarten keine Seite haben soll, geben Sie bitte &apos;none&apos; ein"></span></th> </tr>');
 	$i = 0;
 	foreach( $menuearray as $menuear ){
 
@@ -125,10 +200,31 @@ elseif( $_GET['todo'] == 'list' ){
 		}
 		});
 	}
+	var updown = function( fileid , updo , requid ){
+		$.get( "'.$allgsysconf['siteurl'].'/ajax.php?file=menue.php&fileid=" + fileid + "&updo=" + updo + "&requid=" + requid , function( data ) {
+			if( data == "ok" ){
+				location.reload();
+			}
+			else{
+				$( "#updown" ).show( "fast" );
+				$( "#updown" ).dialog({
+				resizable: false,
+				height:200,
+				modal: true,
+				buttons: {
+					"OK": function() {
+						$( this ).dialog( "close" );
+						return false;
+					}
+				}
+				});
+			}
+		});
+	}
 	</script>');
 
 	make_menue_array();
-	$sitecontent->add_site_content('<table width="100%"><tr> <th title="Jedes Menü hat eine Tiefe, ein Niveau. ( ein ==> ist eine Tiefe tiefer ) ">Niveau</th> <th title="Dieser Name wird Besuchern im Frontend angezeigt">MenueName</th> <th title="Pfad-Teil des Menues für URL-Rewriting">Pfad</th> <th title="ID für Aufruf /index.php?id=XXX">RequestID</th> <th>Status</th> <th title="ID der zugeordnenten Seite">SiteID</th> <th title="ID des Menüs ( Systemintern )">MenueID</th> <th>Löschen</th> <th>Neu</th> </tr>');
+	$sitecontent->add_site_content('<table width="100%"><tr> <th title="Jedes Menü hat eine Tiefe, ein Niveau. ( ein ==> ist eine Tiefe tiefer ) ">Niveau</th> <th></th> <th title="Dieser Name wird Besuchern im Frontend angezeigt">MenueName</th> <th title="Pfad-Teil des Menues für URL-Rewriting">Pfad</th> <th title="ID für Aufruf /index.php?id=XXX">RequestID</th> <th>Status</th> <th title="ID der zugeordnenten Seite">SiteID</th> <th title="ID des Menüs ( Systemintern )">MenueID</th> <th>Löschen</th> <th>Neu</th> </tr>');
 	foreach( $menuearray as $menuear ){
 
 		$menuear['niveau'] = str_repeat( '==>' , $menuear['niveau'] );
@@ -152,11 +248,15 @@ elseif( $_GET['todo'] == 'list' ){
 			$newmenue .= '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=new&amp;file='.$menuear['fileid'].'&amp;niveau=deeper&amp;requid='.$menuear['requid'].'"><span class="ui-icon ui-icon-arrow-1-se" title="Unter diesem Menue ein Untermenue erstellen."></span></a>';
 		}
 
-		$sitecontent->add_site_content('<tr> <td>'.$menuear['niveau'].'</td> <td>'.$menuename.'</td> <td>'.$menuear['path'].'</td> <td>'.$requid.'</td> <td>'.$menuear['status'].'</td> <td>'.$menuear['siteid'].'</td> <td>'.$menuear['menueid'].'</td> <td>'.$del.'</td> <td>'.$newmenue.'</td> </tr>');
+		$versch = '<span onclick="var updo = updown( \''.$menuear['fileid'].'\' , \'up\' , '.$menuear['requid'].' ); updo();"><span class="ui-icon ui-icon-arrowthick-1-n" title="Dieses Menue nach oben schieben."></span></span>';
+		$versch .= '<span onclick="var updo = updown( \''.$menuear['fileid'].'\' , \'down\' , '.$menuear['requid'].' ); updo();"><span class="ui-icon ui-icon-arrowthick-1-s" title="Dieses Menue nach unten schieben."></span></span>';
+
+		$sitecontent->add_site_content('<tr> <td>'.$menuear['niveau'].'</td> <td>'.$versch.'</td> <td>'.$menuename.'</td> <td>'.$menuear['path'].'</td> <td>'.$requid.'</td> <td>'.$menuear['status'].'</td> <td>'.$menuear['siteid'].'</td> <td>'.$menuear['menueid'].'</td> <td>'.$del.'</td> <td>'.$newmenue.'</td> </tr>');
 	}
 	$sitecontent->add_site_content('</table>');
 	$sitecontent->add_site_content('<div style="display:none;"><div id="del-confirm" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Möchten Sie das Menue wirklich löschen?</p></div></div>');
 	$sitecontent->add_site_content('<div style="display:none;"><div id="del-untermenue" title="Löschen nicht möglich!"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Das Menue kann erst gelöscht werden, wenn es keine Untermenues mehr hat!</p></div></div>');
+	$sitecontent->add_site_content('<div style="display:none;"><div id="updown" title="Fehler beim Verschieben!"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Achtung, Menues können nur innerhalb ihres Niveaus verschoben werden!</p></div></div>');
 }
 elseif( $_GET['todo'] == 'edit' ){
 	check_backend_login('more');
@@ -215,7 +315,7 @@ elseif( $_GET['todo'] == 'edit' ){
 
 			$sitecontent->add_site_content('<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=edit&amp;file='.$_GET['file'].'&amp;reqid='.$_GET['reqid'].'" method="post" onsubmit="if( document.getElementById(\'check\').value == \'nok\' ){ return false; } ">');
 			$sitecontent->add_site_content('<input type="text" value="'.$menuenames->read_kimb_one( $_GET['reqid'] ).'" name="name" > <i>(Menuename)</i><br />');
-			$sitecontent->add_site_content('<input type="text" value="'.$file->read_kimb_id( $id , 'path').'" name="pfad" id="pfad" onchange="checkpath();"> <i id="pfadtext">(Menuepfad)</i><br />');
+			$sitecontent->add_site_content('<input type="text" value="'.$file->read_kimb_id( $id , 'path').'" name="pfad" id="pfad" onchange="checkpath();"> <i id="pfadtext" title="Ein Menuepfad besteht aus Buchstaben, Zahlen, &apos;_&apos; und &apos;-&apos;.">(Menuepfad)</i><br />');
 			$sitecontent->add_site_content('<input type="text" value="'.$file->read_kimb_id( $id , 'status').'" name="status" readonly="readonly"> <i title="Veränderbar über Auflisten." >(Status)</i><br />');
 			$sitecontent->add_site_content('<input type="text" value="'.$file->read_kimb_id( $id , 'requestid').'" name="requid" readonly="readonly"> <i>(RequestID)</i><br />');
 			$sitecontent->add_site_content('<input type="text" value="'.$idfile->read_kimb_id( $_GET['reqid'] , 'siteid' ).'" name="siteid" readonly="readonly"> <i title="Veränderbar über Zuordnung." >(SiteID)</i><br />');
@@ -337,16 +437,11 @@ else{
 
 	check_backend_login('more');
 
-	//
-	//Infokästen
-	//
-
+	$sitecontent->add_site_content('<span id="startbox"><b><a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=new">Erstellen</b><br /><span class="ui-icon ui-icon-plusthick"></span><br /><i>Eine neues Menue erstellen.</i></span></a>');
+	$sitecontent->add_site_content('<span id="startbox"><b><a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=connect">Zuordnen</b><br /><span class="ui-icon ui-icon-arrowthick-2-e-w"></span><br /><i>Die Menues einer Seite zuordnen und de-, aktivieren.</i></span></a>');
+	$sitecontent->add_site_content('<span id="startbox"><b><a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=list">Auflisten</b><br /><span class="ui-icon ui-icon-calculator"></span><br /><i>Alle Menues zum Bearbeiten, De-, Aktivieren und Löschen auflisten.</i></span></a>');
 }
 
-
-//
-//Menue verschieben
-//
 
 $sitecontent->output_complete_site();
 ?>

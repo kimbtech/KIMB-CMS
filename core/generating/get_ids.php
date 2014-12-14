@@ -62,8 +62,6 @@ if( isset($_GET['url']) ){
 				$allgerr = '404';
 			}
 			if( !is_numeric($_GET['id']) || $_GET['id'] == '' ){
-				$sitecontent->echo_error( 'Fehlerhafte RequestURL !' );
-				$allgerr = 'unknown';
 				$_GET['id'] = '1';
 			}
 		}

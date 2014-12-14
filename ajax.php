@@ -32,6 +32,8 @@ require_once(__DIR__.'/core/addons/addons_ajax.php');
 
 if( $_GET['file'] == 'menue.php' ){
 
+	check_backend_login('more');
+
 	if( $_GET['urlfile'] == 'first' || is_numeric( $_GET['urlfile'] ) ){
 		if( $_GET['urlfile'] == 'first' ){
 			$file = new KIMBdbf( 'url/first.kimb' );
@@ -48,6 +50,9 @@ if( $_GET['file'] == 'menue.php' ){
 		else{
 			echo 'nok';
 		}
+	}
+	elseif( ($_GET['fileid'] == 'first' || is_numeric( $_GET['fileid'] ) ) && ( $_GET['updo'] == 'up' || $_GET['updo'] == 'down' ) && is_numeric( $_GET['requid'] ) ){
+		echo 'nok';
 	}
 }
 
