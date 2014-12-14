@@ -26,9 +26,9 @@ require_once(__DIR__.'/core/conf/funktionen.php');
 //Addons ermoeglichen einzugreifen
 require_once(__DIR__.'/core/addons/addons_ajax.php');
 
-//Systemegeigen:
-//Systemegeigen:
-//Systemegeigen:
+//Systemeigen:
+//Systemeigen:
+//Systemeigen:
 
 if( $_GET['file'] == 'menue.php' ){
 
@@ -52,7 +52,91 @@ if( $_GET['file'] == 'menue.php' ){
 		}
 	}
 	elseif( ($_GET['fileid'] == 'first' || is_numeric( $_GET['fileid'] ) ) && ( $_GET['updo'] == 'up' || $_GET['updo'] == 'down' ) && is_numeric( $_GET['requid'] ) ){
-		echo 'nok';
+		if( $_GET['fileid'] == 'first' ){
+			$file = new KIMBdbf( 'url/first.kimb' );
+		}
+		else{
+			$file = new KIMBdbf( 'url/nextid_'.$_GET['fileid'].'.kimb' );
+		}
+		$id = $file->search_kimb_xxxid( $_GET['requid'] , 'requestid');
+		if( $id  != false ){
+			if( $id == 1 && $_GET['updo'] == 'up' ){
+				echo 'nok';
+				die;
+			}
+			if( $file->read_kimb_id( $id+1 , 'path' ) == '' && $_GET['updo'] == 'down' ){
+				echo 'nok';
+				die;
+			}
+
+			$wid = 1;
+			while( 5 == 5 ){
+				$wpath = $file->read_kimb_id( $wid , 'path' );
+				$wnextid = $file->read_kimb_id( $wid , 'nextid' );
+				$wrequid = $file->read_kimb_id( $wid , 'requestid' );
+				$wstatus = $file->read_kimb_id( $wid , 'status');
+
+				if( $wnextid == '' ){
+					$wnextid = '---empty---';
+				}
+				
+				if( $wpath == '' ){
+					break;
+				}
+
+				$newmenuefile[$wid] = array( 'path' => $wpath, 'nextid' => $wnextid , 'requid' => $wrequid, 'status' => $wstatus );
+				
+				$wid++;
+			}
+
+			if( $_GET['updo'] == 'down' ){
+				$newid = $id+1;
+			}
+			if( $_GET['updo'] == 'up' ){
+				$newid = $id-1;
+			}
+
+			$i = 1;
+			$file->delete_kimb_file();
+			while( 5 == 5 ){
+				if( $newid == $i ){
+
+					$data = $newmenuefile[$id];
+
+					$file->write_kimb_id( $i , 'add' , 'path' , $data['path'] );
+					$file->write_kimb_id( $i , 'add' , 'nextid' , $data['nextid'] );
+					$file->write_kimb_id( $i , 'add' , 'requestid' , $data['requid'] );
+					$file->write_kimb_id( $i , 'add' , 'status' , $data['status'] );
+
+					$i++;
+				}
+
+				$data = $newmenuefile[$i];
+
+				if( $data['requid'] == $_GET['requid'] && $_GET['updo'] == 'down' ){
+					$data = $newmenuefile[$i+1];
+				}
+
+				if( $data['requid'] == $_GET['requid'] && $_GET['updo'] == 'up' ){
+					$data = $newmenuefile[$i-1];
+				}
+
+				if( !isset( $data['path'] ) ){
+					break;
+				}
+
+				$file->write_kimb_id( $i , 'add' , 'path' , $data['path'] );
+				$file->write_kimb_id( $i , 'add' , 'nextid' , $data['nextid'] );
+				$file->write_kimb_id( $i , 'add' , 'requestid' , $data['requid'] );
+				$file->write_kimb_id( $i , 'add' , 'status' , $data['status'] );
+
+				$i++;				
+			}
+			echo 'ok';
+		}
+		else{
+			echo 'nok';
+		}
 	}
 }
 

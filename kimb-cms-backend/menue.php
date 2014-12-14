@@ -25,7 +25,7 @@ if( $_GET['todo'] == 'new' ){
 		if( isset( $_POST['name'] ) ){
 			//nötige vars
 			$newm['name'] = $_POST['name'];
-			if( isset( $_POST['pfad'] ) ){
+			if( $_POST['pfad'] == '' ){
 				$newm['pfad'] = preg_replace("/[^0-9A-Za-z_-]/","", $_POST['name']);
 			}
 			else{
@@ -41,8 +41,6 @@ if( $_GET['todo'] == 'new' ){
 			}
 			$newm['menueid'] = $newm['requestid'].mt_rand();
 			$newm['status'] = 'on';
-
-
 
 			if( $_GET['file'] == 'first' ){
 				$file = new KIMBdbf( 'url/first.kimb' );
@@ -69,12 +67,8 @@ if( $_GET['todo'] == 'new' ){
 				}
 				$file->write_kimb_id( $oldid , 'add' , 'nextid' , $i );
 
-				if( $_GET['file'] == 'first' ){
-					$file = new KIMBdbf( 'url/first.kimb' );
-				}
-				else{
-					$file = new KIMBdbf( 'url/nextid_'.$i.'.kimb' );
-				}
+				$file = new KIMBdbf( 'url/nextid_'.$i.'.kimb' );
+				
 				$_GET['file'] = $i;
 
 			}
