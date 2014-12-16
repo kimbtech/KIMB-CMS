@@ -92,9 +92,11 @@ class system_output{
 		$this->sitecontent .= $content['inhalt']."\r\n";
 		$this->add_footer($content['footer']);
 		$time = date( "d.m.Y" , $content['time'] );
-		$schlusszeile .= '<div style="position: absolute; bottom:2px; right:2px; border:solid 2px #aaaaaa; border-radius:2px; padding:4px;">Erstellt von '.$content['made_user'].' am '.$time.'</div>';
-		$schlusszeile .= '<div style="position: absolute; bottom:2px; left:2px; border:solid 2px #aaaaaa; border-radius:2px; padding:4px;">Permalink: <a href="'.$this->allgsysconf['siteurl'].'/index.php?id='.$content['req_id'].'">'.$this->allgsysconf['siteurl'].'/index.php?id='.$content['req_id'].'</a></div>';
-		$this->sitecontent .= $schlusszeile."\r\n";
+		if( $this->allgsysconf['show_siteinfos'] == 'on' ){
+			$schlusszeile .= '<div style="position: absolute; bottom:2px; right:2px; border:solid 2px #aaaaaa; border-radius:2px; padding:4px;">Erstellt von '.$content['made_user'].' am '.$time.'</div>';
+			$schlusszeile .= '<div style="position: absolute; bottom:2px; left:2px; border:solid 2px #aaaaaa; border-radius:2px; padding:4px;">Permalink: <a href="'.$this->allgsysconf['siteurl'].'/index.php?id='.$content['req_id'].'">'.$this->allgsysconf['siteurl'].'/index.php?id='.$content['req_id'].'</a></div>';
+			$this->sitecontent .= $schlusszeile."\r\n";
+		}
 	}
 
 	public function add_site_content($content){

@@ -112,6 +112,8 @@ if( $_GET['todo'] == 'new' ){
 	}
 	else{
 		$sitecontent->echo_message( 'Bitte wählen Sie zuerste eine Stelle über Menue -> Anpassen! <br />( Rechts in der Spalte Neu )<br /><a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=list"><button>Los geht&apos;s!</button></a>' );
+		$sitecontent->add_site_content('<br /><br />');
+		$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=new&file=first&niveau=same"><button>ODER direkt neues Menue auf Grundebene erstellen!</button></a>');
 	}
 }
 elseif( $_GET['todo'] == 'connect' ){
@@ -203,7 +205,7 @@ elseif( $_GET['todo'] == 'list' ){
 				$( "#updown" ).show( "fast" );
 				$( "#updown" ).dialog({
 				resizable: false,
-				height:200,
+				height:270,
 				modal: true,
 				buttons: {
 					"OK": function() {
@@ -250,7 +252,7 @@ elseif( $_GET['todo'] == 'list' ){
 	$sitecontent->add_site_content('</table>');
 	$sitecontent->add_site_content('<div style="display:none;"><div id="del-confirm" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Möchten Sie das Menue wirklich löschen?</p></div></div>');
 	$sitecontent->add_site_content('<div style="display:none;"><div id="del-untermenue" title="Löschen nicht möglich!"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Das Menue kann erst gelöscht werden, wenn es keine Untermenues mehr hat!</p></div></div>');
-	$sitecontent->add_site_content('<div style="display:none;"><div id="updown" title="Fehler beim Verschieben!"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Achtung, Menues können nur innerhalb ihres Niveaus verschoben werden!</p></div></div>');
+	$sitecontent->add_site_content('<div style="display:none;"><div id="updown" title="Fehler beim Verschieben!"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 100px 0;"></span>Achtung, Menues können nur innerhalb ihres Niveaus verschoben werden!<br /><br />Auch ein Verschieben auf einen höheren Platz als den Ersten oder einen tieferen als den Letzten ist nicht möglich!</p></div></div>');
 }
 elseif( $_GET['todo'] == 'edit' ){
 	check_backend_login('more');
@@ -281,38 +283,47 @@ elseif( $_GET['todo'] == 'edit' ){
 			}
 
 			$sitecontent->add_html_header('<script>
+			$(function() {
+				$("i#pfadtext").text("(Menuepfad -- OK)");
+				$("i#pfadtext").css( "background-color", "green" );
+				$("i#pfadtext").css( "color", "white" );
+				$("i#pfadtext").css( "padding", "5px" );
+			});
 			function checkpath(){
 				var pathinput = $( "input#pfad" ).val();
 				if( "'.$file->read_kimb_id( $id , 'path').'" != pathinput ){
+
+					$( "input#check" ).val( "nok" );
+					$("i#pfadtext").text("(Menuepfad -- Überprüfung läuft)");
+					$("i#pfadtext").css( "background-color", "orange" );
+
 					$.get( "'.$allgsysconf['siteurl'].'/ajax.php?file=menue.php&urlfile='.$_GET['file'].'&search=" + pathinput , function( data ) {
 						$( "input#check" ).val( data );
 						if( data == "nok" ){
 							$("i#pfadtext").text("(Menuepfad -- Achtung dieser Pfad ist schon vergeben!!)");
 							$("i#pfadtext").css( "background-color", "red" );
-							$("i#pfadtext").css( "color", "white" );
 						}
 						else{
-							$("i#pfadtext").text("(Menuepfad)");
-							$("i#pfadtext").css( "background-color", "white" );
-							$("i#pfadtext").css( "color", "black" );
+							$( "input#check" ).val( "ok" );
+							$("i#pfadtext").text("(Menuepfad -- OK)");
+							$("i#pfadtext").css( "background-color", "green" );
 						}
 					});
 				}
 				else{
 					$( "input#check" ).val( "ok" );
-					$("i#pfadtext").text("(Menuepfad)");
-					$("i#pfadtext").css( "background-color", "white" );
-					$("i#pfadtext").css( "color", "black" );
+					$("i#pfadtext").text("(Menuepfad -- OK)");
+					$("i#pfadtext").css( "background-color", "green" );
 				}
 			}
 			</script>');
 
 			$sitecontent->add_site_content('<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=edit&amp;file='.$_GET['file'].'&amp;reqid='.$_GET['reqid'].'" method="post" onsubmit="if( document.getElementById(\'check\').value == \'nok\' ){ return false; } ">');
-			$sitecontent->add_site_content('<input type="text" value="'.$menuenames->read_kimb_one( $_GET['reqid'] ).'" name="name" > <i>(Menuename)</i><br />');
+			$sitecontent->add_site_content('<input type="text" value="'.$menuenames->read_kimb_one( $_GET['reqid'] ).'" name="name" > <i title="Name des Menues der im Frontend angezeigt wird." >(Menuename)</i><br />');
 			$sitecontent->add_site_content('<input type="text" value="'.$file->read_kimb_id( $id , 'path').'" name="pfad" id="pfad" onchange="checkpath();"> <i id="pfadtext" title="Ein Menuepfad besteht aus Buchstaben, Zahlen, &apos;_&apos; und &apos;-&apos;.">(Menuepfad)</i><br />');
-			$sitecontent->add_site_content('<input type="text" value="'.$file->read_kimb_id( $id , 'status').'" name="status" readonly="readonly"> <i title="Veränderbar über Auflisten." >(Status)</i><br />');
-			$sitecontent->add_site_content('<input type="text" value="'.$file->read_kimb_id( $id , 'requestid').'" name="requid" readonly="readonly"> <i>(RequestID)</i><br />');
-			$sitecontent->add_site_content('<input type="text" value="'.$idfile->read_kimb_id( $_GET['reqid'] , 'siteid' ).'" name="siteid" readonly="readonly"> <i title="Veränderbar über Zuordnung." >(SiteID)</i><br />');
+			$sitecontent->add_site_content('<input type="text" value="'.$file->read_kimb_id( $id , 'status').'" name="status" readonly="readonly"> <i title="Veränderbar auf Seite Auflisten sowie Zuordnung." >(Status)</i><br />');
+			$sitecontent->add_site_content('<input type="text" value="'.$file->read_kimb_id( $id , 'requestid').'" name="requid" readonly="readonly"> <i title="Automatisch bei Erstellung des Menue generiert.">(RequestID)</i><br />');
+			$sitecontent->add_site_content('<input type="text" value="'.$idfile->read_kimb_id( $_GET['reqid'] , 'siteid' ).'" name="siteid" readonly="readonly"> <i title="Veränderbar auf Seite Zuordnen." >(SiteID)</i><br />');
 			$sitecontent->add_site_content('<input type="hidden" value="ok" id="check">');
 			$sitecontent->add_site_content('<input type="submit" value="Ändern" ><br />');
 			$sitecontent->add_site_content('</form>');
@@ -416,7 +427,16 @@ elseif( $_GET['todo'] == 'deakch' ){
 				$file->write_kimb_id( $id , 'add' , 'status' , 'on' );
 				$stat = 'on';
 			}
-			$sitecontent->echo_message( 'Das Menue (RequID "'.$_GET['reqid'].'") wurde auf den Status "'.$stat.'" gesetzt!' );
+
+			if( $_SESSION['permission'] == 'more' ){
+				open_url('/kimb-cms-backend/menue.php?todo=list');
+				die;
+			}
+			else{
+				open_url('/kimb-cms-backend/menue.php?todo=connect');
+				die;
+			}
+
 		}
 		else{
 			$sitecontent->echo_error( 'Ihre Anfrage war fehlerhaft!' , 'unknown');

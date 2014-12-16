@@ -65,16 +65,19 @@ if( $_SESSION['loginokay'] != $allgsysconf['loginokay'] ){
 	$loginsalt = sha1(mt_rand());
 	$_SESSION["loginsalt"] = $loginsalt;
 
+	$sitecontent->add_html_header('<script>
+	$(function() {
+		$("div#login").html( \'<table><tr><td>Username:</td><td><input type="text" name="user"><br /></td></tr><tr><td>Passwort:</td><td><input type="password" name="pass" id="pass" maxlength="32"><br /></td></tr></table><input type="submit" value="Absenden">\' );
+	});
+	</script>');
+
 	$sitecontent->add_site_content( '<h2>Login</h2>' );
-	$sitecontent->add_site_content( '<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/index.php" method="post" onsubmit="document.getElementById(\'pass\').value = SHA1(SHA1(document.getElementById(\'pass\').value)+\''.$loginsalt.'\');">
-		<table><tr><td>Username:</td><td><input type="text" name="user"><br /></td></tr>
-		<tr><td>Passwort:</td><td><input type="password" name="pass" id="pass" maxlength="32"><br /></td></tr></table>
-		<input type="submit" value="Absenden">
-		</form><br /><br />' );
-	
-	$sitecontent->add_site_content( '<noscript>' );
-	$sitecontent->add_site_content( '<h3>Diese Seite benötigt Java Script!!</h3>' );
-	$sitecontent->add_site_content( '</noscript>' );
+	$sitecontent->add_site_content( '<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/index.php" method="post" onsubmit="document.getElementById(\'pass\').value = SHA1(SHA1(document.getElementById(\'pass\').value)+\''.$loginsalt.'\');">' );
+	$sitecontent->add_site_content( '<div id="login"> <div class="ui-widget" style="position: relative;"><div class="ui-state-highlight ui-corner-all" style="padding:10px;">');
+	$sitecontent->add_site_content( '<span class="ui-icon ui-icon-info" style="position:absolute; left:20px; top:7px;"></span>');
+	$sitecontent->add_site_content( '<h1>Diese Seite benötigt JavaScript!!</h1>');
+	$sitecontent->add_site_content( '</div></div> </div>' );
+	$sitecontent->add_site_content( '</form><br /><br />' );
 
 }
 

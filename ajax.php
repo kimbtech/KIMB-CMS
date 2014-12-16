@@ -23,6 +23,13 @@ require_once(__DIR__.'/core/conf/funktionen.php');
 
 //System initialisiert!
 
+if( !isset( $_GET['file'] ) && !isset( $_GET['addon'] ) ){
+
+	echo('Fehlerhafte Ajax-Anfrage!');
+	die;
+
+}
+
 //Addons ermoeglichen einzugreifen
 require_once(__DIR__.'/core/addons/addons_ajax.php');
 
