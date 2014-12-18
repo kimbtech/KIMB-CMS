@@ -146,7 +146,21 @@ if( $_GET['file'] == 'menue.php' ){
 		}
 	}
 }
+elseif( $_GET['file'] == 'user.php' && isset( $_GET['user'] ) ){
 
+	check_backend_login('more');
 
+	$userfile = new KIMBdbf('backend/users/list.kimb');
 
+	$_GET['user'] = preg_replace( "/[^a-z]/" , "" , strtolower( $_GET['user'] ) );
+
+	$id = $userfile->search_kimb_xxxid( $_GET['user'] , 'user' );
+
+	if( $id == false ){
+		echo 'ok';
+	}
+	else {
+		echo 'nok';
+	}
+}
 ?>
