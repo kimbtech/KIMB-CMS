@@ -39,6 +39,10 @@ function open_url($url, $area = 'insystem'){
 function check_for_kimb_file($datei){
 	$datei = preg_replace('/[\r\n]+/', '', $datei);
 	$datei = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '..'),array('ae','oe','ue','ss','Ae','Oe','Ue', '', '.'), $datei);
+	if(strpos($datei, "..") !== false){
+		echo ('Do not hack me!!');
+		die;
+	}
 	if(file_exists(__DIR__.'/../oop/kimb-data/'.$datei)){
 		return true;
 	}
@@ -51,6 +55,10 @@ function check_for_kimb_file($datei){
 function scan_kimb_dir($datei){
 	$datei = preg_replace('/[\r\n]+/', '', $datei);
 	$datei = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '..'),array('ae','oe','ue','ss','Ae','Oe','Ue', '', '.'), $datei);
+	if(strpos($datei, "..") !== false){
+		echo ('Do not hack me!!');
+		die;
+	}
 	$files = scandir(__DIR__.'/../oop/kimb-data/'.$datei);
 	$i = 0;
 	foreach ( $files as $file ){
@@ -96,6 +104,12 @@ function rename_kimbdbf( $datei1 , $datei2 ){
 	$datei1 = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '..'),array('ae','oe','ue','ss','Ae','Oe','Ue', '', '.'), $datei1);
 	$datei2 = preg_replace('/[\r\n]+/', '', $datei2);
 	$datei2 = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '..'),array('ae','oe','ue','ss','Ae','Oe','Ue', '', '.'), $datei2);
+
+	if(strpos($datei2, "..") !== false || strpos($datei1, "..") !== false){
+		echo ('Do not hack me!!');
+		die;
+	}
+
 
 	return rename( __DIR__.'/../oop/kimb-data/'.$datei1 , __DIR__.'/../oop/kimb-data/'.$datei2 );
 }
@@ -222,6 +236,17 @@ function make_menue_array( $filename = 'url/first.kimb' , $niveau = '1' , $filei
 		}
 		$id++;
 	}
+}
+
+function listaddons(){
+
+	$files = scandir(__DIR__.'/../addons/');
+	foreach ($files as $file) {
+		if( $file != '.' && $file != '..' &&  is_dir(__DIR__.'/../addons/'.$file) ){
+			$read[] = $file;
+		}
+	}
+	return $read;
 }
 
 ?>

@@ -38,6 +38,10 @@ class KIMBdbf {
 	public function __construct($datei, $encryptkey = 'off', $path = __DIR__){
 		$datei = preg_replace('/[\r\n]+/', '', $datei);
 		$datei = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '..'),array('ae','oe','ue','ss','Ae','Oe','Ue', '', '.'), $datei);
+		if(strpos($datei, "..") !== false){
+			echo ('Do not hack me!!');
+			die;
+		}
 		$this->path = $path;
 		$this->datei = $datei;
 		$this->encryptkey = $encryptkey;
@@ -427,6 +431,10 @@ function read_kimb_one($datei, $teil){  //bei mehreren teilen, oberster treffer
 	global $allgconfserversitepath;
 	$datei = preg_replace('/[\r\n]+/', '', $datei);
 	$datei = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '..'),array('ae','oe','ue','ss','Ae','Oe','Ue', '', '.'), $datei);
+	if(strpos($datei, "..") !== false){
+		echo ('Do not hack me!!');
+		die;
+	}
 	$teil = preg_replace('/[\r\n]+/', '', $teil);
 	$teiltext = '<['.$teil.']>';
 	$inhaltdatei = file_get_contents($allgconfserversitepath.'/kimb-data/'.$datei);
@@ -439,6 +447,10 @@ function read_kimb_search($datei, $teil, $search){
 	$datei = preg_replace('/[\r\n]+/', '', $datei);
 	$teil = preg_replace('/[\r\n]+/', '', $teil);
 	$datei = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '..'),array('ae','oe','ue','ss','Ae','Oe','Ue', '', '.'), $datei);
+	if(strpos($datei, "..") !== false){
+		echo ('Do not hack me!!');
+		die;
+	}
 	global $allgconfserversitepath;
 	$teiltext = '<['.$teil.']>';
 	$inhaltdatei = file_get_contents($allgconfserversitepath.'/kimb-data/'.$datei);
@@ -456,6 +468,10 @@ function read_kimb_search($datei, $teil, $search){
 	
 function write_kimb_new($datei, $teil, $inhalt){
 	$datei = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '..'),array('ae','oe','ue','ss','Ae','Oe','Ue', '', '.'), $datei);
+	if(strpos($datei, "..") !== false){
+		echo ('Do not hack me!!');
+		die;
+	}
 	$inhalt = preg_replace('/[\r\n]+/', '', $inhalt);
 	$datei = preg_replace('/[\r\n]+/', '', $datei);
 	$teil = preg_replace('/[\r\n]+/', '', $teil);
@@ -475,6 +491,10 @@ function write_kimb_replace($datei, $teil, $inhalt){  //teil darf nur einmal vor
 	$datei = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '..'),array('ae','oe','ue','ss','Ae','Oe','Ue', '', '.'), $datei);
 	$inhalt = preg_replace('/[\r\n]+/', '', $inhalt);
 	$datei = preg_replace('/[\r\n]+/', '', $datei);
+	if(strpos($datei, "..") !== false){
+		echo ('Do not hack me!!');
+		die;
+	}
 	$teil = preg_replace('/[\r\n]+/', '', $teil);
 	global $allgconfserversitepath;
 	$inhalt = preg_replace('/[\r\n]+/', '', $inhalt);
@@ -495,6 +515,10 @@ function write_kimb_delete($datei, $teil){  //teil darf nur einmal vorhanden sei
 	$datei = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '..'),array('ae','oe','ue','ss','Ae','Oe','Ue', '', '.'), $datei);
 	$datei = preg_replace('/[\r\n]+/', '', $datei);
 	$teil = preg_replace('/[\r\n]+/', '', $teil);
+	if(strpos($datei, "..") !== false){
+		echo ('Do not hack me!!');
+		die;
+	}
 	global $allgconfserversitepath;
 	$teiltext = '<['.$teil.']>';
 	$inhaltdatei = file_get_contents($allgconfserversitepath.'/kimb-data/'.$datei);
@@ -511,6 +535,10 @@ function write_kimb_delete($datei, $teil){  //teil darf nur einmal vorhanden sei
 //KIMB-Datei loeschen
 function delete_kimb_datei($datei){
 	$datei = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '..'),array('ae','oe','ue','ss','Ae','Oe','Ue', '', '.'), $datei);
+	if(strpos($datei, "..") !== false){
+		echo ('Do not hack me!!');
+		die;
+	}
 	$datei = preg_replace('/[\r\n]+/', '', $datei);
 	global $allgconfserversitepath;
 	if(unlink($allgconfserversitepath.'/kimb-data/'.$datei)){ return 'true';}

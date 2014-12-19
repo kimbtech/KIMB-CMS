@@ -84,7 +84,7 @@ a.menu:active  { color:#0000ff; background-color:#EEC900; border:solid 2px #ffff
 	
 }
 
-#menu-apps{
+#menue{
 	float:left;
 	width:200px;
 	height:auto;
@@ -99,7 +99,22 @@ a.menu:active  { color:#0000ff; background-color:#EEC900; border:solid 2px #ffff
 	border:solid 2px #EEC900;
 }
 
-#content-apps{
+#apps{
+	float:left;
+	width:200px;
+	height:auto;
+	min-height:200px;
+	margin: 10px;
+	padding-top:10px;
+	padding-bottom:10px;
+	padding-right:05px;
+	padding-left:05px;
+	background-color:#ffffff;
+	border-radius: 15px;
+	border:solid 2px #EEC900;
+}
+
+#content{
 	height:auto;
 	min-height:300px;
 	padding-top:10px;
@@ -110,20 +125,6 @@ a.menu:active  { color:#0000ff; background-color:#EEC900; border:solid 2px #ffff
 	margin-left:230px;
 	border-radius: 15px;
 	background-color:#ffffff;
-	border:solid 2px #EEC900;
-}
-
-#content{
-	height:auto;
-	min-height:250px;
-	padding-top:10px;
-	padding-bottom:10px;
-	padding-right:05px;
-	padding-left:05px;
-	border-radius: 15px;
-	background-color:#ffffff;
-	width:700px;
-	margin-left:230px;
 	border:solid 2px #EEC900;
 }
 
@@ -149,4 +150,23 @@ a.menu:active  { color:#0000ff; background-color:#EEC900; border:solid 2px #ffff
 	padding:20px;
 
 }
+
+#usertime{
+	position: absolute;
+	bottom:2px;
+	right:2px;
+	border:solid 2px #aaaaaa;
+	border-radius:2px;
+	padding:4px;
+}
+
+#permalink{
+	position: absolute;
+	bottom:2px;
+	left:2px;
+	border:solid 2px #aaaaaa;
+	border-radius:2px;
+	padding:4px;
+}
+
 
