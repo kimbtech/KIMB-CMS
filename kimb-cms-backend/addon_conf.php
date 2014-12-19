@@ -40,7 +40,7 @@ if( $_GET['todo'] == 'more' ){
 		$addons = listaddons();
 		foreach( $addons as $addon ){
 			
-			$sitecontent->add_site_content('<tr> <td><a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=more&amp;addon='.$name.'">'.$name.'</a></td> </tr>');
+			$sitecontent->add_site_content('<tr> <td><a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=more&amp;addon='.$addon.'">'.$addon.'</a></td> </tr>');
 
 		}
 		$sitecontent->add_site_content('</table>');
@@ -74,7 +74,7 @@ elseif( $_GET['todo'] == 'less' ){
 		$addons = listaddons();
 		foreach( $addons as $addon ){
 			
-			$sitecontent->add_site_content('<tr> <td><a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=less&amp;addon='.$name.'">'.$name.'</a></td> </tr>');
+			$sitecontent->add_site_content('<tr> <td><a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=less&amp;addon='.$addon.'">'.$addon.'</a></td> </tr>');
 
 		}
 		$sitecontent->add_site_content('</table>');

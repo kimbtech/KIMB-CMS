@@ -1,9 +1,3 @@
 <[about:doc]>KIMB Datei V.0.1 KIMB CMS<[about:doc]>
 
-<[first1]>test<[first1]>
-
-<[second1]>test<[second1]>
-
-<[ajax1]>test<[ajax1]>
-
-<[backend1]>test<[backend1]>
+<[ajax1]>test<[ajax1]><[first1]>test<[first1]><[backend1]>test<[backend1]><[second1]>test<[second1]>

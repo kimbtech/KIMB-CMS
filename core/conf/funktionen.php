@@ -123,7 +123,7 @@ function rm_r($dir){
 		}
 		else{
 			if(is_dir($dir.'/'.$file)){
-				rmdirrec($dir.'/'.$file);
+				rm_r($dir.'/'.$file);
 			}
 			else{
 				unlink($dir.'/'.$file);
@@ -151,7 +151,31 @@ function zip_r($zip, $dir, $base = '/'){
 			}
        			elseif (is_dir($dir.'/'.$file)){
 				$zip->addEmptyDir($base.$file);
-				zipDir($zip, $dir.'/'.$file, $base.$file.'/');
+				zip_r($zip, $dir.'/'.$file, $base.$file.'/');
+			}
+		}
+	}
+	return true;
+}
+
+function copy_r( $dir , $dest ){
+
+	if( !is_dir( $dest ) ){
+		mkdir( $dest );
+		chmod( $dest , ( fileperms( $dest.'/../' ) & 0777));
+	}
+	
+	$files = scandir( $dir );
+	foreach ($files as $file){
+		if ($file == '..' || $file == '.'){
+			//nichts
+		}
+		else{
+			if ( is_file($dir.'/'.$file) ){
+				copy( $dir.'/'.$file , $dest.'/'.$file );
+			}
+       			elseif ( is_dir($dir.'/'.$file) ){
+				copy_r( $dir.'/'.$file , $dest.'/'.$file );
 			}
 		}
 	}
