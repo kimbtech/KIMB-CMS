@@ -163,4 +163,22 @@ elseif( $_GET['file'] == 'user.php' && isset( $_GET['user'] ) ){
 		echo 'nok';
 	}
 }
+elseif( $_GET['file'] == 'other_filemanager.php' && isset( $_GET['key'] ) ){
+
+	$keyfile = new KIMBdbf( 'backend/filemanager.kimb' );
+
+	$id = $keyfile->search_kimb_xxxid( $_GET['key'] , 'key' );
+	if( $id != false ){
+		$dateiname = $keyfile->read_kimb_id( $id , 'file' );
+		$datei = __DIR__.'/core/secured/'.$keyfile->read_kimb_id( $id , 'path' );
+
+		header("Content-type: ". mime_content_type($datei) );
+		header('Content-Disposition: filename= '.$dateiname);
+		echo ( file_get_contents($datei) );
+	}
+	else{
+		echo('Fehlerhafter Key!!');
+	}
+	die;
+}
 ?>

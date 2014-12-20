@@ -273,4 +273,15 @@ function listaddons(){
 	return $read;
 }
 
+function makepassw( $laenge , $chars = '!"#%&()*+,-./:;?[\]_0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz' ){
+	$anzahl = strlen($chars);
+	$i = '1';
+	$output = '';
+	while($i <= $laenge){
+		$stelle = mt_rand('0', $anzahl); 
+		$output .= $chars{$stelle};
+		$i++;
+	}
+	return $output;
+}
 ?>
