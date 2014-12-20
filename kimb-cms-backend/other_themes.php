@@ -13,15 +13,51 @@ $sitecontent->add_html_header('<style>td { border:1px solid #000000; padding:2px
 
 //Themes
 
-
 if( isset( $_FILES['userfile']['name'] ) ){
-	//core/theme und load/theme
+
+	$zip = new ZipArchive;
+	if ($zip->open($_FILES["userfile"]["tmp_name"]) === TRUE) {
+	    $zip->extractTo( __DIR__.'/../load/system/theme/' );
+	    $zip->close();
+	}
+	else{
+		$sitecontent->echo_error( 'Die Installation schlug fehl!' , 'unknown');
+		$sitecontent->output_complete_site();
+		die;
+	}
+
+	$name = file_get_contents( __DIR__.'/../load/system/theme/name.info' );
+	$name = preg_replace("/[^a-z_]/","", $name);
+	unlink( __DIR__.'/../load/system/theme/name.info' );
+
+	if( file_exists( __DIR__.'/../load/system/theme/output_menue_'.$name.'.php' ) && file_exists( __DIR__.'/../load/system/theme/output_site_'.$name.'.php' ) ){
+		rename ( __DIR__.'/../load/system/theme/output_menue_'.$name.'.php' , __DIR__.'/../core/theme/output_menue_'.$name.'.php' );
+		rename ( __DIR__.'/../load/system/theme/output_site_'.$name.'.php' , __DIR__.'/../core/theme/output_site_'.$name.'.php' );
+
+		$sitecontent->echo_message( 'Das Theme "'.$name.'" wurde installiert!' );
+	}
+	else{
+		$sitecontent->echo_error( 'Die Installation schlug fehl!' , 'unknown');
+	}
 }
 if( isset( $_GET['del'] ) ){
-	//del
+	$_GET['del'] = preg_replace( "/[^a-z_]/" , "" , $_GET['del']);	
+
+	if( file_exists( __DIR__.'/../core/theme/output_menue_'.$_GET['del'].'.php' ) ){
+		unlink( __DIR__.'/../core/theme/output_menue_'.$_GET['del'].'.php' );
+	}
+	if( file_exists( __DIR__.'/../core/theme/output_site_'.$_GET['del'].'.php' ) ){
+		unlink( __DIR__.'/../core/theme/output_site_'.$_GET['del'].'.php' );
+	}
+
+	$sitecontent->echo_message( 'Das Theme "'.$_GET['del'].'" wurde gelöscht!' );
 }
-if( isset( $_GET['chdeak'] ) ){
-	//aktivieren
+if( isset( $_GET['chdeak'] ) && isset( $_GET['theme'] ) ){
+	$_GET['theme'] = preg_replace( "/[^a-z_]/" , "" , $_GET['theme'] );
+	if( $conffile->write_kimb_id( '001' , 'add' , 'theme' , $_GET['theme'] ) ){
+		$sitecontent->echo_message( 'Das Theme "'.$_GET['theme'].'" wurde aktiviert!' );
+		$allgsysconf = $conffile->read_kimb_id('001');
+	}
 }
 
 
@@ -61,6 +97,9 @@ foreach( $dir as $file ){
 			if( $teil != 'norm' ){
 				$del = '<span onclick="var delet = del( \''.$teil.'\' ); delet();"><span class="ui-icon ui-icon-trash" title="Dieses Theme löschen."></span></span>';
 			}
+			else{
+				$del = '';
+			}
 
 			if ( $allgsysconf['theme'] == $teil ){
 				$status = '<span class="ui-icon ui-icon-check" title="Dieses Theme ist zu Zeit aktiviert. ( Bitte aktivieren Sie ein anderes, um dies zu ändern. )"></span>';
@@ -69,7 +108,7 @@ foreach( $dir as $file ){
 				$status = '<span class="ui-icon ui-icon-check" title="Dieses Theme ist zu Zeit aktiviert. ( Bitte aktivieren Sie ein anderes, um dies zu ändern. )"></span>';
 			}
 			else{
-				$status = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/other_themes.php?todo=chdeak&amp;theme='.$teil.'"><span class="ui-icon ui-icon-close" title="Dieses Theme ist zu Zeit deaktiviert. ( click -> aktivieren )"></span></a>';
+				$status = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/other_themes.php?theme='.$teil.'&amp;chdeak"><span class="ui-icon ui-icon-close" title="Dieses Theme ist zu Zeit deaktiviert. ( click -> aktivieren )"></span></a>';
 			}
 
 			$sitecontent->add_site_content('<tr> <td>'.$teil.'</td> <td>'.$status.'</td> <td>'.$del.'</td> </tr>');
@@ -83,7 +122,7 @@ $sitecontent->add_site_content('<div style="display:none;"><div id="del-confirm"
 
 
 $sitecontent->add_site_content('<br /><br /><h2>Theme installieren</h2>');
-$sitecontent->add_site_content('<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/themes.php" enctype="multipart/form-data" method="post">');
+$sitecontent->add_site_content('<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/other_themes.php" enctype="multipart/form-data" method="post">');
 $sitecontent->add_site_content('<input name="userfile" type="file" /><br />');
 $sitecontent->add_site_content('<input type="submit" value="Installieren" title="Wählen Sie eine Theme Zip Datei von Ihrem Rechner zur Installation." />');
 $sitecontent->add_site_content('</form>');

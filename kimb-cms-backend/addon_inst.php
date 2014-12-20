@@ -13,10 +13,7 @@ $sitecontent->add_html_header('<style>td { border:1px solid #000000; padding:2px
 
 //Add-ons installieren und löschen
 
-if(strpos( $_GET['addon'] , "..") !== false){
-	echo ('Do not hack me!!');
-	die;
-}
+$_GET['addon'] = preg_replace( "/[^a-z_]/" , "" , $_GET['addon'] );
 
 if( isset( $_GET['del'] ) && isset( $_GET['addon'] ) ){
 
