@@ -153,6 +153,9 @@ elseif( $_GET['todo'] == 'edit' && is_numeric( $_GET['id'] ) ){
 		if( check_for_kimb_file( '/site/site_'.$_GET['id'].'.kimb' ) ){
 			$sitef = new KIMBdbf( '/site/site_'.$_GET['id'].'.kimb' );
 		}
+		elseif( check_for_kimb_file( '/site/site_'.$_GET['id'].'_deak.kimb' ) ){
+			$sitef = new KIMBdbf( '/site/site_'.$_GET['id'].'_deak.kimb' );
+		}
 		else{
 			$sitecontent->echo_error('Die Seite wurde nicht gefunden' , '404');
 			$sitecontent->output_complete_site();

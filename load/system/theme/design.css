@@ -47,6 +47,11 @@ h2 {
 
 }
 
+#menu li{
+	display:inline-block;
+
+}
+
 #menuname{
 	text-align:left;
 	padding-left:10px;
@@ -82,21 +87,6 @@ a.menu:active  { color:#0000ff; background-color:#EEC900; border:solid 2px #ffff
 	height:auto;
 	min-height:250px;
 	
-}
-
-#menue{
-	float:left;
-	width:200px;
-	height:auto;
-	min-height:200px;
-	margin: 10px;
-	padding-top:10px;
-	padding-bottom:10px;
-	padding-right:05px;
-	padding-left:05px;
-	background-color:#ffffff;
-	border-radius: 15px;
-	border:solid 2px #EEC900;
 }
 
 #apps{
@@ -137,8 +127,7 @@ a.menu:active  { color:#0000ff; background-color:#EEC900; border:solid 2px #ffff
 	font-size:12px;
 	color:#000000;
 	background-color:#EEC900;
-	width:711px;
-	margin-left:230px;
+	margin:auto;
 	border-radius: 15px;
 	margin-top:20px;
 	border:solid 2px #ffffff;

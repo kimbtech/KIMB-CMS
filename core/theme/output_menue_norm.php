@@ -5,69 +5,28 @@
 // Diese Datei ist Teil eines Objekts
 // Das fertige Menue wird, je nach Theme über $this->menue ausgegeben
 
-if( $niveau == '1' ){
-	if( $clicked == 'yes' ){
-		$this->menue[1] .=  '<a style="color:#0000ff; background-color:#EEC900; border:solid 2px #ffffff;" class="menu" href="'.$link.'">'.$name.'</a>'."\r\n";
-	}
-	else{
-		$this->menue[1] .=  '<a class="menu" href="'.$link.'">'.$name.'</a>'."\r\n";
-	}
+if( !isset( $this->niveau ) ){
+	$this->menue .= '<li>'."\r\n";
 }
-if( $niveau == '1' ){
-	if( $clicked == 'yes' ){
-		$this->menue[2] .=  '<li><a style="color:red;" href="'.$link.'">'.$name.'</a></li>'."\r\n";
-	}
-	else{
-		$this->menue[2] .=  '<li><a href="'.$link.'">'.$name.'</a></li>'."\r\n";
-	}
+elseif( $this->niveau == $niveau ){
+	$this->menue .= '</li><li>'."\r\n";
 }
-elseif( $niveau == '2'){
-	if( $clicked == 'yes' ){
-		$this->menue[2] .=  '<li style="list-style-type:none" ><ul>';
-		$this->menue[2] .=  '<li><a style="color:red;" href="'.$link.'">'.$name.'</a></li>'."\r\n";
-		$this->menue[2] .=  '</li></ul>';
-	}
-	else{
-		$this->menue[2] .=  '<li style="list-style-type:none" ><ul>';
-		$this->menue[2] .=  '<li><a href="'.$link.'">'.$name.'</a></li>'."\r\n";
-		$this->menue[2] .=  '</li></ul>';
-	}
+elseif( $this->niveau < $niveau ){
+	$this->menue .= '<ul><li>'."\r\n";
+	$this->ulauf = $this->ulauf + 1;
 }
-elseif( $niveau == '3'){
-	if( $clicked == 'yes' ){
-		$this->menue[2] .=  '<li style="list-style-type:none" ><ul>';
-		$this->menue[2] .=  '<li style="list-style-type:none" ><ul>';
-		$this->menue[2] .=  '<li><a style="color:red;" href="'.$link.'">'.$name.'</a></li>'."\r\n";
-		$this->menue[2] .=  '</li></ul>';
-		$this->menue[2] .=  '</li></ul>';
-	}
-	else{
-		$this->menue[2] .=  '<li style="list-style-type:none" ><ul>';
-		$this->menue[2] .=  '<li style="list-style-type:none" ><ul>';
-		$this->menue[2] .=  '<li><a href="'.$link.'">'.$name.'</a></li>'."\r\n";
-		$this->menue[2] .=  '</li></ul>';
-		$this->menue[2] .=  '</li></ul>';
-	}
+elseif( $this->niveau > $niveau ){
+	$this->menue .= '</li></ul><li>'."\r\n";
+	$this->ulauf = $this->ulauf - 1;
+}
+
+if( $clicked == 'yes' ){
+	$this->menue .=  '<a style="color:red;" href="'.$link.'">'.$name.'</a>'."\r\n";
 }
 else{
-	if( $clicked == 'yes' ){
-		$this->menue[2] .=  '<li style="list-style-type:none" ><ul>';
-		$this->menue[2] .=  '<li style="list-style-type:none" ><ul>';
-		$this->menue[2] .=  '<li style="list-style-type:none" ><ul>';
-		$this->menue[2] .=  '<li><a style="color:red;" href="'.$link.'">'.$name.'</a></li>'."\r\n";
-		$this->menue[2] .=  '</li></ul>';
-		$this->menue[2] .=  '</li></ul>';
-		$this->menue[2] .=  '</li></ul>';
-	}
-	else{
-		$this->menue[2] .=  '<li style="list-style-type:none" ><ul>';
-		$this->menue[2] .=  '<li style="list-style-type:none" ><ul>';
-		$this->menue[2] .=  '<li style="list-style-type:none" ><ul>';
-		$this->menue[2] .=  '<li><a href="'.$link.'">'.$name.'</a></li>'."\r\n";
-		$this->menue[2] .=  '</li></ul>';
-		$this->menue[2] .=  '</li></ul>';
-		$this->menue[2] .=  '</li></ul>';
-	}
+	$this->menue .=  '<a href="'.$link.'">'.$name.'</a>'."\r\n";
 }
+
+$this->niveau = $niveau;
 
 ?>
