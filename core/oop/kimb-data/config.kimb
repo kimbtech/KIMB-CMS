@@ -10,13 +10,3 @@
 <[001-show_siteinfos]>on<[001-show_siteinfos]>
 <[001-theme]>norm<[001-theme]>
 
-
-<[001-sitename]>KIMB CMS<[001-sitename]>
-<[001-sitefavi]>http://localhost:8000/load/system/KIMB.ico<[001-sitefavi]>
-<[001-loginokay]>rggfdgfd<[001-loginokay]>
-<[001-siteurl]>http://localhost:8000<[001-siteurl]>
-<[001-description]>vbxccx<[001-description]>
-<[001-adminmail]>mail@admin<[001-adminmail]>
-<[001-mailvon]>mail@cms.cms<[001-mailvon]>
-<[001-urlrewrite]>on<[001-urlrewrite]>
-++ userfile !!

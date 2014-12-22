@@ -55,6 +55,7 @@ body {
 }
 </style>
 <script language="javascript" src="load/system/jquery/jquery.min.js"></script>
+<script language="javascript" src="load/system/hash.js"></script>
 <script>
 $(function() {
 	var inhaltfile = "No clean Request";
@@ -71,7 +72,7 @@ $(function() {
 <div id="main">
 <h1 style="border-bottom:5px solid #55dd77;" >KIMB CMS - Installation</h1>
 <div style="display:none;" id="wichtig" >
-	<b>Achtung:</b><br />Das Verzeichnis /core/ und seine Unterverzeichnisse sind nicht gesch&uuml;tzt! <br /> Bitte sperren Sie diese Verzeichnis f&uuml;r jegliche Browseraufrufe!!
+	<b>Achtung:</b><br />Das Verzeichnis /core/ und seine Unterverzeichnisse sind nicht gesch&uuml;tzt! <br /> Bitte sperren Sie diese Verzeichnisse f&uuml;r jegliche Browseraufrufe!!
 </div>
 <br />
 ');
@@ -80,21 +81,34 @@ $(function() {
 
 if($_GET['step'] == '2'){
 
-	echo '<form method="post" action="configurator.php?step=3">';
-	echo '<input type="text" name="a101a" value="" size="60"><br />(Name der Seite)<br /><br />';
-	echo '<input type="text" name="a104a" value="" size="60"><br />(Meta Seitenbeschreibung)<br /><br />';
+	echo '<h2>Allgemeine Systemeinstellungen</h2>';
+	echo '<form method="post" action="configurator.php?step=3" onsubmit=" document.getElementById(\'passw\').value = SHA1( document.getElementById(\'passw\').value ); " >';
+	echo '<input type="text" name="sitename" value="KIMB CMS" size="60"><br />(Name der Seite)<br /><br />';
+	echo '<input type="text" name="metades" value="CMS von KIMB-technologies" size="60"><br />(Meta Seitenbeschreibung)<br /><br />';
+	echo '<input type="text" name="sysadminmail" value="serveradmin@server.com" size="60"><br />(E-Mail Adresse des Systemadministrators)<br /><br />';
+	echo '<input type="radio" name="urlrew" value="off">OFF <input type="radio" name="urlrew" value="on" checked="checked">ON (Aktivieren Sie URL-Rewriting f&uuml;r das System (Dazu muss Ihr Server die .htaccess im Rootverzeichnis verwenden k&ouml;nnen oder die Variable $SERVER[REQUEST_URI] setzen.))<br /><br />';
 
-	echo '<input type="password" name="a401a" value="" size="60"><br />(Passwort des Administrators)<br /><br />';
-	echo '<input type="text" name="a402a" value="" size="60"><br />(Username des Administrators)<br /><br />';
-	echo '<input type="text" name="a403a" value="" size="60"><br />(Name des Administrators)<br /><br />';
-	echo '<input type="text" name="a112a" value="" size="60"><br />(E-Mail Adresse des Administrators)<br /><hr /><hr />';
+	echo '<h2>Ersten Administrator einrichten</h2>';
+	echo '<input type="text" name="user" value="admin" readonly="readonly" size="60"><br />(Username des Administrators)<br /><br />';
+	echo '<input type="password" name="passhash" placeholder="123456" id="passw" size="60"><br />(Passwort des Administrators)<br /><br />';
+	echo '<input type="text" name="name" value="Max Heiner" size="60"><br />(Name des Administrators)<br /><br />';
+	echo '<input type="text" name="usermail" value="mail@maxheiner.org" size="60"><br />(E-Mail Adresse des Administrators)<br /><hr /><hr />';
 
-	echo '<input type="submit" value="Weiter"><br />';
+	echo '<input type="submit" value="Weiter"> <b>Alle Felder m&uuml;ssen gef&uuml;llt sein !!</b><br />';
 	echo '</form>';
 }
 
 elseif($_GET['step'] == '3'){
 
+	if( $_POST['sitename'] == '' || $_POST['metades'] == '' || $_POST['sysadminmail'] == '' || $_POST['passhash'] == '' || $_POST['name'] == '' || $_POST['usermail'] == '' ){
+
+		echo( '<h1 style="color:red;">Alle Felder m&uuml;ssen gef&uuml;llt sein !!</h1><br /><br />' );
+		echo( '<a href="configurator.php?step=2" >Zur&uuml;ck</a>' );
+		die;
+	}
+
+
+	//Request URL
 	if(isset($_SERVER['HTTPS'])){
 		$urlg = 'https://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
 	}
@@ -103,8 +117,9 @@ elseif($_GET['step'] == '3'){
 	}
 	$url = substr($urlg, '0', '-'.strlen(strrchr($urlg, '/')));
 
-	$alles = '!"#%&()*+,-./:;?[\]_0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-	$laenge = '32';
+	//Zufallsgenerator Loginokay
+	$alles = '!"&()*+,-./:;?[\]_0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+	$laenge = '50';
 	$anzahl = strlen($alles);
 	$i = '1';
 	$output = '';
@@ -114,36 +129,38 @@ elseif($_GET['step'] == '3'){
 		$i++;
 	}
 
-	$addconf = '<[001-sitename]>'.$_POST['a101a'].'<[001-sitename]>
-<[001-sitefavi]>'.$url.'/system/load/KIMB.ico<[001-sitefavi]>
-<[001-siteurl]>'.$url.'<[001-siteurl]>
-<[001-description]>'.$_POST['a104a'].'<[001-description]>
-<[001-admingetvari]>'.$_POST['a105a'].'<[001-admingetvari]>
-<[001-serversitepath]>'.__DIR__.'<[001-serversitepath]>
-<[001-copyrightname]>'.$_POST['a107a'].'<[001-copyrightname]>
-<[001-impressumlink]>'.$_POST['a109a'].'<[001-impressumlink]>
-<[001-adminmail]>'.$_POST['a112a'].'<[001-adminmail]>
+	//Konfigurationsteile
+	//erster
+	$addconf = '<[001-sitename]>'.$_POST['sitename'].'<[001-sitename]>
+<[001-sitefavi]>'.$url.'/load/system/KIMB.ico<[001-sitefavi]>
 <[001-loginokay]>'.$output.'<[001-loginokay]>
-<[012-passw]>'.md5($_POST['a401a']).'<[012-passw]>
-<[012-name]>'.$_POST['a403a'].'<[012-name]>
-<[012-username]>'.$_POST['a402a'].'<[012-username]>
-<[011-onoff]>'.$_POST['a301a'].'<[011-onoff]>
-<[011-newtoadmin]>'.$_POST['a302a'].'<[011-newtoadmin]>
-<[011-usermailtest]>'.$_POST['a303a'].'<[011-usermailtest]>
-<[010-onoff]>'.$_POST['a201a'].'<[010-onoff]>
-<[010-abs]>gms@'.$_SERVER['HTTP_HOST'].'<[010-abs]>
-<[010-logofdatapath]>'.__DIR__.'/kimb-data/log<[010-logofdatapath]>';
-	
-	$handle = fopen(__DIR__.'/kimb-data/configuration.kimb', 'a+');
+<[001-siteurl]>'.$url.'<[001-siteurl]>
+<[001-description]>'.$_POST['metades'].'<[001-description]>
+<[001-adminmail]>'.$_POST['sysadminmail'].'<[001-adminmail]>
+<[001-mailvon]>cms@'.$_SERVER['HTTP_HOST'].'<[001-mailvon]>
+<[001-urlrewrite]>'.$_POST['urlrew'].'<[001-urlrewrite]>';
+
+
+	$handle = fopen(__DIR__.'/core/oop/kimb-data/config.kimb', 'a+');
 	fwrite($handle, $addconf);
 	fclose($handle);
 
-	echo('Installation erfolgreich! <a href="'.$url.'/system/login.php"><button>Zum Frontend</button></a><br />');
+	//zweiter
+	$adduser = '<[1-passw]>'.$_POST['passhash'].'<[1-passw]>
+<[1-name]>'.$_POST['name'].'<[1-name]>
+<[1-mail]>'.$_POST['usermail'].'<[1-mail]>';
+
+
+	$handle = fopen(__DIR__.'/core/oop/kimb-data/backend/users/list.kimb', 'a+');
+	fwrite($handle, $adduser);
+	fclose($handle);
+
+	echo('Installation erfolgreich! <a href="'.$url.'/" target="_blank"><button>Zur Seite</button></a><br />');
+	echo('Installation erfolgreich! <a href="'.$url.'/kimb-cms-backend/" target="_blank"><button>Zum Backend</button></a><br />');
 
 	unlink('conf-enable');
 
 }
-
 else{
 
 	if (version_compare(PHP_VERSION, '5.0.0', '<' )) {
@@ -224,7 +241,5 @@ else{
 	}
 
 }
-
 echo('</div></body></html>');
 ?>
-
