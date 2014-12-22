@@ -17,11 +17,7 @@ echo ('<link rel="stylesheet" type="text/css" href="'.$this->allgsysconf['siteur
 echo ('<link rel="stylesheet" type="text/css" href="'.$this->allgsysconf['siteurl'].'/load/system/theme/design.css" media="screen">'."\r\n");
 echo ('<link rel="stylesheet" type="text/css" href="'.$this->allgsysconf['siteurl'].'/load/system/theme/print.css" media="print">'."\r\n");
 echo ('<link href="'.$this->allgsysconf['siteurl'].'/load/system/theme/touch_icon.png" rel="apple-touch-icon" />'."\r\n");
-echo ('<link rel="stylesheet" type="text/css" href="'.$this->allgsysconf['siteurl'].'/load/system/jquery/jquery-ui.min.css" >'."\r\n");
-echo ('<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/jquery/jquery.min.js"></script>'."\r\n");
-echo ('<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/jquery/jquery-ui.min.js"></script>'."\r\n");
-echo ('<script> $(function() { 	$( "#menues" ).menu(); }); </script>'."\r\n");
-			
+		
 	echo($this->header);
 	echo("\r\n");
 
@@ -31,7 +27,7 @@ echo('</head><body>'."\r\n");
 			echo('<a href="'.$this->allgsysconf['siteurl'].'/"><div style="float:left;"><img src="'.$this->allgsysconf['siteurl'].'/load/system/theme/logo.png" style="border:none;"></div>'."\r\n");
 			echo('<div style="line-height: 100px;">'.$this->allgsysconf['sitename'].'</div></a>'."\r\n");
 		echo('</div>'."\r\n");
-		echo('<div id="menu"><ul id="menues">'."\r\n");
+		echo('<div><ul id="nav">'."\r\n");
 
 			echo($this->menue);
 			echo("\r\n");
@@ -39,23 +35,36 @@ echo('</head><body>'."\r\n");
 			echo( str_repeat( '</ul>' , $this->ulauf ) );
 
 		echo('</ul></div>'."\r\n");
-		echo('<div id="site">'."\r\n");
+
+		if( $this->addon != '' ){
+			echo('<div id="site">'."\r\n");
 			
-				echo($this->addon);
-				echo("\r\n");
+					echo($this->addon);
+					echo("\r\n");
 
-			echo('<div id="content" style="position: relative; padding-bottom:30px;">'."\r\n");
+				echo('<div id="contents" >'."\r\n");
 
-				echo($this->sitecontent);
-				echo("\r\n");
+					echo($this->sitecontent);
+					echo("\r\n");
 
-			echo('</div></div>'."\r\n");
-		echo('</div>'."\r\n");
-		echo('<div id="footer">'."\r\n");
+				echo('</div></div>'."\r\n");
+			echo('<div id="footer" >'."\r\n");
+		}
+		else{
+			echo('<div id="site">'."\r\n");
+				echo('<div id="contentm" >'."\r\n");
 
+					echo($this->sitecontent);
+					echo("\r\n");
+
+				echo('</div></div>'."\r\n");
+			echo('<div id="footer" style="width:940px;" >'."\r\n");
+		}
+		
 			echo($this->footer);
 			echo("\r\n");
 
+		echo('</div>'."\r\n");
 	echo('</div>'."\r\n");
 echo('</body> </html>');
 
