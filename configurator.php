@@ -21,7 +21,7 @@
 error_reporting('0');
 
 if(file_exists ('conf-enable') != 'true'){
-	echo('<title>KIMB GMS - Installation</title><link rel="shortcut icon" href="system/load/KIMB.ico" type="image/x-icon; charset=binary"><h1>Error - 404</h1>Bitte schalten Sie den Configurator frei, erstellen Sie eine leere "conf-enable" Datei im GMS-Root-Verzeichnis.<br /> Please activate the configurator, create an empty "conf-enable" file in the GMS root folder.'); die;
+	echo('<title>KIMB CMS - Installation</title><link rel="shortcut icon" href="system/load/KIMB.ico" type="image/x-icon; charset=binary"><h1>Error - 404</h1>Bitte schalten Sie den Configurator frei, erstellen Sie eine leere "conf-enable" Datei im CMS-Root-Verzeichnis.<br /> Please activate the configurator, create an empty "conf-enable" file in the CMS root folder.'); die;
 }
 
 echo('
