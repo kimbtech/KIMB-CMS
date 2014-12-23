@@ -152,8 +152,15 @@ elseif( $_GET['todo'] == 'connect' ){
 		
 		$sitecontent->add_site_content('<tr> <td>'.$menuear['niveau'].'</td>  <td>'.$menuear['menuname'].'</td> <td>'.$status.'</td> <td><input type="text" value="'.$menuear['siteid'].'" name="'.$i.'-site"><input type="hidden" value="'.$menuear['requid'].'" name="'.$i.'"></td> </tr>');
 		$i++;
+
+		$liste = 'yes';
 	}
 	$sitecontent->add_site_content('</table>');
+
+	if( $liste != 'yes' ){
+		$sitecontent->echo_error( 'Es wurden keine Menues gefunden!' );
+	}
+
 	$sitecontent->add_site_content('<input type="hidden" value="post" name="post"><input type="submit" value="Zuordnungen ändern"></form>');
 
 }
@@ -248,8 +255,15 @@ elseif( $_GET['todo'] == 'list' ){
 		$versch .= '<span onclick="var updo = updown( \''.$menuear['fileid'].'\' , \'down\' , '.$menuear['requid'].' ); updo();"><span class="ui-icon ui-icon-arrowthick-1-s" title="Dieses Menue nach unten schieben."></span></span>';
 
 		$sitecontent->add_site_content('<tr> <td>'.$menuear['niveau'].'</td> <td>'.$versch.'</td> <td>'.$menuename.'</td> <td>'.$menuear['path'].'</td> <td>'.$requid.'</td> <td>'.$menuear['status'].'</td> <td>'.$menuear['siteid'].'</td> <td>'.$menuear['menueid'].'</td> <td>'.$del.'</td> <td>'.$newmenue.'</td> </tr>');
+
+		$liste = 'yes';
 	}
 	$sitecontent->add_site_content('</table>');
+
+	if( $liste != 'yes' ){
+		$sitecontent->echo_error( 'Es wurden keine Menues gefunden!' );
+	}
+
 	$sitecontent->add_site_content('<div style="display:none;"><div id="del-confirm" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Möchten Sie das Menue wirklich löschen?</p></div></div>');
 	$sitecontent->add_site_content('<div style="display:none;"><div id="del-untermenue" title="Löschen nicht möglich!"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Das Menue kann erst gelöscht werden, wenn es keine Untermenues mehr hat!</p></div></div>');
 	$sitecontent->add_site_content('<div style="display:none;"><div id="updown" title="Fehler beim Verschieben!"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 100px 0;"></span>Achtung, Menues können nur innerhalb ihres Niveaus verschoben werden!<br /><br />Auch ein Verschieben auf einen höheren Platz als den Ersten oder einen tieferen als den Letzten ist nicht möglich!</p></div></div>');

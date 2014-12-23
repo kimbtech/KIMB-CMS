@@ -35,15 +35,20 @@ if( $_GET['todo'] == 'more' ){
 	}
 	else{
 		$sitecontent->add_site_content('<h2>Ein Addon wählen</h2>');
-		$sitecontent->add_site_content('<table width="100%"><tr> <th></th> </tr>');
+		$sitecontent->add_site_content('<table width="100%"><tr> <th>Add-on</th> </tr>');
 
 		$addons = listaddons();
 		foreach( $addons as $addon ){
 			
 			$sitecontent->add_site_content('<tr> <td><a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=more&amp;addon='.$addon.'">'.$addon.'</a></td> </tr>');
 
+			$liste = 'yes';
 		}
 		$sitecontent->add_site_content('</table>');
+
+		if( $liste != 'yes' ){
+			$sitecontent->echo_error( 'Es wurden keine Add-ons gefunden!' );
+		}
 	}
 
 
@@ -69,15 +74,21 @@ elseif( $_GET['todo'] == 'less' ){
 	}
 	else{
 		$sitecontent->add_site_content('<h2>Ein Addon wählen</h2>');
-		$sitecontent->add_site_content('<table width="100%"><tr> <th></th> </tr>');
+		$sitecontent->add_site_content('<table width="100%"><tr> <th>Add-on</th> </tr>');
 
 		$addons = listaddons();
 		foreach( $addons as $addon ){
 			
 			$sitecontent->add_site_content('<tr> <td><a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=less&amp;addon='.$addon.'">'.$addon.'</a></td> </tr>');
 
+			$liste = 'yes';
+
 		}
 		$sitecontent->add_site_content('</table>');
+
+		if( $liste != 'yes' ){
+			$sitecontent->echo_error( 'Es wurden keine Add-ons gefunden!' );
+		}
 	}
 
 }

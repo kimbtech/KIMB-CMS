@@ -19,6 +19,18 @@ if( isset($_GET['url']) ){
 		$i++;
 	}
 
+	$pos = strpos( $allgsysconf['siteurl'] , '/' , 8 );
+	$wegteil = substr( $allgsysconf['siteurl'] , $pos + 1 );
+	$wegteile = explode( '/' , $wegteil );
+	foreach( $wegteile as $teil ){
+		if( $urlteile[$i] == $teil ){
+			$i++;
+		}
+		else{
+			break;
+		}
+	}
+	
 	$file = new KIMBdbf('url/first.kimb');
 	$ok = $file->search_kimb_xxxid( $urlteile[$i] , 'path' );
 	if( $ok != false){

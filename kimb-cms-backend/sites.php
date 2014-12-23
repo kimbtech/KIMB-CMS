@@ -114,8 +114,14 @@ elseif( $_GET['todo'] == 'list' ){
 			$status .= '<span class="ui-icon ui-icon-alert" title="Achtung, diese Seite ist noch keinem Menü zugeordnet, daher ist sie im Frontend nicht auffindbar!"></span>';
 		}
 		$sitecontent->add_site_content('<tr><td>'.$id.'</td><td id="'.$title.'">'.$name.'</td><td>'.$status.'</td><td>'.$del.'</td></tr>');
+
+		$liste = 'yes';
 	}
 	$sitecontent->add_site_content('</table>');
+
+	if( $liste != 'yes' ){
+		$sitecontent->echo_error( 'Es wurden keine Seiten gefunden!' );
+	}
 
 	$sitecontent->add_site_content('<div style="display:none;"><div id="del-confirm" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Möchten Sie die Seite wirklich löschen?</p></div></div>');
 

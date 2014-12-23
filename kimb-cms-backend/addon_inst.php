@@ -87,28 +87,36 @@ elseif( isset( $_FILES['userfile']['name'] ) ){
 elseif( $_GET['todo'] == 'chdeak' && isset( $_GET['addon'] ) ){
 
 	if( !$addoninclude->read_kimb_search_teilpl( 'ajax' , $_GET['addon'] ) ){
-		$addoninclude->write_kimb_teilpl( 'ajax' , $_GET['addon'] , 'add' );
+		if( file_exists(__DIR__.'/../core/addons/'.$_GET['addon'].'/include_ajax.php') ){
+			$addoninclude->write_kimb_teilpl( 'ajax' , $_GET['addon'] , 'add' );
+		}
 	}
 	else{
 		$addoninclude->write_kimb_teilpl( 'ajax' , $_GET['addon'] , 'del' );
 	}
 
 	if( !$addoninclude->read_kimb_search_teilpl( 'first' , $_GET['addon'] ) ){
-		$addoninclude->write_kimb_teilpl( 'first' , $_GET['addon'] , 'add' );
+		if( file_exists(__DIR__.'/../core/addons/'.$_GET['addon'].'/include_first.php') ){
+			$addoninclude->write_kimb_teilpl( 'first' , $_GET['addon'] , 'add' );
+		}
 	}
 	else{
 		$addoninclude->write_kimb_teilpl( 'first' , $_GET['addon'] , 'del' );
 	}
 
 	if( !$addoninclude->read_kimb_search_teilpl( 'backend' , $_GET['addon'] ) ){
-		$addoninclude->write_kimb_teilpl( 'backend' , $_GET['addon'] , 'add' );
+		if( file_exists(__DIR__.'/../core/addons/'.$_GET['addon'].'/include_backend.php') ){
+			$addoninclude->write_kimb_teilpl( 'backend' , $_GET['addon'] , 'add' );
+		}
 	}
 	else{
 		$addoninclude->write_kimb_teilpl( 'backend' , $_GET['addon'] , 'del' );
 	}
 
 	if( !$addoninclude->read_kimb_search_teilpl( 'second' , $_GET['addon'] ) ){
-		$addoninclude->write_kimb_teilpl( 'second' , $_GET['addon'] , 'add' );
+		if( file_exists(__DIR__.'/../core/addons/'.$_GET['addon'].'/include_second.php') ){
+			$addoninclude->write_kimb_teilpl( 'second' , $_GET['addon'] , 'add' );
+		}
 	}
 	else{
 		$addoninclude->write_kimb_teilpl( 'second' , $_GET['addon'] , 'del' );
@@ -147,7 +155,7 @@ foreach( $addons as $addon ){
 
 	$del = '<span onclick="var delet = del( \''.$addon.'\' ); delet();"><span class="ui-icon ui-icon-trash" title="Dieses Add-on löschen."></span></span>';
 
-	if ( $addoninclude->read_kimb_search_teilpl( 'ajax' , $addon ) && $addoninclude->read_kimb_search_teilpl( 'backend' , $addon ) && $addoninclude->read_kimb_search_teilpl( 'first' , $addon ) && $addoninclude->read_kimb_search_teilpl( 'second' , $addon ) ){
+	if ( $addoninclude->read_kimb_search_teilpl( 'ajax' , $addon ) || $addoninclude->read_kimb_search_teilpl( 'backend' , $addon ) || $addoninclude->read_kimb_search_teilpl( 'first' , $addon ) || $addoninclude->read_kimb_search_teilpl( 'second' , $addon ) ){
 		$status = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_inst.php?todo=chdeak&amp;addon='.$addon.'"><span class="ui-icon ui-icon-check" title="Dieses Add-on ist zu Zeit aktiviert. ( click -> ändern )"></span></a>';
 	}
 	else{
@@ -156,8 +164,14 @@ foreach( $addons as $addon ){
 			
 	$sitecontent->add_site_content('<tr> <td>'.$addon.'</td> <td>'.$status.'</td> <td>'.$del.'</td> </tr>');
 
+	$liste = 'yes';
+
 }
 $sitecontent->add_site_content('</table>');
+
+if( $liste != 'yes' ){
+	$sitecontent->echo_error( 'Es wurden keine Add-ons gefunden!' );
+}
 
 $sitecontent->add_site_content('<div style="display:none;"><div id="del-confirm" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Möchten Sie dieses Addon wirklich löschen?</p></div></div>');
 
