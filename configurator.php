@@ -118,7 +118,7 @@ elseif($_GET['step'] == '3'){
 	$url = substr($urlg, '0', '-'.strlen(strrchr($urlg, '/')));
 
 	//Zufallsgenerator Loginokay
-	$alles = '!"&()*+,-./:;?[\]_0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+	$alles = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 	$laenge = '50';
 	$anzahl = strlen($alles);
 	$i = '1';
