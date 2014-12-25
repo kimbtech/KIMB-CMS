@@ -16,4 +16,4 @@
 <[001-cachelifetime]>always<[001-cachelifetime]>
 <[001-use_request_url]>ok<[001-use_request_url]>
 
-<[001-show_siteinfos]>on<[001-show_siteinfos]><[001-theme]>norm<[001-theme]>
+<[001-show_siteinfos]>on<[001-show_siteinfos]><[001-theme]>mobile<[001-theme]>
