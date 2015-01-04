@@ -69,8 +69,33 @@ class backend_output{
 			if( $_SESSION['permission'] == 'more' ){
 
 			}
-			elseif( $_SESSION['loginokay'] == $this->allgsysconf['loginokay'] ){
+			elseif( $_SESSION['permission'] == 'less' ){
 				echo ('	$( "ul#menu li.admin" ).addClass("ui-state-disabled");'."\r\n");
+
+			}
+			elseif( $_SESSION['loginokay'] == $this->allgsysconf['loginokay'] ){
+
+				if( !is_object( $levellist ) ){
+					$levellist = new KIMBdbf( 'backend/users/level.kimb' );
+				}
+				$permissteile = $levellist->read_kimb_one( $_SESSION['permission'] );
+				
+				if( $permissteile != '' ){
+					$permissteile = explode( ',' , $permissteile );
+					$all = $levellist->read_kimb_one( 'all' );
+					$all = explode( ',' , $all );
+					foreach( $all as $teil ){
+						if( !in_array( $teil , $permissteile ) ){
+							echo ('	$( "ul#menu li.'.$teil.'" ).addClass("ui-state-disabled");'."\r\n");
+						}
+					}
+				}
+				else{
+					$this->sitecontent = '';
+					$this->echo_error( 'Ihr Userlevel ist fehlerhaft!' );
+					echo ('	$( "ul#menu li.admin" ).addClass("ui-state-disabled");'."\r\n");
+					echo ('	$( "ul#menu li.editor" ).addClass("ui-state-disabled");'."\r\n");
+				}
 
 			}
 			else{
@@ -101,8 +126,11 @@ class backend_output{
 					if( $_SESSION['permission'] == 'more' ){
 						echo ('<i title="Sie haben alle Rechte in Backend!" >Admin</i>'."\r\n");
 					}
-					else{
+					elseif( $_SESSION['permission'] == 'less' ){
 						echo ('<i title="Sie haben eingeschränkte Rechte in Backend, einige Links sind im Menue deaktiviert!" >Editor</i>'."\r\n");
+					}
+					else{
+						echo ('<i title="Sie haben ein von Ihrem Admin erstelles Zugriffslevel!" >Systemspezifisch</i>'."\r\n");
 					}
 					echo ('<div style="float:right; position:absolute; right:40px; bottom:7px;"><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/syseinst.php?todo=purgecache" title="Den Cache leeren. (Dies ist nur nach einer Änderung im Menü oder für bestimmte Add-ons nötig!)"><span class="ui-icon 	ui-icon-refresh"></span></a></div>'."\r\n");
  
@@ -117,37 +145,37 @@ echo('
 <!-- Menue - jQuery UI -->
 
 			<ul id="menu">
-			<li class="editor" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/sites.php" title="Seiten erstellen, löschen, bearbeiten"><span class="ui-icon ui-icon-document"></span>Seiten</a>
+			<li class="editor one" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/sites.php" title="Seiten erstellen, löschen, bearbeiten"><span class="ui-icon ui-icon-document"></span>Seiten</a>
 			<ul>
-					<li class="editor" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=new" title="Eine neue Seite erstellen."><span class="ui-icon ui-icon-plusthick"></span>Erstellen</a></li>
-					<li class="editor" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=list" title="Alle Seiten zum Bearbeiten, De-, Aktivieren und Löschen auflisten."><span class="ui-icon ui-icon-calculator"></span>Auflisten</a></li>
+					<li class="editor two" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=new" title="Eine neue Seite erstellen."><span class="ui-icon ui-icon-plusthick"></span>Erstellen</a></li>
+					<li class="editor three" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=list" title="Alle Seiten zum Bearbeiten, De-, Aktivieren und Löschen auflisten."><span class="ui-icon ui-icon-calculator"></span>Auflisten</a></li>
 			</ul>
 			</li>
-			<li class="editor" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/menue.php" title="Menüs erstellen, löschen, bearbeiten"><span class="ui-icon ui-icon-newwin"></span>Menue</a>
+			<li class="editor four" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/menue.php" title="Menüs erstellen, löschen, bearbeiten"><span class="ui-icon ui-icon-newwin"></span>Menue</a>
 				<ul>
-					<li class="admin" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=new" title="Einen neuen Menüpunkt erstellen."><span class="ui-icon ui-icon-plusthick"></span>Erstellen</a></li>
-					<li class="editor" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=connect" title="Einen Seite einem Menüpunkt zuordnen."><span class="ui-icon ui-icon-arrowthick-2-e-w"></span>Zuordnen</a></li>
-					<li class="admin" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=list" title="Die gesamte Menüstruktur zum Bearbeiten und Löschen darstellen."><span class="ui-icon ui-icon-calculator"></span>Auflisten</a></li>
+					<li class="admin five" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=new" title="Einen neuen Menüpunkt erstellen."><span class="ui-icon ui-icon-plusthick"></span>Erstellen</a></li>
+					<li class="editor six" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=connect" title="Einen Seite einem Menüpunkt zuordnen."><span class="ui-icon ui-icon-arrowthick-2-e-w"></span>Zuordnen</a></li>
+					<li class="admin seven" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=list" title="Die gesamte Menüstruktur zum Bearbeiten und Löschen darstellen."><span class="ui-icon ui-icon-calculator"></span>Auflisten</a></li>
 				</ul>
 			</li>
-			<li class="admin" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/user.php" title="Backenduser erstellen, löschen, bearbeiten"><span class="ui-icon ui-icon-person"></span>User</a>
+			<li class="admin eight" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/user.php" title="Backenduser erstellen, löschen, bearbeiten"><span class="ui-icon ui-icon-person"></span>User</a>
 				<ul>
-					<li class="admin" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/user.php?todo=new" title="Einen neuen Backenduser erstellen."><span class="ui-icon ui-icon-plusthick"></span>Erstellen</a></li>
-					<li class="admin" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/user.php?todo=list" title="Alle Backenduser zum Bearbeiten und Löschen auflisten."><span class="ui-icon ui-icon-calculator"></span>Auflisten</a></li>
+					<li class="admin nine" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/user.php?todo=new" title="Einen neuen Backenduser erstellen."><span class="ui-icon ui-icon-plusthick"></span>Erstellen</a></li>
+					<li class="admin ten" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/user.php?todo=list" title="Alle Backenduser zum Bearbeiten und Löschen auflisten."><span class="ui-icon ui-icon-calculator"></span>Auflisten</a></li>
 				</ul>
 			</li>
-			<li class="admin" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/syseinst.php" title="Systemkonfiguration anpassen"><span class="ui-icon ui-icon-gear"></span>Konfiguration</a></li>
-			<li class="editor" ><span class="ui-icon ui-icon-plusthick"></span>Add-ons
+			<li class="admin eleven" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/syseinst.php" title="Systemkonfiguration anpassen"><span class="ui-icon ui-icon-gear"></span>Konfiguration</a></li>
+			<li class="editor twelve" ><span class="ui-icon ui-icon-plusthick"></span>Add-ons
 				<ul>
-					<li class="editor" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=less" title="Add-on Nutzung als Editor"><span class="ui-icon ui-icon-plusthick"></span>Nutzung</a></li>
-					<li class="admin" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=more" title="Add-on Konfiguration als Admin"><span class="ui-icon ui-icon-wrench"></span>Konfiguration</a></li>
-					<li class="admin" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/addon_inst.php" title="Add-ons installieren, löschen, de-, aktivieren"><span class="ui-icon ui-icon-circle-arrow-n"></span>Installation</a></li>
+					<li class="editor thirteen" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=less" title="Add-on Nutzung als Editor"><span class="ui-icon ui-icon-plusthick"></span>Nutzung</a></li>
+					<li class="admin fourteen" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=more" title="Add-on Konfiguration als Admin"><span class="ui-icon ui-icon-wrench"></span>Konfiguration</a></li>
+					<li class="admin fiveteen" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/addon_inst.php" title="Add-ons installieren, löschen, de-, aktivieren"><span class="ui-icon ui-icon-circle-arrow-n"></span>Installation</a></li>
 				</ul>
 			</li>
-			<li class="editor" ><span class="ui-icon ui-icon-help"></span>Other
+			<li class="editor sixteen" ><span class="ui-icon ui-icon-help"></span>Other
 				<ul>
-					<li class="editor" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/other_filemanager.php" title="Dateien zum, Einbinden in Ihrer Seite, hochladen und verwalten, &apos;&apos;sichere&apos;&apos; Speicherung"><span class="ui-icon ui-icon-image"></span>Filemanager</a></li>
-					<li class="admin" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/other_themes.php" title="Verändern Sie das Design des Frontends mit KIMB-CMS Themes"><span class="ui-icon ui-icon-contact"></span>Themes</a></li>
+					<li class="editor seventeen" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/other_filemanager.php" title="Dateien zum, Einbinden in Ihrer Seite, hochladen und verwalten, &apos;&apos;sichere&apos;&apos; Speicherung"><span class="ui-icon ui-icon-image"></span>Filemanager</a></li>
+					<li class="admin eightteen" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/other_themes.php" title="Verändern Sie das Design des Frontends mit KIMB-CMS Themes"><span class="ui-icon ui-icon-contact"></span>Themes</a></li>
 				</ul>
 			</li>
 			</ul>

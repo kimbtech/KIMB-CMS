@@ -7,8 +7,6 @@ require_once(__DIR__.'/../core/oop/all_oop_backend.php');
 //Konfiguration laden
 require_once(__DIR__.'/../core/conf/conf_backend.php');
 
-check_backend_login();
-
 //Menues erstellen und zuordnen
 
 $idfile = new KIMBdbf('menue/allids.kimb');
@@ -16,7 +14,7 @@ $menuenames = new KIMBdbf('menue/menue_names.kimb');
 $sitecontent->add_html_header('<style>td { border:1px solid #000000; padding:2px;} td a { text-decoration:none; }</style>');
 
 if( $_GET['todo'] == 'new' ){
-	check_backend_login('more');
+	check_backend_login('five' , 'more');
 
 	$sitecontent->add_site_content('<h2>Ein neues Menue erstellen</h2>');
 
@@ -117,6 +115,7 @@ if( $_GET['todo'] == 'new' ){
 	}
 }
 elseif( $_GET['todo'] == 'connect' ){
+	check_backend_login( 'six' );
 
 	if( $_POST['post'] == 'post' ){
 		$i = 0;
@@ -165,7 +164,7 @@ elseif( $_GET['todo'] == 'connect' ){
 
 }
 elseif( $_GET['todo'] == 'list' ){
-	check_backend_login('more');
+	check_backend_login('seven' , 'more');
 
 	$sitecontent->add_site_content('<h2>Alle Menues auflisten</h2>');
 
@@ -269,7 +268,7 @@ elseif( $_GET['todo'] == 'list' ){
 	$sitecontent->add_site_content('<div style="display:none;"><div id="updown" title="Fehler beim Verschieben!"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 100px 0;"></span>Achtung, Menues können nur innerhalb ihres Niveaus verschoben werden!<br /><br />Auch ein Verschieben auf einen höheren Platz als den Ersten oder einen tieferen als den Letzten ist nicht möglich!</p></div></div>');
 }
 elseif( $_GET['todo'] == 'edit' ){
-	check_backend_login('more');
+	check_backend_login('seven' , 'more');
 
 	$sitecontent->add_site_content('<h2>Ein Menue bearbeiten</h2>');
 
@@ -349,7 +348,7 @@ elseif( $_GET['todo'] == 'edit' ){
 	}
 }
 elseif( $_GET['todo'] == 'del' ){
-	check_backend_login('more');
+	check_backend_login('seven' , 'more');
 
 	$sitecontent->add_site_content('<h2>Ein Menue löschen</h2>');
 
@@ -420,6 +419,7 @@ elseif( $_GET['todo'] == 'del' ){
 	}
 }
 elseif( $_GET['todo'] == 'deakch' ){
+	check_backend_login( 'four' );
 
 	$sitecontent->add_site_content('<h2>Einen Menuestatus verändern</h2>');
 
@@ -461,9 +461,9 @@ elseif( $_GET['todo'] == 'deakch' ){
 	}
 }
 else{
-	$sitecontent->add_site_content('<h2>Startseite Menue</h2>');
+	check_backend_login('four' , 'more');
 
-	check_backend_login('more');
+	$sitecontent->add_site_content('<h2>Startseite Menue</h2>');
 
 	$sitecontent->add_site_content('<span id="startbox"><b><a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=new">Erstellen</b><br /><span class="ui-icon ui-icon-plusthick"></span><br /><i>Eine neues Menue erstellen.</i></span></a>');
 	$sitecontent->add_site_content('<span id="startbox"><b><a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=connect">Zuordnen</b><br /><span class="ui-icon ui-icon-arrowthick-2-e-w"></span><br /><i>Die Menues einer Seite zuordnen und de-, aktivieren.</i></span></a>');

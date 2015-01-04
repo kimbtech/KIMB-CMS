@@ -7,11 +7,10 @@ require_once(__DIR__.'/../core/oop/all_oop_backend.php');
 //Konfiguration laden
 require_once(__DIR__.'/../core/conf/conf_backend.php');
 
-check_backend_login();
-
 //Seite erstellen, zuordnen
 
 if( $_GET['todo'] == 'new' ){
+	check_backend_login('two');
 
 	$sitecontent->add_site_content('<h2>Neue Seite</h2>');
 
@@ -58,6 +57,7 @@ if( $_GET['todo'] == 'new' ){
 
 }
 elseif( $_GET['todo'] == 'list' ){
+	check_backend_login('three');
 
 	$sitecontent->add_site_content('<h2>Liste aller Seiten</h2>');
 
@@ -127,6 +127,7 @@ elseif( $_GET['todo'] == 'list' ){
 
 }
 elseif( $_GET['todo'] == 'edit' && is_numeric( $_GET['id'] ) ){
+	check_backend_login('three');
 
 	$sitecontent->add_site_content('<h2>Seite bearbeiten</h2>');
 
@@ -217,6 +218,7 @@ elseif( $_GET['todo'] == 'edit' && is_numeric( $_GET['id'] ) ){
 
 }
 elseif( $_GET['todo'] == 'del' && is_numeric( $_GET['id'] ) ){
+	check_backend_login('three');
 
 	if( !is_object( $sitef ) ){
 		if( check_for_kimb_file( '/site/site_'.$_GET['id'].'.kimb' ) ){
@@ -236,6 +238,7 @@ elseif( $_GET['todo'] == 'del' && is_numeric( $_GET['id'] ) ){
 
 }
 elseif( $_GET['todo'] == 'deakch' && is_numeric( $_GET['id'] ) ){
+	check_backend_login('three');
 
 	if( check_for_kimb_file( '/site/site_'.$_GET['id'].'.kimb' ) ){
 		rename_kimbdbf( '/site/site_'.$_GET['id'].'.kimb' , '/site/site_'.$_GET['id'].'_deak.kimb' );
@@ -247,6 +250,8 @@ elseif( $_GET['todo'] == 'deakch' && is_numeric( $_GET['id'] ) ){
 	die;
 }
 else{
+	check_backend_login('one');
+
 	$sitecontent->add_site_content('<h2>Seiten</h2>');
 
 	$sitecontent->add_site_content('<span id="startbox"><b><a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=new">Erstellen</b><br /><span class="ui-icon ui-icon-plusthick"></span><br /><i>Eine neue Seite erstellen.</i></span></a>');
