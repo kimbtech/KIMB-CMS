@@ -7,11 +7,10 @@ require_once(__DIR__.'/../core/oop/all_oop_backend.php');
 //Konfiguration laden
 require_once(__DIR__.'/../core/conf/conf_backend.php');
 
+$checkerneut = 'yes';
 if( $_GET['user'] == $_SESSION['user'] && $_GET['todo'] == 'edit' ){
-	check_backend_login();
-}
-else{
-	check_backend_login('more');
+	check_backend_login( 'eight' );
+	$checkerneut = 'no';
 }
 
 //BE-User erstellen, bearbeiten
@@ -20,6 +19,7 @@ $userfile = new KIMBdbf('backend/users/list.kimb');
 $sitecontent->add_html_header('<style>td { border:1px solid #000000; padding:2px;} td a { text-decoration:none; }</style>');
 
 if( $_GET['todo'] == 'new' ){
+	check_backend_login( 'nine' , 'more' );
 
 	$sitecontent->add_site_content('<h2>User erstellen</h2>');
 
@@ -180,6 +180,9 @@ if( $_GET['todo'] == 'new' ){
 	$sitecontent->add_site_content('</form>');
 }
 elseif( $_GET['todo'] == 'edit' && isset( $_GET['user'] ) ){
+	if( $checkerneut != 'no' ){
+		check_backend_login( 'ten' , 'more' );
+	}
 
 	$sitecontent->add_site_content('<h2>User bearbeiten</h2>');
 
@@ -301,6 +304,7 @@ elseif( $_GET['todo'] == 'edit' && isset( $_GET['user'] ) ){
 
 }
 elseif( $_GET['todo'] == 'list'){
+	check_backend_login( 'ten' , 'more' );
 
 	$sitecontent->add_site_content('<h2>Userliste</h2>');
 
@@ -327,6 +331,8 @@ elseif( $_GET['todo'] == 'list'){
 	$sitecontent->add_site_content('</table>');
 }
 else{
+	check_backend_login( 'eight' , 'more' );
+
 	$sitecontent->add_site_content('<h2>User</h2>');
 
 	$sitecontent->add_site_content('<span id="startbox"><b><a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/user.php?todo=new">Erstellen</b><br /><span class="ui-icon ui-icon-plusthick"></span><br /><i>Einen neuen User erstellen.</i></span></a>');

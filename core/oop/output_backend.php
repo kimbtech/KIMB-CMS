@@ -187,7 +187,8 @@ echo('
 				echo ('<div id="version">'."\r\n");
 					echo ('<b>KIMB-technologies CMS<br />V. '.$this->allgsysconf['systemversion'].'</b><br />'."\r\n");
 					echo ('<i>Diese Seite ist nur für Administratoren!</i><br />'."\r\n");
-					echo ('<a href="'.$this->allgsysconf['siteurl'].'/">Zurück</a>'."\r\n");
+					echo ('<a href="'.$this->allgsysconf['siteurl'].'/">Zurück</a><br />'."\r\n");
+					echo ('<a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/index.php">Backend Login</a>'."\r\n");
 					echo ('</div>'."\r\n");
 				echo('<div id="content">'."\r\n");
 

@@ -7,14 +7,12 @@ require_once(__DIR__.'/../core/oop/all_oop_backend.php');
 //Konfiguration laden
 require_once(__DIR__.'/../core/conf/conf_backend.php');
 
-check_backend_login();
-
 //Add-on Konfiguration
 
 $sitecontent->add_html_header('<style>td { border:1px solid #000000; padding:2px;} td a { text-decoration:none; }</style>');
 
 if( $_GET['todo'] == 'more' ){
-	check_backend_login('more');
+	check_backend_login( 'fourteen' , 'more');
 	
 	if( isset( $_GET['addon'] ) ){
 
@@ -55,6 +53,8 @@ if( $_GET['todo'] == 'more' ){
 }
 elseif( $_GET['todo'] == 'less' ){
 
+	check_backend_login( 'thirteen' );
+
 	if( isset( $_GET['addon'] ) ){
 
 		$sitecontent->add_site_content('<h2>Ein Addon nutzen</h2>');
@@ -93,6 +93,8 @@ elseif( $_GET['todo'] == 'less' ){
 
 }
 else{
+	check_backend_login( 'twelve' );
+
 	$sitecontent->echo_error( 'Ihre Anfrage war fehlerhaft!' , 'unknown');
 }
 
