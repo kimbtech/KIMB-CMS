@@ -3,7 +3,7 @@
 <[1]>passw==user==permiss==name==mail<[1]>
 <[1-passw]>a94a8fe5ccb19ba61c4c0873d391e987982fbbd3<[1-passw]>
 <[1-user]>test<[1-user]>
-<[1-permiss]>schreiber<[1-permiss]>
+<[1-permiss]>test<[1-permiss]>
 <[1-name]>Test<[1-name]>
 <[1-mail]>test@test.test<[1-mail]>
 
@@ -16,3 +16,4 @@
 
 <[userids1]>1<[userids1]>
 <[userids2]>2<[userids2]>
+<[userids3]>3<[userids3]><[3-passw]>ab41949825606da179db7c89ddcedcc167b64847<[3-passw]><[3]>passw==permiss==name==mail==user<[3]><[3-permiss]>less<[3-permiss]><[3-name]>Editor<[3-name]><[3-mail]>mail@mail.mail<[3-mail]><[3-user]>editor<[3-user]>

@@ -279,11 +279,36 @@ elseif( $_GET['todo'] == 'edit' && isset( $_GET['user'] ) ){
 			$sitecontent->add_site_content('<input type="text" name="name" value="'.$user['name'].'"> <i title="Name des Users" >Name</i><br />');
 			$sitecontent->add_site_content('<input type="text" name="mail" value="'.$user['mail'].'"> <i title="E-Mail Adresse des Users für Nachrichten und Meldungen">E-Mail Adresse</i><br />');
 			if( $_SESSION['permission'] == 'more' ){
+
+				if( !is_object( $levellist ) ){
+					$levellist = new KIMBdbf( 'backend/users/level.kimb' );
+				}
+
+				$levs = $levellist->read_kimb_one( 'levellist' );
+				if( $levs != '' ){
+					$levs = explode( ',' , $levs );
+
+					$other = '<b style="background-color:gray;" title="Systemspezifische Userlevel">';
+
+					foreach( $levs as $name ){
+						if( $user['permiss'] == $name ){
+							$other .= '<input type="radio" name="level" value="'.$name.'" checked="checked" >'.$name.' ';
+						}
+						else{
+							$other .= '<input type="radio" name="level" value="'.$name.'">'.$name.' ';
+						}
+					}
+					$other .= '</b>';
+				}
+
 				if( $user['permiss'] == 'less' ){
-					$sitecontent->add_site_content('<input type="radio" name="level" value="less" checked="checked">Editor <input type="radio" name="level" value="more">Admin &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i title="Das Rechte-Level des Users einstellen.">Level</i><br />');
+					$sitecontent->add_site_content('<input type="radio" name="level" value="less" checked="checked">Editor <input type="radio" name="level" value="more">Admin '.$other.'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i title="Das Rechte-Level des Users einstellen.">Level</i><br />');
 				}
 				elseif(  $user['permiss'] == 'more'  ){
-					$sitecontent->add_site_content('<input type="radio" name="level" value="less">Editor <input type="radio" name="level" value="more" checked="checked">Admin &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i title="Das Rechte-Level des Users einstellen.">Level</i><br />');
+					$sitecontent->add_site_content('<input type="radio" name="level" value="less">Editor <input type="radio" name="level" value="more" checked="checked">Admin '.$other.' &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i title="Das Rechte-Level des Users einstellen.">Level</i><br />');
+				}
+				else{
+					$sitecontent->add_site_content('<input type="radio" name="level" value="less">Editor <input type="radio" name="level" value="more" >Admin '.$other.' &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i title="Das Rechte-Level des Users einstellen.">Level</i><br />');
 				}
 			}
 			$sitecontent->add_site_content('<input type="password" name="passwort1" id="passwort1" onchange=" checkpw(); "> <i title="Lassen Sie das Feld leer um das Passwort unverändert zu lassen!" id="pwtext">Passwort - keine Änderung</i> <br />');

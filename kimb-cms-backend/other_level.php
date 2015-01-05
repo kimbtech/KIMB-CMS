@@ -194,7 +194,7 @@ else{
 	$sitecontent->add_site_content('<div style="display:none;"><div id="del-confirm" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 25px 0;"></span>Möchten Sie das Userlevel wirklich löschen?</p></div></div>');
 }
 
-$sitecontent->add_site_content('<br /><br /><span class="ui-icon ui-icon-info" title="Die User können Sie unter &apos;User&apos; -> &apos;Auflisten&apos; -> &apos;Name ( User bearbeiten )&apos; den Gruppen zuordnen!"></span><br />');
+$sitecontent->add_site_content('<br /><br /><span class="ui-icon ui-icon-info" title="Die User können Sie unter &apos;User&apos; -> &apos;Auflisten&apos; -> &apos;Name ( User bearbeiten )&apos; den Gruppen zuordnen! Das Zuordnen ist nur für User der Gruppe Admin ( &apos;more&apos; ) möglich!"></span><br />');
 
 $sitecontent->output_complete_site();
 ?>
