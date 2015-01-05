@@ -115,6 +115,9 @@ function check_backend_login( $number , $permiss = 'none' ){
 						}
 						die;	
 					}
+					else{
+						return true;
+					}
 
 			}
 			else{

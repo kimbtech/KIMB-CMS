@@ -176,6 +176,7 @@ echo('
 				<ul>
 					<li class="editor seventeen" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/other_filemanager.php" title="Dateien zum, Einbinden in Ihrer Seite, hochladen und verwalten, &apos;&apos;sichere&apos;&apos; Speicherung"><span class="ui-icon ui-icon-image"></span>Filemanager</a></li>
 					<li class="admin eightteen" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/other_themes.php" title="Verändern Sie das Design des Frontends mit KIMB-CMS Themes"><span class="ui-icon ui-icon-contact"></span>Themes</a></li>
+					<li class="admin nineteen" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/other_level.php" title="Erstellen Sie eigene Benutzerlevel für das Backend"><span class="ui-icon  ui-icon-locked"></span>Userlevel Backend</a></li>
 				</ul>
 			</li>
 			</ul>
