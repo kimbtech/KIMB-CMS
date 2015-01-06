@@ -26,11 +26,10 @@ require_once(__DIR__.'/../core/oop/all_oop_backend.php');
 //Konfiguration laden
 require_once(__DIR__.'/../core/conf/conf_backend.php');
 
+$checkerneut = 'yes';
 if( $_GET['user'] == $_SESSION['user'] && $_GET['todo'] == 'edit' ){
-	check_backend_login();
-}
-else{
-	check_backend_login('more');
+	check_backend_login( 'eight' );
+	$checkerneut = 'no';
 }
 
 //BE-User erstellen, bearbeiten
@@ -39,6 +38,7 @@ $userfile = new KIMBdbf('backend/users/list.kimb');
 $sitecontent->add_html_header('<style>td { border:1px solid #000000; padding:2px;} td a { text-decoration:none; }</style>');
 
 if( $_GET['todo'] == 'new' ){
+	check_backend_login( 'nine' , 'more' );
 
 	$sitecontent->add_site_content('<h2>User erstellen</h2>');
 
@@ -199,6 +199,9 @@ if( $_GET['todo'] == 'new' ){
 	$sitecontent->add_site_content('</form>');
 }
 elseif( $_GET['todo'] == 'edit' && isset( $_GET['user'] ) ){
+	if( $checkerneut != 'no' ){
+		check_backend_login( 'ten' , 'more' );
+	}
 
 	$sitecontent->add_site_content('<h2>User bearbeiten</h2>');
 
@@ -295,11 +298,36 @@ elseif( $_GET['todo'] == 'edit' && isset( $_GET['user'] ) ){
 			$sitecontent->add_site_content('<input type="text" name="name" value="'.$user['name'].'"> <i title="Name des Users" >Name</i><br />');
 			$sitecontent->add_site_content('<input type="text" name="mail" value="'.$user['mail'].'"> <i title="E-Mail Adresse des Users für Nachrichten und Meldungen">E-Mail Adresse</i><br />');
 			if( $_SESSION['permission'] == 'more' ){
+
+				if( !is_object( $levellist ) ){
+					$levellist = new KIMBdbf( 'backend/users/level.kimb' );
+				}
+
+				$levs = $levellist->read_kimb_one( 'levellist' );
+				if( $levs != '' ){
+					$levs = explode( ',' , $levs );
+
+					$other = '<b style="background-color:gray;" title="Systemspezifische Userlevel">';
+
+					foreach( $levs as $name ){
+						if( $user['permiss'] == $name ){
+							$other .= '<input type="radio" name="level" value="'.$name.'" checked="checked" >'.$name.' ';
+						}
+						else{
+							$other .= '<input type="radio" name="level" value="'.$name.'">'.$name.' ';
+						}
+					}
+					$other .= '</b>';
+				}
+
 				if( $user['permiss'] == 'less' ){
-					$sitecontent->add_site_content('<input type="radio" name="level" value="less" checked="checked">Editor <input type="radio" name="level" value="more">Admin &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i title="Das Rechte-Level des Users einstellen.">Level</i><br />');
+					$sitecontent->add_site_content('<input type="radio" name="level" value="less" checked="checked">Editor <input type="radio" name="level" value="more">Admin '.$other.'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i title="Das Rechte-Level des Users einstellen.">Level</i><br />');
 				}
 				elseif(  $user['permiss'] == 'more'  ){
-					$sitecontent->add_site_content('<input type="radio" name="level" value="less">Editor <input type="radio" name="level" value="more" checked="checked">Admin &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i title="Das Rechte-Level des Users einstellen.">Level</i><br />');
+					$sitecontent->add_site_content('<input type="radio" name="level" value="less">Editor <input type="radio" name="level" value="more" checked="checked">Admin '.$other.' &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i title="Das Rechte-Level des Users einstellen.">Level</i><br />');
+				}
+				else{
+					$sitecontent->add_site_content('<input type="radio" name="level" value="less">Editor <input type="radio" name="level" value="more" >Admin '.$other.' &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i title="Das Rechte-Level des Users einstellen.">Level</i><br />');
 				}
 			}
 			$sitecontent->add_site_content('<input type="password" name="passwort1" id="passwort1" onchange=" checkpw(); "> <i title="Lassen Sie das Feld leer um das Passwort unverändert zu lassen!" id="pwtext">Passwort - keine Änderung</i> <br />');
@@ -320,6 +348,7 @@ elseif( $_GET['todo'] == 'edit' && isset( $_GET['user'] ) ){
 
 }
 elseif( $_GET['todo'] == 'list'){
+	check_backend_login( 'ten' , 'more' );
 
 	$sitecontent->add_site_content('<h2>Userliste</h2>');
 
@@ -346,6 +375,8 @@ elseif( $_GET['todo'] == 'list'){
 	$sitecontent->add_site_content('</table>');
 }
 else{
+	check_backend_login( 'eight' , 'more' );
+
 	$sitecontent->add_site_content('<h2>User</h2>');
 
 	$sitecontent->add_site_content('<span id="startbox"><b><a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/user.php?todo=new">Erstellen</b><br /><span class="ui-icon ui-icon-plusthick"></span><br /><i>Einen neuen User erstellen.</i></span></a>');
