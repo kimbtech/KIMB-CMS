@@ -2,6 +2,16 @@
 
 defined('KIMB_Backend') or die('No clean Request');
 
+$sitecontent->add_html_header('<script>
+$(function() { 
+	new nicEditor({fullPanel : true, iconsPath : \''.$allgsysconf['siteurl'].'/load/system/nicEditorIcons.gif\'}).panelInstance( \'nicedit1\'); 
+	new nicEditor({fullPanel : true, iconsPath : \''.$allgsysconf['siteurl'].'/load/system/nicEditorIcons.gif\'}).panelInstance( \'nicedit2\');
+	new nicEditor({fullPanel : true, iconsPath : \''.$allgsysconf['siteurl'].'/load/system/nicEditorIcons.gif\'}).panelInstance( \'nicedit3\');
+	new nicEditor({fullPanel : true, iconsPath : \''.$allgsysconf['siteurl'].'/load/system/nicEditorIcons.gif\'}).panelInstance( \'nicedit4\');
+});
+</script>');
+
+
 $addonurl = $allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=less&addon=html_out';
 if( !is_object( $html_out['file'] ) ){
 	$html_out['file'] = new KIMBdbf( 'addon/html_out__file.kimb' );
@@ -67,15 +77,15 @@ $sitecontent->add_site_content('<form action="'.$addonurl.'" method="post" >');
 
 $sitecontent->add_site_content('<input name="onoff" type="radio" value="off" '.$off.'><span style="display:inline-block;" title="Ausgabe deaktiviert" class="ui-icon ui-icon-closethick"></span><input name="onoff" value="on" type="radio" '.$on.'><span style="display:inline-block;" title="Ausgabe aktiviert" class="ui-icon ui-icon-check"></span><br />');
 
-$sitecontent->add_site_content('<textarea name="sitefi" style="width:60%; height:100px;" >'.$html_out['cont']->read_kimb_one( 'sitefi' ).'</textarea> (Zusätzlicher Seiteninhalt oben)<br />');
+$sitecontent->add_site_content('<textarea name="sitefi" id="nicedit1" style="width:99%; height:100px;" >'.$html_out['cont']->read_kimb_one( 'sitefi' ).'</textarea> (Zusätzlicher Seiteninhalt oben &uarr; )<br />');
 
-$sitecontent->add_site_content('<textarea name="sitese" style="width:60%; height:100px;" >'.$html_out['cont']->read_kimb_one( 'sitese' ).'</textarea> (Zusätzlicher Seiteninhalt unten)<br />');
+$sitecontent->add_site_content('<textarea name="sitese" id="nicedit2" style="width:99%; height:100px;" >'.$html_out['cont']->read_kimb_one( 'sitese' ).'</textarea> (Zusätzlicher Seiteninhalt unten &uarr; )<br />');
 
-$sitecontent->add_site_content('<textarea name="addonfi" style="width:60%; height:100px;" >'.$html_out['cont']->read_kimb_one( 'addonfi' ).'</textarea> (Zusätzliche Add-onausgabe oben)<br />');
+$sitecontent->add_site_content('<textarea name="addonfi" id="nicedit3" style="width:99%; height:100px;" >'.$html_out['cont']->read_kimb_one( 'addonfi' ).'</textarea> (Zusätzliche Add-onausgabe oben &uarr; )<br />');
 
-$sitecontent->add_site_content('<textarea name="addonse" style="width:60%; height:100px;" >'.$html_out['cont']->read_kimb_one( 'addonse' ).'</textarea> (Zusätzliche Add-onausgabe unten)<br />');
+$sitecontent->add_site_content('<textarea name="addonse" id="nicedit4" style="width:99%; height:100px;" >'.$html_out['cont']->read_kimb_one( 'addonse' ).'</textarea> (Zusätzliche Add-onausgabe unten &uarr; )<br />');
 
-$sitecontent->add_site_content('<textarea name="header" style="width:60%; height:100px;" >'.$html_out['cont']->read_kimb_one( 'header' ).'</textarea> (Zusätzlicher Header)<br />');
+$sitecontent->add_site_content('<textarea name="header" style="width:99%; height:100px;" >'.$html_out['cont']->read_kimb_one( 'header' ).'</textarea> (Zusätzlicher Header &uarr; )<br />');
 
 $sitecontent->add_site_content('<input name="title" style="width:60%;" value="'.$html_out['cont']->read_kimb_one( 'title' ).'" > (Allgemeiner Titel)<br />');
 

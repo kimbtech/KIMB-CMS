@@ -9,12 +9,23 @@ function send_mail($to, $inhalt){
 		return false;
 	}
 
-	if(mail($to, 'Nachricht von: '.$allgsysconf['sitename'], $inhalt, 'From: '.$allgsysconf['sitename'].' <'.$allgsysconf['mailvon'].'>')){
+	/*if(mail($to, 'Nachricht von: '.$allgsysconf['sitename'], $inhalt, 'From: '.$allgsysconf['sitename'].' <'.$allgsysconf['mailvon'].'>')){
 		return true;
 	}
 	else{
 		return false;
-	}
+	}*/
+
+	$cont = 'mail('.$to.', Nachricht von: '.$allgsysconf['sitename'].', '.$inhalt.', From: '.$allgsysconf['sitename'].' <'.$allgsysconf['mailvon'].'>);
+
+	';
+
+	$file = fopen( __DIR__.'/mail.log' , 'a+' );
+	fwrite( $file , $cont );
+	fclose( $file );
+
+	return true;
+
 }
 
 //browser an url weiterleiten
