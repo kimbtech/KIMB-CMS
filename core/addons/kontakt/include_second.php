@@ -52,14 +52,22 @@ $( function(){
 
 				if( send_mail( $kontakt['file']->read_kimb_one( 'formaddr' ) , $inhalt) ){
 					$sitecontent->add_site_content( '<center><b><u>Vielen Dank für Ihre Mitteilung!</u></b></center><br /><br /><hr />' );
+
+					$sitecontent->add_html_header('<script>
+$( function(){
+	localStorage.removeItem( \'name\' );
+	localStorage.removeItem( \'mail\' );
+	localStorage.removeItem( \'cont\' );
+});
+</script>');
 				}
 				else{
-					$sitecontent->echo_error( 'Das Formular konnte nicht abgesendet werden!<br /><a href="">Nochmal!</a>' , 'unknown' );
+					$sitecontent->echo_error( 'Das Formular konnte nicht abgesendet werden!<br /><a href="">Erneut senden!</a>' , 'unknown' );
 					$sitecontent->add_site_content( '<br /><hr />' );
 				}
 			}
 			else{
-				$sitecontent->echo_error( 'Das Captcha wurde falsch gelöst!<br /><a href="">Nochmal!</a>' , 'unknown' );
+				$sitecontent->echo_error( 'Das Captcha wurde falsch gelöst oder eines der Felder war leer!<br /><a href="">Nochmal!</a>' , 'unknown' );
 				$sitecontent->add_site_content( '<br /><hr />' );
 			}
 		}
