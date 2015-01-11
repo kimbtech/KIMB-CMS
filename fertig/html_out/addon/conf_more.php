@@ -107,7 +107,7 @@ $sitecontent->add_site_content('<textarea name="message" id="nicedit2" style="wi
 $sitecontent->add_site_content('<textarea name="header" style="width:99%; height:100px;" >'.$html_out['cont']->read_kimb_one( 'header' ).'</textarea> (Zusätzliche HTML-Header &uarr; )<br />');
 
 
-$sitecontent->add_site_content('<input type="submit" value="Ändern"> <form>');
+$sitecontent->add_site_content('<input type="submit" value="Ändern"> </form>');
 
 
 ?>

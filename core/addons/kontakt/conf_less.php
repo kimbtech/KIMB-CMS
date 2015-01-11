@@ -40,5 +40,5 @@ $sitecontent->add_site_content('<input readonly="readonly" type="radio" name="ot
 $sitecontent->add_site_content('<input readonly="readonly" name="mail" type="text" value="'.$kontakt['file']->read_kimb_one( 'formaddr' ).'" > ( Mail-Adresse <b title="Die Adresse wird, wenn aktiviert, als Bild auf der Seite angezeigt und für das Kontaktformular genutzt!">*</b>)<br />');
 $sitecontent->add_site_content('<textarea readonly="readonly" name="othercont" style="width:99%;">'.$kontakt['file']->read_kimb_one( 'othercont' ).'</textarea> ( Über JavaScript gesicherter Inhalt &uarr; <b title="Der Text wird so nachgeladen, dass es für Bots schwer ist ihn zu lesen, so lassen sich z.B. Telefonnummern und Adressen schützen!">*</b>)<br />');
 
-$sitecontent->add_site_content('<input type="submit" value="Ändern" disabled="disabled"> <span style="display:inline-block;" class="ui-icon ui-icon-info" title="Dies ist nur eine Einstellungsübersicht, bitte wählen Sie mit entsprechenden Rechten Add-ons -> Konfiguration"></span> <form>');
+$sitecontent->add_site_content('<input type="submit" value="Ändern" disabled="disabled"> <span style="display:inline-block;" class="ui-icon ui-icon-info" title="Dies ist nur eine Einstellungsübersicht, bitte wählen Sie mit entsprechenden Rechten Add-ons -> Konfiguration"></span>');
 ?>

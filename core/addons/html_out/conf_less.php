@@ -90,6 +90,6 @@ $sitecontent->add_site_content('<textarea name="header" style="width:99%; height
 $sitecontent->add_site_content('<input name="title" style="width:60%;" value="'.$html_out['cont']->read_kimb_one( 'title' ).'" > (Allgemeiner Titel)<br />');
 
 
-$sitecontent->add_site_content('<input type="submit" value="Ändern"> <form>');
+$sitecontent->add_site_content('<input type="submit" value="Ändern"> </form>');
 
 ?>

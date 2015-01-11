@@ -151,7 +151,7 @@ $sitecontent->add_site_content('<input type="radio" name="otheroo" value="off"'.
 $sitecontent->add_site_content('<input name="mail" type="text" value="'.$kontakt['file']->read_kimb_one( 'formaddr' ).'" > ( Mail-Adresse <b title="Die Adresse wird, wenn aktiviert, als Bild auf der Seite angezeigt und für das Kontaktformular genutzt!">*</b>)<br />');
 $sitecontent->add_site_content('<textarea name="othercont" style="width:99%;">'.$kontakt['file']->read_kimb_one( 'othercont' ).'</textarea> ( Über JavaScript gesicherter Inhalt &uarr; <b title="Der Text wird so nachgeladen, dass es für Bots schwer ist ihn zu lesen, so lassen sich z.B. Telefonnummern und Adressen schützen!">*</b>)<br />');
 
-$sitecontent->add_site_content('<input type="submit" value="Ändern"> <form>');
+$sitecontent->add_site_content('<input type="submit" value="Ändern"> </form>');
 
 
 ?>

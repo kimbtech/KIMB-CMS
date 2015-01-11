@@ -92,7 +92,7 @@ localStorage.setItem( \'cont\' , document.getElementById( \'cont\' ).value );
 			$sitecontent->add_site_content('<img id="captcha" src="'.$allgsysconf['siteurl'].'/ajax.php?addon=captcha" style="border:none;" /><br />');
 			$sitecontent->add_site_content('<a href="#" onclick=" document.getElementById( \'captcha\' ).src = \''.$allgsysconf['siteurl'].'/ajax.php?addon=captcha&\' + Math.random(); return false;">Nicht lesbar?</a><br />');
 			$sitecontent->add_site_content('<input name="captcha" autocomplete="off" type="text" ><br /> ( Bitte geben Sie den Code oben ein, um zu beweisen, dass Sie kein Roboter sind! )<br />');
-			$sitecontent->add_site_content('<input type="submit" value="Absenden"> <form><br /><br /><hr />');
+			$sitecontent->add_site_content('<input type="submit" value="Absenden"> </form><br /><br /><hr />');
 
 		}
 	}
