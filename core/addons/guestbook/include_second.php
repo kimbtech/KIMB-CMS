@@ -11,7 +11,7 @@ if( $guestbook['file']->read_kimb_search_teilpl( 'siteid' , $allgsiteid ) ){
 
 	$guestbook['sitefile'] = new KIMBdbf( 'addon/guestbook__id_'.$allgsiteid.'.kimb' );
 
-	$sitecontent->add_site_content( "\r\n".'<hr /><br />'."\r\n" );
+	$sitecontent->add_site_content( "\r\n".'<hr id="guestbooktop" /><br />'."\r\n" );
 
 	if( function_exists( 'checklogin' ) && $guestbook['file']->read_kimb_one( 'nurfeloginuser' ) == 'on' ){
 		if( checklogin() ){
@@ -82,13 +82,13 @@ $( function(){
 						}
 					}
 					else{
-						$sitecontent->echo_error( 'Die E-Mail-Adresse ist falsch!' , 'unknown' );
+						$sitecontent->echo_error( 'Die E-Mail-Adresse ist falsch!<br /><a href="#guestadd"><button>Verändern</button></a>' , 'unknown' );
 						$guestbook['showadd'] = '$( function(){ add(); });';
 					}
 
 				}
 				else{
-					$sitecontent->echo_error( 'Das Captcha wurde falsch gelöst oder eines der Felder war leer!' , 'unknown' );
+					$sitecontent->echo_error( 'Das Captcha wurde falsch gelöst oder eines der Felder war leer!<br /><a href="#guestadd"><button>Verbessern</button></a>' , 'unknown' );
 					$guestbook['showadd'] = '$( function(){ add(); });';
 				}
 			}
@@ -155,7 +155,7 @@ $( function(){
 		$sitecontent->add_site_content(	'<button onclick=" add(); " id="guestbuttadd">Hinzufügen</button>'."\r\n" );
 		$sitecontent->add_site_content(	'<div style="display:none;" id="guestadd" >'."\r\n" );
 
-		$sitecontent->add_site_content('<form action="" method="post" onsubmit = "
+		$sitecontent->add_site_content('<form action="#guestbooktop" method="post" onsubmit = "
 localStorage.setItem( \'name\' , document.getElementById( \'name\' ).value );
 localStorage.setItem( \'mail\' , document.getElementById( \'mail\' ).value );
 localStorage.setItem( \'cont\' , document.getElementById( \'cont\' ).value );
