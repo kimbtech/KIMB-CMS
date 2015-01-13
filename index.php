@@ -29,6 +29,11 @@ require_once(__DIR__.'/core/conf/conf.php');
 
 //System initialisiert!
 
+//Konfigurator laufengelassen?
+if( !isset( $allgsysconf['siteurl'] ) ){
+	open_url( 'configurator.php' );
+}
+
 //Menue und Site IDs aus Request 
 require_once(__DIR__.'/core/generating/get_ids.php');
 //Addons ermoeglichen einzugreifen
