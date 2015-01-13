@@ -126,7 +126,9 @@ $info = array(
 	'mailvon' => 'E-Mail Absender des Systems' ,
 	'cache' => 'on / off des Caches ( on ist empfehlenswert )' ,
 	'sitespr' => 'Sprache der Seitenelemente ( z.Z. kein Nutzen )' ,
-	'systemversion' => 'Version des CMS' , 'urlrewrite' => 'on / off des URL-Rewritings ( on ist empfehlenswert )' ,
+	'systemversion' => 'Version des CMS' ,
+	'build' => 'Genaue Version des Systems, wichtig für Updates,... (Beispiele: V1.0F-p0 -> Version 1.0 Final Patch 0 // V0.7B-p4,5 -> Version 0.7 Beta Patch 4 und 5 ) ( entspricht GIT Tags )' ,
+	'urlrewrite' => 'on / off des URL-Rewritings ( on ist empfehlenswert )' ,
 	'cachelifetime' => 'Lebensdauer des Caches in Sekunden oder always ( always ist empfehlenswert )' ,
 	'use_request_url' => 'Für URL-Rewriting muss der Request entweder an /index.php?url=xxx gesendert werden oder per $SERVER[REQUEST_URI] verfügbar sein. Letzteres kann hier verboten werden, da es auf manchen Server zu Problemen führen könnte. ( ok / nok )' ,
 	'show_siteinfos' => 'Unten auf den Seiten anzeigen wann und von wem die Seite geändert wurde sowie den Permalink!' ,
@@ -143,7 +145,7 @@ foreach( $confteile as $confteil ){
 		$infotab = '';
 	}
 
-	if( $confteil == 'systemversion' ){
+	if( $confteil == 'systemversion' || $confteil == 'build' ){
 		$sitecontent->add_site_content('<tr><td><input type="text" readonly="readonly" value="'.$confteil.'" name="'.$i.'"></td><td><input type="text" readonly="readonly" value="'.$allgsysconf[$confteil].'" name="'.$i.'-wert"></td><td><span><span class="ui-icon ui-icon-trash" title="Löschen nicht erlaubt!"></span></span></td><td>'.$infotab.'</td></tr>');
 	}
 	else{
