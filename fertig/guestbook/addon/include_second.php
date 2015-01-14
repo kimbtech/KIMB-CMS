@@ -4,7 +4,7 @@ defined('KIMB_CMS') or die('No clean Request');
 
 $guestbook['file'] = new KIMBdbf( 'addon/guestbook__conf.kimb' );
 
-if( $guestbook['file']->read_kimb_search_teilpl( 'siteid' , $allgsiteid ) ){
+if( $guestbook['file']->read_kimb_search_teilpl( 'siteid' , $allgsiteid ) && $allgerr != '403' ){
 
 	$sitecontent->add_html_header('<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/system/jquery/jquery.min.js"></script>');
 	$sitecontent->add_html_header('<style>'.$guestbook['file']->read_kimb_one( 'css' ).'</style>');
@@ -14,7 +14,7 @@ if( $guestbook['file']->read_kimb_search_teilpl( 'siteid' , $allgsiteid ) ){
 	$sitecontent->add_site_content( "\r\n".'<hr id="guestbooktop" /><br />'."\r\n" );
 
 	if( function_exists( 'checklogin' ) && $guestbook['file']->read_kimb_one( 'nurfeloginuser' ) == 'on' ){
-		if( checklogin() ){
+		if( isset( $_SESSION['felogin']['user'] ) ){
 			$guestbook['add'] = 'allowed';
 		}
 		else{
