@@ -9,7 +9,8 @@ $felogin['conf'] = new KIMBdbf( 'addon/felogin__conf.kimb'  );
 $felogin['loginokay'] = $felogin['conf']->read_kimb_one( 'loginokay' );
 $felogin['grlist'] = $felogin['conf']->read_kimb_one( 'grlist' );
 $felogin['grs'] = explode( ',' , $felogin['grlist'] );
-$felogin['siteid'] = $felogin['conf']->read_kimb_one( 'siteid' );
+$felogin['requid'] = $felogin['conf']->read_kimb_one( 'requid' );
+$felogin['selfreg'] = $felogin['conf']->read_kimb_one( 'selfreg' );
 
 foreach( $felogin['grs'] as $felogin['gr'] ){
 
@@ -47,6 +48,14 @@ function checklogin( ){
 	}
 }
 
+if( isset( $_POST['logout'] ) ){
+	$loginfehler = $_SESSION["loginfehler"];
+	session_destroy();
+	session_start();
+	$_SESSION["loginfehler"] = $loginfehler;
+
+	$sitecontent->add_site_content( '<center><hr /><div style="color:red; font-size:20px;">Sie wurden ausgeloggt!</div><b>Auf Wiedersehen</b><hr /></center>' );
+}
 
 if( isset($_POST['feloginuser']) && isset($_POST['feloginpassw']) ){
 
@@ -102,17 +111,19 @@ if( !isset( $_SESSION['felogin']['user'] ) ){
 if( $felogin['conf']->read_kimb_one( 'addonarea' ) == 'on' ){
 	if( !isset( $_SESSION['felogin']['user'] ) ){
 		$felogin['addonarea'] .= '<form action="" method="post" onsubmit="hash();" >';
-		$felogin['addonarea'] .= '<input type="text" name="feloginuser" placeholder="Username" ><br />';
-		$felogin['addonarea'] .= '<input type="password" name="feloginpassw" placeholder="Passwort" id="pass" ><br />';
+		$felogin['addonarea'] .= '<input type="text" name="feloginuser" placeholder="Username" ><!--[if lt IE 10]> ( Username ) <![endif]--><br />';
+		$felogin['addonarea'] .= '<input type="password" name="feloginpassw" placeholder="Passwort" id="pass" ><!--[if lt IE 10]> ( Passwort ) <![endif]--><br />';
 		$felogin['addonarea'] .= '<input type="submit" value="Login"><br />';
 		$felogin['addonarea'] .= '</form><br />';
-		$felogin['addonarea'] .= '<a href="'.$allgsysconf['siteurl'].'/index.php?id='.$felogin['siteid'].'&amp;pwforg">Passwort vergessen?</a><br />';
-		$felogin['addonarea'] .= '<a href="'.$allgsysconf['siteurl'].'/index.php?id='.$felogin['siteid'].'&amp;register">Registrieren</a><br />';
+		$felogin['addonarea'] .= '<a href="'.$allgsysconf['siteurl'].'/index.php?id='.$felogin['requid'].'&amp;pwforg#goto">Passwort vergessen?</a><br />';
+		if( $felogin['selfreg'] == 'on' ){
+			$felogin['addonarea'] .= '<a href="'.$allgsysconf['siteurl'].'/index.php?id='.$felogin['requid'].'&amp;register#goto">Registrieren</a><br />';
+		}
 	}
 	else{
 		$felogin['addonarea'] .= 'Hallo '.$_SESSION['felogin']['name'].',<br />Sie sind eingeloggt!<br /><br />';
-		$felogin['addonarea'] .= '<a href="'.$allgsysconf['siteurl'].'/index.php?id='.$felogin['siteid'].'&amp;logout"><button>Logout</button></a><br /><br />';
-		$felogin['addonarea'] .= '<a href="'.$allgsysconf['siteurl'].'/index.php?id='.$felogin['siteid'].'&amp;settings">Einstellungen</a><br />';
+		$felogin['addonarea'] .= '<form action="" method="post"><input type="hidden" name="logout" value="yes"><input type="submit" value="Logout" ></form><br /><br />';
+		$felogin['addonarea'] .= '<a href="'.$allgsysconf['siteurl'].'/index.php?id='.$felogin['requid'].'&amp;settings#goto">Einstellungen</a><br />';
 	}
 
 	$felogin['area'] .= '<h2>Login</h2>';
@@ -129,11 +140,49 @@ if( $felogin['conf']->read_kimb_one( 'addonarea' ) == 'on' ){
 	}
 	</script>');
 }
+if( $_GET['id'] == $felogin['requid'] ){
+
+	if( $felogin['conf']->read_kimb_one( 'addonarea' ) == 'off' ){
+		if( !isset( $_SESSION['felogin']['user'] ) ){
+			$felogin['formareal'] .= '<form action="" method="post" onsubmit="hash();" >';
+			$felogin['formareal'] .= '<input type="text" name="feloginuser" placeholder="Username" > <!--[if lt IE 10]> ( Username ) <![endif]-->';
+			$felogin['formareal'] .= '<input type="password" name="feloginpassw" placeholder="Passwort" id="pass" > <!--[if lt IE 10]> ( Passwort ) <![endif]-->';
+			$felogin['formareal'] .= '<input type="submit" value="Login"><br />';
+			$felogin['formareal'] .= '</form><br />';
+			$felogin['formareal'] .= '<a href="'.$allgsysconf['siteurl'].'/index.php?id='.$felogin['requid'].'&amp;pwforg#goto">Passwort vergessen?</a>&nbsp;';
+			if( $felogin['selfreg'] == 'on' ){
+				$felogin['formareal'] .= '<a href="'.$allgsysconf['siteurl'].'/index.php?id='.$felogin['requid'].'&amp;register#goto">Registrieren</a><br />';
+			}
+		}
+		else{
+			$felogin['formareal'] .= 'Hallo '.$_SESSION['felogin']['name'].', Sie sind eingeloggt!<br />';
+			$felogin['formareal'] .= '<form action="" method="post"><input type="hidden" name="logout" value="yes">';
+			$felogin['formareal'] .= '<a href="'.$allgsysconf['siteurl'].'/index.php?id='.$felogin['requid'].'&amp;settings#goto">Einstellungen</a> <input type="submit" value="Logout" ></form>';
+		}
+
+		$sitecontent->add_site_content( '<hr /><center><div style="color:red; font-size:20px;">Login!</div><div id="felogin">Für das Login wird JavaScript benötigt, bitte aktivieren Sie dieses!</div></center><hr />' );
+
+		$sitecontent->add_html_header('<script>
+		$(function() {
+			$("div#felogin").html( \''.$felogin['formareal'].'\' );
+		});
+		function hash() {
+			document.getElementById(\'pass\').value = SHA1(SHA1(document.getElementById(\'pass\').value)+\''.$loginsalt.'\');
+		}
+		</script>');
+	}
+	elseif( !isset( $_SESSION['felogin']['user'] ) ){
+		$sitecontent->add_site_content( '<center><hr /><div style="color:red; font-size:20px;">Bitte loggen Sie sich im Kasten ein!</div><b><a href="'.$allgsysconf['siteurl'].'/index.php?id='.$felogin['requid'].'&amp;pwforg#goto">Passwort vergessen?</a>&nbsp;');
+		if( $felogin['selfreg'] == 'on' ){
+			$sitecontent->add_site_content( '<a href="'.$allgsysconf['siteurl'].'/index.php?id='.$felogin['requid'].'&amp;register#goto">Registrieren</a></b><hr /></center>' );
+		}
+	}
+
+}
 
 if( !checklogin() ){
 	$allgerr = '403';
+
+	$sitecontent->set_title( 'Error - 403' );
 }
-
-//print_r( $felogin );
-
 ?>
