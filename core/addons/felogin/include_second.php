@@ -207,7 +207,7 @@ $sitecontent->add_html_header('<script>
 				$("i#mailtext").css( "color", "white" );
 				$("i#mailtext").css( "padding", "5px" );
 
-				$("span#mailcodeinput").css( "display", "inline-block" );
+				$("tr#mailcodeinput").css( "display", "table-row" );
 			
 			}
 			else{
@@ -269,14 +269,47 @@ $sitecontent->add_html_header('<script>
 			var valmail = $( "input#mail" ).val();
 			$.get( "'.$allgsysconf['siteurl'].'/ajax.php?addon=felogin&mail=" + valmail , function( data ) {
 				if( data == "ok" ){
-					$("i#mailcodetext").text("Code erfolgreich an Ihre E-Mail-Adresse versandt! Bitte links eingeben!");
+					$("i#mailcodetext").html( "Code versandt!" );
+					$("i#mailcodetext").css( "line-height", "25px" );
 					$("i#mailcodetext").css( "background-color", "orange" );
+					$("i#mailcodetext").css( "color", "white" );
+					$("i#mailcodetext").css( "padding", "5px" );
+					$("button#nochmalcode").css( "display", "table-cell" );
+				}
+				else{
+					$("i#mailcodetext").text(" Die Anzahl an Versuchen ist beschränkt! ");
+					$("i#mailcodetext").css( "background-color", "red" );
+					$("i#mailcodetext").css( "line-height", "25px" );
 					$("i#mailcodetext").css( "color", "white" );
 					$("i#mailcodetext").css( "padding", "5px" );
 				}
 			});
 		}
 
+		function checkcode(){
+			var valcode =  encodeURIComponent( $( "input#mailcode" ).val() );
+			$.get( "'.$allgsysconf['siteurl'].'/ajax.php?addon=felogin&code=" + valcode , function( data ) {
+				if( data == "ok" ){
+					$("i#mailcodetext").text( "Code - OK" );
+					$("i#mailcodetext").css( "background-color", "green" );
+					$("i#mailcodetext").css( "color", "white" );
+					$("i#mailcodetext").css( "line-height", "25px" );
+					$("i#mailcodetext").css( "padding", "5px" );
+					$("button#nochmalcode").css( "display", "none" );
+					$( "input#checkm" ).val( "ok" );
+					$("i#mailtext").text( "E-Mail Adresse - OK" );
+					$("i#mailtext").css( "background-color", "green" );
+				}
+				else{
+					$("i#mailcodetext").text( "Code fehlerhaft" );
+					$("i#mailcodetext").css( "background-color", "red" );
+					$("i#mailcodetext").css( "line-height", "25px" );
+					$("i#mailcodetext").css( "color", "white" );
+					$("i#mailcodetext").css( "padding", "5px" );
+					$("button#nochmalcode").css( "display", "table-cell" );
+				}
+			});
+		}
 
 		function checkcaptcha(){
 			var captchainput = $( "input#captcha" ).val();
@@ -290,7 +323,7 @@ $sitecontent->add_html_header('<script>
 
 				$.get( "'.$allgsysconf['siteurl'].'/ajax.php?addon=felogin&captcha=" + captchainput , function( data ) {
 					if( data == "nok" ){
-						$("i#captchatext").text("Captcha - Achtung, Ihre Eingabe ist falsch!!");
+						$("i#captchatext").text( "Captcha - Achtung, Ihre Eingabe ist falsch!!" );
 						$("i#captchatext").css( "background-color", "red" );
 					}
 					else{
@@ -316,6 +349,7 @@ $sitecontent->add_html_header('<script>
 			var valcheckc = $( "input#checkc" ).val();
 			var valcheckm = $( "input#checkm" ).val();
 			var valname = $( "input#name" ).val();
+			var valakzep = $( "input#akzep" ).val();
 
 			var mailmatch = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
 			if( mailmatch.test( valmail ) == false ){
@@ -342,6 +376,9 @@ $sitecontent->add_html_header('<script>
 			else if( valname == "" ){
 				return false;
 			}
+			else if( !$( "input#akzep" ).is( ":checked" ) ){
+				return false;
+			}
 			else{
 				$( "input#passwort1" ).val( SHA1( valeins ) );
 				$( "input#passwort2" ).val( " " );
@@ -350,28 +387,24 @@ $sitecontent->add_html_header('<script>
 		}
 		</script>');
 
-		$sitecontent->add_site_content('<h2>Account anlegen?!</h2>');
-		$sitecontent->add_site_content('Hier können Sie sich einen Account anlegen!<br /><br />');
-		$sitecontent->add_site_content('<form action="" method="post" onsubmit="return checksubmit(); " >');
-		$sitecontent->add_site_content('<input type="text" name="user" id="user" placeholder="Username" onchange=" checkuser(); " > <i id="usertext">Username -- bitte eintragen</i><br />');
-		$sitecontent->add_site_content('<input type="text" name="name" id="name" placeholder="Name" onchange=" checkname(); "> <i id="nametext">Name -- bitte eintragen</i><br />');
-		$sitecontent->add_site_content('<input type="text" name="mail" id="mail" placeholder="E-Mail-Adresse" onchange=" checkmail(); " > <i id="mailtext">E-Mail-Adresse -- bitte eintragen</i><br />');
-		$sitecontent->add_site_content('<span style="display:none; margin:2px 0;" id="mailcodeinput" ><input type="text" name="mailcode" id="mailcode" placeholder="E-Mail-Code" onchange=" checkcode(); " > <i id="mailcodetext"><button onclick=" sendcode(); ">Verifizierungscode an Ihre E-Mail-Adresse senden</button></i></span><br />');
-		$sitecontent->add_site_content('<input type="password" name="passwort1" id="passwort1" placeholder="Passwort" onchange=" checkpw(); "> <i id="pwtext">Passwort -- bitte eintragen</i> <br />');
-		$sitecontent->add_site_content('<input type="password" name="passwort2" id="passwort2" placeholder="Passwort" onchange=" checkpw(); "> <i id="pwtext">Passwort -- bitte eintragen</i> <br />');
-		$sitecontent->add_site_content('<input type="text" id="checku" value="nok" "><input type="text" id="checkc" value="nok" "><input type="text" id="checkm" value="nok" "><br />');
-		$sitecontent->add_site_content('<img id="captcha" src="'.$allgsysconf['siteurl'].'/ajax.php?addon=captcha" id="captcha" style="border:none;" /><br />'."\r\n");
-		$sitecontent->add_site_content('<a href="#" onclick=" document.getElementById( \'captcha\' ).src = \''.$allgsysconf['siteurl'].'/ajax.php?addon=captcha&\' + Math.random(); return false;">Nicht lesbar?</a><br />'."\r\n");
-		$sitecontent->add_site_content('<input name="captcha" id="captcha" autocomplete="off" placeholder="Code" onchange=" checkcaptcha(); " type="text" ><i id="captchatext">Ich bin kein Roboter -- bitte den Code oben eingeben</i><br />'."\r\n");
+		$sitecontent->add_site_content('<h2>Account anlegen?!</h2>'."\r\n");
+		$sitecontent->add_site_content('Hier können Sie sich einen Account anlegen!<br /><br />'."\r\n");
+		$sitecontent->add_site_content('<form action="" method="post" onsubmit="return checksubmit(); " >'."\r\n");
+		$sitecontent->add_site_content('<table width="100%;">'."\r\n");
+		$sitecontent->add_site_content('<tr><td><input type="text" name="user" id="user" placeholder="Username" onchange=" checkuser(); " ></td> <td colspan="2"><i id="usertext">Username -- bitte eintragen</i></td></tr>'."\r\n");
+		$sitecontent->add_site_content('<tr><td><input type="text" name="name" id="name" placeholder="Name" onchange=" checkname(); "></td> <td colspan="2" ><i id="nametext">Name -- bitte eintragen</i></td></tr>'."\r\n");
+		$sitecontent->add_site_content('<tr><td><input type="text" name="mail" id="mail" placeholder="E-Mail-Adresse" onchange=" checkmail(); " ></td> <td colspan="2" ><i id="mailtext">E-Mail-Adresse -- bitte eintragen</i></td></tr>'."\r\n");
+		$sitecontent->add_site_content('<tr style="display:none;" id="mailcodeinput" ><td><input type="text" name="mailcode" id="mailcode" placeholder="E-Mail-Code" onchange=" checkcode(); " ></td> <td style="min-width:120px;"><i id="mailcodetext"><button onclick=" sendcode(); ">Verifizierungscode an Ihre E-Mail-Adresse senden</button></i><button style="display:none" id="nochmalcode" onclick=" sendcode(); ">Nochmal versuchen?!</button></td> <td>( Wir senden Ihnen einen Code an die angegebene E-Mail-Adresse und diese zu testen, bitte geben Sie den Code links ein! )</td></tr>'."\r\n");
+		$sitecontent->add_site_content('<tr><td><input type="password" name="passwort1" id="passwort1" placeholder="Passwort" onchange=" checkpw(); "></td> <td colspan="2" ><i id="pwtext">Passwort -- bitte eintragen</i> </td></tr>'."\r\n");
+		$sitecontent->add_site_content('<tr><td><input type="password" name="passwort2" id="passwort2" placeholder="Passwort" onchange=" checkpw(); "></td> <td colspan="2" ><i id="pwtext">Passwort -- bitte eintragen</i> </td></tr>'."\r\n");
+		$sitecontent->add_site_content('<tr><td colspan="3"><input type="hidden" id="checku" value="nok" "><input type="hidden" id="checkc" value="nok" "><input type="hidden" id="checkm" value="nok"></td></tr>'."\r\n");
+		$sitecontent->add_site_content('<tr><td><img id="captcha" src="'.$allgsysconf['siteurl'].'/ajax.php?addon=captcha" id="captcha" style="border:none;" /></td> <td><a href="#" onclick=" document.getElementById( \'captcha\' ).src = \''.$allgsysconf['siteurl'].'/ajax.php?addon=captcha&\' + Math.random(); return false;">Nicht lesbar?</a></td><td>( Bitte geben Sie die Buchstaben, die Sie oben sehen, in das Feld ein. Nur so können wir sicherstellen, dass nur Menschen einen Account bekommen. )</td></tr>'."\r\n");
+		$sitecontent->add_site_content('<tr><td><input name="captcha" id="captcha" autocomplete="off" placeholder="Code" onchange=" checkcaptcha(); " type="text" ></td> <td colspan="2" ><i id="captchatext">Ich bin kein Roboter - Captcha</i></td></tr>'."\r\n");
+		$sitecontent->add_site_content('</table>');
 
-		$felogin['akzepttext'] = $felogin['conf']->read_kimb_one( 'loginokay' );
-		if( !empty( $felogin['akzepttext'] ) ){
-			$sitecontent->add_site_content('<input type="checkbox" name="akzep" value="yes">'.$felogin['akzepttext'].'<br />');
-		}
-		else{
-			$sitecontent->add_site_content('<input type="text" name="akzep" value="yes">');
-		}
-		
+		$felogin['akzepttext'] = $felogin['conf']->read_kimb_one( 'akzepttext' );
+		$sitecontent->add_site_content('<input type="checkbox" name="akzep" id="akzep" value="ok">'.$felogin['akzepttext'].'<br />');
+				
 		$sitecontent->add_site_content('<br /><input type="submit" value="Account erstellen!" ><br />');
 		$sitecontent->add_site_content('</form>');
 

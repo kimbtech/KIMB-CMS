@@ -38,6 +38,22 @@ if( $_GET['addon'] == 'felogin' ){
 	elseif(  isset( $_GET['mail'] ) ){
 
 		if( filter_var( $_GET['mail'] , FILTER_VALIDATE_EMAIL) ){
+
+			$aufruffile = new KIMBdbf( 'addon/felogin__mailaufr.kimb' );
+			$ip = $aufruffile->search_kimb_xxxid( $_SERVER['REMOTE_ADDR'] , 'ip' );
+
+			if( $ip != false ){
+				if( $aufruffile->read_kimb_id( $ip , 'time' ) >= '4' && time() - $aufruffile->read_kimb_id( $ip , 'uhr' ) <= '84400' ){
+					echo 'nok';
+					die;
+				}
+				$id = $ip;
+			}
+			else{
+				$id = $aufruffile->next_kimb_id();
+			}
+
+
 			$code = makepassw( 50 );
 			$_SESSION["mailcode"] = $code;
 
@@ -46,7 +62,18 @@ if( $_GET['addon'] == 'felogin' ){
 			$inhalt .= $allgsysconf['sitename'];
 
 			if( send_mail( $_GET['mail'] , $inhalt ) ){
+
 				echo 'ok';
+
+				if( !$aufruffile->read_kimb_id( $id , 'time' ) ){
+					$aufruffile->write_kimb_id( $id , 'add' , 'time' , 1 );
+				}
+				else{
+					$time = $aufruffile->read_kimb_id( $id , 'time' ) + 1;
+					$aufruffile->write_kimb_id( $id , 'add' , 'time' , $time );
+				}
+				$aufruffile->write_kimb_id( $id , 'add' , 'ip' , $_SERVER['REMOTE_ADDR'] );
+				$aufruffile->write_kimb_id( $id , 'add' , 'uhr' , time() );
 			}
 			else{
 				echo 'nok';
@@ -58,8 +85,16 @@ if( $_GET['addon'] == 'felogin' ){
 
 		die;
 	}
-	elseif(  isset( $_GET['mailcode'] ) ){
-		//check
+	elseif(  isset( $_GET['code'] ) ){
+		
+		if( $_GET['code'] == $_SESSION['mailcode'] ){
+			echo 'ok';
+		}
+		else {
+			echo 'nok';
+		}
+
+		die;
 	}
 
 	die;
