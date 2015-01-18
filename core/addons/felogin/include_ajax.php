@@ -2,10 +2,6 @@
 
 defined('KIMB_CMS') or die('No clean Request');
 
-//check user vorhanden?
-
-//send mailokay code
-
 if( $_GET['addon'] == 'felogin' ){
 	if(  isset( $_GET['user'] ) ){ 
 
@@ -43,11 +39,16 @@ if( $_GET['addon'] == 'felogin' ){
 			$ip = $aufruffile->search_kimb_xxxid( $_SERVER['REMOTE_ADDR'] , 'ip' );
 
 			if( $ip != false ){
-				if( $aufruffile->read_kimb_id( $ip , 'time' ) >= '4' && time() - $aufruffile->read_kimb_id( $ip , 'uhr' ) <= '84400' ){
+				$uhr = $aufruffile->read_kimb_id( $ip , 'uhr' );
+				if( $aufruffile->read_kimb_id( $ip , 'time' ) >= '4' && time() - $uhr <= '84400' ){
 					echo 'nok';
 					die;
 				}
 				$id = $ip;
+
+				if( time() - $uhr > '84400' ){
+					$aufruffile->write_kimb_id( $id , 'del' );
+				}
 			}
 			else{
 				$id = $aufruffile->next_kimb_id();
@@ -56,6 +57,7 @@ if( $_GET['addon'] == 'felogin' ){
 
 			$code = makepassw( 50 );
 			$_SESSION["mailcode"] = $code;
+			$_SESSION["email"] = $_GET['mail'];
 
 			$inhalt .= 'Hallo ,'."\r\n";
 			$inhalt .= 'Ihr Code lautet:'.$code."\r\n\r\n";

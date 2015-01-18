@@ -97,9 +97,13 @@ if( $_GET['id'] == $felogin['requid'] && ( isset( $_GET['pwforg'] ) || isset( $_
 			if( valzwei != valeins ){ 
 				return false;
 			}
-			else{
+			else if( valeins != "" ){
 				$( "input#passwort1" ).val( SHA1( valeins ) );
 				$( "input#passwort2" ).val( \'\' );
+				return true;
+			}
+			else{
+				return true;
 			}
 
 		}	
@@ -177,245 +181,64 @@ if( $_GET['id'] == $felogin['requid'] && ( isset( $_GET['pwforg'] ) || isset( $_
 	}
 	elseif( isset( $_GET['register'] ) && $felogin['selfreg'] == 'on' ){
 
+		if( isset( $_POST['captcha'] ) ){
+			if( !empty( $_POST['user'] ) && !empty( $_POST['name'] ) && !empty( $_POST['mailcode'] ) && !empty( $_POST['passwort1'] ) && !empty( $_POST['captcha'] ) && $_POST['akzep'] == 'ok'  ){
 
-$sitecontent->add_html_header('<script>
-		function checkpw() {
-			var valeins = $( "input#passwort1" ).val();
-			var valzwei = $( "input#passwort2" ).val();
+				$_POST['user'] = preg_replace( "/[^a-z0-9]/" , "" , strtolower( $_POST['user'] ) );
+				$uid = $felogin['userfile']->search_kimb_xxxid( $_POST['user'] , 'user' );
+				if( $uid == false && $_POST['mailcode'] == $_SESSION["mailcode"] && $_POST['captcha'] == $_SESSION['captcha'] && !empty( $_SESSION['email'] ) ){
 
-			if( valzwei != valeins ){
-				$("i#pwtext").text("Passwörter stimmen nicht überein!");
-				$("i#pwtext").css( "background-color", "red" );
-				$("i#pwtext").css( "color", "white" );
-				$("i#pwtext").css( "padding", "5px" );
-			}
-			else{
-				$("i#pwtext").text("Passwörter - OK");
-				$("i#pwtext").css( "background-color", "green" );
-				$("i#pwtext").css( "color", "white" );
-				$("i#pwtext").css( "padding", "5px" );
-			}
-		}
+					$gruppe = $felogin['conf']->read_kimb_one( 'selfreggruppe' );
 
-		function checkmail(){
-			var valmail = $( "input#mail" ).val();
-			var mailmatch = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+					$id = $felogin['userfile']->next_kimb_id();
 
-			if( mailmatch.test( valmail ) ){
-				$("i#mailtext").text( "E-Mail Adresse - Überprüfung ausstehend" );
-				$("i#mailtext").css( "background-color", "orange" );
-				$("i#mailtext").css( "color", "white" );
-				$("i#mailtext").css( "padding", "5px" );
+					$felogin['userfile']->write_kimb_teilpl( 'userids' , $id , 'add' );
 
-				$("tr#mailcodeinput").css( "display", "table-row" );
-			
-			}
-			else{
-				$("i#mailtext").text( "Die E-Mail Adresse ist fehlerhaft!" );
-				$("i#mailtext").css( "background-color", "red" );
-				$("i#mailtext").css( "color", "white" );
-				$("i#mailtext").css( "padding", "5px" );
-			}
-		}
+					$felogin['userfile']->write_kimb_id( $id , 'add' , 'passw' , $_POST['passwort1'] );
+					$felogin['userfile']->write_kimb_id( $id , 'add' , 'gruppe' , $gruppe );
+					$felogin['userfile']->write_kimb_id( $id , 'add' , 'name' , $_POST['name'] );
+					$felogin['userfile']->write_kimb_id( $id , 'add' , 'mail' , $_SESSION['email'] );
+					$felogin['userfile']->write_kimb_id( $id , 'add' , 'user' , $_POST['user'] );
 
-		function checkname(){
-			var valname = $( "input#name" ).val();
-			
-			if( valname != "" ){
-				$("i#nametext").text( "Name - OK" );
-				$("i#nametext").css( "background-color", "green" );
-				$("i#nametext").css( "color", "white" );
-				$("i#nametext").css( "padding", "5px" );
-			
-			}
-			else{
-				$("i#nametext").text( "Der Name darf nicht leer sein!" );
-				$("i#nametext").css( "background-color", "red" );
-				$("i#nametext").css( "color", "white" );
-				$("i#nametext").css( "padding", "5px" );
-			}
-		}
+					$sitecontent->add_site_content( '<center><div style="color:red; font-size:20px;">Ihr Account wurde eingerichtet!</div>E-Mail-Adresse: '.$_SESSION['email'].'<br />Username: '.$_POST['user'].'<br />Name: '.$_POST['name'].'</center>' );
 
-		function checkuser(){
-			var userinput = $( "input#user" ).val();
-			if( "" != userinput ){
-
-				$( "input#checku" ).val( "nok" );
-				$("i#usertext").text("Username -- Überprüfung läuft");
-				$("i#usertext").css( "background-color", "orange" );
-				$("i#usertext").css( "color", "white" );
-				$("i#usertext").css( "padding", "5px" );
-
-				$.get( "'.$allgsysconf['siteurl'].'/ajax.php?addon=felogin&user=" + userinput , function( data ) {
-					if( data == "nok" ){
-						$("i#usertext").text("Username - Achtung, dieser Username ist schon vergeben!!");
-						$("i#usertext").css( "background-color", "red" );
-					}
-					else{
-						$( "input#checku" ).val( "ok" );
-						$("i#usertext").text("Username - OK");
-						$("i#usertext").css( "background-color", "green" );
-					}
-				});
-			}
-			else{
-				$( "input#checku" ).val( "ok" );
-				$("i#usertext").text("(Username -- OK)");
-				$("i#usertext").css( "background-color", "green" );
-			}
-		}
-
-		function sendcode(){
-			var valmail = $( "input#mail" ).val();
-			$.get( "'.$allgsysconf['siteurl'].'/ajax.php?addon=felogin&mail=" + valmail , function( data ) {
-				if( data == "ok" ){
-					$("i#mailcodetext").html( "Code versandt!" );
-					$("i#mailcodetext").css( "line-height", "25px" );
-					$("i#mailcodetext").css( "background-color", "orange" );
-					$("i#mailcodetext").css( "color", "white" );
-					$("i#mailcodetext").css( "padding", "5px" );
-					$("button#nochmalcode").css( "display", "table-cell" );
 				}
 				else{
-					$("i#mailcodetext").text(" Die Anzahl an Versuchen ist beschränkt! ");
-					$("i#mailcodetext").css( "background-color", "red" );
-					$("i#mailcodetext").css( "line-height", "25px" );
-					$("i#mailcodetext").css( "color", "white" );
-					$("i#mailcodetext").css( "padding", "5px" );
+					$sitecontent->add_site_content( '<div style="color:red; font-size:20px;">Die Eingabeprüfung ist fehlgeschlagen!</div>' );
 				}
-			});
-		}
-
-		function checkcode(){
-			var valcode =  encodeURIComponent( $( "input#mailcode" ).val() );
-			$.get( "'.$allgsysconf['siteurl'].'/ajax.php?addon=felogin&code=" + valcode , function( data ) {
-				if( data == "ok" ){
-					$("i#mailcodetext").text( "Code - OK" );
-					$("i#mailcodetext").css( "background-color", "green" );
-					$("i#mailcodetext").css( "color", "white" );
-					$("i#mailcodetext").css( "line-height", "25px" );
-					$("i#mailcodetext").css( "padding", "5px" );
-					$("button#nochmalcode").css( "display", "none" );
-					$( "input#checkm" ).val( "ok" );
-					$("i#mailtext").text( "E-Mail Adresse - OK" );
-					$("i#mailtext").css( "background-color", "green" );
-				}
-				else{
-					$("i#mailcodetext").text( "Code fehlerhaft" );
-					$("i#mailcodetext").css( "background-color", "red" );
-					$("i#mailcodetext").css( "line-height", "25px" );
-					$("i#mailcodetext").css( "color", "white" );
-					$("i#mailcodetext").css( "padding", "5px" );
-					$("button#nochmalcode").css( "display", "table-cell" );
-				}
-			});
-		}
-
-		function checkcaptcha(){
-			var captchainput = $( "input#captcha" ).val();
-			if( "" != captchainput ){
-
-				$( "input#checkc" ).val( "nok" );
-				$("i#captchatext").text("Captcha -- Überprüfung läuft");
-				$("i#captchatext").css( "background-color", "orange" );
-				$("i#captchatext").css( "color", "white" );
-				$("i#captchatext").css( "padding", "5px" );
-
-				$.get( "'.$allgsysconf['siteurl'].'/ajax.php?addon=felogin&captcha=" + captchainput , function( data ) {
-					if( data == "nok" ){
-						$("i#captchatext").text( "Captcha - Achtung, Ihre Eingabe ist falsch!!" );
-						$("i#captchatext").css( "background-color", "red" );
-					}
-					else{
-						$( "input#checkc" ).val( "ok" );
-						$("i#captchatext").text("Captcha - OK");
-						$("i#captchatext").css( "background-color", "green" );
-					}
-				});
 			}
 			else{
-				$( "input#checkc" ).val( "ok" );
-				$("i#captchatext").text("(Captcha -- OK)");
-				$("i#captchatext").css( "background-color", "green" );
+				$sitecontent->add_site_content( '<div style="color:red; font-size:20px;">Bitte Füllen Sie alle Felder!</div>' );
 			}
 		}
+		else{
+			$sitecontent->add_html_header('<script>var siteurl = "'.$allgsysconf['siteurl'].'";</script>');
+			$sitecontent->add_html_header('<script src="'.$allgsysconf['siteurl'].'/load/addondata/felogin/register.js" type="text/javascript" ></script>');
 
-		function checksubmit(){
+			$sitecontent->add_site_content('<h2>Account anlegen?!</h2>'."\r\n");
+			$sitecontent->add_site_content('Hier können Sie sich einen Account anlegen!<br /><br />'."\r\n");
+			$sitecontent->add_site_content('<form action="#goto" method="post" onsubmit="return checksubmit(); " >'."\r\n");
+			$sitecontent->add_site_content('<table width="100%;">'."\r\n");
+			$sitecontent->add_site_content('<tr><td><input type="text" name="user" id="user" placeholder="Username" onchange=" checkuser(); " ></td> <td colspan="2"><i id="usertext">Username -- bitte eintragen</i></td></tr>'."\r\n");
+			$sitecontent->add_site_content('<tr><td><input type="text" name="name" id="name" placeholder="Name" onchange=" checkname(); "></td> <td colspan="2" ><i id="nametext">Name -- bitte eintragen</i></td></tr>'."\r\n");
+			$sitecontent->add_site_content('<tr><td><input type="text" name="mail" id="mail" placeholder="E-Mail-Adresse" onchange=" checkmail(); " ></td> <td colspan="2" ><i id="mailtext">E-Mail-Adresse -- bitte eintragen</i></td></tr>'."\r\n");
+			$sitecontent->add_site_content('<tr style="display:none;" id="mailcodeinput" ><td><input type="text" name="mailcode" id="mailcode" placeholder="E-Mail-Code" onchange=" checkcode(); " ></td> <td style="min-width:120px;"><i id="mailcodetext"><button onclick=" sendcode(); ">Verifizierungscode an Ihre E-Mail-Adresse senden</button></i><button style="display:none" id="nochmalcode" onclick=" sendcode(); ">Nochmal versuchen?!</button></td> <td>( Wir senden Ihnen einen Code an die angegebene E-Mail-Adresse und diese zu testen, bitte geben Sie den Code links ein! )</td></tr>'."\r\n");
+			$sitecontent->add_site_content('<tr><td><input type="password" name="passwort1" id="passwort1" placeholder="Passwort" onchange=" checkpw(); "></td> <td colspan="2" ><i id="pwtext">Passwort -- bitte eintragen</i> </td></tr>'."\r\n");
+			$sitecontent->add_site_content('<tr><td><input type="password" name="passwort2" id="passwort2" placeholder="Passwort" onchange=" checkpw(); "></td> <td colspan="2" ><i id="pwtext">Passwort -- bitte eintragen</i> </td></tr>'."\r\n");
+			$sitecontent->add_site_content('<tr><td colspan="3"><input type="hidden" id="checku" value="nok" "><input type="hidden" id="checkc" value="nok" "><input type="hidden" id="checkm" value="nok"></td></tr>'."\r\n");
+			$sitecontent->add_site_content('<tr><td><img id="captcha" src="'.$allgsysconf['siteurl'].'/ajax.php?addon=captcha" id="captcha" style="border:none;" /></td> <td><a href="#" onclick=" document.getElementById( \'captcha\' ).src = \''.$allgsysconf['siteurl'].'/ajax.php?addon=captcha&\' + Math.random(); return false;">Nicht lesbar?</a></td><td>( Bitte geben Sie die Buchstaben, die Sie oben sehen, in das Feld ein. Nur so können wir sicherstellen, dass nur Menschen einen Account bekommen. )</td></tr>'."\r\n");
+			$sitecontent->add_site_content('<tr><td><input name="captcha" id="captcha" autocomplete="off" placeholder="Code" onchange=" checkcaptcha(); " type="text" ></td> <td colspan="2" ><i id="captchatext">Ich bin kein Roboter - Captcha</i></td></tr>'."\r\n");
+			$sitecontent->add_site_content('</table>');
 
-			var valeins = $( "input#passwort1" ).val();
-			var valzwei = $( "input#passwort2" ).val();
-			var valmail = $( "input#mail" ).val();
-			var valchecku = $( "input#checku" ).val();
-			var valcheckc = $( "input#checkc" ).val();
-			var valcheckm = $( "input#checkm" ).val();
-			var valname = $( "input#name" ).val();
-			var valakzep = $( "input#akzep" ).val();
-
-			var mailmatch = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
-			if( mailmatch.test( valmail ) == false ){
-				return false;
-			}
-			else if( valzwei != valeins ){ 
-				return false;
-			}
-			else if( valeins == "" ){
-				return false;
-			}
-			else if( valchecku == "nok" ){
-				return false;
-			}
-			else if( valcheckc == "nok" ){
-				return false;
-			}
-			else if( valcheckm == "nok" ){
-				return false;
-			}
-			else if( valchecku == "nok" ){
-				return false;
-			}
-			else if( valname == "" ){
-				return false;
-			}
-			else if( !$( "input#akzep" ).is( ":checked" ) ){
-				return false;
-			}
-			else{
-				$( "input#passwort1" ).val( SHA1( valeins ) );
-				$( "input#passwort2" ).val( " " );
-				return true;
-			}
-		}
-		</script>');
-
-		$sitecontent->add_site_content('<h2>Account anlegen?!</h2>'."\r\n");
-		$sitecontent->add_site_content('Hier können Sie sich einen Account anlegen!<br /><br />'."\r\n");
-		$sitecontent->add_site_content('<form action="" method="post" onsubmit="return checksubmit(); " >'."\r\n");
-		$sitecontent->add_site_content('<table width="100%;">'."\r\n");
-		$sitecontent->add_site_content('<tr><td><input type="text" name="user" id="user" placeholder="Username" onchange=" checkuser(); " ></td> <td colspan="2"><i id="usertext">Username -- bitte eintragen</i></td></tr>'."\r\n");
-		$sitecontent->add_site_content('<tr><td><input type="text" name="name" id="name" placeholder="Name" onchange=" checkname(); "></td> <td colspan="2" ><i id="nametext">Name -- bitte eintragen</i></td></tr>'."\r\n");
-		$sitecontent->add_site_content('<tr><td><input type="text" name="mail" id="mail" placeholder="E-Mail-Adresse" onchange=" checkmail(); " ></td> <td colspan="2" ><i id="mailtext">E-Mail-Adresse -- bitte eintragen</i></td></tr>'."\r\n");
-		$sitecontent->add_site_content('<tr style="display:none;" id="mailcodeinput" ><td><input type="text" name="mailcode" id="mailcode" placeholder="E-Mail-Code" onchange=" checkcode(); " ></td> <td style="min-width:120px;"><i id="mailcodetext"><button onclick=" sendcode(); ">Verifizierungscode an Ihre E-Mail-Adresse senden</button></i><button style="display:none" id="nochmalcode" onclick=" sendcode(); ">Nochmal versuchen?!</button></td> <td>( Wir senden Ihnen einen Code an die angegebene E-Mail-Adresse und diese zu testen, bitte geben Sie den Code links ein! )</td></tr>'."\r\n");
-		$sitecontent->add_site_content('<tr><td><input type="password" name="passwort1" id="passwort1" placeholder="Passwort" onchange=" checkpw(); "></td> <td colspan="2" ><i id="pwtext">Passwort -- bitte eintragen</i> </td></tr>'."\r\n");
-		$sitecontent->add_site_content('<tr><td><input type="password" name="passwort2" id="passwort2" placeholder="Passwort" onchange=" checkpw(); "></td> <td colspan="2" ><i id="pwtext">Passwort -- bitte eintragen</i> </td></tr>'."\r\n");
-		$sitecontent->add_site_content('<tr><td colspan="3"><input type="hidden" id="checku" value="nok" "><input type="hidden" id="checkc" value="nok" "><input type="hidden" id="checkm" value="nok"></td></tr>'."\r\n");
-		$sitecontent->add_site_content('<tr><td><img id="captcha" src="'.$allgsysconf['siteurl'].'/ajax.php?addon=captcha" id="captcha" style="border:none;" /></td> <td><a href="#" onclick=" document.getElementById( \'captcha\' ).src = \''.$allgsysconf['siteurl'].'/ajax.php?addon=captcha&\' + Math.random(); return false;">Nicht lesbar?</a></td><td>( Bitte geben Sie die Buchstaben, die Sie oben sehen, in das Feld ein. Nur so können wir sicherstellen, dass nur Menschen einen Account bekommen. )</td></tr>'."\r\n");
-		$sitecontent->add_site_content('<tr><td><input name="captcha" id="captcha" autocomplete="off" placeholder="Code" onchange=" checkcaptcha(); " type="text" ></td> <td colspan="2" ><i id="captchatext">Ich bin kein Roboter - Captcha</i></td></tr>'."\r\n");
-		$sitecontent->add_site_content('</table>');
-
-		$felogin['akzepttext'] = $felogin['conf']->read_kimb_one( 'akzepttext' );
-		$sitecontent->add_site_content('<input type="checkbox" name="akzep" id="akzep" value="ok">'.$felogin['akzepttext'].'<br />');
+			$felogin['akzepttext'] = $felogin['conf']->read_kimb_one( 'akzepttext' );
+			$sitecontent->add_site_content('<input type="checkbox" name="akzep" id="akzep" value="ok">'.$felogin['akzepttext'].'<br />');
 				
-		$sitecontent->add_site_content('<br /><input type="submit" value="Account erstellen!" ><br />');
-		$sitecontent->add_site_content('</form>');
-
-		//js checkemailcode
-		//js check hacken
-		//Formualarverarbeitung
-
+			$sitecontent->add_site_content('<br /><input type="submit" value="Account erstellen!" ><br />');
+			$sitecontent->add_site_content('</form>');
+		}
 	}
 
 	$sitecontent->add_site_content( '<hr id="end"/>');
-
 }
 
 unset( $felogin );
