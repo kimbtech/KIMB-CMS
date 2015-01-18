@@ -31,7 +31,10 @@ class system_output{
 		$this->footer = $this->sonderfile->read_kimb_one('footer')."\r\n";
 	}
 
-	public function add_menue_one_entry($name, $link, $niveau, $clicked ){
+	public function add_menue_one_entry($name, $link, $niveau, $clicked , $allgrequestid){
+		if( $clicked == 'yes' ){
+			$this->add_html_header( '<link rel="canonical" href="'.$link.'">' );
+		}
 		if( isset( $this->allgsysconf['theme'] ) ){
 			if( file_exists( __DIR__.'/../theme/output_menue_'.$this->allgsysconf['theme'].'.php' ) ){
 				require(__DIR__.'/../theme/output_menue_'.$this->allgsysconf['theme'].'.php');
@@ -48,8 +51,12 @@ class system_output{
 	public function add_site($content){
 		$this->set_title($content['title']);
 		$this->add_html_header($content['header']);
-		$this->add_html_header('<meta name="description" content="'.$content['description'].'">');
-		$this->add_html_header('<meta name="keywords" content="'.$content['keywords'].'">');
+		if( !empty( $content['description'] ) ){
+			$this->add_html_header('<meta name="description" content="'.$content['description'].'">');
+		}
+		if( !empty( $content['keywords'] ) ){
+			$this->add_html_header('<meta name="keywords" content="'.$content['keywords'].'">');
+		}
 		$this->sitecontent .= $content['inhalt']."\r\n";
 		$this->add_footer($content['footer']);
 		if( $this->allgsysconf['show_siteinfos'] == 'on' ){
