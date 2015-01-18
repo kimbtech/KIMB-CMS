@@ -13,4 +13,40 @@ Ihr Code lautet:xxT[-3H[_Tv#C?[4&v"40a,3IrrT3Xj#v!RdZ:hzC/Z-l.ZwM
 
 KIMB CMS, From: KIMB CMS <mail@cms.cms>);
 
+	mail(test3@test.test, Nachricht von: KIMB CMS, Hallo ,
+Ihr Code lautet:2WUhy:eMR4e\HEGh"/sF6+fFCjbMZ4d[%?M32W(_:2f]\K1sBu
+
+KIMB CMS, From: KIMB CMS <mail@cms.cms>);
+
+	mail(mail@admin, Nachricht von: KIMB CMS, Es hat sich ein neuer User "test3" registriert!, From: KIMB CMS <mail@cms.cms>);
+
+	mail(test3@test.test, Nachricht von: KIMB CMS, Hallo Test3,
+ihr neues Passwort lautet: \swLA+/j3!
+Gleich einloggen: http://localhost:8000/index.php?id=1
+
+KIMB CMS, From: KIMB CMS <mail@cms.cms>);
+
+	mail(dd@ff.ff, Nachricht von: KIMB CMS, Hallo ,
+Ihr Code lautet:uXl]:(/YGiaatkaw_[h-zgK63Ut/l]9sEhx#B%7#a(G&!d[Ox
+
+KIMB CMS, From: KIMB CMS <mail@cms.cms>);
+
+	mail(mail@admin, Nachricht von: KIMB CMS, Es hat sich ein neuer User "dd" registriert!, From: KIMB CMS <mail@cms.cms>);
+
+	mail(test@bhgfb.dde, Nachricht von: KIMB CMS, Hallo ,
+Ihr Code lautet:jAXuRFUTAPRTzFNe5%\I&xMBtX%g[PHL\J*lFMdN)/;bb?ge9T
+
+KIMB CMS, From: KIMB CMS <mail@cms.cms>);
+
+	mail(mail@admin, Nachricht von: KIMB CMS, Es hat sich ein neuer User "test" registriert!, From: KIMB CMS <mail@cms.cms>);
+
+	mail(mail@admin, Nachricht von: KIMB CMS, Es hat sich ein neuer User "dd" registriert!, From: KIMB CMS <mail@cms.cms>);
+
+	mail(dde@ff.ff, Nachricht von: KIMB CMS, Hallo ,
+Ihr Code lautet:.dO:7?t3smI0ffw7QLP&z%Dl*6su%syyk*tM\+vyoisUl&-Njk
+
+KIMB CMS, From: KIMB CMS <mail@cms.cms>);
+
+	mail(mail@admin, Nachricht von: KIMB CMS, Es hat sich ein neuer User "ddee" registriert!, From: KIMB CMS <mail@cms.cms>);
+
 	
