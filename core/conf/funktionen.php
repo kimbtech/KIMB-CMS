@@ -273,6 +273,30 @@ function make_menue_array( $filename = 'url/first.kimb' , $niveau = '1' , $filei
 	}
 }
 
+function id_dropdown( $name, $id = 'siteid' ){
+	global $idfile, $menuenames, $menuearray;
+	$idfile = new KIMBdbf('menue/allids.kimb');
+	$menuenames = new KIMBdbf('menue/menue_names.kimb');
+
+	make_menue_array();
+
+	$return = '<select name="'.$name.'" >';
+
+	foreach( $menuearray as $menuear ){
+
+		$niveau = str_repeat( '==>' , $menuear['niveau'] );
+		$valid = $menuear[$id];
+		$menuename = $menuear['menuname'];
+
+		$return .= '<option value="'.$valid.'">'.$niveau.' '.$menuename.' - '.$valid.'</option>';
+	}
+
+	$return .= '</select>';
+
+	return $return;
+
+}
+
 function listaddons(){
 
 	$files = scandir(__DIR__.'/../addons/');

@@ -10,7 +10,7 @@ if($allgmenueid == $idfile->read_kimb_id($_GET['id'], 'menueid')){
 	$allgrequestid = $_GET['id'];
 }
 else{
-	$allgrequestid = search_kimb_xxxid( $allgmenueid , 'menueid' );
+	$allgrequestid = $idfile->search_kimb_xxxid( $allgmenueid , 'menueid' );
 }
 
 if( $allgsysconf['cache'] == 'on' ){
