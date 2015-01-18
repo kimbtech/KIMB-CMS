@@ -121,7 +121,7 @@ var del = function( id ) {
 }
 </script>');
 
-$sitecontent->add_site_content('<span class="ui-icon ui-icon-info" title="Hier können Sie allgemeine Einstellungen vornhemen und ein Gästebuch/ eine Kommentarmöglichkeit auf bestimmten Seite anzeigen. Sie benötigen nur die SeitenID ( Seiten -> Auflisten ) Die Beiträge können Sie unter Add-ons -> Nutzung -> guestbook verwalten."></span>');
+$sitecontent->add_site_content('<span class="ui-icon ui-icon-info" title="Hier können Sie allgemeine Einstellungen vornhemen und ein Gästebuch/ eine Kommentarmöglichkeit auf bestimmten Seite anzeigen. In der Liste werden die SiteIDs ( Seiten -> Auflisten ) angezeigt. Die Beiträge können Sie unter Add-ons -> Nutzung -> guestbook verwalten."></span>');
 $sitecontent->add_site_content('<table width="100%"><tr><th>SiteID</th><th width="20px;">Löschen</th></tr>');
 
 foreach( $guestfile->read_kimb_all_teilpl( 'siteid' ) as $id ){
@@ -141,7 +141,7 @@ else{
 	$sitecontent->add_site_content('</table>');
 }
 
-$sitecontent->add_site_content('<form action="'.$addonurl.'&amp;new" method="post"><span class="ui-icon ui-icon-plus" title="Bei einer weiteren Seite erstellen." style="display:inline-block;"></span><input type="text" placeholder="SiteID" name="id"><input type="submit" value="Erstellen" ></form>');
+$sitecontent->add_site_content('<form action="'.$addonurl.'&amp;new" method="post"><span class="ui-icon ui-icon-plus" title="Bei einer weiteren Seite erstellen." style="display:inline-block;"></span>'.id_dropdown( 'id', 'siteid' ).'<input type="submit" value="Erstellen" ></form>');
 
 $sitecontent->add_site_content('<div style="display:none;"><div id="del-confirm" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Möchten Sie dieses Gästebuch und alle seine Beiträge wirklich löschen?</p></div></div>');
 

@@ -2,7 +2,7 @@
 
 defined('KIMB_Backend') or die('No clean Request');
 
-$addonurl = $allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=more&addon=kontakt';
+$addonurl = $allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=more&amp;addon=kontakt';
 
 $kontakt['file'] = new KIMBdbf( 'addon/kontakt__file.kimb' );
 
@@ -144,7 +144,9 @@ $(function() {
 
 $sitecontent->add_site_content('<br /><br /><form action="'.$addonurl.'" method="post" >');
 
-$sitecontent->add_site_content('<input name="id" type="text" value="'.$kontakt['file']->read_kimb_one( 'siteid' ).'" > ( SiteID <b title="Bitte geben Sie hier die SeitenID, der Seite auf welcher die Kontaktinfos erscheinen sollen, ein. ( Seiten -> Auflisten )">*</b> )<br />');
+$sitecontent->add_html_header('<script>$(function(){ $( "[name=id]" ).val( '.$kontakt['file']->read_kimb_one( 'siteid' ).' ); }); </script>');
+
+$sitecontent->add_site_content(id_dropdown( 'id', 'siteid' ).' ( SiteID <b title="Bitte geben Sie hier die Seite an, auf welcher die Kontaktinfos erscheinen sollen.">*</b> )<br />');
 $sitecontent->add_site_content('<input type="radio" name="mailoo" value="off"'.$ch[1].'> <span style="display:inline-block;" title="Bild der E-Mail-Adresse deaktiviert" class="ui-icon ui-icon-closethick"></span> <input type="radio" name="mailoo" value="on"'.$ch[2].'> <span style="display:inline-block;" title="Bild der E-Mail-Adresse aktiviert" class="ui-icon ui-icon-check"></span> (E-Mail-Adresse)<br />');
 $sitecontent->add_site_content('<input type="radio" name="formoo" value="off"'.$ch[3].'> <span style="display:inline-block;" title="Kontakformular deaktiviert" class="ui-icon ui-icon-closethick"></span> <input type="radio" name="formoo" value="on"'.$ch[4].'> <span style="display:inline-block;" title="Kontaktformular aktiviert" class="ui-icon ui-icon-check"></span> (Kontaktformular)<br />');
 $sitecontent->add_site_content('<input type="radio" name="otheroo" value="off"'.$ch[5].'> <span style="display:inline-block;" title="Über JavaScript gesicherter Inhalt deaktiviert" class="ui-icon ui-icon-closethick"></span> <input type="radio" name="otheroo" value="on"'.$ch[6].'> <span style="display:inline-block;" title="Über JavaScript gesicherter Inhalt aktiviert" class="ui-icon ui-icon-check"></span> (JavaScript Inhalt)<br /><br />');
