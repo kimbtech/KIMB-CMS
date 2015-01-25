@@ -332,7 +332,9 @@ function id_dropdown( $name, $id = 'siteid' ){
 	$idfile = new KIMBdbf('menue/allids.kimb');
 	$menuenames = new KIMBdbf('menue/menue_names.kimb');
 
-	make_menue_array();
+	if( !isset( $menuearray ) ){
+		make_menue_array();
+	}
 
 	$return = '<select name="'.$name.'" >';
 
