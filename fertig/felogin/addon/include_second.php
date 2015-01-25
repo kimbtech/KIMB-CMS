@@ -1,5 +1,23 @@
 <?php
 
+/*************************************************/
+//KIMB-technologies
+//KIMB CMS Add-on
+//KIMB ContentManagementSystem
+//KIMB-technologies.blogspot.com
+/*************************************************/
+//CC BY-ND 4.0
+//http://creativecommons.org/licenses/by-nd/4.0/
+//http://creativecommons.org/licenses/by-nd/4.0/legalcode
+/*************************************************/
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+//BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+//IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+//WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+//IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+/*************************************************/
+
+
 defined('KIMB_CMS') or die('No clean Request');
 
 //register (captcha, mailcheck), usereinstellungen, pw-forgot,
@@ -235,7 +253,7 @@ if( $_GET['id'] == $felogin['requid'] && ( isset( $_GET['pwforg'] ) || isset( $_
 			$sitecontent->add_site_content('<tr><td><input type="text" name="user" id="user" placeholder="Username" onchange=" checkuser(); " ></td> <td colspan="2"><i id="usertext">Username -- bitte eintragen</i></td></tr>'."\r\n");
 			$sitecontent->add_site_content('<tr><td><input type="text" name="name" id="name" placeholder="Name" onchange=" checkname(); "></td> <td colspan="2" ><i id="nametext">Name -- bitte eintragen</i></td></tr>'."\r\n");
 			$sitecontent->add_site_content('<tr><td><input type="text" name="mail" id="mail" placeholder="E-Mail-Adresse" onchange=" checkmail(); " ></td> <td colspan="2" ><i id="mailtext">E-Mail-Adresse -- bitte eintragen</i></td></tr>'."\r\n");
-			$sitecontent->add_site_content('<tr style="display:none;" id="mailcodeinput" ><td><input type="text" name="mailcode" id="mailcode" placeholder="E-Mail-Code" onchange=" checkcode(); " ></td> <td style="min-width:120px;"><i id="mailcodetext"><button onclick=" sendcode(); ">Verifizierungscode an Ihre E-Mail-Adresse senden</button></i><button style="display:none" id="nochmalcode" onclick=" sendcode(); ">Nochmal versuchen?!</button></td> <td>( Wir senden Ihnen einen Code an die angegebene E-Mail-Adresse und diese zu testen, bitte geben Sie den Code links ein! )</td></tr>'."\r\n");
+			$sitecontent->add_site_content('<tr style="display:none;" id="mailcodeinput" ><td><input type="text" name="mailcode" id="mailcode" placeholder="E-Mail-Code" onchange=" checkcode(); " ></td> <td style="min-width:120px;"><i id="mailcodetext"><button onclick=" sendcode(); ">Verifizierungscode an Ihre E-Mail-Adresse senden</button></i><button style="display:none" id="nochmalcode" onclick=" sendcode(); ">Nochmal versuchen?!</button></td> <td>( Wir senden Ihnen einen Code an die angegebene E-Mail-Adresse um diese zu testen, bitte geben Sie den Code links ein! )</td></tr>'."\r\n");
 			$sitecontent->add_site_content('<tr><td><input type="password" name="passwort1" id="passwort1" placeholder="Passwort" onchange=" checkpw(); "></td> <td colspan="2" ><i id="pwtext">Passwort -- bitte eintragen</i> </td></tr>'."\r\n");
 			$sitecontent->add_site_content('<tr><td><input type="password" name="passwort2" id="passwort2" placeholder="Passwort" onchange=" checkpw(); "></td> <td colspan="2" ><i id="pwtext">Passwort -- bitte eintragen</i> </td></tr>'."\r\n");
 			if( $_SESSION['registerokay'] == 'yes' ){
