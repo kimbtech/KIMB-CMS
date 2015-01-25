@@ -1,5 +1,23 @@
 <?php
 
+/*************************************************/
+//KIMB-technologies
+//KIMB CMS Add-on
+//KIMB ContentManagementSystem
+//KIMB-technologies.blogspot.com
+/*************************************************/
+//CC BY-ND 4.0
+//http://creativecommons.org/licenses/by-nd/4.0/
+//http://creativecommons.org/licenses/by-nd/4.0/legalcode
+/*************************************************/
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+//BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+//IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+//WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+//IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+/*************************************************/
+
+
 defined('KIMB_Backend') or die('No clean Request');
 
 $addonurl = $allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=more&addon=guestbook';
@@ -189,7 +207,7 @@ $sitecontent->add_site_content('<input type="radio" name="mailoo" value="off"'.$
 $sitecontent->add_site_content('<input type="radio" name="mailoo" value="on"'.$ch[4].'> <span style="display:inline-block;" title="Eine E-Mail an die Adresse unten senden, wenn ein neur Beitrag vorhanden ist" class="ui-icon ui-icon-check"></span> ( E-Mail )<br />');
 
 $sitecontent->add_site_content('<input type="radio" name="nstatoo" value="off"'.$ch[5].'><span style="display:inline-block;" title="Neue Beiträge vor Veröffentlichung prüfen" class="ui-icon ui-icon-closethick"></span>');
-$sitecontent->add_site_content('<input type="radio" name="nstatoo" value="on"'.$ch[6].'> <span style="display:inline-block;" title="Neune Beiträge gleich veröffentlichen" class="ui-icon ui-icon-check"></span> ( Status )<br />');
+$sitecontent->add_site_content('<input type="radio" name="nstatoo" value="on"'.$ch[6].'> <span style="display:inline-block;" title="Neue Beiträge gleich veröffentlichen" class="ui-icon ui-icon-check"></span> ( Status )<br />');
 
 $sitecontent->add_site_content('<input type="radio" name="ipoo" value="off"'.$ch[7].'><span style="display:inline-block;" title="IP des Users nicht speichern" class="ui-icon ui-icon-closethick"></span>');
 $sitecontent->add_site_content('<input type="radio" name="ipoo" value="on"'.$ch[8].'> <span style="display:inline-block;" title="IP des Users speichern ( Hinweis wird angezeigt )" class="ui-icon ui-icon-check"></span> ( IP )<br />');

@@ -207,7 +207,7 @@ $sitecontent->add_site_content('<input type="radio" name="mailoo" value="off"'.$
 $sitecontent->add_site_content('<input type="radio" name="mailoo" value="on"'.$ch[4].'> <span style="display:inline-block;" title="Eine E-Mail an die Adresse unten senden, wenn ein neur Beitrag vorhanden ist" class="ui-icon ui-icon-check"></span> ( E-Mail )<br />');
 
 $sitecontent->add_site_content('<input type="radio" name="nstatoo" value="off"'.$ch[5].'><span style="display:inline-block;" title="Neue Beiträge vor Veröffentlichung prüfen" class="ui-icon ui-icon-closethick"></span>');
-$sitecontent->add_site_content('<input type="radio" name="nstatoo" value="on"'.$ch[6].'> <span style="display:inline-block;" title="Neune Beiträge gleich veröffentlichen" class="ui-icon ui-icon-check"></span> ( Status )<br />');
+$sitecontent->add_site_content('<input type="radio" name="nstatoo" value="on"'.$ch[6].'> <span style="display:inline-block;" title="Neue Beiträge gleich veröffentlichen" class="ui-icon ui-icon-check"></span> ( Status )<br />');
 
 $sitecontent->add_site_content('<input type="radio" name="ipoo" value="off"'.$ch[7].'><span style="display:inline-block;" title="IP des Users nicht speichern" class="ui-icon ui-icon-closethick"></span>');
 $sitecontent->add_site_content('<input type="radio" name="ipoo" value="on"'.$ch[8].'> <span style="display:inline-block;" title="IP des Users speichern ( Hinweis wird angezeigt )" class="ui-icon ui-icon-check"></span> ( IP )<br />');
