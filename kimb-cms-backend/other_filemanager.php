@@ -178,7 +178,7 @@ if( is_dir( $openpath ) ){
 				$sitecontent->add_site_content( '<tr style="background-color: grey; padding:10px; height: 40px;"><td><span class="ui-icon ui-icon-document"></span></td>');
 				$sitecontent->add_site_content( '<td><span onclick="var delet = del( \'\' , \''.urlencode($pathnow.'/'.$file).'\' , \''.urlencode($pathnow).'\' ); delet();" class="ui-icon ui-icon-trash" title="Diese Datei löschen."></span></td>');
 				if( $secured == 'off' ){
-					$sitecontent->add_site_content( '<td><a href="'.$allgsysconf['siteurl'].'/load/userdata'.urlencode($pathnow.'/'.$file).'" target="_blank"><span class="ui-icon ui-icon-extlink" title="Öffnen Sie die Datei in einem neuen Fenster, die URL können Sie oben aus der Adressleiste kopieren und für Ihre Seiten verwenden."></span></a></td>' );
+					$sitecontent->add_site_content( '<td><a href="'.$allgsysconf['siteurl'].'/load/userdata'.$pathnow.'/'.$file.'" target="_blank"><span class="ui-icon ui-icon-extlink" title="Öffnen Sie die Datei in einem neuen Fenster, die URL können Sie oben aus der Adressleiste kopieren und für Ihre Seiten verwenden."></span></a></td>' );
 				}
 				else{
 					$id = $keyfile->search_kimb_xxxid( $pathnow.'/'.$file , 'path' );
