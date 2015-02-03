@@ -4,7 +4,7 @@ defined('KIMB_CMS') or die('No clean Request');
 
 $guestbook['file'] = new KIMBdbf( 'addon/guestbook__conf.kimb' );
 
-if( $guestbook['file']->read_kimb_search_teilpl( 'siteid' , $allgsiteid ) && $allgerr != '403' ){
+if( $guestbook['file']->read_kimb_search_teilpl( 'siteid' , $allgsiteid ) && $allgerr != '403' && !empty( $allgsiteid ) ){
 
 	$sitecontent->add_html_header('<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/system/jquery/jquery.min.js"></script>');
 	$sitecontent->add_html_header('<style>'.$guestbook['file']->read_kimb_one( 'css' ).'</style>');
