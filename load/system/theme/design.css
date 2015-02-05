@@ -60,7 +60,7 @@ h2 {
 #contents{
 	height:auto;
 	min-height:250px;
-	padding-top:10px;
+	padding-top:35px;
 	padding-bottom:30px;
 	padding-right:05px;
 	padding-left:05px;
@@ -76,7 +76,7 @@ h2 {
 #contentm{
 	height:auto;
 	min-height:250px;
-	padding-top:10px;
+	padding-top:30px;
 	padding-bottom:30px;
 	padding-right:05px;
 	padding-left:05px;
@@ -124,6 +124,15 @@ h2 {
 #permalink{
 	position: absolute;
 	bottom:2px;
+	left:2px;
+	border:solid 2px #aaaaaa;
+	border-radius:2px;
+	padding:4px;
+}
+
+#breadcrumb{
+	position: absolute;
+	top:2px;
 	left:2px;
 	border:solid 2px #aaaaaa;
 	border-radius:2px;
