@@ -33,7 +33,7 @@ class system_output{
 		$this->set_title($content['title']);
 		$this->add_html_header($content['header']);
 		if( !empty( $content['description'] ) ){
-			$this->add_html_header('<meta name="description" content="'.$content['description'].'">');
+			$this->allgsysconf['description'] = $content['description'];
 		}
 		if( !empty( $content['keywords'] ) ){
 			$this->add_html_header('<meta name="keywords" content="'.$content['keywords'].'">');
