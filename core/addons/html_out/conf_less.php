@@ -39,6 +39,9 @@ if( isset( $_POST['onoff'] ) ){
 
 		foreach( $allteile as $teil ){	
 			$dings = $html_out['cont']->read_kimb_one( $teil );
+			if( $_POST[$teil] == '<br>' ){
+				$_POST[$teil] = '';
+			}
 			if( $dings == '' && $_POST[$teil] != '' ){
 				$html_out['cont']->write_kimb_new( $teil , $_POST[$teil] );
 				$sitecontent->echo_message( '"'.$teil.'" hinzugefügt!' );

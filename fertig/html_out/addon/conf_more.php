@@ -17,7 +17,6 @@
 //IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 /*************************************************/
 
-
 defined('KIMB_Backend') or die('No clean Request');
 
 $sitecontent->add_html_header('<script>
@@ -52,6 +51,9 @@ if( isset( $_POST['onoff'] ) ){
 		}
 
 		$site = $html_out['cont']->read_kimb_one( 'site' );
+		if( $_POST['site'] == '<br>' ){
+			$_POST['site'] = '';
+		}
 		if( $site == '' && $_POST['site'] != '' ){
 			$html_out['cont']->write_kimb_new( 'site' , $_POST['site'] );
 			$sitecontent->echo_message( 'Seitenausgabe hinzugefügt!' );
@@ -66,6 +68,9 @@ if( isset( $_POST['onoff'] ) ){
 		}
 
 		$message = $html_out['cont']->read_kimb_one( 'message' );
+		if( $_POST['message'] == '<br>' ){
+			$_POST['message'] = '';
+		}
 		if( $message == '' && $_POST['message'] != '' ){
 			$html_out['cont']->write_kimb_new( 'message' , $_POST['message'] );
 			$sitecontent->echo_message( 'Meldung hinzugefügt!' );
