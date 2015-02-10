@@ -32,6 +32,7 @@ $allgsysconf = $conffile->read_kimb_id('001');
 session_start();
 error_reporting('0');
 header('X-Robots-Tag: '.$allgsysconf['robots']);
+header('Content-Type: text/html; charset=utf-8');
 
 //wichtige Objekte
 
