@@ -131,12 +131,21 @@ elseif( $_GET['todo'] == 'connect' ){
 			$i++;
 		}
 	}
+	
+	$sites = scan_kimb_dir('site/');
+	foreach ( $sites as $site ){
+		$sitef = new KIMBdbf('site/'.$site);
+		$id = preg_replace("/[^0-9]/","", $site);
+		$title = $sitef->read_kimb_one('title');
+
+		$allsites[] = array( 'site' => $title, 'id' => $id );
+	}
 
 	$sitecontent->add_site_content('<h2>Ein Menue einer Seite zuordnen</h2>');
 
 	make_menue_array();
 	$sitecontent->add_site_content('<form method="post" action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=connect">');
-	$sitecontent->add_site_content('<table width="100%"><tr> <th width="50px;"></th> <th>MenueName</th> <th>Status</th> <th>SiteID <span class="ui-icon ui-icon-info" title="Geben Sie einfach eine vorhadene SiteID in das Kästchen ein um die Seite zuzuordnen! Wenn ein Menue widererwarten keine Seite haben soll, geben Sie bitte &apos;none&apos; ein"></span></th> </tr>');
+	$sitecontent->add_site_content('<table width="100%"><tr> <th width="50px;"></th> <th>MenueName</th> <th>Status</th> <th>SiteID <span class="ui-icon ui-icon-info" title="Wählen Sie bitte für jeden Menuepunkt eine Seite!"></span></th> </tr>');
 	$i = 0;
 	foreach( $menuearray as $menuear ){
 
@@ -148,8 +157,19 @@ elseif( $_GET['todo'] == 'connect' ){
 		else{
 			$status = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=deakch&amp;file='.$menuear['fileid'].'&amp;reqid='.$menuear['requid'].'"><span class="ui-icon ui-icon-check" title="Dieses Menue ist zu Zeit aktiviert, also sichtbar. ( click -> ändern ) ((Eine Änderung wirkt sich nicht auf Untermenüs aus!))"></span></a>';
 		}
+
+		$sitedr = '<select name="'.$i.'-site"><option value="none" selected="selected">None</option>';
+		foreach( $allsites as $alls ){
+			if( $alls['id'] == $menuear['siteid'] ){
+				$sitedr .= '<option value="'.$alls['id'].'" selected="selected">'.$alls['site'].' - '.$alls['id'].'</option>';
+			}
+			else{
+				$sitedr .= '<option value="'.$alls['id'].'">'.$alls['site'].' - '.$alls['id'].'</option>';
+			}
+		}
+		$sitedr .= '</select>';
 		
-		$sitecontent->add_site_content('<tr> <td>'.$menuear['niveau'].'</td>  <td>'.$menuear['menuname'].'</td> <td>'.$status.'</td> <td><input type="text" value="'.$menuear['siteid'].'" name="'.$i.'-site"><input type="hidden" value="'.$menuear['requid'].'" name="'.$i.'"></td> </tr>');
+		$sitecontent->add_site_content('<tr> <td>'.$menuear['niveau'].'</td>  <td>'.$menuear['menuname'].'</td> <td>'.$status.'</td> <td>'.$sitedr.'<input type="hidden" value="'.$menuear['requid'].'" name="'.$i.'"></td> </tr>');
 		$i++;
 
 		$liste = 'yes';
