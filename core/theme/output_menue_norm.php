@@ -5,6 +5,14 @@
 // Diese Datei ist Teil eines Objekts
 // Das fertige Menue wird, je nach Theme über $this->menue ausgegeben
 
+
+echo $this->niveau;
+echo "\r\n";
+echo $niveau;
+echo "\r\n";
+echo $this->ulauf;
+echo "\r\n\r\n";
+
 if( !isset( $this->niveau ) ){
 	$this->menue .= '<li>'."\r\n";
 }
@@ -16,8 +24,12 @@ elseif( $this->niveau < $niveau ){
 	$this->ulauf = $this->ulauf + 1;
 }
 elseif( $this->niveau > $niveau ){
-	$this->menue .= '</li></ul><li>'."\r\n";
-	$this->ulauf = $this->ulauf - 1;
+	$i = 1;
+	while( $this->niveau != $niveau + $i  ){
+		$i++;
+	}
+	$this->menue .= '</li>'.str_repeat( '</ul>' , $i ).'<li>'."\r\n";
+	$this->ulauf = $this->ulauf - $i;
 }
 
 if( $clicked == 'yes' ){

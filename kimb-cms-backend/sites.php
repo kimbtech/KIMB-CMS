@@ -204,7 +204,7 @@ elseif( $_GET['todo'] == 'edit' && is_numeric( $_GET['id'] ) ){
 	
 	$sitecontent->add_site_content('<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=edit&amp;id='.$_GET['id'].'" method="post"><br />');
 	$sitecontent->add_site_content('<input type="text" value="'.$seite['title'].'" name="title" style="width:74%;"> <i>Seitentitel</i><br />');
-	$sitecontent->add_site_content('<input type="text" value="'.$seite['header'].'" name="header" style="width:74%;"> <i>HTML Header </i><br />');
+	$sitecontent->add_site_content('<input type="text" value="'.htmlentities( $seite['header'] ).'" name="header" style="width:74%;"> <i>HTML Header </i><br />');
 	$sitecontent->add_site_content('<input type="text" value="'.$seite['keywords'].'" name="keywords" style="width:74%;"> <i>Keywords</i><br />');
 	$sitecontent->add_site_content('<input type="text" value="'.$seite['description'].'" name="description" style="width:74%;"> <i>Description</i> <br />');
 	$sitecontent->add_site_content('<textarea name="inhalt" style="width:99%;">'.$seite['inhalt'].'</textarea> <i>Inhalt &uarr;</i> <br />');
