@@ -35,8 +35,12 @@ elseif( $this->niveau < $niveau ){
 	$this->ulauf = $this->ulauf + 1;
 }
 elseif( $this->niveau > $niveau ){
-	$this->menue .= '</li></ul><li>'."\r\n";
-	$this->ulauf = $this->ulauf - 1;
+	$i = 1;
+	while( $this->niveau != $niveau + $i  ){
+		$i++;
+	}
+	$this->menue .= '</li>'.str_repeat( '</ul>' , $i ).'<li>'."\r\n";
+	$this->ulauf = $this->ulauf - $i;
 }
 
 if( $clicked == 'yes' ){
