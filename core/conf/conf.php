@@ -4,7 +4,7 @@
 //KIMB-technologies
 //KIMB CMS
 //KIMB ContentManagementSystem
-//KIMB-technologies.blogspot.com
+//www.KIMB-technologies.eu
 /*************************************************/
 //CC BY-ND 4.0
 //http://creativecommons.org/licenses/by-nd/4.0/
@@ -30,7 +30,7 @@ $allgsysconf = $conffile->read_kimb_id('001');
 //session, ...
 
 session_start();
-error_reporting('0');
+error_reporting( 0 );
 header('X-Robots-Tag: '.$allgsysconf['robots']);
 header('Content-Type: text/html; charset=utf-8');
 
@@ -45,7 +45,7 @@ if($allgsysconf['cache'] == 'on'){
 $kimbcmsinfo = '<!--
 
 	Diese Seite basiert auf dem KIMB-CMS!
-	KIMB-technologies.blogspot.com
+	www.KIMB-technologies.eu
 
 	CC BY-ND 4.0
 	http://creativecommons.org/licenses/by-nd/4.0/

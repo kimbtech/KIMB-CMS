@@ -4,7 +4,7 @@
 //KIMB-technologies
 //KIMB CMS
 //KIMB ContentManagementSystem
-//KIMB-technologies.blogspot.com
+//www.KIMB-technologies.eu
 /*************************************************/
 //CC BY-ND 4.0
 //http://creativecommons.org/licenses/by-nd/4.0/
@@ -18,7 +18,7 @@
 /*************************************************/
 
 
-error_reporting('0');
+error_reporting( 0 );
 
 if(file_exists ('conf-enable') != 'true'){
 	echo('<title>KIMB CMS - Installation</title><link rel="shortcut icon" href="system/load/KIMB.ico" type="image/x-icon; charset=binary"><h1>Error - 404</h1>Bitte schalten Sie den Configurator frei, erstellen Sie eine leere "conf-enable" Datei im CMS-Root-Verzeichnis.<br /> Please activate the configurator, create an empty "conf-enable" file in the CMS root folder.'); die;
