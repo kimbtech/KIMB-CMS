@@ -19,17 +19,18 @@
 
 
 error_reporting( 0 );
+header('Content-Type: text/html; charset=utf-8');
 
 if(file_exists ('conf-enable') != 'true'){
-	echo('<title>KIMB CMS - Installation</title><link rel="shortcut icon" href="system/load/KIMB.ico" type="image/x-icon; charset=binary"><h1>Error - 404</h1>Bitte schalten Sie den Configurator frei, erstellen Sie eine leere "conf-enable" Datei im CMS-Root-Verzeichnis.<br /> Please activate the configurator, create an empty "conf-enable" file in the CMS root folder.'); die;
+	echo('<title>KIMB CMS - Installation</title><link rel="shortcut icon" href="load/system/KIMB.ico" type="image/x-icon; charset=binary"><h1>Error - 404</h1>Bitte schalten Sie den Configurator frei, erstellen Sie eine leere "conf-enable" Datei im CMS-Root-Verzeichnis.<br /> Please activate the configurator, create an empty "conf-enable" file in the CMS root folder.'); die;
 }
 
 echo('
 <!DOCTYPE HTML >
 <html><head>
 <title>KIMB CMS - Installation</title>
-<link rel="shortcut icon" href="system/load/KIMB.ico" type="image/x-icon; charset=binary">
-<link rel="icon" href="system/load/KIMB.ico" type="image/x-icon; charset=binary">
+<link rel="shortcut icon" href="load/system/KIMB.ico" type="image/x-icon; charset=binary">
+<link rel="icon" href="load/system/KIMB.ico" type="image/x-icon; charset=binary">
 <style>
 body { 
 	background-color:#999999; 
