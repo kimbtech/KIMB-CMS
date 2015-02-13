@@ -5,14 +5,6 @@
 // Diese Datei ist Teil eines Objekts
 // Das fertige Menue wird, je nach Theme über $this->menue ausgegeben
 
-
-echo $this->niveau;
-echo "\r\n";
-echo $niveau;
-echo "\r\n";
-echo $this->ulauf;
-echo "\r\n\r\n";
-
 if( !isset( $this->niveau ) ){
 	$this->menue .= '<li>'."\r\n";
 }

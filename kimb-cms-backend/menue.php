@@ -417,7 +417,7 @@ elseif( $_GET['todo'] == 'del' ){
 					$filebef = new KIMBdbf( 'url/first.kimb' );
 				}
 				else{
-					$filebef = new KIMBdbf( 'url/nextid_'.$_GET['file'].'.kimb' );
+					$filebef = new KIMBdbf( 'url/nextid_'.$_GET['fileidbefore'].'.kimb' );
 				}
 				$befid = $filebef->search_kimb_xxxid( $_GET['file'] , 'nextid');
 				if( $befid  != false ){
