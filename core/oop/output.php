@@ -92,15 +92,18 @@ class system_output{
 			$errmsg = $this->sonderfile->read_kimb_one('error-404');
 			$this->sitecontent .= '<div id="errorbox"><h1>Error - 404</h1>'.$errmsg.'<br /><br /><i>'.$message.'</i></div>'."\r\n";
 			header("HTTP/1.0 404 Not Found");
+			$sitecontent->set_title( 'Error - 404' );
 
 		}
 		elseif( $art == '403' ){
 			$errmsg = $this->sonderfile->read_kimb_one('error-403');
 			$this->sitecontent .= '<div id="errorbox"><h1>Error - 403</h1>'.$errmsg.'<br /><br /><i>'.$message.'</i></div>'."\r\n";
 			header('HTTP/1.0 403 Forbidden');
+			$sitecontent->set_title( 'Error - 403' );
 		}
 		else{
 			$this->sitecontent .= '<div id="errorbox"><h1>Error - Fehler</h1>'.$message.'</div>'."\r\n";
+			$sitecontent->set_title( 'Error' );
 		}
 
 	}
