@@ -1,5 +1,7 @@
 <?php
 
+defined('KIMB_CMS') or die('No clean Request');
+
 //Konfiguration laden und Tracking Codes generieren
 $analytics['conffile'] = new KIMBdbf( 'addon/analytics__conf.kimb' );
 
@@ -30,8 +32,15 @@ if( $analytics['conf']['anatool'] == 'p' ){
 		<!-- End Piwik Code -->
 	';
 
-	$analytics['codes']['pimg'] = '
-		<noscript><img src="' . $analytics['toold']['url'] . '/piwik.php?idsite=' . $analytics['toold']['id'] . '&rec=1" style="border:0" alt="" /></noscript>
+	$analytics['toold']['pimgcode'] = '
+		<noscript><img src="' . $analytics['toold']['url'] . '/piwik.php?idsite=' . $analytics['toold']['id'] . '&amp;rec=1" style="border:0" alt="" /></noscript>
+	';
+}
+elseif( $analytics['conf']['anatool'] == 'pimg' ){
+	$analytics['toold'] = $analytics['conffile']->read_kimb_id( '1' );
+
+	$analytics['codes'] = '
+		<img src="' . $analytics['toold']['url'] . '/piwik.php?idsite=' . $analytics['toold']['id'] . '&amp;rec=1" style="border:0" alt="" />
 	';
 }
 elseif( $analytics['conf']['anatool'] == 'ga' ){
