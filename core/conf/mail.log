@@ -65,4 +65,12 @@ KIMB CMS, From: KIMB CMS <mail@cms.cms>);
 Useragent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:35.0) Gecko/20100101 Firefox/35.0
 , From: KIMB CMS <mail@cms.cms>);
 
+	mail(test@test.test, Nachricht von: KIMB CMS, Hallo Admin,
+ Ihre Logindaten wurden gerade fuer ein Login im Backend verwendet
+
+Zeit:21.02.2015 um 18:53:34
+IP:127.0.0.1
+Useragent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:35.0) Gecko/20100101 Firefox/35.0
+, From: KIMB CMS <mail@cms.cms>);
+
 	
