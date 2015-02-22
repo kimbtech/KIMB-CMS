@@ -24,46 +24,51 @@ if( !empty( $begriff ) ){
 	$maxerg = $search_sitemap['file']->read_kimb_one( 'maxerg' );
 
 	$parts = array( 'name', 'content' );
+	$foundsites = array();
 
 	foreach( $parts as $part ){
 		foreach( $seachlist as $teil ){
 
-			if( $part == 'name' ){
-				$string = $teil['menuename'];
-				$requid = $teil['requestid'];
-				$sitename = $teil['menuename'];
-				$id = $teil['siteid'];
-			}
-			elseif( $part == 'content' ){
-
-				$file = new KIMBdbf( 'site/site_'.$teil['siteid'].'.kimb' );				;
-				$requid = $teil['requestid'];
-				$sitename = $teil['menuename'];
-				$inhalt = $file->read_kimb_one( 'inhalt' );
-				$string = strip_tags( $inhalt );
-			}
-
-			if( stripos ( $string , $begriff ) !== false ){
-
-				if( !isset( $inhalt ) ){
-					$file = new KIMBdbf( 'site/site_'.$id.'.kimb' );
-					$inhalt = $file->read_kimb_one( 'inhalt' );
+			if( !in_array( $teil['requestid'], $foundsites ) ){
+				if( $part == 'name' ){
+					$string = $teil['menuename'];
+					$requid = $teil['requestid'];
+					$sitename = $teil['menuename'];
+					$id = $teil['siteid'];
 				}
-				$inhalt = strip_tags( $inhalt );
+				elseif( $part == 'content' ){
 
-				$resultate .= '<li style="margin:5px; background-color:#ddd;">';
-				$resultate .= '<b><u><a href="'.$allgsysconf['siteurl'].'/index.php?id='.$requid.'" target="_blank">'.$sitename.'</a></b></u><br />';
-				$resultate .= substr( $inhalt , '0' , '100' ).' ...';
-				$resultate .= '</li>';
+					$file = new KIMBdbf( 'site/site_'.$teil['siteid'].'.kimb' );				;
+					$requid = $teil['requestid'];
+					$sitename = $teil['menuename'];
+					$inhalt = $file->read_kimb_one( 'inhalt' );
+					$string = strip_tags( $inhalt );
+				}
 
-				$anzahl++;
-				$versuch++;
+				if( stripos ( $string , $begriff ) !== false ){
+
+					if( !isset( $inhalt ) ){
+						$file = new KIMBdbf( 'site/site_'.$id.'.kimb' );
+						$inhalt = $file->read_kimb_one( 'inhalt' );
+					}
+					$inhalt = strip_tags( $inhalt );
+
+					$resultate .= '<li style="margin:5px; background-color:#ddd;">';
+					$resultate .= '<b><u><a href="'.$allgsysconf['siteurl'].'/index.php?id='.$requid.'" target="_blank">'.$sitename.'</a></b></u><br />';
+					$resultate .= substr( $inhalt , '0' , '100' ).' ...';
+					$resultate .= '</li>';
+
+					$foundsites[] = $teil['requestid'];
+
+					$anzahl++;
+					$versuch++;
+				}
+				else{
+					$versuch++;
+				}
+
+				unset( $inhalt );
 			}
-			else{
-				$versuch++;
-			}
-
-			unset( $inhalt );
 
 			if( $versuch >= $maxveruch || $anzahl >= $maxerg ){
 			
