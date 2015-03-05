@@ -59,7 +59,7 @@ require_once(__DIR__.'/core/addons/addons_ajax.php');
 
 if( $_GET['file'] == 'menue.php' ){
 
-	check_backend_login('more');
+	check_backend_login('seven' , 'more');
 
 	if( $_GET['urlfile'] == 'first' || is_numeric( $_GET['urlfile'] ) ){
 		if( $_GET['urlfile'] == 'first' ){
@@ -168,7 +168,7 @@ if( $_GET['file'] == 'menue.php' ){
 }
 elseif( $_GET['file'] == 'user.php' && isset( $_GET['user'] ) ){
 
-	check_backend_login('more');
+	check_backend_login( 'nine' , 'more' );
 
 	$userfile = new KIMBdbf('backend/users/list.kimb');
 
