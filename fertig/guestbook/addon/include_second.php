@@ -1,23 +1,5 @@
 <?php
 
-/*************************************************/
-//KIMB-technologies
-//KIMB CMS Add-on
-//KIMB ContentManagementSystem
-//KIMB-technologies.blogspot.com
-/*************************************************/
-//CC BY-ND 4.0
-//http://creativecommons.org/licenses/by-nd/4.0/
-//http://creativecommons.org/licenses/by-nd/4.0/legalcode
-/*************************************************/
-//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
-//BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-//IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-//WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
-//IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-/*************************************************/
-
-
 defined('KIMB_CMS') or die('No clean Request');
 
 $guestbook['file'] = new KIMBdbf( 'addon/guestbook__conf.kimb' );
@@ -46,6 +28,12 @@ if( $guestbook['file']->read_kimb_search_teilpl( 'siteid' , $allgsiteid ) && $al
 	if( $guestbook['add'] == 'allowed' ){
 
 			if( isset( $_POST['captcha'] ) ){
+
+				if( function_exists( 'checklogin' ) && isset( $_SESSION['felogin']['user'] ) ){
+					$_POST['captcha'] = $_SESSION['captcha'];
+					$_POST['mail'] = $_SESSION['felogin']['user'].'@feloginuser.sys';
+					$_POST['name'] = $_SESSION['felogin']['name'];
+				}
 
 				if( $_POST['captcha'] == $_SESSION['captcha'] && $_POST['name'] != '' && $_POST['mail'] != '' && $_POST['cont'] != ''){
 
@@ -178,14 +166,28 @@ localStorage.setItem( \'name\' , document.getElementById( \'name\' ).value );
 localStorage.setItem( \'mail\' , document.getElementById( \'mail\' ).value );
 localStorage.setItem( \'cont\' , document.getElementById( \'cont\' ).value );
 " >');
-		$sitecontent->add_site_content('<input name="name" type="text" id = "name" placeholder="Name" > <!--[if lt IE 10]> ( Name ) <![endif]--> <br />'."\r\n");
-		$sitecontent->add_site_content('<input name="mail" type="text" id = "mail" placeholder="E-Mail-Adresse" > ( E-Mail-Adresse - wird nicht veröffentlicht ) <br />'."\r\n");
+
+		if( !function_exists( 'checklogin' ) || !isset( $_SESSION['felogin']['user'] ) ){
+			$sitecontent->add_site_content('<input name="name" type="text" id = "name" placeholder="Name" > <!--[if lt IE 10]> ( Name ) <![endif]--> <br />'."\r\n");
+			$sitecontent->add_site_content('<input name="mail" type="text" id = "mail" placeholder="E-Mail-Adresse" > ( E-Mail-Adresse - wird nicht veröffentlicht ) <br />'."\r\n");
+		}
 		$sitecontent->add_site_content('<textarea name="cont" id="cont" placeholder="Ihre Mitteilung" style="width:75%; height:100px;" ></textarea> <!--[if lt IE 10]> ( Ihre Mitteilung ) <![endif]--> <br />'."\r\n");
 		$sitecontent->add_site_content('(Erlaubtes HTML: &lt;b&gt; &lt;/b&gt; &lt;u&gt; &lt;/u&gt; &lt;i&gt; &lt;/i&gt; &lt;center&gt; &lt;/center&gt; )<br />'."\r\n");
 		$sitecontent->add_site_content('<div style="display:none;" id="prewa" ><div style="background-color:orange; padding:10px; margin:10px;" id="prew" ></div>( Vorschau )<br /></div>'."\r\n");
-		$sitecontent->add_site_content('<img id="captcha" src="'.$allgsysconf['siteurl'].'/ajax.php?addon=captcha" style="border:none;" /><br />'."\r\n");
-		$sitecontent->add_site_content('<a href="#" onclick=" document.getElementById( \'captcha\' ).src = \''.$allgsysconf['siteurl'].'/ajax.php?addon=captcha&\' + Math.random(); return false;">Nicht lesbar?</a><br />'."\r\n");
-		$sitecontent->add_site_content('<input name="captcha" autocomplete="off" type="text" ><br /> ( Bitte geben Sie den Code oben ein, um zu beweisen, dass Sie kein Roboter sind! )<br />'."\r\n");
+
+		if( function_exists( 'checklogin' ) && isset( $_SESSION['felogin']['user'] ) ){
+			$sitecontent->add_site_content('<div style="display:none;">');
+			$sitecontent->add_site_content('<img id="captcha" src="'.$allgsysconf['siteurl'].'/ajax.php?addon=captcha" style="border:none;" /><br />'."\r\n");
+			$sitecontent->add_site_content('<a href="#" onclick=" document.getElementById( \'captcha\' ).src = \''.$allgsysconf['siteurl'].'/ajax.php?addon=captcha&\' + Math.random(); return false;">Nicht lesbar?</a><br />'."\r\n");
+			$sitecontent->add_site_content('<input name="captcha" autocomplete="off" type="text" value="none" ><br /> ( Bitte geben Sie den Code oben ein, um zu beweisen, dass Sie kein Roboter sind! )<br />'."\r\n");
+			$sitecontent->add_site_content('</div>');
+		}
+		else{
+			$sitecontent->add_site_content('<img id="captcha" src="'.$allgsysconf['siteurl'].'/ajax.php?addon=captcha" style="border:none;" /><br />'."\r\n");
+			$sitecontent->add_site_content('<a href="#" onclick=" document.getElementById( \'captcha\' ).src = \''.$allgsysconf['siteurl'].'/ajax.php?addon=captcha&\' + Math.random(); return false;">Nicht lesbar?</a><br />'."\r\n");
+			$sitecontent->add_site_content('<input name="captcha" autocomplete="off" type="text" ><br /> ( Bitte geben Sie den Code oben ein, um zu beweisen, dass Sie kein Roboter sind! )<br />'."\r\n");
+		}
+
 		if( $guestbook['file']->read_kimb_one( 'ipsave' ) == 'on' ){
 			$sitecontent->add_site_content('( Ihre IP wird gespeichert, aber nicht veröffentlicht! )<br />'."\r\n");
 		}
