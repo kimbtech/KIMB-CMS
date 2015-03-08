@@ -6,7 +6,10 @@ $sitecontent->add_site_content('<hr /><br /><h2>Im- / Export</h2>');
 
 $addonurl = $allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=more&addon=im_export';
 
-if( $_GET['task'] == 'export' ){
+if( !is_writable( __DIR__.'/temp/' ) ){
+	$sitecontent->echo_error( 'Der Ordner "'.__DIR__.'/temp/" muss schreibbar sein!' );
+}
+elseif( $_GET['task'] == 'export' ){
 
 	$sitecontent->add_site_content('<a href="'.$addonurl.'">&larr; Auswahl</a>');
 
