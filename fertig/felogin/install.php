@@ -4,7 +4,7 @@
 //KIMB-technologies
 //KIMB CMS Add-on
 //KIMB ContentManagementSystem
-//KIMB-technologies.blogspot.com
+//WWW.KIMB-technologies.eu
 /*************************************************/
 //CC BY-ND 4.0
 //http://creativecommons.org/licenses/by-nd/4.0/
