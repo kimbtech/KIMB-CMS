@@ -52,18 +52,32 @@ if( isset( $_POST['file'] ) && !empty( $_FILES['exportfile']['name'] ) ){
 	$sitecontent->add_site_content( '<h4>Wählen Sie die zu importierenden Kategorien:</h4>' );
 	
 	$doneread = array( "sites" => 'Seiten', "menue" => 'Menüstruktur', "users" => 'Backend-User', "addon" => 'Add-on Konfiguration', "confs" => 'Systemkonfiguration' , "filem" => 'Dateien des Filemanager' );
+	$onclick = array( "sites" => 'onclick=" $(\'input[value=menue]\').prop(\'checked\', false); "', "menue" => 'onclick=" $(\'input[value=sites]\').prop(\'checked\', true); "', "users" => '', "addon" => '', "confs" => '' , "filem" => '' );
 
 	foreach( $jsoninfo['done'] as $done ){
-		$sitecontent->add_site_content('<input type="checkbox" value="'.$done.'" name="todo[]" checked="checked">'.$doneread[$done].'<br />');
+		$sitecontent->add_site_content('<input type="checkbox" value="'.$done.'" name="todo[]" checked="checked" '.$onclick[$done].' >'.$doneread[$done].'<br />');
 	}
 
 	$sitecontent->add_site_content('<br />');
 	$sitecontent->add_site_content('<input type="submit" value="Import starten">');
 	$sitecontent->add_site_content('</form>');
+	$sitecontent->add_site_content( '<br />Mit dem Klick auf "Import starten" ersetzen Sie die gewählten Daten dieses CMS mit denen der Exportdatei.' );
 }
-elseif( $_GET['weiter'] == $_SESSION['importfile'] ){
+elseif( $_GET['weiter'] == $_SESSION['importfile'] && !empty( $_GET['weiter'] ) ){
 
-	echo 'weiter';	
+	$fileroot = __DIR__.'/temp/'.$_SESSION['importfile'].'/';
+
+	if( is_dir( $fileroot ) ){
+
+
+
+		$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=more&addon=im_export"><button>&larr; Zurück</button></a>');
+
+		rm_r( __DIR__.'/temp/'.$_SESSION['importfile'].'/' );
+	}
+	else{
+		$sitecontent->echo_error(' Keine Exportdatei! ');
+	}
 
 }
 else{

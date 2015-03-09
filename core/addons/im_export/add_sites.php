@@ -46,11 +46,56 @@ if( isset( $_POST['file'] ) && !empty( $_FILES['exportfile']['name'] ) ){
 
 	
 	$sitecontent->add_site_content( '<a href="'.$addonurl.'&amp;weiter='.$_SESSION['importfile'].'"><button>Import starten</button></a>' );
+	$sitecontent->add_site_content( '<br />Mit dem Klick auf "Import starten" fügen Sie diesem CMS weitere Seiten hinzu. Die Seiten werden nicht automatisch einem Menü zugeordnet.' );
 }
-elseif( $_GET['weiter'] == $_SESSION['importfile'] ){
+elseif( $_GET['weiter'] == $_SESSION['importfile'] && !empty( $_GET['weiter'] ) ){
 
-	echo 'weiter';	
+	$fileroot = __DIR__.'/temp/'.$_SESSION['importfile'].'/';
 
+	if( is_dir( $fileroot ) ){
+
+		if( is_dir( $fileroot.'/sites/' ) ){
+
+			$sitesex = scandir( $fileroot.'/sites/' );
+			$sitesexin = count( $sitesex );
+
+			$i = 1;
+			while( 5 == 5 ){
+				if( !check_for_kimb_file( '/site/site_'.$i.'.kimb') && !check_for_kimb_file( '/site/site_'.$i.'_deak.kimb') ){
+					$newids[] = $i;
+				}
+				if( $sitesexin <= count( $newids ) ){
+					break;
+				}
+				$i++;
+			}
+
+			$ii = 0;
+			foreach( $sitesex as $file ){
+
+				if( $file != '..' && $file != '.' && $file != 'index.kimb' ){
+
+					copy( $fileroot.'/sites/'.$file , __DIR__.'/../../oop/kimb-data/site/site_'.$newids[$ii].'.kimb' );
+				
+					$ii++;
+
+				}
+
+			}
+
+			$sitecontent->echo_message(' Seiten erfolgreich importiert! ');
+			$sitecontent->echo_message(' Die Seiten werden nicht automatisch einem Menü zugeordnet! ');
+			$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=more&addon=im_export"><button>&larr; Zurück</button></a>');
+
+			rm_r( __DIR__.'/temp/'.$_SESSION['importfile'].'/' );
+		}
+		else{
+			$sitecontent->echo_error(' Keine Seiten in der Exportdatei! ');
+		}
+	}
+	else{
+		$sitecontent->echo_error(' Keine Exportdatei! ');
+	}
 }
 else{
 	$sitecontent->add_site_content('Fügen Sie Seiten Ihrem CMS hinzu.');
