@@ -9,7 +9,7 @@ $addonurl = $allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=more&
 if( !ini_get('allow_url_fopen') ) {
 	$sitecontent->echo_error( 'PHP muss URL-fopen erlauben!' );
 }
-if( !is_writable( __DIR__.'/temp/' ) ){
+elseif( !is_writable( __DIR__.'/temp/' ) ){
 	$sitecontent->echo_error( 'Der Ordner "'.__DIR__.'/temp/" muss schreibbar sein!' );
 }
 elseif( $_GET['task'] == 'update' ){
@@ -63,6 +63,10 @@ else{
 		$sitecontent->add_site_content('<br /><br />');
 		$sitecontent->add_site_content('<button disabled="disabled" onclick="return:false;">Kein Update verfügbar!</button>');
 		$sitecontent->add_site_content('<br /><br />');
+	}
+
+	foreach( scandir( __DIR__.'/temp/' ) as $zip ){
+		unlink( __DIR__.'/temp/'.$zip );
 	}
 }
 

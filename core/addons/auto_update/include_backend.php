@@ -6,7 +6,7 @@ require_once( __DIR__.'/cmsv.php' );
 
 $updatefile = new KIMBdbf( 'addon/auto_update__info.kimb' );
 
-if( ini_get('allow_url_fopen') && $_SESSION['loginokay'] == $allgsysconf['loginokay'] ) {
+if( ini_get('allow_url_fopen') && $_SESSION['loginokay'] == $allgsysconf['loginokay'] && ( $_SESSION['permission'] == 'more' || $_SESSION['permission'] == 'fourteen' ) ) {
 
 	$lasttime = $updatefile->read_kimb_one( 'lasttime' );
 
