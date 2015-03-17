@@ -21,6 +21,8 @@ defined('KIMB_Backend') or die('No clean Request');
 
 $sitecontent->add_site_content('<hr /><br /><h2>Auto_Update</h2>');
 
+require_once( __DIR__.'/cmsv.php' );
+
 $addonurl = $allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=more&addon=auto_update';
 
 if( !is_object( $updatefile ) ){
