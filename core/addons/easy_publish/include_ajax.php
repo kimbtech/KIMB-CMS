@@ -6,9 +6,9 @@ if( $_GET['addon'] == 'easy_publish' ){
 
 	if( !empty( $_GET['user'] ) && $_GET['user'] == $_SESSION['user'] ){
 
-		$conffile = new KIMBdbf( 'addon/easy_publish__user.kimb' );
+		$addfile = new KIMBdbf( 'addon/easy_publish__user.kimb' );
 
-		if( $conffile->write_kimb_new( 'user' , $_GET['user'] ) ){
+		if( $addfile->write_kimb_new( 'user' , $_GET['user'] ) ){
 			echo 'done';
 			die;
 		}
