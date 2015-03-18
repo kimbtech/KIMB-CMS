@@ -1,5 +1,22 @@
 <?php
 
+/*************************************************/
+//KIMB-technologies
+//KIMB CMS
+//KIMB ContentManagementSystem
+//www.KIMB-technologies.eu
+/*************************************************/
+//CC BY-ND 4.0
+//http://creativecommons.org/licenses/by-nd/4.0/
+//http://creativecommons.org/licenses/by-nd/4.0/legalcode
+/*************************************************/
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+//BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+//IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+//WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+//IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+/*************************************************/
+
 defined('KIMB_Backend') or die('No clean Request');
 
 if( !empty( $_GET['los'] ) && is_file( __DIR__.'/temp/'.$_GET['los'].'.zip' ) ){
@@ -19,6 +36,8 @@ if( !empty( $_GET['los'] ) && is_file( __DIR__.'/temp/'.$_GET['los'].'.zip' ) ){
 		$sitecontent->echo_message( 'Das Update wurde erfogreich beendet!' );
 		$sitecontent->echo_message( 'Es wurden alle Add-ons deaktiviert!' );
 		$sitecontent->echo_message( 'Das Theme wurde auf "norm" gesetzt ( Bitte installieren Sie Ihr Theme neu, sollte es nach dem Themewechsel zu Darstellungsproblemen kommen )!' );
+
+		$updatefile->write_kimb_replace( 'lasttime', '100' );
 
 	}
 	else {

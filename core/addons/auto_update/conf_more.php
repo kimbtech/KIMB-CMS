@@ -1,5 +1,22 @@
 <?php
 
+/*************************************************/
+//KIMB-technologies
+//KIMB CMS
+//KIMB ContentManagementSystem
+//www.KIMB-technologies.eu
+/*************************************************/
+//CC BY-ND 4.0
+//http://creativecommons.org/licenses/by-nd/4.0/
+//http://creativecommons.org/licenses/by-nd/4.0/legalcode
+/*************************************************/
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+//BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+//IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+//WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+//IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+/*************************************************/
+
 defined('KIMB_Backend') or die('No clean Request');
 
 $sitecontent->add_site_content('<hr /><br /><h2>Auto_Update</h2>');
@@ -11,6 +28,14 @@ $addonurl = $allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=more&
 if( !is_object( $updatefile ) ){
 	$updatefile = new KIMBdbf( 'addon/auto_update__info.kimb' );
 }
+
+$lasttime = $updatefile->read_kimb_one( 'lasttime' );
+if( empty( $lasttime ) ){
+	$updatefile->write_kimb_new( 'lasttime', '100' );
+	$updatefile->write_kimb_new( 'lastanswer', 'no' );
+	$updatefile->write_kimb_new( 'newv', 'none' );
+}
+
 
 if( !ini_get('allow_url_fopen') ) {
 	$sitecontent->echo_error( 'PHP muss URL-fopen erlauben!' );
@@ -37,7 +62,7 @@ else{
 	$sitecontent->add_site_content( 'Hier können Sie die Aktualität Ihres CMS überprüfen und wenn möglich ein Update durchführen.');
 	$sitecontent->add_site_content( 'Alle 3 Tage wird bei einem Besuch des Backends automatisch eine Prüfung der Aktualität durchgeführt.');
 
-	if( !is_array( $updatearr ) && isset( $_GET['updstat'] ) ){
+	if( $lasttime + 259200 < time() || isset( $_GET['updstat'] ) ){
 
 		require_once( __DIR__.'/check.php' );
 

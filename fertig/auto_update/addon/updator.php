@@ -37,6 +37,8 @@ if( !empty( $_GET['los'] ) && is_file( __DIR__.'/temp/'.$_GET['los'].'.zip' ) ){
 		$sitecontent->echo_message( 'Es wurden alle Add-ons deaktiviert!' );
 		$sitecontent->echo_message( 'Das Theme wurde auf "norm" gesetzt ( Bitte installieren Sie Ihr Theme neu, sollte es nach dem Themewechsel zu Darstellungsproblemen kommen )!' );
 
+		$updatefile->write_kimb_replace( 'lasttime', '100' );
+
 	}
 	else {
 		$sitecontent->echo_error( 'Die Datei konnte nicht entpackt werden!' );
