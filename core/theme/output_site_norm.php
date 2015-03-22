@@ -43,8 +43,8 @@ echo ('<link href="'.$this->allgsysconf['siteurl'].'/load/system/theme/touch_ico
 echo('</head><body>'."\r\n");
 	echo('<div id="page">'."\r\n");
 		echo('<div id="header">'."\r\n");
-			echo('<a href="'.$this->allgsysconf['siteurl'].'/"><div style="float:left;"><img src="'.$this->allgsysconf['siteurl'].'/load/system/theme/logo.png" style="border:none;"></div>'."\r\n");
-			echo('<div style="line-height: 100px;">'.$this->allgsysconf['sitename'].'</div></a>'."\r\n");
+			echo('<a href="'.$this->allgsysconf['siteurl'].'/">'.$this->allgsysconf['sitename']."\r\n");
+			echo('<img src="'.$this->allgsysconf['siteurl'].'/load/system/theme/logo.png" style="border:none; float:right;"></a>'."\r\n");
 		echo('</div>'."\r\n");
 		echo('<div><ul id="nav">'."\r\n");
 
@@ -52,6 +52,22 @@ echo('</head><body>'."\r\n");
 			echo("\r\n");
 			echo('</li>');
 			echo( str_repeat( '</ul>' , $this->ulauf ) );
+
+		if( is_dir( __DIR__.'/../addons/search_sitemap/' ) ){
+
+			$search_sitemap['file'] = new KIMBdbf( 'addon/search_sitemap__conf.kimb' );
+
+			$search_sitemap['searchsiteid'] = $search_sitemap['file']->read_kimb_one( 'searchsiteid' ); // off oder id
+
+			if( $search_sitemap['searchsiteid'] != 'off' ){
+
+				echo('<li>'."\r\n");
+				echo('<form method="post"  action="'.$allgsysconf['siteurl'].'/index.php?id='.$search_sitemap['searchsiteid'].'">'."\r\n");
+				echo('<input style="background-color:#EEc900; color:#000; padding: 8px 20px; border:none;" type="text" name="search" placeholder="Suchbegriff" value="'.htmlentities( $_REQUEST['search'] ).'">'."\r\n");
+				echo('</form>'."\r\n");	
+				echo('</li>'."\r\n");
+			}
+		}
 
 		echo('</ul></div>'."\r\n");
 
@@ -77,14 +93,16 @@ echo('</head><body>'."\r\n");
 					echo("\r\n");
 
 				echo('</div></div>'."\r\n");
-			echo('<div id="footer" style="width:940px;" >'."\r\n");
+			echo('<div id="footer" >'."\r\n");
 		}
-		
+			echo('&copy; '.date('Y').' ' );		
+
 			echo($this->footer);
 			echo("\r\n");
 
 		echo('</div>'."\r\n");
 	echo('</div>'."\r\n");
+	echo ('<script>if( document.getElementById( "contentm" ) != null ){ var cont = document.getElementById( "contentm" ); } else{ var cont = document.getElementById( "contents" ); } cont.style.paddingTop = document.getElementById("breadcrumb").clientHeight + "px";  document.getElementById("footer").style.width = cont.offsetWidth + "px"; if( document.getElementById( "permalink" ) != null ){ cont.style.paddingBottom = document.getElementById("permalink").clientHeight + "px"; } if( document.getElementById( "usertime" ) != null ){ cont.style.paddingBottom = document.getElementById("usertime").clientHeight + "px"; }</script>'."\r\n");
 echo('</body> </html>');
 
 ?>

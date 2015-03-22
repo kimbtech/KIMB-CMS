@@ -1,15 +1,18 @@
 body {
-	font-family: Ubuntu;
-	font-size:14px;
-	color:#000000;
+	background:#fff;
+	font-family: Ubuntu,Arial,sans-serif;
+	font-size:100%;
+	color:#000;
 }
 h1 {
-	font-size:20px;
+	font-size:1.8em;
+	color:#f00;
 	text-align:center;
 	margin: auto;
 }
 h2 {
-	font-size:18px;
+	font-size:1.3em;
+	color:#f00;
 	text-align:center;
 	margin: auto;
 }
@@ -17,42 +20,116 @@ h2 {
 /*Definitionen <div>*/
 
 #page {
-	background-color:#ffffff;
+	width:100%;
+	margin:auto;
+	text-align:left;
 }
 
 #header{
 	height:100px;
-	font-size:20px;
-	border:solid 1px #000000;
-	padding:20px;
+	font-size:40px;
+	color:#000;
+	background-color:#fff;
+	border-radius: 15px;
+	margin-top:10px;
+	margin-bottom:10px;
+	border:solid 2px #000;
+	padding:15px;
 }
 
-#menu{
+#header a{
+	text-decoration: none;
+}
+#header a:hover{
+	color:#000;
+}
+#header a:visited{
+	color:#000;
+}
+#header a:link{
+	color:#000;
+}
+
+#apps{
 	display:none;
 }
 
-#menue{
-	display:none;
-}
-
-#content{
-	padding:10px;
-	margin:20px;
-	border:solid 1px #000000;
+#contents, #contentm{
+	height:auto;
+	min-height:250px;
+	padding-top:10px;
+	padding-bottom:10px;
+	padding-right:05px;
+	padding-left:05px;
+	width:96%;
+	margin-top:10px;
+	border-radius: 15px;
+	background-color:#ffffff;
+	border:solid 2px #000;
+	position:relative;	
 }
 
 #footer{
-	padding:10px;
-	font-size:10px;
+	width:96% !important;
+	margin-right:2%;
+	height:auto;
+	padding-top:10px;
+	padding-bottom:10px;
+	text-align:center;
+	font-size:0.8em;
+	color:#000000;
+	background-color:#fff;
+	float:right;
+	border-radius: 15px;
+	margin-top:20px;
+	border:solid 2px #000;
+}
+
+#errorbox{
+	background-color:gray;
+	border-radius:15px;
+	padding:20px;
+
 }
 
 #usertime{
-	padding:10px;
-	font-size:10px;
+	position: absolute;
+	bottom:-2px;
+	right:-2px;
+	border:solid 2px #000;
+	background-color:#ccc;
+	border-radius:15px;
+	padding:4px;
 }
 
 #permalink{
-	padding:10px;
-	font-size:10px;
+	position: absolute;
+	bottom:-2px;
+	left:-2px;
+	border:solid 2px #000;
+	background-color:#ccc;
+	border-radius:15px;
+	padding:4px;
 }
 
+#breadcrumb{
+	position: absolute;
+	top:-2px;
+	left:-2px;
+	border:solid 2px #000;
+	background-color:#ccc;
+	border-radius:15px;
+	padding:4px;
+	width:100%;
+	min-height:1.1em;
+}
+
+input, textarea, button{
+	font-size:100%;
+	font-family:Ubuntu;
+}
+
+#nav {
+	display:none;
+
+}
