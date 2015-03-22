@@ -25,7 +25,7 @@ elseif( $this->niveau > $niveau ){
 }
 
 if( $clicked == 'yes' ){
-	$this->menue .=  '<a style="background-color:#000000; color: #ffffff !important; border-radius:15px;" href="'.$link.'">'.$name.'</a>'."\r\n";
+	$this->menue .=  '<a id="liclicked" href="'.$link.'">'.$name.'</a>'."\r\n";
 }
 else{
 	$this->menue .=  '<a href="'.$link.'">'.$name.'</a>'."\r\n";
