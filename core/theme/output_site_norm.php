@@ -62,7 +62,7 @@ echo('</head><body>'."\r\n");
 			if( $search_sitemap['searchsiteid'] != 'off' ){
 
 				echo('<li>'."\r\n");
-				echo('<form method="post"  action="'.$allgsysconf['siteurl'].'/index.php?id='.$search_sitemap['searchsiteid'].'">'."\r\n");
+				echo('<form method="post"  action="'.$this->allgsysconf['siteurl'].'/index.php?id='.$search_sitemap['searchsiteid'].'">'."\r\n");
 				echo('<input style="background-color:#EEc900; color:#000; padding: 8px 20px; border:none;" type="text" name="search" placeholder="Suchbegriff" value="'.htmlentities( $_REQUEST['search'] ).'">'."\r\n");
 				echo('</form>'."\r\n");	
 				echo('</li>'."\r\n");
