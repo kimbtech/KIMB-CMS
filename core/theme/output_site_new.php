@@ -84,7 +84,7 @@ echo('</head><body>'."\r\n");
 
 		echo('</div>'."\r\n");
 	echo('</div>'."\r\n");
-	echo ('<script>if( document.getElementById( "contentm" ) != null ){ var cont = document.getElementById( "contentm" ); var fooadd = 4; } else{ var cont = document.getElementById( "contents" ); var fooadd = 0; } cont.style.paddingTop = document.getElementById("breadcrumb").clientHeight + 5 + "px";  document.getElementById("footer").style.width = cont.offsetWidth - 24 + fooadd + "px"; if( document.getElementById( "permalink" ) != null ){ cont.style.paddingBottom = document.getElementById("permalink").clientHeight + 5 + "px"; } if( document.getElementById( "usertime" ) != null ){ cont.style.paddingBottom = document.getElementById("usertime").clientHeight + 5 + "px"; }</script>'."\r\n");
+	echo ('<script>if( document.getElementById( "contentm" ) != null ){ var cont = document.getElementById( "contentm" ); var fooadd = 4; } else{ var cont = document.getElementById( "contents" ); var fooadd = 4; } cont.style.paddingTop = document.getElementById("breadcrumb").clientHeight + 5 + "px";  document.getElementById("footer").style.width = cont.offsetWidth - 24 + fooadd + "px"; if( document.getElementById( "permalink" ) != null ){ cont.style.paddingBottom = document.getElementById("permalink").clientHeight + 5 + "px"; } if( document.getElementById( "usertime" ) != null ){ cont.style.paddingBottom = document.getElementById("usertime").clientHeight + 5 + "px"; }</script>'."\r\n");
 echo('</body> </html>');
 
 ?>
