@@ -1,0 +1,277 @@
+body {
+	background:url( "bg_new.png" ) no-repeat scroll center center #5c7ea2;
+	font-family: Ubuntu,Arial,sans-serif;
+	font-size:100%;
+	color:#000000;
+}
+h1 {
+	font-size:1.8em;
+	color:#f00;
+	text-align:center;
+	margin: auto;
+}
+h2 {
+	font-size:1.3em;
+	color:#f00;
+	text-align:center;
+	margin: auto;
+}
+input, textarea, button{
+	font-size:100%;
+	font-family:Ubuntu,Arial,sans-serif;
+}
+
+/*Definitionen <div>*/
+
+#page {
+	max-width:1500px;
+	min-width:600px;
+	margin:auto;
+	text-align:left;
+	border-radius:20px;
+	background-color:#FFFF66;
+}
+
+#header{
+	height:100px;
+	font-size:40px;
+	color:#f00;
+	background-color:#AB8F2E;
+	border-radius: 20px;
+	border:solid 2px #FFFF66;
+	padding:15px;
+}
+
+#header span{
+	border-bottom:solid 5px #f00;
+}
+
+#header a{
+	text-decoration: none;
+}
+#header a:hover{
+	color:#f00;
+}
+#header a:visited{
+	color:#f00;
+}
+#header a:link{
+	color:#f00;
+}
+
+#site{
+	padding-right:2px;
+	padding-left:2px;
+}
+
+#apps{
+	clear:right;
+	float:right;
+	width:25%;
+	padding:10px;
+	background-color:#ffffff;
+	border-radius: 20px;
+	border:solid 2px #AB8F2E;
+	height:auto;
+	min-height:150px;
+	margin-bottom:10px;	
+}
+
+#contents{
+	height:auto;
+	min-height:250px;
+	padding:10px;
+	width:70%;
+	margin-right:30%;
+	border-radius: 20px;
+	background-color:#ffffff;
+	border:solid 2px #AB8F2E;
+	position:relative;	
+}
+
+#contentm{
+	height:auto;
+	min-height:250px;
+	padding:10px;
+	border-radius: 20px;
+	background-color:#ffffff;
+	border:solid 2px #AB8F2E;
+	position:relative;	
+}
+
+#footer{
+	height:auto;
+	padding:10px;
+	text-align:center;
+	font-size:0.8em;
+	color:#000;
+	background-color:#AB8F2E;
+	border-radius: 20px;
+	margin-top:20px;
+	border:solid 2px #FFFF66;
+}
+
+#errorbox{
+	background:linear-gradient( #FFFF66, #AB8F2E, #FFFF66 );
+	border-radius:20px;
+	padding:20px;
+	margin: 5px 0;
+
+}
+
+#usertime{
+	position: absolute;
+	bottom:-2px;
+	right:-2px;
+	border:solid 2px #AB8F2E;
+	background-color:#ccc;
+	border-radius:20px;
+	padding:5px;
+}
+
+#permalink{
+	position: absolute;
+	bottom:-2px;
+	left:-2px;
+	border:solid 2px #AB8F2E;
+	background-color:#ccc;
+	border-radius:20px;
+	padding:5px;
+}
+
+#breadcrumb{
+	position: absolute;
+	top:-2px;
+	left:-2px;
+	border:solid 2px #AB8F2E;
+	background-color:#ccc;
+	border-radius:20px;
+	padding:5px;
+	min-width:30%;
+	min-height:1.1em;
+}
+
+input#searchform{
+	background-color:#EEc900;
+	color:#000;
+	padding: 8px 20px;
+	border:none;
+	margin:0;
+	max-width:75%;
+}
+
+/*menue*/
+#nav {
+	width:calc(100% - 48px);
+	margin:15px 2px;
+	border-radius: 20px;
+	border:solid 2px #AB8F2E;
+	background-color:#FFFF66;
+	display: inline-block;
+
+}
+#nav li {
+	position: relative;
+	list-style: none;
+	padding-right: 8px;
+	float: left;
+	min-width:150px;
+}
+#nav ul {
+	position: absolute;
+	top: 30px;
+	left: 0;
+	background: #FFFF66;
+	display: none;
+	margin: 0;
+	padding: 0;
+	border: solid 2px #AB8F2E;
+	border-radius: 20px;
+}
+#nav a {
+	font-weight: bold;
+	color: #000000;
+	text-decoration: none;
+	display: block;
+	padding: 8px 20px;
+	margin: 0;
+	background-color: #5c7ea2;
+}
+#nav ul li {
+	float: none;
+	margin: 0;
+	padding: 0;
+}
+#nav ul a {
+	font-weight: bold;
+	color:#000000 !important;
+}
+#nav ul ul {
+	left: 90%;
+	top: -3px;
+}
+#nav ul a{
+	background-color:#5c7ea2 !important;
+	border-radius:20px;
+	margin:1px;
+}
+#nav a:hover {
+	background: #000;
+	color: #fff;
+	border-radius:20px;
+}
+#nav ul a:hover {
+	background-color:#000000 !important;
+	color: #ffffff !important;
+}
+#nav li:hover > ul {
+	display: block;
+	z-index: 1;
+}
+#nav ul li:hover a, #nav li:hover li a {
+	background: none;
+	border: none;
+
+}
+#nav:after {
+	visibility: hidden;
+	line-height: 0;
+	height: 0;
+	content: ".";
+	display: block;
+	clear: both;
+}
+#nav a#liclicked{
+	background-color:#000000;
+	color: #ffffff !important;
+	border-radius:20px;
+}
+
+@media (orientation: portrait), (max-width:720px){
+
+	#apps{
+		float:none;
+		min-height:50px;
+	}
+	#contents{
+		float:none;
+		margin:0;
+		min-height:50px;
+	}
+	body{
+		font-size:250%;
+	}
+	#header img{
+		display:none;
+	}
+	#header{
+		height:auto;
+		font-size:2em;
+	}
+	#permalink{
+		display:none;
+	}
+	#usertime{
+		left:-2px;
+	}
+}
