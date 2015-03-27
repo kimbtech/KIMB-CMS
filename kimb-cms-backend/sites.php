@@ -150,7 +150,8 @@ elseif( $_GET['todo'] == 'edit' && is_numeric( $_GET['id'] ) ){
 
 	$sitecontent->add_site_content('<h2>Seite bearbeiten</h2>');
 
-	$sitecontent->add_html_header('<script>
+	$sitecontent->add_html_header('<script type="text/javascript" src="'.$allgsysconf['siteurl'].'/load/system/tinymce/tinymce.min.js"></script>
+	<script>
 	var del = function( id ) {
 		$( "#del-confirm" ).show( "fast" );
 		$( "#del-confirm" ).dialog({
@@ -170,8 +171,27 @@ elseif( $_GET['todo'] == 'edit' && is_numeric( $_GET['id'] ) ){
 		}
 		});
 	}
+
+	tinymce.init({
+		selector: "#inhalt",
+		theme: "modern",
+		plugins: [
+			"advlist autolink lists link image charmap preview hr anchor pagebreak",
+			"searchreplace wordcount visualblocks visualchars code fullscreen",
+			"insertdatetime media nonbreaking save table contextmenu directionality",
+			"emoticons template paste textcolor colorpicker textpattern codemagic"
+		],
+		toolbar1: "styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent",
+		toolbar2: "undo redo | forecolor backcolor | link image emoticons | preview fullscreen | codemagic ",
+		image_advtab: true,
+		language : "de",
+		width : 680,
+		height : 300,
+		resize: "horizontal",
+		content_css : "'.$allgsysconf['siteurl'].'/load/system/theme/design_for_tiny.css",
+	});
 	$(function() { 
-		nicEditors.allTextAreas({fullPanel : true, iconsPath : \''.$allgsysconf['siteurl'].'/load/system/nicEditorIcons.gif\'});
+		new nicEditor({fullPanel : true, iconsPath : \''.$allgsysconf['siteurl'].'/load/system/nicEditorIcons.gif\'}).panelInstance( \'footer\');
 	});
 	</script>');
 
@@ -226,8 +246,8 @@ elseif( $_GET['todo'] == 'edit' && is_numeric( $_GET['id'] ) ){
 	$sitecontent->add_site_content('<input type="text" value="'.htmlentities( $seite['header'] ).'" name="header" style="width:74%;"> <i>HTML Header </i><br />');
 	$sitecontent->add_site_content('<input type="text" value="'.$seite['keywords'].'" name="keywords" style="width:74%;"> <i>Keywords</i><br />');
 	$sitecontent->add_site_content('<input type="text" value="'.$seite['description'].'" name="description" style="width:74%;"> <i>Description</i> <br />');
-	$sitecontent->add_site_content('<textarea name="inhalt" style="width:99%;">'.$seite['inhalt'].'</textarea> <i>Inhalt &uarr;</i> <br />');
-	$sitecontent->add_site_content('<textarea name="footer" style="width:99%;">'.$seite['footer'].'</textarea> <i>Footer &uarr;</i> <br />');
+	$sitecontent->add_site_content('<textarea name="inhalt" id="inhalt" style="width:99%;">'.$seite['inhalt'].'</textarea> <i>Inhalt &uarr;</i> <br />');
+	$sitecontent->add_site_content('<textarea name="footer" id="footer" style="width:99%;">'.$seite['footer'].'</textarea> <i>Footer &uarr;</i> <br />');
 	$sitecontent->add_site_content('<input type="text" readonly="readonly" value="'.$seite['time'].'" name="time" style="width:74%;"> <i>Zuletzt geändert</i><br />');
 	$sitecontent->add_site_content('<input type="submit" value="Ändern"></form>');
 	$sitecontent->add_site_content('<hr /><i>Tipps für den Header:</i><br />');
