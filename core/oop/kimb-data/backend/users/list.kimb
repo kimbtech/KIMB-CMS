@@ -5,4 +5,4 @@
 <[1-user]>admin<[1-user]>
 <[1-passw]>d033e22ae348aeb5660fc2140aec35850c4da997<[1-passw]>
 <[1-name]>Max Heiner<[1-name]>
-<[1-mail]>mail@maxheiner.org<[1-mail]>
+<[1-mail]>mail@maxheiner.org<[1-mail]><[userids2]>2<[userids2]><[2-passw]>ab41949825606da179db7c89ddcedcc167b64847<[2-passw]><[2]>passw==permiss==name==mail==user<[2]><[2-permiss]>less<[2-permiss]><[2-name]>Editor<[2-name]><[2-mail]>editor@editor.edi<[2-mail]><[2-user]>editor<[2-user]>
