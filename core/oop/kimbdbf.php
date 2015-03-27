@@ -1,12 +1,10 @@
 <?php
 
-defined('KIMB_CMS') or die('No clean Request');
-
 /*************************************************/
 //KIMB-technologies
-//KIMB dbf
-//KIMB databasefile
-//KIMB-technologies.blogspot.com
+//KIMB CMS
+//KIMB ContentManagementSystem
+//www.KIMB-technologies.eu
 /*************************************************/
 //CC BY-ND 4.0
 //http://creativecommons.org/licenses/by-nd/4.0/
@@ -18,6 +16,9 @@ defined('KIMB_CMS') or die('No clean Request');
 //WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
 //IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 /*************************************************/
+
+
+defined('KIMB_CMS') or die('No clean Request');
 
 error_reporting(0);
 

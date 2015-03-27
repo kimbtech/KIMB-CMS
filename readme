@@ -5,6 +5,9 @@
 |_|\_\___|_|  |_|____/       \____|_|  |_|____/ 
 ================================================
 
+Danke, dass Sie das KIMB-CMS heruntergeladen haben.
+=> Bitte entpackend Sie dieses Verzeichnis auf einem Webserver und rufen Sie dann die configurator.php auf!
+
 Das KIMB CMS ist ein einfaches CMS mit vielen wichtigen Features.
 Bei der Entwicklung wurde auf Relevanz und Einfachheit geachtet.
 Es unterstützt Add-ons und Themes zur verbesserten Personalisierung.
@@ -26,3 +29,21 @@ der CC-BY-ND Lizenz an.
 http://www.kimb-technologies.eu/
 http://download.kimb-technologies.eu/
 https://bitbucket.org/kimbtech/
+
+ _     _                   
+| |   (_)_______ _ __  ____
+| |   | |_  / _ \ '_ \|_  /
+| |___| |/ /  __/ | | |/ / 
+|_____|_/___\___|_| |_/___|
+                           
+===========================
+CC BY-ND 4.0
+http://creativecommons.org/licenses/by-nd/4.0/
+http://creativecommons.org/licenses/by-nd/4.0/legalcode
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+

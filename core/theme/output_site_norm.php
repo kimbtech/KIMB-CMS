@@ -1,4 +1,23 @@
 <?php
+
+/*************************************************/
+//KIMB-technologies
+//KIMB CMS
+//KIMB ContentManagementSystem
+//www.KIMB-technologies.eu
+/*************************************************/
+//CC BY-ND 4.0
+//http://creativecommons.org/licenses/by-nd/4.0/
+//http://creativecommons.org/licenses/by-nd/4.0/legalcode
+/*************************************************/
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+//BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+//IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+//WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+//IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+/*************************************************/
+
+
 // Diese Datei gibt das Grundgerüst für die Ausgabe
 // Folgende Variablen sollten verwendet werden:
 //    $this->header, $this->title, $this->menue, $this->addon, $this->sitecontent, $this->footer
@@ -43,7 +62,7 @@ echo('</head><body>'."\r\n");
 			if( $search_sitemap['searchsiteid'] != 'off' ){
 
 				echo('<li>'."\r\n");
-				echo('<form method="post"  action="'.$this->allgsysconf['siteurl'].'/index.php?id='.$search_sitemap['searchsiteid'].'">'."\r\n");
+				echo('<form method="post"  action="'.$allgsysconf['siteurl'].'/index.php?id='.$search_sitemap['searchsiteid'].'">'."\r\n");
 				echo('<input style="background-color:#EEc900; color:#000; padding: 8px 20px; border:none;" type="text" name="search" placeholder="Suchbegriff" value="'.htmlentities( $_REQUEST['search'] ).'">'."\r\n");
 				echo('</form>'."\r\n");	
 				echo('</li>'."\r\n");
