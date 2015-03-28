@@ -165,6 +165,7 @@ if( $_GET['file'] == 'menue.php' ){
 			echo 'nok';
 		}
 	}
+	die;
 }
 elseif( $_GET['file'] == 'user.php' && isset( $_GET['user'] ) ){
 
@@ -182,6 +183,7 @@ elseif( $_GET['file'] == 'user.php' && isset( $_GET['user'] ) ){
 	else {
 		echo 'nok';
 	}
+	die;
 }
 elseif( $_GET['file'] == 'other_filemanager.php' && isset( $_GET['key'] ) ){
 
@@ -201,4 +203,7 @@ elseif( $_GET['file'] == 'other_filemanager.php' && isset( $_GET['key'] ) ){
 	}
 	die;
 }
+
+echo('Fehlerhafte Ajax-Anfrage!');
+die;
 ?>

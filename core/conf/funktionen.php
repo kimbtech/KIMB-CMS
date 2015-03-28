@@ -397,4 +397,32 @@ function makepassw( $laenge , $chars = '!"#%&()*+,-./:;?[\]_0123456789ABCDEFGHIJ
 	}
 	return $output;
 }
+
+function listdirrec( $dir, $grdir ){
+	global $allgsysconf;
+	
+	$files = scandir( $dir );
+
+	foreach( $files as $file ){
+
+		if( $file == '..' || $file == '.' ){
+
+		}
+		elseif( is_file( $dir.'/'.$file ) ){
+
+			$mime = mime_content_type ( $dir.'/'.$file );
+
+			$mime = substr( $mime, 0, 5 ); 
+
+			if( $mime == 'image' ){
+				$out .= '{title: "'.$grdir.'/'.$file.'", value: "'.$allgsysconf['siteurl'].$grdir.'/'.$file.'"},';
+			}
+		}
+		elseif( is_dir( $dir.'/'.$file ) ){
+			$out .= listdirrec( $dir.'/'.$file , $grdir.'/'.$file );
+		}
+	}
+
+	return $out;
+}
 ?>
