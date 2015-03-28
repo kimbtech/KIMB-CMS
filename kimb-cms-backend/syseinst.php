@@ -103,12 +103,6 @@ $sitecontent->add_html_header('<script>
 		});
 	}
 	</script>');
-$sitecontent->add_html_header('<script>
-	$(function() { 
-		nicEditors.allTextAreas({fullPanel : true, iconsPath : \''.$allgsysconf['siteurl'].'/load/system/nicEditorIcons.gif\'});
-	});
-	</script>');
-
 $confteile = $conffile->read_kimb_all_xxxid('001');
 
 $sitecontent->add_site_content('<form method="post" action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/syseinst.php">');
@@ -162,11 +156,18 @@ $sitecontent->add_site_content('<hr /><hr />');
 
 $sonder = new KIMBdbf('sonder.kimb');
 
+$arr['small'] = '#footer';
+add_tiny( false, true, $arr );
+$arr['small'] = '#err404';
+add_tiny( false, true, $arr );
+$arr['small'] = '#err403';
+add_tiny( false, true, $arr );
+
 $sitecontent->add_site_content('<h2>Error- und Footer-Text</h2>');
 $sitecontent->add_site_content('<form method="post" action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/syseinst.php">');
-$sitecontent->add_site_content('<textarea name="footer" style="width:99%;">'.$sonder->read_kimb_one( 'footer' ).'</textarea> <i>Footer &uarr;</i> <br />');
-$sitecontent->add_site_content('<textarea name="err404" style="width:99%;">'.$sonder->read_kimb_one( 'error-404' ).'</textarea> <i>Error 404 &uarr;</i> <br />');
-$sitecontent->add_site_content('<textarea name="err403" style="width:99%;">'.$sonder->read_kimb_one( 'error-403' ).'</textarea> <i>Error 403 &uarr;</i> <br />');
+$sitecontent->add_site_content('<textarea name="footer" id="footer" style="width:99%;">'.$sonder->read_kimb_one( 'footer' ).'</textarea> <i>Footer &uarr;</i> <button onclick="tinychange( \'footer\' ); return false;">Editor I/O</button> <br />');
+$sitecontent->add_site_content('<textarea name="err404" id="err404" style="width:99%;">'.$sonder->read_kimb_one( 'error-404' ).'</textarea> <i>Error 404 &uarr;</i> <button onclick="tinychange( \'err404\' ); return false;">Editor I/O</button> <br />');
+$sitecontent->add_site_content('<textarea name="err403" id="err403" style="width:99%;">'.$sonder->read_kimb_one( 'error-403' ).'</textarea> <i>Error 403 &uarr;</i> <button onclick="tinychange( \'err403\' ); return false;">Editor I/O</button> <br />');
 $sitecontent->add_site_content('<input type="submit" value="Ändern"></form>');
 
 

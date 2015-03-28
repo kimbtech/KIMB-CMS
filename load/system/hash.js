@@ -44,14 +44,6 @@ f)).finalize(b)}}});var s=p.algo={};return p}(Math);
 k)-899497514);j=k;k=e;e=g<<30|g>>>2;g=h;h=c}b[0]=b[0]+h|0;b[1]=b[1]+g|0;b[2]=b[2]+e|0;b[3]=b[3]+k|0;b[4]=b[4]+j|0},_doFinalize:function(){var f=this._data,e=f.words,b=8*this._nDataBytes,h=8*f.sigBytes;e[h>>>5]|=128<<24-h%32;e[(h+64>>>9<<4)+14]=Math.floor(b/4294967296);e[(h+64>>>9<<4)+15]=b;f.sigBytes=4*e.length;this._process();return this._hash},clone:function(){var e=j.clone.call(this);e._hash=this._hash.clone();return e}});e.SHA1=j._createHelper(m);e.HmacSHA1=j._createHmacHelper(m)})();
 
 /* Schnellzugriff */
-function MD5(c){
-	return CryptoJS.MD5( c );
-}
-
-function SHA256(c){
-	return CryptoJS.SHA256( c );
-}
-
-function SHA1(c){
-	return CryptoJS.SHA1( c );
-}
+function MD5(c){ return CryptoJS.MD5( c ); }
+function SHA256(c){ return CryptoJS.SHA256( c ); }
+function SHA1(c){ return CryptoJS.SHA1( c ); }

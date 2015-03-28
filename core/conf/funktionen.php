@@ -71,6 +71,8 @@ function check_for_kimb_file($datei){
 }
 
 //alle kimb dateien in verzeichnis ausgeben
+function justnum( $str ) { return preg_replace( "/[^0-9]/" , "" , $str ); }
+
 function scan_kimb_dir($datei){
 	$datei = preg_replace('/[\r\n]+/', '', $datei);
 	$datei = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '..'),array('ae','oe','ue','ss','Ae','Oe','Ue', '', '.'), $datei);
@@ -86,6 +88,10 @@ function scan_kimb_dir($datei){
 			$i++;
 		}
 	}
+	
+	$returnref = array_map( 'justnum' , $return );
+	array_multisort( $returnref, $return);
+
 	return $return;
 }
 
@@ -398,7 +404,7 @@ function makepassw( $laenge , $chars = '!"#%&()*+,-./:;?[\]_0123456789ABCDEFGHIJ
 	return $output;
 }
 
-function listdirrec( $dir, $grdir ){
+function listdirrec_f( $dir, $grdir ){
 	global $allgsysconf;
 	
 	$files = scandir( $dir );
@@ -419,10 +425,108 @@ function listdirrec( $dir, $grdir ){
 			}
 		}
 		elseif( is_dir( $dir.'/'.$file ) ){
-			$out .= listdirrec( $dir.'/'.$file , $grdir.'/'.$file );
+			$out .= listdirrec_f( $dir.'/'.$file , $grdir.'/'.$file );
 		}
 	}
 
 	return $out;
+}
+
+function listdirrec( $dir, $grdir ){
+	global $listdirrecold;
+
+	if( !isset( $listdirrecold[$dir] ) ){
+		$out = listdirrec_f( $dir, $grdir );
+		$out = substr( $out, 0, strlen( $out ) - 1 );
+		return $listdirrecold[$dir] = $out;
+	}
+	else{
+		return $listdirrecold[$dir];
+	}
+}
+
+function add_tiny( $big = false, $small = false, $ids = array( 'big' => '#inhalt', 'small' => '#footer' ) ){
+	global $sitecontent, $allgsysconf, $tinyoo;
+
+	$sitecontent->add_html_header('<script>');
+
+	if( !$tinyoo ){
+		$sitecontent->add_html_header('var tiny = true;
+		function tinychange( id ){
+			if( tiny ){
+				tinymce.EditorManager.execCommand( "mceRemoveEditor", true, id)
+				tiny = false;
+			}
+			else{
+				tinymce.EditorManager.execCommand( "mceAddEditor", true, id);
+				tiny = true;
+			}
+		}');
+		$tinyoo = true;
+	}
+
+	if( $big ){
+		$sitecontent->add_html_header('
+		tinymce.init({
+			selector: "'.$ids['big'].'",
+			theme: "modern",
+			plugins: [
+				"advlist autosave autolink lists link image charmap preview hr anchor pagebreak",
+				"searchreplace wordcount visualblocks visualchars code fullscreen",
+				"insertdatetime media nonbreaking save table contextmenu directionality",
+				"emoticons template paste textcolor colorpicker textpattern codemagic"
+			],
+			toolbar1: "styleselect | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent hr",
+			toolbar2: "undo redo | forecolor backcolor | link image emoticons | preview fullscreen | codemagic searchreplace",
+			image_advtab: true,
+			language : "de",
+			width : 680,
+			height : 300,
+			resize: "horizontal",
+			content_css : "'.$allgsysconf['siteurl'].'/load/system/theme/design_for_tiny.css",
+			browser_spellcheck : true,
+			image_list: function( success ) {
+				success( [ '.listdirrec( __DIR__.'/../../load/userdata', '/load/userdata' ).' ] );
+			},
+			autosave_interval: "20s",
+			autosave_restore_when_empty: true,
+			autosave_retention: "60m",
+			menubar: "file edit insert view format table"
+		});
+		');
+
+	}
+	if( $small ){
+		$sitecontent->add_html_header('
+		tinymce.init({
+			selector: "'.$ids['small'].'",
+			theme: "modern",
+			plugins: [
+				"advlist autosave autolink lists link image charmap preview hr anchor pagebreak",
+				"searchreplace wordcount visualblocks visualchars code fullscreen",
+				"insertdatetime media nonbreaking save table contextmenu directionality",
+				"emoticons template paste textcolor colorpicker textpattern codemagic"
+			],
+			toolbar1: "styleselect | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent hr",
+			toolbar2: "undo redo | forecolor backcolor | link image emoticons | preview fullscreen | codemagic searchreplace",
+			image_advtab: true,
+			language : "de",
+			width : 680,
+			height : 100,
+			resize: "horizontal",
+			content_css : "'.$allgsysconf['siteurl'].'/load/system/theme/design_for_tiny.css",
+			browser_spellcheck : true,
+			menubar : false,
+			autosave_interval: "20s",
+			autosave_restore_when_empty: true,
+			autosave_retention: "60m",
+			image_list: function( success ) {
+				success( [ '.listdirrec( __DIR__.'/../../load/userdata', '/load/userdata' ).' ] );
+			}
+		});
+		');
+	}
+
+	$sitecontent->add_html_header('</script>');
 }
 ?>

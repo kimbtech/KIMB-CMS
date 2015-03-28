@@ -33,11 +33,7 @@ if( $_GET['todo'] == 'new' ){
 
 	$sitecontent->add_site_content('<h2>Neue Seite</h2>');
 
-	$sitecontent->add_html_header('<script>
-	$(function() { 
-		nicEditors.allTextAreas({fullPanel : true, iconsPath : \''.$allgsysconf['siteurl'].'/load/system/nicEditorIcons.gif\'});
-	});
-	</script>');
+	add_tiny( true, true);
 
 	if( isset( $_POST['title'] ) || isset( $_POST['inhalt'] ) ){
 
@@ -67,12 +63,12 @@ if( $_GET['todo'] == 'new' ){
 	
 	$sitecontent->add_site_content('<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=new" method="post"><br />');
 	$sitecontent->add_site_content('<input type="text" value="Titel" name="title" style="width:74%;"> <i>Seitentitel</i><br />');
-	$sitecontent->add_site_content('<input type="text" value="" name="header" style="width:74%;"> <i>HTML Header </i><br />');
-	$sitecontent->add_site_content('<input type="text" value="" name="keywords" style="width:74%;"> <i>Keywords</i><br />');
-	$sitecontent->add_site_content('<input type="text" value="" name="description" style="width:74%;"> <i>Description</i> <br />');
-	$sitecontent->add_site_content('<textarea name="inhalt" style="width:99%;"></textarea> <i>Inhalt &uarr;</i> <br />');
-	$sitecontent->add_site_content('<textarea name="footer" style="width:99%;"></textarea> <i>Footer &uarr;</i> <br />');
-	$sitecontent->add_site_content('<input type="submit" value="Ändern"></form>');	
+	$sitecontent->add_site_content('<textarea name="header" style="width:74%; height:50px;"></textarea><i>HTML Header </i><br />');
+	$sitecontent->add_site_content('<input type="text" name="keywords" style="width:74%;"> <i>Keywords</i><br />');
+	$sitecontent->add_site_content('<textarea name="description" style="width:74%; height:50px;"></textarea> <i>Description</i> <br />');
+	$sitecontent->add_site_content('<textarea name="inhalt" id="inhalt" style="width:99%; height:300px;">&lt;h1&gt;Titel&lt;/h1&gt;</textarea> <i>Inhalt &uarr;</i> <button onclick="tinychange( \'inhalt\' ); return false;">Editor I/O</button> <br />');
+	$sitecontent->add_site_content('<textarea name="footer" id="footer" style="width:99%; height:75px;"></textarea> <i>Footer &uarr;</i> <button onclick="tinychange( \'footer\' ); return false;">Editor I/O</button> <br />');
+	$sitecontent->add_site_content('<input type="submit" value="Erstellen"></form>');	
 
 }
 elseif( $_GET['todo'] == 'list' ){
@@ -109,9 +105,6 @@ elseif( $_GET['todo'] == 'list' ){
 	</script>');
 
 	$sites = scan_kimb_dir('site/');
-	function justnum( $str ) { return preg_replace( "/[^0-9]/" , "" , $str ); }
-	$sitesref = array_map( 'justnum' , $sites );
-	array_multisort( $sitesref, $sites);
 
 	$sitecontent->add_site_content('<span><a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=new"><span class="ui-icon ui-icon-plus" title="Eine neue Seite erstellen."></span></a>');
 	$sitecontent->add_site_content('<input type="text" class="search"><button onclick="search();" title="Nach Seitenamen suchen ( genauer Seitenname nötig ).">Suchen</button></span><hr />');
@@ -153,22 +146,7 @@ elseif( $_GET['todo'] == 'edit' && is_numeric( $_GET['id'] ) ){
 
 	$sitecontent->add_site_content('<h2>Seite bearbeiten</h2>');
 
-	$sitecontent->add_html_header('<script type="text/javascript" src="'.$allgsysconf['siteurl'].'/load/system/tinymce/tinymce.min.js"></script>
-	<script>
-	var tiny = true;
-
-	function tinychange(){
-
-		if( tiny ){
-			tinymce.EditorManager.execCommand( "mceRemoveEditor", true, "inhalt")
-			tiny = false;
-		}
-		else{
-			tinymce.EditorManager.execCommand( "mceAddEditor", true, "inhalt");
-			tiny = true;
-		}
-	}
-
+	$sitecontent->add_html_header('<script>
 	var del = function( id ) {
 		$( "#del-confirm" ).show( "fast" );
 		$( "#del-confirm" ).dialog({
@@ -188,36 +166,8 @@ elseif( $_GET['todo'] == 'edit' && is_numeric( $_GET['id'] ) ){
 		}
 		});
 	}
-
-	tinymce.init({
-		selector: "#inhalt",
-		theme: "modern",
-		plugins: [
-			"advlist autosave autolink lists link image charmap preview hr anchor pagebreak",
-			"searchreplace wordcount visualblocks visualchars code fullscreen",
-			"insertdatetime media nonbreaking save table contextmenu directionality",
-			"emoticons template paste textcolor colorpicker textpattern codemagic"
-		],
-		toolbar1: "styleselect | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent hr",
-		toolbar2: "undo redo | forecolor backcolor | link image emoticons | preview fullscreen | codemagic searchreplace",
-		image_advtab: true,
-		language : "de",
-		width : 680,
-		height : 300,
-		resize: "horizontal",
-		content_css : "'.$allgsysconf['siteurl'].'/load/system/theme/design_for_tiny.css",
-		browser_spellcheck : true,
-		image_list: function( success ) {
-			success( [ '.listdirrec( __DIR__.'/../load/userdata', '/load/userdata' ).' ] );
-		},
-		autosave_interval: "20s",
-		autosave_restore_when_empty: true,
-		autosave_retention: "60m"
-	});
-	$(function() { 
-		new nicEditor({fullPanel : true, iconsPath : \''.$allgsysconf['siteurl'].'/load/system/nicEditorIcons.gif\'}).panelInstance( \'footer\');
-	});
 	</script>');
+	add_tiny( true, true);
 
 	if( !is_object( $sitef ) ){
 		if( check_for_kimb_file( '/site/site_'.$_GET['id'].'.kimb' ) ){
@@ -270,8 +220,8 @@ elseif( $_GET['todo'] == 'edit' && is_numeric( $_GET['id'] ) ){
 	$sitecontent->add_site_content('<textarea name="header" style="width:74%; height:50px;">'.htmlentities( $seite['header'] ).'</textarea><i>HTML Header </i><br />');
 	$sitecontent->add_site_content('<input type="text" value="'.$seite['keywords'].'" name="keywords" style="width:74%;"> <i>Keywords</i><br />');
 	$sitecontent->add_site_content('<textarea name="description" style="width:74%; height:50px;">'.$seite['description'].'</textarea> <i>Description</i> <br />');
-	$sitecontent->add_site_content('<textarea name="inhalt" id="inhalt" style="width:99%; height:300px;">'.$seite['inhalt'].'</textarea> <i>Inhalt &uarr;</i> <button onclick="tinychange(); return false;">Editor I/O</button> <br />');
-	$sitecontent->add_site_content('<textarea name="footer" id="footer" style="width:99%;">'.$seite['footer'].'</textarea> <i>Footer &uarr;</i> <br />');
+	$sitecontent->add_site_content('<textarea name="inhalt" id="inhalt" style="width:99%; height:300px;">'.$seite['inhalt'].'</textarea> <i>Inhalt &uarr;</i> <button onclick="tinychange( \'inhalt\' ); return false;">Editor I/O</button> <br />');
+	$sitecontent->add_site_content('<textarea name="footer" id="footer" style="width:99%; height:75px;">'.$seite['footer'].'</textarea> <i>Footer &uarr;</i> <button onclick="tinychange( \'footer\' ); return false;">Editor I/O</button> <br />');
 	$sitecontent->add_site_content('<input type="text" readonly="readonly" value="'.$seite['time'].'" name="time" style="width:74%;"> <i>Zuletzt geändert</i><br />');
 	$sitecontent->add_site_content('<input type="submit" value="Ändern"></form>');
 	$sitecontent->add_site_content('<hr /><i>Tipps für den Header:</i><br />');
