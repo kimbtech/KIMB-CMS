@@ -110,6 +110,35 @@ class system_output{
 
 
 	public function output_complete_site(){
+
+		$jsapicodes = array(
+			'<!-- jQuery -->' => '<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/jquery/jquery.min.js"></script>',
+			'<!-- jQuery UI -->' => '<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/jquery/jquery-ui.min.js"></script>',
+			'<!-- nicEdit -->' => '<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/nicEdit.js"></script>',
+			'<!-- TinyMCE -->' => '<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/tinymce/tinymce.min.js"></script>',
+			'<!-- Hash -->' => '<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/hash.js"></script>'
+		);
+
+		$add = '';
+		$dones = array();
+		foreach( $jsapicodes as $key => $code ){ 
+			if( strpos( $this->header , $key ) !== false ){
+				if( $key == '<!-- jQuery UI -->' && !in_array( '<!-- jQuery -->', $dones ) && !in_array( '<!-- jQuery UI -->', $dones ) ){
+					$add .= $jsapicodes['<!-- jQuery -->']."\r\n";
+					$add .= $code."\r\n";
+
+					$dones[] = '<!-- jQuery -->';
+					$dones[] = '<!-- jQuery UI -->';
+				}
+				elseif( !in_array( $key, $dones ) ){
+					$add .= $code."\r\n";
+					$dones[] = $key;
+				}
+			}
+		}
+
+		$this->header = $add.$this->header;
+
 		if( isset( $this->allgsysconf['theme'] ) ){
 			if( file_exists( __DIR__.'/../theme/output_site_'.$this->allgsysconf['theme'].'.php' ) ){
 				require_once(__DIR__.'/../theme/output_site_'.$this->allgsysconf['theme'].'.php');

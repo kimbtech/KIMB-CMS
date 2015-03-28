@@ -166,6 +166,21 @@ elseif( $_GET['todo'] == 'edit' && is_numeric( $_GET['id'] ) ){
 		}
 		});
 	}
+
+	$( function() {
+		$( "#libs" ).on( "change", function() {
+			var valadd, valold, valnew;
+
+			valadd = $( "#libs" ).val();
+			valold = $( "textarea[name=header]" ).val();
+
+			valnew = valold + valadd;
+
+			$( "textarea[name=header]" ).val( valnew );
+
+			return false;
+		});
+	});
 	</script>');
 	add_tiny( true, true);
 
@@ -217,17 +232,21 @@ elseif( $_GET['todo'] == 'edit' && is_numeric( $_GET['id'] ) ){
 	
 	$sitecontent->add_site_content('<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=edit&amp;id='.$_GET['id'].'" method="post"><br />');
 	$sitecontent->add_site_content('<input type="text" value="'.$seite['title'].'" name="title" style="width:74%;"> <i>Seitentitel</i><br />');
-	$sitecontent->add_site_content('<textarea name="header" style="width:74%; height:50px;">'.htmlentities( $seite['header'] ).'</textarea><i>HTML Header </i><br />');
+	$sitecontent->add_site_content('<div style="position:relative;" ><textarea name="header" style="width:74%; height:50px;">'.htmlentities( $seite['header'] ).'</textarea><span style="position:absolute; top:0; left:75%;"> <i>HTML Header</i>');
+		$sitecontent->add_site_content('<br /> <select id="libs">');
+		$sitecontent->add_site_content('<option value=""></option>');
+		$sitecontent->add_site_content('<option value="&lt;!-- jQuery --&gt;">jQuery</option>');
+		$sitecontent->add_site_content('<option value="&lt;!-- jQuery UI --&gt;">jQuery UI</option>');
+		$sitecontent->add_site_content('<option value="&lt;!-- nicEdit --&gt;">nicEdit</option>');
+		$sitecontent->add_site_content('<option value="&lt;!-- TinyMCE --&gt;">TinyMCE</option>');
+		$sitecontent->add_site_content('<option value="&lt;!-- Hash --&gt;">Hash</option>');
+		$sitecontent->add_site_content('</select><span class="ui-icon ui-icon-info" style="display:inline-block;" title="Fügen Sie Ihrer Seite ganz einfach eine JavaScript-Bibilothek hinzu." ></span></span></div>');
 	$sitecontent->add_site_content('<input type="text" value="'.$seite['keywords'].'" name="keywords" style="width:74%;"> <i>Keywords</i><br />');
-	$sitecontent->add_site_content('<textarea name="description" style="width:74%; height:50px;">'.$seite['description'].'</textarea> <i>Description</i> <br />');
+	$sitecontent->add_site_content('<div style="position:relative;" ><textarea name="description" style="width:74%; height:50px;">'.$seite['description'].'</textarea><span style="position:absolute; top:0; left:75%;"> <i>Description</i></span></div>');
 	$sitecontent->add_site_content('<textarea name="inhalt" id="inhalt" style="width:99%; height:300px;">'.$seite['inhalt'].'</textarea> <i>Inhalt &uarr;</i> <button onclick="tinychange( \'inhalt\' ); return false;">Editor I/O</button> <br />');
 	$sitecontent->add_site_content('<textarea name="footer" id="footer" style="width:99%; height:75px;">'.$seite['footer'].'</textarea> <i>Footer &uarr;</i> <button onclick="tinychange( \'footer\' ); return false;">Editor I/O</button> <br />');
 	$sitecontent->add_site_content('<input type="text" readonly="readonly" value="'.$seite['time'].'" name="time" style="width:74%;"> <i>Zuletzt geändert</i><br />');
 	$sitecontent->add_site_content('<input type="submit" value="Ändern"></form>');
-	$sitecontent->add_site_content('<hr /><i>Tipps für den Header:</i><br />');
-	$sitecontent->add_site_content('<input class="select" type="text" value="'.htmlentities('<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/system/jquery/jquery.min.js"></script>').'" style="width:74%;"> <b>jQuery</b><br />');
-	$sitecontent->add_site_content('<input class="select" type="text" value="'.htmlentities('<link rel="stylesheet" type="text/css" href="'.$allgsysconf['siteurl'].'/load/system/jquery/jquery-ui.min.css" > <script language="javascript" src="'.$allgsysconf['siteurl'].'/load/system/jquery/jquery-ui.min.js"></script>').'" style="width:74%;"> <b>jQuery UI</b><br />');
-	$sitecontent->add_site_content('<input class="select" type="text" value="'.htmlentities('<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/system/hash.js"></script>').'" style="width:74%;"> <b>MD5, SHA1, SHA256</b><br />');
 
 }
 elseif( $_GET['todo'] == 'del' && is_numeric( $_GET['id'] ) ){
