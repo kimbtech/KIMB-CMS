@@ -101,6 +101,16 @@ h2 {
 	margin:auto;
 }
 
+input[readonly=readonly]{
+	background-color:#ccc;
+}
+
+input{
+	font-family: Ubuntu;
+	font-size:14px;
+	color:#000000;
+}
+
 /* jQuery UI Styles */
 label {
 	display: inline-block;

@@ -129,7 +129,13 @@ if( $_GET['todo'] == 'new' ){
 		var valeins = $( "input#passwort1" ).val();
 		var valzwei = $( "input#passwort2" ).val();
 
-		if( valzwei != valeins ){
+		if( valzwei == "" || valeins == "" ){
+			$("i#pwtext").text( "Das Passwort darf nicht leer sein!!" );
+			$("i#pwtext").css( "background-color", "red" );
+			$("i#pwtext").css( "color", "white" );
+			$("i#pwtext").css( "padding", "5px" );
+		}
+		else if( valzwei != valeins ){
 			$("i#pwtext").text("Passwörter stimmen nicht überein!");
 			$("i#pwtext").css( "background-color", "red" );
 			$("i#pwtext").css( "color", "white" );
@@ -190,9 +196,9 @@ if( $_GET['todo'] == 'new' ){
 	$sitecontent->add_site_content('<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/user.php?todo=new" method="post" onsubmit="return checksumbit();"><br />');
 	$sitecontent->add_site_content('<input type="text" name="user" onchange=" checkuser(); " id="user"> <i id="textuser" title="Username für das Login ( keine Änderung möglich )">Username - bitte eingeben</i><br />');
 	$sitecontent->add_site_content('<input type="text" name="name" > <i title="Name des Users" >Name</i><br />');
-	$sitecontent->add_site_content('<input type="text" name="mail" id="mail" onchange=" checkmail(); " > <i id="mailadr" title="E-Mail Adresse des Users für Nachrichten und Meldungen">E-Mail Adresse - bitte eingeben</i><br />');
-	$sitecontent->add_site_content('<input type="password" name="passwort1" id="passwort1" onchange=" checkpw(); "> <i title="Lassen Sie das Feld leer um das Passwort unverändert zu lassen!" id="pwtext">Passwort - bitte eingeben</i> <br />');
-	$sitecontent->add_site_content('<input type="password" name="passwort2" id="passwort2" onchange=" checkpw(); "> <i title="Zur Sicherheit erneut eigeben." id="pwtext">Passwort - bitte eingeben</i> <br />');
+	$sitecontent->add_site_content('<input type="text" name="mail" id="mail" onkeyup=" checkmail(); " > <i id="mailadr" title="E-Mail Adresse des Users für Nachrichten und Meldungen">E-Mail Adresse - bitte eingeben</i><br />');
+	$sitecontent->add_site_content('<input type="password" name="passwort1" id="passwort1" onkeyup=" checkpw(); "> <i title="Lassen Sie das Feld leer um das Passwort unverändert zu lassen!" id="pwtext">Passwort - bitte eingeben</i> <br />');
+	$sitecontent->add_site_content('<input type="password" name="passwort2" id="passwort2" onkeyup=" checkpw(); "> <i title="Zur Sicherheit erneut eigeben." id="pwtext">Passwort - bitte eingeben</i> <br />');
 	$sitecontent->add_site_content('<input type="radio" name="level" value="less" checked="checked">Editor <input type="radio" name="level" value="more">Admin &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i title="Das Rechte-Level des Users einstellen.">Level</i><br />');
 	$sitecontent->add_site_content('<input type="hidden" value="nok" id="check" >');
 	$sitecontent->add_site_content('<input type="submit" value="Erstellen" ><br />');
@@ -274,7 +280,12 @@ elseif( $_GET['todo'] == 'edit' && isset( $_GET['user'] ) ){
 			var valeins = $( "input#passwort1" ).val();
 			var valzwei = $( "input#passwort2" ).val();
 
-			if( valzwei != valeins ){
+			if( valzwei == "" || valeins == "" ){
+				$("i#pwtext").text( "Passwort - keine Änderung" );
+				$("i#pwtext").css( "background-color", "white" );
+				$("i#pwtext").css( "color", "black" );
+			}
+			else if( valzwei != valeins ){
 				$("i#pwtext").text("Passwörter stimmen nicht überein!");
 				$("i#pwtext").css( "background-color", "red" );
 				$("i#pwtext").css( "color", "white" );
@@ -330,13 +341,13 @@ elseif( $_GET['todo'] == 'edit' && isset( $_GET['user'] ) ){
 					$sitecontent->add_site_content('<input type="radio" name="level" value="less">Editor <input type="radio" name="level" value="more" >Admin '.$other.' &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i title="Das Rechte-Level des Users einstellen.">Level</i><br />');
 				}
 			}
-			$sitecontent->add_site_content('<input type="password" name="passwort1" id="passwort1" onchange=" checkpw(); "> <i title="Lassen Sie das Feld leer um das Passwort unverändert zu lassen!" id="pwtext">Passwort - keine Änderung</i> <br />');
-			$sitecontent->add_site_content('<input type="password" name="passwort2" id="passwort2" onchange=" checkpw(); "> <i title="Zur Sicherheit erneut eigeben." id="pwtext">Passwort - keine Änderung</i> <br />');
+			$sitecontent->add_site_content('<input type="password" name="passwort1" id="passwort1" onkeyup=" checkpw(); "> <i title="Lassen Sie das Feld leer um das Passwort unverändert zu lassen!" id="pwtext">Passwort - keine Änderung</i> <br />');
+			$sitecontent->add_site_content('<input type="password" name="passwort2" id="passwort2" onkeyup=" checkpw(); "> <i title="Zur Sicherheit erneut eigeben." id="pwtext">Passwort - keine Änderung</i> <br />');
 			$sitecontent->add_site_content('<input type="submit" value="Ändern" ><br />');
 			$sitecontent->add_site_content('</form>');
 
 			if( $_SESSION['permission'] == 'more' ){
-				$sitecontent->add_site_content('<br /><span onclick=" deluser(); "><span class="ui-icon ui-icon-trash" title="Diesen User löschen."></span></span></a>');
+				$sitecontent->add_site_content('<br /><span onclick=" deluser(); "><span class="ui-icon ui-icon-trash" title="Diesen User löschen." style="display:inline-block;" ></span></span></a>');
 			}
 
 			$sitecontent->add_site_content('<div style="display:none;"><div id="del-confirm" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 40px 0;"></span>Möchten Sie den User "'.$_GET['user'].'" wirklich löschen?<br /><b>Sollten Sie alle User löschen verliehren Sie den Systemzugriff!</b></p></div></div>');
@@ -352,7 +363,7 @@ elseif( $_GET['todo'] == 'list'){
 
 	$sitecontent->add_site_content('<h2>Userliste</h2>');
 
-	$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/user.php?todo=new"><span class="ui-icon ui-icon-plusthick" title="Einen neuen User erstellen."></span></a>');
+	$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/user.php?todo=new"><span class="ui-icon ui-icon-plusthick" title="Einen neuen User erstellen." style="display:inline-block;" ></span></a>');
 	$sitecontent->add_site_content('<table width="100%"><tr> <th>Username</th> <th>Name</th> <th>E-Mail</th> <th>Level</th> </tr>');
 
 	$users = $userfile->read_kimb_all_teilpl( 'userids' );

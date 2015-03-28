@@ -194,15 +194,15 @@ else{
 	$levs = $levellist->read_kimb_one( 'levellist' );
 	$levs = explode( ',' , $levs );
 
-	$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/other_level.php?todo=new"><span class="ui-icon ui-icon-plusthick" title="Eine neues Level erstellen."></span></a>');
-	$sitecontent->add_site_content('<table width="100%"><tr> <th>Levelname</th> <th>Rechte <span class="ui-icon ui-icon-info" title="Die englischen Zahlen stehen für die erlaubten Menuepunkte!"></span></th> <th>Löschen</th> </tr>');
+	$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/other_level.php?todo=new"><span class="ui-icon ui-icon-plusthick" title="Eine neues Level erstellen." style="display:inline-block;" ></span></a>');
+	$sitecontent->add_site_content('<table width="100%"><tr> <th>Levelname</th> <th>Rechte <span class="ui-icon ui-icon-info" style="display:inline-block;" title="Die englischen Zahlen stehen für die erlaubten Menuepunkte!"></span></th> <th>Löschen</th> </tr>');
 	$sitecontent->add_site_content('<tr> <td title="Voreingestellt, nicht zu verändern" >more</td> <td><i>Alle Rechte.</i></td> <td></td> </tr>');
 	$sitecontent->add_site_content('<tr> <td title="Voreingestellt, nicht zu verändern" >less</td> <td><i>Rechte die ein Editor benötigt.</i></td> <td></td> </tr>');
 
 	foreach( $levs as $lev ){
 		$read = $levellist->read_kimb_one( $lev );
 		if( $read != '' ){
-			$del = '<span onclick="var delet = del( \''.$lev.'\' ); delet();"><span class="ui-icon ui-icon-trash" title="Dieses Level löschen."></span></span>';
+			$del = '<span onclick="var delet = del( \''.$lev.'\' ); delet();"><span class="ui-icon ui-icon-trash" title="Dieses Level löschen." style="display:inline-block;" ></span></span>';
 			$sitecontent->add_site_content('<tr> <td><a title="Ändern" href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/other_level.php?todo=edit&amp;level='.$lev.'">'.$lev.'</a></td> <td>'.substr( $read , '0' , '50' ).' ( ... )</td> <td>'.$del.'</td> </tr>');
 		}
 	}

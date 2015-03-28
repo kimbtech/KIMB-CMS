@@ -35,7 +35,8 @@ if( $_GET['todo'] == 'more' ){
 	
 	if( isset( $_GET['addon'] ) ){
 
-		$sitecontent->add_site_content('<h2>Ein Addon konfigurieren</h2>');
+		$sitecontent->add_site_content('<h2>Add-on "'.$_GET['addon'].'" konfigurieren</h2>');
+		$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=more">&larr; Alle Add-ons</a><hr />');
 
 		if(strpos( $_GET['addon'] , "..") !== false){
 			echo ('Do not hack me!!');
@@ -76,7 +77,8 @@ elseif( $_GET['todo'] == 'less' ){
 
 	if( isset( $_GET['addon'] ) ){
 
-		$sitecontent->add_site_content('<h2>Ein Addon nutzen</h2>');
+		$sitecontent->add_site_content('<h2>Add-on "'.$_GET['addon'].'" nutzen</h2>');
+		$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=less">&larr; Alle Add-ons</a><hr />');
 
 		if(strpos( $_GET['addon'] , "..") !== false){
 			echo ('Do not hack me!!');

@@ -114,20 +114,20 @@ foreach( $dir as $file ){
 			$teil = substr( $file , 12 , -4 );
 
 			if( $teil != 'norm' ){
-				$del = '<span onclick="var delet = del( \''.$teil.'\' ); delet();"><span class="ui-icon ui-icon-trash" title="Dieses Theme löschen."></span></span>';
+				$del = '<span onclick="var delet = del( \''.$teil.'\' ); delet();"><span class="ui-icon ui-icon-trash" title="Dieses Theme löschen." style="display:inline-block;" ></span></span>';
 			}
 			else{
 				$del = '';
 			}
 
 			if ( $allgsysconf['theme'] == $teil ){
-				$status = '<span class="ui-icon ui-icon-check" title="Dieses Theme ist zu Zeit aktiviert. ( Bitte aktivieren Sie ein anderes, um dies zu ändern. )"></span>';
+				$status = '<span class="ui-icon ui-icon-check" title="Dieses Theme ist zu Zeit aktiviert. ( Bitte aktivieren Sie ein anderes, um dies zu ändern. )" style="display:inline-block;" ></span>';
 			}
 			elseif( !isset( $allgsysconf['theme'] ) && $teil == 'norm' ){
-				$status = '<span class="ui-icon ui-icon-check" title="Dieses Theme ist zu Zeit aktiviert. ( Bitte aktivieren Sie ein anderes, um dies zu ändern. )"></span>';
+				$status = '<span class="ui-icon ui-icon-check" title="Dieses Theme ist zu Zeit aktiviert. ( Bitte aktivieren Sie ein anderes, um dies zu ändern. )" style="display:inline-block;" ></span>';
 			}
 			else{
-				$status = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/other_themes.php?theme='.$teil.'&amp;chdeak"><span class="ui-icon ui-icon-close" title="Dieses Theme ist zu Zeit deaktiviert. ( click -> aktivieren )"></span></a>';
+				$status = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/other_themes.php?theme='.$teil.'&amp;chdeak"><span class="ui-icon ui-icon-close" title="Dieses Theme ist zu Zeit deaktiviert. ( click -> aktivieren )" style="display:inline-block;" ></span></a>';
 			}
 
 			$sitecontent->add_site_content('<tr> <td>'.$teil.'</td> <td>'.$status.'</td> <td>'.$del.'</td> </tr>');

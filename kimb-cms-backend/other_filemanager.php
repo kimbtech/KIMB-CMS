@@ -170,15 +170,15 @@ if( is_dir( $openpath ) ){
 		if ($file != "." && $file != ".." ) {
 			if(is_dir($openpath.$file)){
 				$sitecontent->add_site_content( '<tr style="padding:10px; background-color: orange; height: 40px;"><td><span class="ui-icon ui-icon-folder-collapsed"></span></td>');
-				$sitecontent->add_site_content( '<td><span onclick="var delet = del( \'folder\' , \''.urlencode($pathnow.'/'.$file).'\' , \''.urlencode($pathnow).'\' ); delet();" class="ui-icon ui-icon-trash" title="Diesen Ordner löschen. ( Der Ordnern muss leer sein! )"></span></td>');
+				$sitecontent->add_site_content( '<td><span onclick="var delet = del( \'folder\' , \''.urlencode($pathnow.'/'.$file).'\' , \''.urlencode($pathnow).'\' ); delet();" class="ui-icon ui-icon-trash" title="Diesen Ordner löschen. ( Der Ordnern muss leer sein! )" style="display:inline-block;" ></span></td>');
 				$sitecontent->add_site_content( '<td></td><td><a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/other_filemanager.php?action=rein&amp;path='.urlencode($pathnow.'/'.$file).'">'.$file.'</a></td>');
 				$sitecontent->add_site_content( '</tr>');
 			}
 			else{  
 				$sitecontent->add_site_content( '<tr style="background-color: grey; padding:10px; height: 40px;"><td><span class="ui-icon ui-icon-document"></span></td>');
-				$sitecontent->add_site_content( '<td><span onclick="var delet = del( \'\' , \''.urlencode($pathnow.'/'.$file).'\' , \''.urlencode($pathnow).'\' ); delet();" class="ui-icon ui-icon-trash" title="Diese Datei löschen."></span></td>');
+				$sitecontent->add_site_content( '<td><span onclick="var delet = del( \'\' , \''.urlencode($pathnow.'/'.$file).'\' , \''.urlencode($pathnow).'\' ); delet();" class="ui-icon ui-icon-trash" title="Diese Datei löschen." style="display:inline-block;" ></span></td>');
 				if( $secured == 'off' ){
-					$sitecontent->add_site_content( '<td><a href="'.$allgsysconf['siteurl'].'/load/userdata'.$pathnow.'/'.$file.'" target="_blank"><span class="ui-icon ui-icon-extlink" title="Öffnen Sie die Datei in einem neuen Fenster, die URL können Sie oben aus der Adressleiste kopieren und für Ihre Seiten verwenden."></span></a></td>' );
+					$sitecontent->add_site_content( '<td><a href="'.$allgsysconf['siteurl'].'/load/userdata'.$pathnow.'/'.$file.'" target="_blank"><span class="ui-icon ui-icon-extlink" title="Öffnen Sie die Datei in einem neuen Fenster, die URL können Sie oben aus der Adressleiste kopieren und für Ihre Seiten verwenden." style="display:inline-block;" ></span></a></td>' );
 				}
 				else{
 					$id = $keyfile->search_kimb_xxxid( $pathnow.'/'.$file , 'path' );
