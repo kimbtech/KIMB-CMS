@@ -119,11 +119,37 @@ if( $_GET['todo'] == 'new' ){
 			die;
 		}
 
+		$sitecontent->add_html_header('<script>
+		function makepfad() {
+			var name, klein, pfad, umg;
+
+			name = $( "input[name=name]" ).val();
+
+			klein = name.toLowerCase();
+			umg = klein.replace( / /g , "-");
+			pfad = umg.replace( /[^0-9A-Za-z_-]/g, "");
+
+			$( "input[name=pfad]" ).val( pfad );
+
+		}
+		</script>');
+
+		$sitedr = '<select name="siteid"><option value="none" selected="selected">None</option>';
+		$sites = scan_kimb_dir('site/');
+		foreach ( $sites as $site ){
+			$sitef = new KIMBdbf('site/'.$site);
+			$id = preg_replace("/[^0-9]/","", $site);
+			$title = $sitef->read_kimb_one('title');
+
+			$sitedr .= '<option value="'.$id.'">'.$title.' - '.$id.'</option>';
+		}
+		$sitedr .= '</select>';
+
 		$sitecontent->add_site_content('<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=new&amp;file='.$_GET['file'].'&amp;niveau='.$_GET['niveau'].'&amp;requid='.$_GET['requid'].'" method="post">');
-		$sitecontent->add_site_content('<input type="text" name="name" > <i title="Pflichtfeld">(Menuename *)</i><br />');
+		$sitecontent->add_site_content('<input type="text" name="name" onkeyup=" makepfad(); " onchange=" makepfad(); " > <i title="Pflichtfeld">(Menuename *)</i><br />');
 		$sitecontent->add_site_content('<input type="text" name="pfad" > <i title="Manuell oder automatisch aus Menuename">(Pfad)</i><br />');
-		$sitecontent->add_site_content('<input type="text" name="siteid" > <i title="Auch später über Zuordnung zu definieren">(SiteID)</i><br />');
-		$sitecontent->add_site_content('<input type="submit" value="Ändern" ><br />');
+		$sitecontent->add_site_content($sitedr.' <i title="Auch später über Zuordnung zu definieren">(SiteID)</i><br />');
+		$sitecontent->add_site_content('<input type="submit" value="Erstellen" ><br />');
 		$sitecontent->add_site_content('</form>');
 
 	}
@@ -171,22 +197,30 @@ elseif( $_GET['todo'] == 'connect' ){
 		$menuear['niveau'] = str_repeat( '==>' , $menuear['niveau'] );
 
 		if ( $menuear['status'] == 'off' ){
-			$status = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=deakch&amp;file='.$menuear['fileid'].'&amp;reqid='.$menuear['requid'].'"><span class="ui-icon ui-icon-close" title="Dieses Menue ist zu Zeit deaktiviert, also nicht auffindbar. ( click -> ändern ) ((Eine Änderung wirkt sich nicht auf Untermenüs aus!))"></span></a>';
+			$status = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=deakch&amp;file='.$menuear['fileid'].'&amp;reqid='.$menuear['requid'].'"><span class="ui-icon ui-icon-close" style="display:inline-block;" title="Dieses Menue ist zu Zeit deaktiviert, also nicht auffindbar. ( click -> ändern ) ((Eine Änderung wirkt sich nicht auf Untermenüs aus!))"></span></a>';
 		}
 		else{
-			$status = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=deakch&amp;file='.$menuear['fileid'].'&amp;reqid='.$menuear['requid'].'"><span class="ui-icon ui-icon-check" title="Dieses Menue ist zu Zeit aktiviert, also sichtbar. ( click -> ändern ) ((Eine Änderung wirkt sich nicht auf Untermenüs aus!))"></span></a>';
+			$status = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=deakch&amp;file='.$menuear['fileid'].'&amp;reqid='.$menuear['requid'].'"><span class="ui-icon ui-icon-check" style="display:inline-block;" title="Dieses Menue ist zu Zeit aktiviert, also sichtbar. ( click -> ändern ) ((Eine Änderung wirkt sich nicht auf Untermenüs aus!))"></span></a>';
 		}
 
-		$sitedr = '<select name="'.$i.'-site"><option value="none" selected="selected">None</option>';
+		$sitedr = '';
+		$sel = 'no';
 		foreach( $allsites as $alls ){
 			if( $alls['id'] == $menuear['siteid'] ){
 				$sitedr .= '<option value="'.$alls['id'].'" selected="selected">'.$alls['site'].' - '.$alls['id'].'</option>';
+				$sel = 'yes';
 			}
 			else{
 				$sitedr .= '<option value="'.$alls['id'].'">'.$alls['site'].' - '.$alls['id'].'</option>';
 			}
 		}
 		$sitedr .= '</select>';
+		if( $sel == 'yes' ){
+			$sitedr = '<select name="'.$i.'-site"><option value="none" >None</option>'.$sitedr;
+		}
+		else{
+			$sitedr = '<select name="'.$i.'-site"><option value="none" selected="selected">None</option>'.$sitedr;
+		}
 		
 		$sitecontent->add_site_content('<tr> <td>'.$menuear['niveau'].'</td>  <td>'.$menuear['menuname'].'</td> <td>'.$status.'</td> <td>'.$sitedr.'<input type="hidden" value="'.$menuear['requid'].'" name="'.$i.'"></td> </tr>');
 		$i++;
@@ -357,7 +391,8 @@ elseif( $_GET['todo'] == 'edit' ){
 						}
 						else{
 							$( "input#check" ).val( "ok" );
-							$("i#pfadtext").text("(Menuepfad -- OK (unsaved) )");
+							$( "input#pfad" ).val( data );
+							$("i#pfadtext").text("(Menuepfad -- OK)");
 							$("i#pfadtext").css( "background-color", "green" );
 						}
 					});
@@ -372,7 +407,7 @@ elseif( $_GET['todo'] == 'edit' ){
 
 			$sitecontent->add_site_content('<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=edit&amp;file='.$_GET['file'].'&amp;reqid='.$_GET['reqid'].'" method="post" onsubmit="if( document.getElementById(\'check\').value == \'nok\' ){ return false; } ">');
 			$sitecontent->add_site_content('<input type="text" value="'.$menuenames->read_kimb_one( $_GET['reqid'] ).'" name="name" > <i title="Name des Menues der im Frontend angezeigt wird." >(Menuename)</i><br />');
-			$sitecontent->add_site_content('<input type="text" value="'.$file->read_kimb_id( $id , 'path').'" name="pfad" id="pfad" onkeydown="if(event.keyCode == 13){ checkpath(); }" onchange="checkpath();"> <i id="pfadtext" title="Ein Menuepfad besteht aus Buchstaben, Zahlen, &apos;_&apos; und &apos;-&apos;.">(Menuepfad)</i><br />');
+			$sitecontent->add_site_content('<input type="text" value="'.$file->read_kimb_id( $id , 'path').'" name="pfad" id="pfad" onkeyup="checkpath();" onchange="checkpath();" > <i id="pfadtext" title="Ein Menuepfad besteht aus Buchstaben, Zahlen, &apos;_&apos; und &apos;-&apos;.">(Menuepfad)</i><br />');
 			$sitecontent->add_site_content('<input type="text" value="'.$file->read_kimb_id( $id , 'status').'" name="status" readonly="readonly"> <i title="Veränderbar auf Seite Auflisten sowie Zuordnung." >(Status)</i><br />');
 			$sitecontent->add_site_content('<input type="text" value="'.$file->read_kimb_id( $id , 'requestid').'" name="requid" readonly="readonly"> <i title="Automatisch bei Erstellung des Menue generiert.">(RequestID)</i><br />');
 			$sitecontent->add_site_content('<input type="text" value="'.$idfile->read_kimb_id( $_GET['reqid'] , 'siteid' ).'" name="siteid" readonly="readonly"> <i title="Veränderbar auf Seite Zuordnen." >(SiteID)</i><br />');

@@ -114,6 +114,7 @@ if( $_GET['todo'] == 'new' ){
 				}
 				else{
 					$( "input#check" ).val( "ok" );
+					$( "input#user" ).val( data );
 					$("i#textuser").text("Username - OK");
 					$("i#textuser").css( "background-color", "green" );
 				}
@@ -194,9 +195,9 @@ if( $_GET['todo'] == 'new' ){
 	</script>');
 
 	$sitecontent->add_site_content('<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/user.php?todo=new" method="post" onsubmit="return checksumbit();"><br />');
-	$sitecontent->add_site_content('<input type="text" name="user" onchange=" checkuser(); " id="user"> <i id="textuser" title="Username für das Login ( keine Änderung möglich )">Username - bitte eingeben</i><br />');
+	$sitecontent->add_site_content('<input type="text" name="user" onkeyup=" checkuser(); " onchange=" checkuser(); " id="user"> <i id="textuser" title="Username für das Login ( keine Änderung möglich )">Username - bitte eingeben</i><br />');
 	$sitecontent->add_site_content('<input type="text" name="name" > <i title="Name des Users" >Name</i><br />');
-	$sitecontent->add_site_content('<input type="text" name="mail" id="mail" onkeyup=" checkmail(); " > <i id="mailadr" title="E-Mail Adresse des Users für Nachrichten und Meldungen">E-Mail Adresse - bitte eingeben</i><br />');
+	$sitecontent->add_site_content('<input type="text" name="mail" id="mail" onkeyup=" checkmail(); " onchange=" checkmail(); " > <i id="mailadr" title="E-Mail Adresse des Users für Nachrichten und Meldungen">E-Mail Adresse - bitte eingeben</i><br />');
 	$sitecontent->add_site_content('<input type="password" name="passwort1" id="passwort1" onkeyup=" checkpw(); "> <i title="Lassen Sie das Feld leer um das Passwort unverändert zu lassen!" id="pwtext">Passwort - bitte eingeben</i> <br />');
 	$sitecontent->add_site_content('<input type="password" name="passwort2" id="passwort2" onkeyup=" checkpw(); "> <i title="Zur Sicherheit erneut eigeben." id="pwtext">Passwort - bitte eingeben</i> <br />');
 	$sitecontent->add_site_content('<input type="radio" name="level" value="less" checked="checked">Editor <input type="radio" name="level" value="more">Admin &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i title="Das Rechte-Level des Users einstellen.">Level</i><br />');
