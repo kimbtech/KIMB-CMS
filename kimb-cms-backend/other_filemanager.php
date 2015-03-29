@@ -37,10 +37,12 @@ if( $_SESSION['secured'] == 'on' ){
 	$secured = 'on';
 	$grpath = __DIR__.'/../core/secured/';
 	$keyfile = new KIMBdbf( 'backend/filemanager.kimb' );
+	$vorneprot = 'secured://';
 }
 elseif( $_SESSION['secured'] == 'off' ){
 	$secured = 'off';
 	$grpath = __DIR__.'/../load/userdata/';
+	$vorneprot = 'open://';
 }
 else{
 	$sitecontent->add_site_content( '<div class="ui-overlay"><div class="ui-widget-overlay"></div>');
@@ -52,9 +54,10 @@ else{
 	$sitecontent->add_site_content( '</div>');
 	$secured = 'off';
 	$grpath = __DIR__.'/../load/userdata/';
+	$vorneprot = 'open://';
 }
 
-if(  (strpos($_GET['path'], "..") !== false) || (strpos($_GET['del'], "..") !== false) || (strpos($_POST['newfolder'], "..") !== false) || (strpos($_FILES['userfile']['name'], "..") !== false) ){
+if(  (strpos($_GET['path'], "..") !== false) || (strpos($_GET['del'], "..") !== false) || (strpos($_POST['newfolder'], "..") !== false) ){
 	echo ('Do not hack me!!');
 	die;
 }
@@ -68,7 +71,7 @@ if($_GET['todo'] == 'newf'){
 }
 if($_GET['todo'] == 'del'){
 	if($_GET['art'] == 'folder'){
-		rmdir( $grpath.$_GET['del'].'/' );
+		rm_r( $grpath.$_GET['del'].'/' );
 		$sitecontent->echo_message( 'Ordner gelöscht' );
 	}	
 	else{
@@ -83,43 +86,49 @@ if($_GET['todo'] == 'del'){
 		$sitecontent->echo_message( 'Datei gelöscht' );
 	}
 }
-if ($_FILES['userfile']['name'] != ''){
+if ( !empty( $_FILES['userfile']['name'][0] ) ){
 
-	$finame = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '/', '<', '>', '|', '?', ':', '|', '*'),array('ae','oe','ue','ss','Ae','Oe','Ue', '_', '', '', '', '', '', '', '', ''), $_FILES['userfile']['name']);
-	$finame = basename($finame);
-	$filena = $finame;
+	$i = 0;
+	while( !empty( $_FILES['userfile']['name'][$i] ) ){
+		$finame = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '/', '<', '>', '|', '?', ':', '|', '*'),array('ae','oe','ue','ss','Ae','Oe','Ue', '_', '', '', '', '', '', '', '', ''), $_FILES['userfile']['name'][$i] );
+		$finame = preg_replace( "/[^A-Za-z0-9_.-]/" , "" , $finame );
+		$finame = basename($finame);
+		$filena = $finame;
 
-	if(file_exists($grpath.$_GET['path'].'/'.$finame)){
-		$i = '1';
-		$fileneu = $grpath.$_GET['path'].'/'.$finame;
-		while(file_exists($fileneu)){
-			$fileneu = $grpath.$_GET['path'].'/'.$i.$finame; 
-			$filedd = $_GET['path'].'/'.$i.$finame;
-			$i++;
+		if(file_exists($grpath.$_GET['path'].'/'.$finame)){
+			$ii = '1';
+			$fileneu = $grpath.$_GET['path'].'/'.$finame;
+			while(file_exists($fileneu)){
+				$fileneu = $grpath.$_GET['path'].'/'.$ii.$finame; 
+				$filedd = $_GET['path'].'/'.$ii.$finame;
+				$ii++;
+			}
+			$finame = $fileneu;
 		}
-		$finame = $fileneu;
-	}
-	else{
-		$filedd = $_GET['path'].'/'.$finame;
-		$finame = $grpath.$_GET['path'].'/'.$finame;
-	}
+		else{
+			$filedd = $_GET['path'].'/'.$finame;
+			$finame = $grpath.$_GET['path'].'/'.$finame;
+		}
 
-	if(move_uploaded_file($_FILES["userfile"]["tmp_name"], $finame)){
-		$sitecontent->echo_message( 'Upload erfolgreich' );
-	}
-	else{
-		$sitecontent->echo_error( 'Upload fehlerhaft!' , 'unknown' );
-	}
+		if(move_uploaded_file($_FILES["userfile"]["tmp_name"][$i] , $finame)){
+			$sitecontent->echo_message( 'Upload erfolgreich' );
+		}
+		else{
+			$sitecontent->echo_error( 'Upload fehlerhaft!' , 'unknown' );
+		}
 
-	if( $secured == 'on' ){
-		$key = makepassw( 50 , '_0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz' );
+		if( $secured == 'on' ){
+			$key = makepassw( 50 , '_0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz' );
 
-		$id = $keyfile->next_kimb_id();
+			$id = $keyfile->next_kimb_id();
 
-		$keyfile->write_kimb_id( $id , 'add' , 'key' , $key );
-		$keyfile->write_kimb_id( $id , 'add' , 'path' , $filedd );
-		$keyfile->write_kimb_id( $id , 'add' , 'file' , $filena );
+			$keyfile->write_kimb_id( $id , 'add' , 'key' , $key );
+			$keyfile->write_kimb_id( $id , 'add' , 'path' , $filedd );
+			$keyfile->write_kimb_id( $id , 'add' , 'file' , $filena );
 
+		}
+
+		$i++;
 	}
 }
 
@@ -161,7 +170,30 @@ var del = function( art , del , path ) {
 if( is_dir( $openpath ) ){
 	$sitecontent->add_site_content('<div style="display:none;"><div id="del-confirm" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Möchten Sie wirklich löschen?</p></div></div>');
 
-	$sitecontent->add_site_content ('<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/other_filemanager.php?action=hoch&amp;path='.urlencode($pathnow).'"><button title="<= Hoch" ><span class="ui-icon ui-icon-arrowthick-1-w"></span></button></a><br />');
+	$sitecontent->add_site_content ('<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/other_filemanager.php?action=hoch&amp;path='.urlencode($pathnow).'"><button title="<= Hoch" ><span class="ui-icon ui-icon-arrowthick-1-w" style="display:inline-block;" ></span></button></a><br />');
+
+	$restpath = $pathnow;
+	$a['url'] = $allgsysconf['siteurl'].'/kimb-cms-backend/other_filemanager.php?action=rein&amp;path='.urlencode($restpath);
+	$a['name'] = substr($restpath, - strlen(strrchr($restpath, '/')) );
+	$seepatha[] = $a;
+	while( strpos( $restpath , '/' ) !== false ){
+		$restpath = substr($restpath, '0', strlen($restpath) - strlen(strrchr($restpath, '/')));
+		$name = substr($restpath, - strlen(strrchr($restpath, '/')) );
+		$a['url'] = $allgsysconf['siteurl'].'/kimb-cms-backend/other_filemanager.php?action=rein&amp;path='.urlencode($restpath);
+		$a['name'] = $name;
+		$seepatha[] = $a;
+	}
+	$seepatha = array_reverse( $seepatha );
+
+	$seepath = '';
+	foreach( $seepatha as $ar ){
+		if( empty( $ar['name'] ) ){
+			$ar['name'] = '/';
+		}
+		$seepath .= '&nbsp;&nbsp;&nbsp;<a href="'.$ar['url'].'">'.$ar['name'].'</a>';
+	}
+
+	$sitecontent->add_site_content ('<div style="margin: 5px 0; padding: 5px; border-radius:5px; background-color:red;" title="Aktueller Pfad: Klicken Sie auf einen Ordner um dort hin zu gehen!" >'.$vorneprot.$seepath.'</div>');
 
 	$sitecontent->add_site_content('<table width="100%">');
 
@@ -170,7 +202,7 @@ if( is_dir( $openpath ) ){
 		if ($file != "." && $file != ".." ) {
 			if(is_dir($openpath.$file)){
 				$sitecontent->add_site_content( '<tr style="padding:10px; background-color: orange; height: 40px;"><td><span class="ui-icon ui-icon-folder-collapsed"></span></td>');
-				$sitecontent->add_site_content( '<td><span onclick="var delet = del( \'folder\' , \''.urlencode($pathnow.'/'.$file).'\' , \''.urlencode($pathnow).'\' ); delet();" class="ui-icon ui-icon-trash" title="Diesen Ordner löschen. ( Der Ordnern muss leer sein! )" style="display:inline-block;" ></span></td>');
+				$sitecontent->add_site_content( '<td><span onclick="var delet = del( \'folder\' , \''.urlencode($pathnow.'/'.$file).'\' , \''.urlencode($pathnow).'\' ); delet();" class="ui-icon ui-icon-trash" title="Diesen Ordner löschen. ( Achtung, es werden alle Dateien im Ordner gelöscht! )" style="display:inline-block;" ></span></td>');
 				$sitecontent->add_site_content( '<td></td><td><a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/other_filemanager.php?action=rein&amp;path='.urlencode($pathnow.'/'.$file).'">'.$file.'</a></td>');
 				$sitecontent->add_site_content( '</tr>');
 			}
@@ -204,13 +236,14 @@ if( is_dir( $openpath ) ){
 
 	$sitecontent->add_site_content ('<br /><hr /><h2>Datei hochladen</h2>');
 	$sitecontent->add_site_content ('<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/other_filemanager.php?path='.urlencode($pathnow).'&amp;action=rein" enctype="multipart/form-data" method="POST">');
-	$sitecontent->add_site_content ('<input name="userfile" type="file" /><br /><input type="submit" value="Upload" />');
+	$sitecontent->add_site_content ('<input name="userfile[]" type="file" multiple="multiple" /><br /><input type="submit" value="Upload" />');
 	$sitecontent->add_site_content ('</form><br /><br /><hr /><br />');
 
 }
 else{
 
 	$sitecontent->echo_error( 'Das von Ihnen gewählte Verzeichnis wurde nicht gefunden!' , '404' );
+	$sitecontent->add_site_content( '<br /><br /><a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/other_filemanager.php">Zurück</a><br /><br /><br />');
 
 }
 
