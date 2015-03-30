@@ -392,7 +392,16 @@ function listaddons(){
 	return $read;
 }
 
-function makepassw( $laenge , $chars = '!"#%&()*+,-./:;?[\]_0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz' ){
+function makepassw( $laenge , $chars = '!"#%&()*+,-./:;?[\]_0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz', $wa = 'off' ){
+	if( $wa == 'az' ){
+		$chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+	}
+	elseif( $wa == 'num' ){
+		$chars = '0123456789';
+	}
+	elseif( $wa == 'numaz' ){
+		$chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+	}
 	$anzahl = strlen($chars);
 	$i = '1';
 	$output = '';

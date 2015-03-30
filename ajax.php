@@ -57,7 +57,42 @@ require_once(__DIR__.'/core/addons/addons_ajax.php');
 //Systemeigen:
 //Systemeigen:
 
-if( $_GET['file'] == 'menue.php' ){
+if( $_GET['file'] == 'index.php' ){
+
+	if( empty( $_SESSION["loginfehler"] ) ){ $_SESSION["loginfehler"] = 0; }
+
+	$user = $_GET['user'];
+	$user = preg_replace( "/[^a-z]/" , "" , strtolower( $user ) );
+
+	if( !empty( $user ) ){
+
+		$userfile = new KIMBdbf('/backend/users/list.kimb');
+		
+		$userda = $userfile->search_kimb_xxxid( $user , 'user' );
+
+		if( $userda != false && $_SESSION["loginfehler"] <= 6 ){
+
+			$salt = $userfile->read_kimb_id( $userda , 'salt' );
+
+			if( !empty( $salt ) ){
+				echo $salt;
+			}
+			else{
+				echo 'nok';
+			}
+		}
+		else{
+			echo 'nok';
+		}
+	}
+	else{
+		echo 'nok';
+	}
+
+	die;
+
+}
+elseif( $_GET['file'] == 'menue.php' ){
 
 	check_backend_login('seven' , 'more');
 

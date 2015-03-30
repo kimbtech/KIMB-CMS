@@ -1,8 +1,17 @@
 <[about:doc]>KIMB Datei V.0.1 KIMB CMS<[about:doc]>
 <[userids1]>1<[userids1]>
-<[1]>passw==user==permiss==name==mail<[1]>
+<[1]>passw==user==permiss==name==mail==salt<[1]>
 <[1-permiss]>more<[1-permiss]>
 <[1-user]>admin<[1-user]>
-<[1-passw]>d033e22ae348aeb5660fc2140aec35850c4da997<[1-passw]>
+<[1-passw]>1cc9b54fb1db54a8cf0ffaa04b3ad8679f633388<[1-passw]>
 <[1-name]>Max Heiner<[1-name]>
-<[1-mail]>mail@maxheiner.org<[1-mail]><[userids2]>2<[userids2]><[2-passw]>ab41949825606da179db7c89ddcedcc167b64847<[2-passw]><[2]>passw==permiss==name==mail==user<[2]><[2-permiss]>less<[2-permiss]><[2-name]>Editor<[2-name]><[2-mail]>editor@editor.edi<[2-mail]><[2-user]>editor<[2-user]>
+<[1-salt]>dfssdf<[1-salt]>
+<[1-mail]>mail@maxheiner.org<[1-mail]>
+<[userids2]>2<[userids2]>
+<[2-passw]>a1b666dab1dde4673763fb42111da2478d5baf5a<[2-passw]>
+<[2]>passw==permiss==name==mail==user==salt<[2]>
+<[2-permiss]>less<[2-permiss]>
+<[2-name]>Editor<[2-name]>
+<[2-mail]>editor@editor.edi<[2-mail]>
+<[2-user]>editor<[2-user]>
+<[2-salt]>dsdfsdsfssdf<[2-salt]>
