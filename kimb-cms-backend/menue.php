@@ -359,10 +359,12 @@ elseif( $_GET['todo'] == 'edit' ){
 				$_POST['pfad'] = preg_replace("/[^0-9A-Za-z_-]/","", $_POST['pfad']);
 				$ok = $file->search_kimb_xxxid( $_POST['pfad'] , 'path');
 				if( $ok == false || $ok == $id ){
-					$file->write_kimb_id( $id , 'add' , 'path' , $_POST['pfad'] );
-					$sitecontent->echo_message( 'Der Pfad wurde angepasst!' );
+					if( $file->read_kimb_id( $id , 'path') != $_POST['pfad'] ){
+						$file->write_kimb_id( $id , 'add' , 'path' , $_POST['pfad'] );
+						$sitecontent->echo_message( 'Der Pfad wurde angepasst!' );
+					}
 				}
-				if( $_POST['name'] != '' ){
+				if( !empty( $_POST['name'] ) && $menuenames->read_kimb_one( $_GET['reqid'] ) != $_POST['name'] ){
 					$menuenames->write_kimb_replace( $_GET['reqid'] , $_POST['name'] );
 					$sitecontent->echo_message( 'Der Name wurde angepasst!' );
 				}
@@ -391,7 +393,6 @@ elseif( $_GET['todo'] == 'edit' ){
 						}
 						else{
 							$( "input#check" ).val( "ok" );
-							$( "input#pfad" ).val( data );
 							$("i#pfadtext").text("(Menuepfad -- OK)");
 							$("i#pfadtext").css( "background-color", "green" );
 						}
@@ -403,11 +404,17 @@ elseif( $_GET['todo'] == 'edit' ){
 					$("i#pfadtext").css( "background-color", "green" );
 				}
 			}
+			function pfadreplace() {
+				$( "input#check" ).val( "nok" );
+				$( "i#pfadtext" ).html("(Menuepfad -- Überprüfung ausstehend) <button onclick=\'checkpath(); return false;\'>Prüfen</button>");
+				$( "i#pfadtext" ).css( "background-color", "blue" );
+				$( "input#pfad" ).val( $( "input#pfad" ).val().replace( /[^0-9A-Za-z_-]/g, "") );
+			}
 			</script>');
 
 			$sitecontent->add_site_content('<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=edit&amp;file='.$_GET['file'].'&amp;reqid='.$_GET['reqid'].'" method="post" onsubmit="if( document.getElementById(\'check\').value == \'nok\' ){ return false; } ">');
 			$sitecontent->add_site_content('<input type="text" value="'.$menuenames->read_kimb_one( $_GET['reqid'] ).'" name="name" > <i title="Name des Menues der im Frontend angezeigt wird." >(Menuename)</i><br />');
-			$sitecontent->add_site_content('<input type="text" value="'.$file->read_kimb_id( $id , 'path').'" name="pfad" id="pfad" onkeyup="checkpath();" onchange="checkpath();" > <i id="pfadtext" title="Ein Menuepfad besteht aus Buchstaben, Zahlen, &apos;_&apos; und &apos;-&apos;.">(Menuepfad)</i><br />');
+			$sitecontent->add_site_content('<input type="text" value="'.$file->read_kimb_id( $id , 'path').'" name="pfad" id="pfad" onkeyup="pfadreplace();" onchange="checkpath();" > <i id="pfadtext" title="Ein Menuepfad besteht aus Buchstaben, Zahlen, &apos;_&apos; und &apos;-&apos;.">(Menuepfad)</i><br />');
 			$sitecontent->add_site_content('<input type="text" value="'.$file->read_kimb_id( $id , 'status').'" name="status" readonly="readonly"> <i title="Veränderbar auf Seite Auflisten sowie Zuordnung." >(Status)</i><br />');
 			$sitecontent->add_site_content('<input type="text" value="'.$file->read_kimb_id( $id , 'requestid').'" name="requid" readonly="readonly"> <i title="Automatisch bei Erstellung des Menue generiert.">(RequestID)</i><br />');
 			$sitecontent->add_site_content('<input type="text" value="'.$idfile->read_kimb_id( $_GET['reqid'] , 'siteid' ).'" name="siteid" readonly="readonly"> <i title="Veränderbar auf Seite Zuordnen." >(SiteID)</i><br />');

@@ -72,7 +72,7 @@ if( $_GET['file'] == 'menue.php' ){
 		$_GET['search'] = preg_replace("/[^0-9A-Za-z_-]/","", $_GET['search']);
 
 		if( !$file->search_kimb_xxxid( $_GET['search'] , 'path') ){
-			echo $_GET['search'];
+			echo 'ok';
 		}
 		else{
 			echo 'nok';
@@ -178,7 +178,7 @@ elseif( $_GET['file'] == 'user.php' && isset( $_GET['user'] ) ){
 	$id = $userfile->search_kimb_xxxid( $_GET['user'] , 'user' );
 
 	if( $id == false ){
-		echo $_GET['user'];
+		echo 'ok';
 	}
 	else {
 		echo 'nok';
