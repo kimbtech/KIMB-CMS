@@ -179,15 +179,15 @@ elseif( $_GET['todo'] == 'addonnews' && isset( $_GET['addon'] ) ){
 
 	$sitecontent->add_site_content('<h2>Infos zum Add-on "'.$oldini['about']['name'].'"</h2>');
 
-	$sitecontent->add_site_content('<ul>');
-	$sitecontent->add_site_content('<li><b>Name:</b> '.$oldini['about']['name'].'</li>');
-	$sitecontent->add_site_content('<li><b>Version:</b> '.$oldini['inst']['addonversion'].'</li>');
-	$sitecontent->add_site_content('<li><b>CMS Version (min - max):</b> '.$oldini['inst']['mincmsv'].' - '.$oldini['inst']['maxcmsv'].'</li>');
-	$sitecontent->add_site_content('<li></li>');
-	$sitecontent->add_site_content('<li><b>By:</b> '.$oldini['about']['by'].'</li>');
-	$sitecontent->add_site_content('<li><b>Lizenz:</b> '.$oldini['about']['lic'].'</li>');
-	$sitecontent->add_site_content('<li><b>Homepage (für z.B. Updates):</b> <a href="'.$oldini['about']['url'].'" target="_blank">Besuchen!</a></li>');
-	$sitecontent->add_site_content('</ul>');
+	$sitecontent->add_site_content('<table>');
+	$sitecontent->add_site_content('<tr><td><b>Name:</b></td><td>'.$oldini['about']['name'].'</td></tr>');
+	$sitecontent->add_site_content('<tr><td><b>Version:</b></td><td>'.$oldini['inst']['addonversion'].'</td></tr>');
+	$sitecontent->add_site_content('<tr><td><b>CMS Version (min - max):</b></td><td>'.$oldini['inst']['mincmsv'].' - '.$oldini['inst']['maxcmsv'].'</td></tr>');
+	$sitecontent->add_site_content('<tr><td colspan="2" ></td></tr>');
+	$sitecontent->add_site_content('<tr><td><b>By:</b></td><td>'.$oldini['about']['by'].'</td></tr>');
+	$sitecontent->add_site_content('<tr><td><b>Lizenz:</b></td><td>'.$oldini['about']['lic'].'</td></tr>');
+	$sitecontent->add_site_content('<tr><td><b>Homepage (für z.B. Updates):</b></td><td><a href="'.$oldini['about']['url'].'" target="_blank">Besuchen!</a></td></tr>');
+	$sitecontent->add_site_content('</table>');
 
 	$sitecontent->add_site_content('<br /><br /><a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_inst.php">Zur Add-on Seite</a>');
 

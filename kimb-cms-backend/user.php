@@ -331,7 +331,7 @@ elseif( $_GET['todo'] == 'edit' && isset( $_GET['user'] ) ){
 
 				return true;
 			}
-			return false;
+			return true;
 		}	
 		</script>');
 
