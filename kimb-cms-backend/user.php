@@ -46,6 +46,7 @@ if( $_GET['todo'] == 'new' ){
 
 		$passwort = $_POST['passwort1'];
 		$name = $_POST['name'];
+		$salt = $_POST['salt'];
 		
 		if( $name == '' ){
 			$name = 'Max Heiner Mustermann';
@@ -85,6 +86,7 @@ if( $_GET['todo'] == 'new' ){
 		$userfile->write_kimb_teilpl( 'userids' , $id , 'add' );
 
 		$userfile->write_kimb_id( $id , 'add' , 'passw' , $passwort );
+		$userfile->write_kimb_id( $id , 'add' , 'salt' , $salt );
 		$userfile->write_kimb_id( $id , 'add' , 'permiss' , $permiss );
 		$userfile->write_kimb_id( $id , 'add' , 'name' , $name );
 		$userfile->write_kimb_id( $id , 'add' , 'mail' , $mail );
@@ -172,6 +174,7 @@ if( $_GET['todo'] == 'new' ){
 		var valeins = $( "input#passwort1" ).val();
 		var valzwei = $( "input#passwort2" ).val();
 		var valmail = $( "input#mail" ).val();
+		var salt = $( "input#salt" ).val();
 
 		var mailmatch = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
 		if( mailmatch.test( valmail ) == false ){
@@ -181,9 +184,9 @@ if( $_GET['todo'] == 'new' ){
 		if( valzwei != valeins ){ 
 			return false;
 		}
-		if( valeins != \'\' ) {
-			$( "input#passwort1" ).val( SHA1( valeins ) );
-			$( "input#passwort2" ).val( \'\' );
+		if( valeins != "" ) {
+			$( "input#passwort1" ).val( SHA1( salt + valeins ) );
+			$( "input#passwort2" ).val( "" );
 			return true;
 		}
 		else{
@@ -213,6 +216,7 @@ if( $_GET['todo'] == 'new' ){
 	$sitecontent->add_site_content('<input type="password" name="passwort2" id="passwort2" onkeyup=" checkpw(); "> <i title="Zur Sicherheit erneut eigeben." id="pwtext">Passwort - bitte eingeben</i> <br />');
 	$sitecontent->add_site_content('<input type="radio" name="level" value="less" checked="checked">Editor <input type="radio" name="level" value="more">Admin &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i title="Das Rechte-Level des Users einstellen.">Level</i><br />');
 	$sitecontent->add_site_content('<input type="hidden" value="nok" id="check" >');
+	$sitecontent->add_site_content('<input type="hidden" value="'.makepassw( 10, '', 'numaz' ).'" id="salt" name="salt" >');
 	$sitecontent->add_site_content('<input type="submit" value="Erstellen" ><br />');
 	$sitecontent->add_site_content('</form>');
 }
@@ -246,6 +250,7 @@ elseif( $_GET['todo'] == 'edit' && isset( $_GET['user'] ) ){
 				$userinfo = $userfile->read_kimb_id( $id );
 				if( $userinfo['passw'] != $_POST['passwort1'] && $_POST['passwort1'] != '' ){
 					$userfile->write_kimb_id( $id , 'add' , 'passw' , $_POST['passwort1'] );
+					$userfile->write_kimb_id( $id , 'add' , 'salt' , $_POST['salt'] );
 					$sitecontent->echo_message( 'Das Passwort wurde geändert!' );
 				}
 				if( $userinfo['permiss'] != $_POST['level'] && $_SESSION['permission'] == 'more' ){
@@ -309,6 +314,24 @@ elseif( $_GET['todo'] == 'edit' && isset( $_GET['user'] ) ){
 				$("i#pwtext").css( "color", "white" );
 				$("i#pwtext").css( "padding", "5px" );
 			}
+		}
+		function changesub() {
+			var valeins = $( "input#passwort1" ).val();
+			var valzwei = $( "input#passwort2" ).val();
+			var salt = $( "input#salt" ).val();
+
+			if( valeins != valzwei ){
+				return false;
+			}
+			if( valeins != "" ) {
+				var valneu = SHA1( salt + valeins );
+
+				$( "input#passwort1" ).val( valneu );
+				$( "input#passwort2" ).val( "" );
+
+				return true;
+			}
+			return false;
 		}	
 		</script>');
 
@@ -316,7 +339,7 @@ elseif( $_GET['todo'] == 'edit' && isset( $_GET['user'] ) ){
 		if( $id != false ){
 			$user = $userfile->read_kimb_id( $id );
 
-			$sitecontent->add_site_content('<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/user.php?todo=edit&amp;user='.$_GET['user'].'" method="post" onsubmit="if( document.getElementById(\'passwort1\').value != document.getElementById(\'passwort2\').value ){ return false; } if( document.getElementById(\'passwort1\').value != \'\' ) { document.getElementById(\'passwort1\').value = SHA1( document.getElementById(\'passwort1\').value ); document.getElementById(\'passwort2\').value = \'\'; }"><br />');
+			$sitecontent->add_site_content('<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/user.php?todo=edit&amp;user='.$_GET['user'].'" method="post" onsubmit=" return changesub(); "><br />');
 			$sitecontent->add_site_content('<input type="text" name="user" readonly="readonly" value="'.$user['user'].'" > <i title="Username für das Login ( keine Änderung möglich )">Username</i><br />');
 			$sitecontent->add_site_content('<input type="text" name="name" value="'.$user['name'].'"> <i title="Name des Users" >Name</i><br />');
 			$sitecontent->add_site_content('<input type="text" name="mail" value="'.$user['mail'].'"> <i title="E-Mail Adresse des Users für Nachrichten und Meldungen">E-Mail Adresse</i><br />');
@@ -356,6 +379,7 @@ elseif( $_GET['todo'] == 'edit' && isset( $_GET['user'] ) ){
 			$sitecontent->add_site_content('<input type="password" name="passwort1" id="passwort1" onkeyup=" checkpw(); "> <i title="Lassen Sie das Feld leer um das Passwort unverändert zu lassen!" id="pwtext">Passwort - keine Änderung</i> <br />');
 			$sitecontent->add_site_content('<input type="password" name="passwort2" id="passwort2" onkeyup=" checkpw(); "> <i title="Zur Sicherheit erneut eigeben." id="pwtext">Passwort - keine Änderung</i> <br />');
 			$sitecontent->add_site_content('<input type="submit" value="Ändern" ><br />');
+			$sitecontent->add_site_content('<input type="hidden" value="'.makepassw( 10, '', 'numaz' ).'" id="salt" name="salt" >');
 			$sitecontent->add_site_content('</form>');
 
 			if( $_SESSION['permission'] == 'more' ){

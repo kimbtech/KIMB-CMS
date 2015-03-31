@@ -82,8 +82,20 @@ $(function() {
 
 if($_GET['step'] == '2'){
 
+	//Zufallsgenerator Loginokay
+	$alles = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+	$laenge = '10';
+	$anzahl = strlen($alles);
+	$i = '1';
+	$output = '';
+	while($i <= $laenge){
+		$stelle = mt_rand('0', $anzahl); 
+		$output .= $alles{$stelle};
+		$i++;
+	}
+
 	echo '<h2>Allgemeine Systemeinstellungen</h2>';
-	echo '<form method="post" action="configurator.php?step=3" onsubmit=" document.getElementById(\'passw\').value = SHA1( document.getElementById(\'passw\').value ); " >';
+	echo '<form method="post" action="configurator.php?step=3" onsubmit=" document.getElementById(\'passw\').value = SHA1( \''.$output.'\' + document.getElementById(\'passw\').value ); " >';
 	echo '<input type="text" name="sitename" value="KIMB CMS" size="60"><br />(Name der Seite)<br /><br />';
 	echo '<input type="text" name="metades" value="CMS von KIMB-technologies" size="60"><br />(Meta Seitenbeschreibung)<br /><br />';
 	echo '<input type="text" name="sysadminmail" value="serveradmin@server.com" size="60"><br />(E-Mail Adresse des Systemadministrators)<br /><br />';
@@ -91,7 +103,7 @@ if($_GET['step'] == '2'){
 
 	echo '<h2>Ersten Administrator einrichten</h2>';
 	echo '<input type="text" name="user" value="admin" readonly="readonly" size="60"><br />(Username des Administrators)<br /><br />';
-	echo '<input type="password" name="passhash" placeholder="123456" id="passw" size="60"><br />(Passwort des Administrators)<br /><br />';
+	echo '<input type="password" name="passhash" placeholder="123456" id="passw" size="60"><input type="hidden" name="salt" value="'.$output.'"><br />(Passwort des Administrators)<br /><br />';
 	echo '<input type="text" name="name" value="Max Heiner" size="60"><br />(Name des Administrators)<br /><br />';
 	echo '<input type="text" name="usermail" value="mail@maxheiner.org" size="60"><br />(E-Mail Adresse des Administrators)<br /><hr /><hr />';
 
@@ -148,6 +160,7 @@ elseif($_GET['step'] == '3'){
 
 	//zweiter
 	$adduser = '<[1-passw]>'.$_POST['passhash'].'<[1-passw]>
+<[1-salt]>'.$_POST['salt'].'<[1-salt]>
 <[1-name]>'.$_POST['name'].'<[1-name]>
 <[1-mail]>'.$_POST['usermail'].'<[1-mail]>';
 
