@@ -107,38 +107,48 @@ function get_requ_url(){
 }
 
 //backendlogin prüfen und error ausgeben
-function check_backend_login( $number , $permiss = 'none' ){
+function check_backend_login( $number , $permiss = 'none', $die = true ){
 	global $sitecontent, $allgsysconf;
 
 	if( $_SESSION['loginokay'] == $allgsysconf['loginokay'] && $_SESSION["ip"] == $_SERVER['REMOTE_ADDR'] && $_SESSION["useragent"] == $_SERVER['HTTP_USER_AGENT'] ){
 
 		if( $_SESSION['permission'] == 'more' || $_SESSION['permission'] == 'less' ){
 			if( $permiss == 'more' && $_SESSION['permission'] != 'more' ){
-				if( is_object( $sitecontent ) ){
-					$sitecontent->echo_error( 'Sie haben keine Rechte diese Seite zu sehen!' , '403');
-					$sitecontent->output_complete_site();
+				if( $die ){
+					if( is_object( $sitecontent ) ){
+						$sitecontent->echo_error( 'Sie haben keine Rechte diese Seite zu sehen!' , '403');
+						$sitecontent->output_complete_site();
+					}
+					else{
+						echo( '403 - Sie haben keine Rechte diese Seite zu sehen!' );
+					}
+					die;
 				}
 				else{
-					echo( '403 - Sie haben keine Rechte diese Seite zu sehen!' );
+					return false;
 				}
-				die;
 			}
 			return true;
 		}
 		else{
 			$levellist = new KIMBdbf( 'backend/users/level.kimb' );
 			$permissteile = $levellist->read_kimb_one( $_SESSION['permission'] );
-			if( $permissteile != '' ){
+			if( !empty( $permissteile ) ){
 					$permissteile = explode( ',' , $permissteile );
 					if( !in_array( $number , $permissteile ) ){
-						if( is_object( $sitecontent ) ){
-							$sitecontent->echo_error( 'Sie haben keine Rechte diese Seite zu sehen!' , '403');
-							$sitecontent->output_complete_site();
+						if( $die ){
+							if( is_object( $sitecontent ) ){
+								$sitecontent->echo_error( 'Sie haben keine Rechte diese Seite zu sehen!' , '403');
+								$sitecontent->output_complete_site();
+							}
+							else{
+								echo( '403 - Sie haben keine Rechte diese Seite zu sehen!' );
+							}
+							die;
 						}
 						else{
-							echo( '403 - Sie haben keine Rechte diese Seite zu sehen!' );
+							return false;
 						}
-						die;	
 					}
 					else{
 						return true;
@@ -146,26 +156,36 @@ function check_backend_login( $number , $permiss = 'none' ){
 
 			}
 			else{
-				if( is_object( $sitecontent ) ){
-						$sitecontent->echo_error( 'Sie haben keine Rechte diese Seite zu sehen!' , '403');
-						$sitecontent->output_complete_site();
+				if( $die ){
+					if( is_object( $sitecontent ) ){
+							$sitecontent->echo_error( 'Sie haben keine Rechte diese Seite zu sehen!' , '403');
+							$sitecontent->output_complete_site();
+					}
+					else{
+						echo( '403 - Sie haben keine Rechte diese Seite zu sehen!' );
+					}
+					die;
 				}
 				else{
-					echo( '403 - Sie haben keine Rechte diese Seite zu sehen!' );
+					return false;
 				}
-				die;
 			}
 		}
 	}
 	else{
-		if( is_object( $sitecontent ) ){
-				$sitecontent->echo_error( 'Sie haben keine Rechte diese Seite zu sehen!' , '403');
-				$sitecontent->output_complete_site();
+		if( $die ){
+			if( is_object( $sitecontent ) ){
+					$sitecontent->echo_error( 'Sie haben keine Rechte diese Seite zu sehen!' , '403');
+					$sitecontent->output_complete_site();
+			}
+			else{
+				echo( '403 - Sie haben keine Rechte diese Seite zu sehen!' );
+			}
+			die;
 		}
 		else{
-			echo( '403 - Sie haben keine Rechte diese Seite zu sehen!' );
+			return false;
 		}
-		die;
 	}
 }
 

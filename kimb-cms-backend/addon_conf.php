@@ -91,7 +91,7 @@ elseif( $_GET['todo'] == 'less' ){
 
 		$sitecontent->add_site_content('<h2>Add-on "'.$addonname.'" nutzen</h2>');
 		$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=less">&larr; Alle Add-ons</a>');
-		if( $_SESSION['permission'] == 'more' || strpos( $_SESSION['permission'] , 'thirteen' ) !== false ){
+		if( check_backend_login( 'fourteen' , 'more', false) ){
 			$sitecontent->add_site_content('<a style="position:absolute; right:12px;" href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=more&addon='.$_GET['addon'].'">Zur Add-on Konfiguration &rarr;</a>');
 		}
 		$sitecontent->add_site_content('<hr />');

@@ -26,17 +26,19 @@ require_once(__DIR__.'/../core/oop/all_oop_backend.php');
 //Konfiguration laden
 require_once(__DIR__.'/../core/conf/conf_backend.php');
 
-check_backend_login( 'eleven' , 'more');
-
 //Systemeinstellungen in config.kimb ( eigenes Feld möglich )
 
-if ( $_GET['todo'] == 'purgecache' ){
-	$caches = scan_kimb_dir('cache/');
-	foreach( $caches as $cache ){
-		delete_kimb_datei( 'cache/'.$cache );
+if( $_SESSION['loginokay'] == $allgsysconf['loginokay'] && $_SESSION["ip"] == $_SERVER['REMOTE_ADDR'] && $_SESSION["useragent"] == $_SERVER['HTTP_USER_AGENT'] ){
+	if ( $_GET['todo'] == 'purgecache' ){
+		$caches = scan_kimb_dir('cache/');
+		foreach( $caches as $cache ){
+			delete_kimb_datei( 'cache/'.$cache );
+		}
+		$sitecontent->echo_message( 'Der Cache wurde gelöscht!' );
 	}
-	$sitecontent->echo_message( 'Der Cache wurde gelöscht!' );
 }
+
+check_backend_login( 'eleven' , 'more');
 
 if ( $_GET['todo'] == 'del' && isset( $_GET['teil'] ) ){
 
