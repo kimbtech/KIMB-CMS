@@ -50,7 +50,7 @@ if( $_GET['todo'] == 'new' ){
 			}
 			$newm['nextid'] = '---empty---';
 			$newm['requestid'] = $idfile->next_kimb_id();
-			if( isset( $_POST['siteid'] ) && is_numeric( $_POST['siteid'] ) ){
+			if( isset( $_POST['siteid'] ) && ( is_numeric( $_POST['siteid'] ) || $_POST['siteid'] == 'none' ) ){
 				$newm['siteid'] = $_POST['siteid'];
 			}
 			else{

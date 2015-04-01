@@ -32,13 +32,16 @@ class KIMBdbf {
 	protected $path;
 	protected $datei;
 	protected $encryptkey;
-	protected $dateicont = 'none';
+	protected $dateicont;
+	protected $dateicontanfang;
+	protected $dateidel = 'no';
 	
-	const DATEIVERSION = '3.00B';
+	const DATEIVERSION = '3.50';
 	
 	public function __construct($datei, $encryptkey = 'off', $path = __DIR__){
 		$datei = preg_replace('/[\r\n]+/', '', $datei);
 		$datei = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '..'),array('ae','oe','ue','ss','Ae','Oe','Ue', '', '.'), $datei);
+		$datei = preg_replace( '/[^A-Za-z0-9]_.-/' , '' , $datei );
 		if(strpos($datei, "..") !== false){
 			echo ('Do not hack me!!');
 			die;
@@ -52,15 +55,49 @@ class KIMBdbf {
 				$this->dateicont = mcrypt_decrypt (MCRYPT_BLOWFISH , $this->encryptkey , $this->dateicont , MCRYPT_MODE_CBC, mcrypt_create_iv( mcrypt_get_iv_size( MCRYPT_BLOWFISH , MCRYPT_MODE_CBC ), MCRYPT_RAND ));
 			}
 		}
+		else{
+			$this->dateicont = 'none';
+		}
+		$this->dateicontanfang = $this->dateicont;
 	}
 	
-	protected function umbruch_weg($teil) {
-		$teil = preg_replace('/[\r\n]+/', '', $teil);
-		$teil = str_replace(array('==','<[',']>','about:doc','--entfernt--'),array('=','<','>','aboutdoc','-entfernt-'), $teil);
-		return $teil;
+	protected function umbruch_weg($teil, $art) {
+		if( $art == 'inhalt' ){
+			$teil = preg_replace('/[\r\n]+/', '<!--UMBRUCH-->', $teil);
+			$teil = str_replace(array('==','--entfernt--','<[',']>'),array('=','-entfernt-','<','>'), $teil);
+			return $teil;
+		}
+		elseif( $art == 'tag' ){
+			$teil = preg_replace('/[\r\n]+/', '', $teil);
+			$teil = str_replace(array('<[',']>','about:doc'),array('=','<','>','aboutdoc'), $teil);
+			return $teil;
+		}
+		return false;
+		
+	}
+
+	protected function for_inhalt_return( $inhalt ){
+		$inhalt = str_replace( '<!--UMBRUCH-->' , "\r\n" , $inhalt);
+		return $inhalt;
+	}
+
+	protected function inhalt_return( $inhalt ){
+		if( is_array( $inhalt ) ){
+			$inhalt = array_map( array($this, 'for_inhalt_return'), $inhalt);
+		}
+		else{
+			$inhalt = $this->for_inhalt_return( $inhalt );
+		}
+		return $inhalt;
 	}
 	
 	protected function file_write($inhalt, $art) {
+		if( $this->dateicont == 'none' ){
+			$this->dateicont = '';
+		}
+
+		$this->dateidel = 'no';
+
 		if($this->encryptkey != 'off'){
 			if($art == 'w+'){
 				$inhaltwr = mcrypt_encrypt (MCRYPT_BLOWFISH , $this->encryptkey , $inhalt , MCRYPT_MODE_CBC, mcrypt_create_iv( mcrypt_get_iv_size( MCRYPT_BLOWFISH , MCRYPT_MODE_CBC ), MCRYPT_RAND ));
@@ -80,9 +117,6 @@ class KIMBdbf {
 			$artwr = $art;
 		}
 
-		$handle = fopen($this->path.'/kimb-data/'.$this->datei , $artwr);
-		$ok = fwrite($handle, $inhaltwr);
-		fclose($handle);
 		if($art == 'w+'){
 			$this->dateicont = $inhalt;
 		}
@@ -93,18 +127,29 @@ class KIMBdbf {
 			echo "Error on writing KIMBdbf!";
 			die;
 		}
-		return $ok;
+		return true;
+	}
+
+	public function __destruct() {
+
+		if( $this->dateicontanfang != $this->dateicont && $this->dateidel == 'no' ){
+			$this->dateicont = str_replace( "\r\n\r\n", "\r\n", $this->dateicont);
+			$handle = fopen($this->path.'/kimb-data/'.$this->datei , 'w+');
+			$ok = fwrite($handle, $this->dateicont);
+			fclose($handle);
+		}
+		return true;
 	}
 	
 	//KIMB-Dateien lesen
 	public function read_kimb_one($teil){  //bei mehreren teilen, oberster treffer
-		$teiltext = '<['.$this->umbruch_weg($teil).']>';
+		$teiltext = '<['.$this->umbruch_weg($teil, 'tag').']>';
 		$teile = explode($teiltext, $this->dateicont);
-		return $teile[1];
+		return $this->inhalt_return( $teile[1] );
 	}
 	
 	public function read_kimb_all($teil){
-		$teiltext = '<['.$this->umbruch_weg($teil).']>';
+		$teiltext = '<['.$this->umbruch_weg($teil, 'tag').']>';
 		$teile = explode($teiltext, $this->dateicont);
 		$count = '0';
 		$i = '0';
@@ -115,12 +160,12 @@ class KIMBdbf {
 			}
 			$count++;
 		}
-		return $return;
+		return $this->inhalt_return( $return );
 	}
 		
 	public function read_kimb_search($teil, $search){
-		$search = $this->umbruch_weg($search);
-		$teiltext = '<['.$this->umbruch_weg($teil).']>';
+		$search = $this->umbruch_weg($search, 'inhalt');
+		$teiltext = '<['.$this->umbruch_weg($teil, 'tag').']>';
 		$teile = explode($teiltext, $this->dateicont);
 		foreach ($teile as $teil) {
 			if ($count % 2 != 0){
@@ -133,21 +178,22 @@ class KIMBdbf {
 	
 	//KIMB-Dateien lesen $teil++
 	public function read_kimb_search_teilpl($teil, $search){
-		$search = $this->umbruch_weg($search);
-		$teil = $this->umbruch_weg($teil); 
+		$search = $this->umbruch_weg($search, 'inhalt');
 		$count = '1';
 		$gelesen = 'start';
 		while($gelesen != ''){
 			$teilread = $teil.$count;
 			$gelesen = $this->read_kimb_one($teilread);
-			if($gelesen == $search){return true;}
+			if($gelesen == $search){
+				return true;
+			}
 			$count++;
 		}
 		return false;
 	}
 	
 	public function read_kimb_all_teilpl($teil){
-		$teil = $this->umbruch_weg($teil);
+		$teil = $this->umbruch_weg($teil, 'tag');
 		$count = '1';
 		$gelesen = 'start';
 		$i = '0';
@@ -161,51 +207,40 @@ class KIMBdbf {
 			$count++;
 		}
 		array_splice($return, $i-1);
-		return $return;
+		return $this->inhalt_return( $return );
 	}
 	
 	//KIMB-Dateien schreiben public, weiter an protected
 	public function write_kimb_new($teil, $inhalt){
-		$inhalt = $this->umbruch_weg($inhalt);
-		$teil =  $this->umbruch_weg($teil);
-		if($this->write_kimb_new_pr($teil, $inhalt)){
-			return true;
-		}	
-		else{
-			return false;
-		}
+		$inhalt = $this->umbruch_weg($inhalt, 'inhalt');
+		$teil = $this->umbruch_weg($teil, 'tag');
+		return $this->write_kimb_new_pr($teil, $inhalt);
 	}
 	
 	public function write_kimb_replace($teil, $inhalt){  //teil darf nur einmal vorhanden sein!!
-		$inhalt = $this->umbruch_weg($inhalt);
-		$teil =  $this->umbruch_weg($teil);
-		if($this->write_kimb_replace_pr($teil, $inhalt)){
-			return true;
-		}	
-		else{
-			return false;
-		}
+		$inhalt = $this->umbruch_weg($inhalt, 'inhalt');
+		$teil =  $this->umbruch_weg($teil, 'tag');
+		return $this->write_kimb_replace_pr($teil, $inhalt);
 	}
 	
 	public function write_kimb_delete($teil){  //teil darf nur einmal vorhanden sein !!
-		$teil = $this->umbruch_weg($teil);
-		if($this->write_kimb_delete_pr($teil)){
-			return true;
-		}	
-		else{
-			return false;
-		}
+		$teil = $this->umbruch_weg($teil, 'tag');
+		return $this->write_kimb_delete_pr($teil);
+	}
+
+	public function write_kimb_one($teil, $inhalt){  //teil darf nur einmal vorhanden sein !!
+		$inhalt = $this->umbruch_weg($inhalt, 'inhalt');
+		$teil =  $this->umbruch_weg($teil, 'tag');
+		return $this->write_kimb_one_pr($teil, $inhalt);
 	}
 
 	//KIMB-Dateien schreiben protected
 	protected function write_kimb_new_pr($teil, $inhalt){
-		if(!file_exists ($this->path.'/kimb-data/'.$this->datei)){
+		if( $this->dateicont == 'none' ){
 			$writetext .= '<[about:doc]>KIMB dbf V'.self::DATEIVERSION.' - KIMB-technologies<[about:doc]>';
 		}
-		$writetext .= "\r".'<['.$teil.']>'.$inhalt.'<['.$teil.']>';
-		$ok = $this->file_write($writetext, 'a+');
-		if($ok == "false"){return false;}	
-		else{return true;}
+		$writetext .= "\r\n".'<['.$teil.']>'.$inhalt.'<['.$teil.']>';
+		return $this->file_write($writetext, 'a+');
 	}
 	
 	protected function write_kimb_replace_pr($teil, $inhalt){  //teil darf nur einmal vorhanden sein!!
@@ -215,7 +250,7 @@ class KIMBdbf {
 		$writetext .= '<['.$teil.']>'.$inhalt.'<['.$teil.']>';
 		$writetext .= $teile[2];
 		$ok = $this->file_write($writetext, 'w+');
-		if($ok == 'false' || $this->dateicont == ''){
+		if($ok == false || $this->dateicont == ''){
 			return false;
 		}	
 		else{
@@ -229,13 +264,22 @@ class KIMBdbf {
 		$writetext .= $teile[0];
 		$writetext .= $teile[2];
 		$ok = $this->file_write($writetext, 'w+');
-		if($ok == "false" || $this->dateicont == ''){return false;}	
-		else{return true;}
+		if($ok == false || $this->dateicont == ''){
+			return false;
+		}
+		else{
+			return true;
+		}
+	}
+
+	protected function write_kimb_one_pr($teil, $inhalt){
+		$this->write_kimb_delete_pr($teil);
+		return $this->write_kimb_new_pr($teil, $inhalt);
 	}
 	
 	//KIMB-Datei $teil++ schreiben
 	protected function for_write_kimb_teilpl_add($teil){
-		$count = '1';
+		$count = 1;
 		$gelesen = 'start';
 		while($gelesen != ''){
 			$teilread = $teil.$count;
@@ -244,32 +288,50 @@ class KIMBdbf {
 		}
 		return $count-1;
 	}
-	
-	protected function for_write_kimb_teilpl_del($teil, $search){
+
+	protected function for_write_kimb_teilpl_del($teil){
 		$count = '1';
 		$gelesen = 'start';
+		$i = '0';
 		while($gelesen != ''){
 			$teilread = $teil.$count;
 			$gelesen = $this->read_kimb_one($teilread);
-			if($gelesen == $search){return $count;}
+			$return[$i] = $gelesen;
+			$i++;
 			$count++;
 		}
-		return false;
+		array_splice($return, $i-1);
+		return $return;
 	}
 	
 	public function write_kimb_teilpl($teil, $inhalt, $todo){
-		$inhalt = $this->umbruch_weg($inhalt);
-		$teil =  $this->umbruch_weg($teil);
+		$inhalt = $this->umbruch_weg($inhalt, 'inhalt');
+		$teil =  $this->umbruch_weg($teil, 'tag');
 		if($todo == 'add'){
 			$anzahl = $this->for_write_kimb_teilpl_add($teil);
 			$teilneu = $teil.$anzahl;
-			if($this->write_kimb_new_pr($teilneu, $inhalt)){return true;}
-			else{return false;}
+			return $this->write_kimb_new_pr($teilneu, $inhalt);
 		}
 		elseif($todo == 'del'){
-			$teilneu = $teil.$this->for_write_kimb_teilpl_del($teil, $inhalt);
-			if($this->write_kimb_replace_pr($teilneu, '--entfernt--')){return true;}
-			else{return false;}
+			$all = $this->for_write_kimb_teilpl_del($teil);
+
+			$i = 1;
+			foreach( $all as $a ){
+				$this->write_kimb_delete_pr($teil.$i);
+				$i++;
+			}
+
+			$i = 1;
+			foreach( $all as $a ){
+				if( $a == $inhalt || $a == '--entfernt--'){
+					//nichts
+				}
+				else{
+					$this->write_kimb_new_pr($teil.$i, $a); 
+					$i++;
+				}
+			}
+			return true;
 		}
 		else{
 			return false;
@@ -278,8 +340,14 @@ class KIMBdbf {
 	
 	//kimb datei loeschen
 	public function delete_kimb_file(){
-		if(unlink($this->path.'/kimb-data/'.$this->datei)){ $this->dateicont = ''; return true;}
-		else{return false;}
+		if(unlink($this->path.'/kimb-data/'.$this->datei)){
+			$this->dateicont = 'none';
+			$this->dateidel = 'yes';
+			return true;
+		}
+		else{
+			return false;
+		}
 	}
 	
 	//gesamte kimb datei ausgaben
@@ -288,52 +356,66 @@ class KIMBdbf {
 	}
 	
 	//zuordnungen id
-	public function read_kimb_id($id, $xxxid = 'all') {
-		$id = $this->umbruch_weg($id);
-		$xxxid = $this->umbruch_weg($xxxid);
+	public function read_kimb_id($id, $xxxid = '---all---') {
+		$id = preg_replace( '/[^0-9]/' , '' , $id );
+		$xxxid = $this->umbruch_weg($xxxid, 'tag');
+
 		$idinfo = $this->read_kimb_one($id);
-		if ($idinfo == ''){return false;}
+		if ( empty( $idinfo ) ){
+			return false;
+		}
 		$idinfos = explode('==', $idinfo);
-		if($xxxid == 'all'){
+		if($xxxid == '---all---'){
 			foreach ($idinfos as $info) {
 				$return[$info] = $this->read_kimb_one($id.'-'.$info);
 			}
-			return $return;
+			return $this->inhalt_return( $return );
 		}	
 		else{
 			foreach ($idinfos as $info) {
-				if($xxxid == $info){return $this->read_kimb_one($id.'-'.$info);}
+
+				if($xxxid == $info){
+					return $this->inhalt_return( $this->read_kimb_one($id.'-'.$info) );
+				}
 			}
 			return false;
 		}
 	}
 
 	public function read_kimb_all_xxxid($id) {
-		$id = $this->umbruch_weg($id);
+		$id = preg_replace( '/[^0-9]/' , '' , $id );
 		$idinfo = $this->read_kimb_one($id);
 		$idteile = explode('==', $idinfo);
-		return $idteile;
+		return $this->inhalt_return( $idteile );
 	}
 	
 	public function search_kimb_id($search, $id) {
-		$search = $this->umbruch_weg($search);
-		$id = $this->umbruch_weg($id);
+		$search = $this->umbruch_weg($search, 'inhalt');
+		$id = preg_replace( '/[^0-9]/' , '' , $id );
+
 		$idinfo = $this->read_kimb_one($id);
-		if ($idinfo == ''){return false;}
+		if ( empty( $idinfo ) ){
+			return false;
+		}
 		$idinfos = explode('==', $idinfo);
 		foreach ($idinfos as $info) {
-			if($this->read_kimb_one($id.'-'.$info) == $search){return $info;}
+			if($this->read_kimb_one($id.'-'.$info) == $search){
+				return $info;
+			}
 		}
 		return false;
 	}
 	
-	public function search_kimb_xxxid($search, $xxxid, $ende = '1000') {
-		$search = $this->umbruch_weg($search);
-		$xxxid = $this->umbruch_weg($xxxid);
-		$id = '1';
+	public function search_kimb_xxxid($search, $xxxid, $ende = 1000) {
+		$search = $this->umbruch_weg($search, 'inhalt');
+		$xxxid = $this->umbruch_weg($xxxid, 'tag');
+
+		$id = 1;
 		while ($id <= $ende) {
 			$idinhalt = $this->read_kimb_id($id, $xxxid);
-			if($idinhalt == $search){return $id;}
+			if($idinhalt == $search){
+				return $id;
+			}
 			$id++;
 		}
 		return false;		
@@ -341,26 +423,33 @@ class KIMBdbf {
 	}
 
 	public function next_kimb_id($ende = '1000'){
-		$id = '1';
+		$id = 1;
 		while ($id <= $ende) {
 			$idinhalt = $this->read_kimb_one($id);
-			if($idinhalt == ''){return $id;}
+			if($idinhalt == ''){
+				return $id;
+			}
 			$id++;
 		}
 		return false;
 	}
 	
-	public function write_kimb_id($id, $todo, $xxxid = 'none', $inhalt = '') {
-		$id = $this->umbruch_weg($id);
-		$xxxid = $this->umbruch_weg($xxxid);
-		$inhalt = $this->umbruch_weg($inhalt);
+	public function write_kimb_id($id, $todo, $xxxid = '---none---', $inhalt = '---none---') {
+		$id = preg_replace( '/[^0-9]/' , '' , $id );
+		$xxxid = $this->umbruch_weg($xxxid, 'tag');
+		$inhalt = $this->umbruch_weg($inhalt, 'inhalt');
 		
 		$idinfo = $this->read_kimb_one($id);
-		if ($idinfo == '' && $todo != 'add'){return false;}
-		if ($idinfo == ''){$new = 'yes';}
+		if( empty( $idinfo ) && $todo != 'add'){
+			return false;
+		}
+		if( empty( $idinfo ) ){
+			$new = 'yes';
+			$this->write_kimb_teilpl('allidslist', $id, 'add');
+		}
 		$idinfos = explode('==', $idinfo);
 	
-		if($todo == 'add' && $inhalt != '' && $xxxid != 'none'){
+		if($todo == 'add' && $inhalt != '---none---' && $xxxid != '---none---'){
 			if( $inhalt == '---empty---' ){
 				$inhalt = '';
 			}
@@ -394,24 +483,36 @@ class KIMBdbf {
 			}
 			return true;
 		}
-		elseif($todo == 'del' && $xxxid == 'none' && $inhalt == ''){
+		elseif($todo == 'del' && $xxxid == '---none---' && $inhalt == '---none---'){
 			foreach ($idinfos as $info) {
 				$this->write_kimb_delete_pr($id.'-'.$info);
 			}
 			$this->write_kimb_delete_pr($id);
+			$this->write_kimb_teilpl('allidslist', $id, 'del');
 			return true;
 		}
-		elseif($todo == 'del' && $xxxid != 'none' && $inhalt == ''){
-			$gut = '0';
+		elseif($todo == 'del' && $xxxid != '---none---' && $inhalt == '---none---'){
+			$gut = 0;
 			foreach ($idinfos as $info) {
-				if($xxxid == $info){$this->write_kimb_delete_pr($id.'-'.$info); $gut++;}
-				if($info != $xxxid){$infotag .= $info.'==';}
+				if($xxxid == $info){
+					$this->write_kimb_delete_pr($id.'-'.$info);
+					$gut++;
+				}
+				if($info != $xxxid){
+					$infotag .= $info.'==';
+				}
 			}
 			$laenge = strlen($infotag)-2;
 			$infotag = substr($infotag, 0, $laenge);
-			if($this->write_kimb_replace_pr($id, $infotag)){$gut++;}
-			if($gut == '2'){return true;}
-			else{return false;}
+			if($this->write_kimb_replace_pr($id, $infotag)){
+				$gut++;
+			}
+			if($gut == 2){
+				return true;
+			}
+			else{
+				return false;
+			}
 		}
 		else{
 			return false;
@@ -420,130 +521,43 @@ class KIMBdbf {
 }
 
 
-//funktionell
-//funktionell
-//funktionell
-
-$allgconfserversitepath = __DIR__;
+//funktioneller Zugriff
+//funktioneller Zugriff
+//funktioneller Zugriff
 
 //KIMB-Dateien lesen
 
 function read_kimb_one($datei, $teil){  //bei mehreren teilen, oberster treffer
-	global $allgconfserversitepath;
-	$datei = preg_replace('/[\r\n]+/', '', $datei);
-	$datei = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '..'),array('ae','oe','ue','ss','Ae','Oe','Ue', '', '.'), $datei);
-	if(strpos($datei, "..") !== false){
-		echo ('Do not hack me!!');
-		die;
-	}
-	$teil = preg_replace('/[\r\n]+/', '', $teil);
-	$teiltext = '<['.$teil.']>';
-	$inhaltdatei = file_get_contents($allgconfserversitepath.'/kimb-data/'.$datei);
-	$teile = explode($teiltext, $inhaltdatei);
-	return $teile[1];
+	$obj = new KIMBdbf( $datei );
+	return $obj->read_kimb_one( $teil );
 }
 	
 function read_kimb_search($datei, $teil, $search){
-	$search = preg_replace('/[\r\n]+/', '', $search);
-	$datei = preg_replace('/[\r\n]+/', '', $datei);
-	$teil = preg_replace('/[\r\n]+/', '', $teil);
-	$datei = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '..'),array('ae','oe','ue','ss','Ae','Oe','Ue', '', '.'), $datei);
-	if(strpos($datei, "..") !== false){
-		echo ('Do not hack me!!');
-		die;
-	}
-	global $allgconfserversitepath;
-	$teiltext = '<['.$teil.']>';
-	$inhaltdatei = file_get_contents($allgconfserversitepath.'/kimb-data/'.$datei);
-	$teile = explode($teiltext, $inhaltdatei);
-	foreach ($teile as $teil) {
-		if ($count % 2 != 0){
-			if($teil == $search){return 'true';}
-		}
-		$count++;
-	}
-	return 'false';
+	$obj = new KIMBdbf( $datei );
+	return $obj->read_kimb_search( $teil, $search );
 }
 
 //KIMB-Dateien schreiben
 	
 function write_kimb_new($datei, $teil, $inhalt){
-	$datei = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '..'),array('ae','oe','ue','ss','Ae','Oe','Ue', '', '.'), $datei);
-	if(strpos($datei, "..") !== false){
-		echo ('Do not hack me!!');
-		die;
-	}
-	$inhalt = preg_replace('/[\r\n]+/', '', $inhalt);
-	$datei = preg_replace('/[\r\n]+/', '', $datei);
-	$teil = preg_replace('/[\r\n]+/', '', $teil);
-	global $allgconfserversitepath;
-	if(!file_exists ($allgconfserversitepath.'/kimb-data/'.$datei)){
-		$writetext .= '<[about:doc]>KIMB dbf V1.0 - KIMB-technologies<[about:doc]>';
-		}
-	$writetext .= "\r".'<['.$teil.']>'.$inhalt.'<['.$teil.']>';
-	$handle = fopen($allgconfserversitepath.'/kimb-data/'.$datei,'a+');
-	$ok = fwrite($handle, $writetext);
-	fclose($handle);
-	if($ok == "false"){return 'false';}	
-	else{return 'true';}
+	$obj = new KIMBdbf( $datei );
+	return $obj->write_kimb_new( $teil, $inhalt );
 }
 
 function write_kimb_replace($datei, $teil, $inhalt){  //teil darf nur einmal vorhanden sein!!
-	$datei = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '..'),array('ae','oe','ue','ss','Ae','Oe','Ue', '', '.'), $datei);
-	$inhalt = preg_replace('/[\r\n]+/', '', $inhalt);
-	$datei = preg_replace('/[\r\n]+/', '', $datei);
-	if(strpos($datei, "..") !== false){
-		echo ('Do not hack me!!');
-		die;
-	}
-	$teil = preg_replace('/[\r\n]+/', '', $teil);
-	global $allgconfserversitepath;
-	$inhalt = preg_replace('/[\r\n]+/', '', $inhalt);
-	$teiltext = '<['.$teil.']>';
-	$inhaltdatei = file_get_contents($allgconfserversitepath.'/kimb-data/'.$datei);
-	$teile = explode($teiltext, $inhaltdatei);
-	$writetext .= $teile[0];
-	$writetext .= '<['.$teil.']>'.$inhalt.'<['.$teil.']>';
-	$writetext .= $teile[2];
-	$handle = fopen($allgconfserversitepath.'/kimb-data/'.$datei,'w+');
-	$ok = fwrite($handle, $writetext);
-	fclose($handle);
-	if($ok == "false" && $inhaltdatei == '' && $teile == ''){return 'false';}	
-	else{return 'true';}
+	$obj = new KIMBdbf( $datei );
+	return $obj->write_kimb_replace( $teil, $inhalt );
 }
 
 function write_kimb_delete($datei, $teil){  //teil darf nur einmal vorhanden sein !!
-	$datei = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '..'),array('ae','oe','ue','ss','Ae','Oe','Ue', '', '.'), $datei);
-	$datei = preg_replace('/[\r\n]+/', '', $datei);
-	$teil = preg_replace('/[\r\n]+/', '', $teil);
-	if(strpos($datei, "..") !== false){
-		echo ('Do not hack me!!');
-		die;
-	}
-	global $allgconfserversitepath;
-	$teiltext = '<['.$teil.']>';
-	$inhaltdatei = file_get_contents($allgconfserversitepath.'/kimb-data/'.$datei);
-	$teile = explode($teiltext, $inhaltdatei);
-	$writetext .= $teile[0];
-	$writetext .= $teile[2];
-	$handle = fopen($allgconfserversitepath.'/kimb-data/'.$datei,'w+');
-	$ok = fwrite($handle, $writetext);
-	fclose($handle);
-	if($ok == "false" && $inhaltdatei == '' && $teile == ''){return 'false';}	
-	else{return 'true';}
+	$obj = new KIMBdbf( $datei );
+	return $obj->write_kimb_delete( $teil );
 }
 
 //KIMB-Datei loeschen
 function delete_kimb_datei($datei){
-	$datei = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '..'),array('ae','oe','ue','ss','Ae','Oe','Ue', '', '.'), $datei);
-	if(strpos($datei, "..") !== false){
-		echo ('Do not hack me!!');
-		die;
-	}
-	$datei = preg_replace('/[\r\n]+/', '', $datei);
-	global $allgconfserversitepath;
-	if(unlink($allgconfserversitepath.'/kimb-data/'.$datei)){ return 'true';}
-	else{ return 'false';}
+	$obj = new KIMBdbf( $datei );
+	return $obj->delete_kimb_file();
 }
 
 
