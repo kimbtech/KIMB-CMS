@@ -485,17 +485,20 @@ function add_tiny( $big = false, $small = false, $ids = array( 'big' => '#inhalt
 	$sitecontent->add_html_header('<script>');
 
 	if( !$tinyoo ){
-		$sitecontent->add_html_header('var tiny = true;
+		$sitecontent->add_html_header('
+		var tiny = [];
+
 		function tinychange( id ){
-			if( tiny ){
-				tinymce.EditorManager.execCommand( "mceRemoveEditor", true, id)
-				tiny = false;
+			if( !tiny[id] ){
+				tinymce.EditorManager.execCommand( "mceAddEditor", true, id);
+				tiny[id] = true;
 			}
 			else{
-				tinymce.EditorManager.execCommand( "mceAddEditor", true, id);
-				tiny = true;
+				tinymce.EditorManager.execCommand( "mceRemoveEditor", true, id)
+				tiny[id] = false;
 			}
-		}');
+		}
+		');
 		$tinyoo = true;
 	}
 
@@ -527,6 +530,7 @@ function add_tiny( $big = false, $small = false, $ids = array( 'big' => '#inhalt
 			autosave_retention: "60m",
 			menubar: "file edit insert view format table"
 		});
+		tiny[\''.substr( $ids['big'], 1 ).'\'] = true;
 		');
 
 	}
@@ -558,6 +562,7 @@ function add_tiny( $big = false, $small = false, $ids = array( 'big' => '#inhalt
 				success( [ '.listdirrec( __DIR__.'/../../load/userdata', '/load/userdata' ).' ] );
 			}
 		});
+		tiny[\''.substr( $ids['small'], 1 ).'\'] = true;
 		');
 	}
 
