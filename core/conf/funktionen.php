@@ -506,12 +506,12 @@ function add_tiny( $big = false, $small = false, $ids = array( 'big' => '#inhalt
 			theme: "modern",
 			plugins: [
 				"advlist autosave autolink lists link image charmap preview hr anchor pagebreak",
-				"searchreplace wordcount visualblocks visualchars code fullscreen",
+				"searchreplace wordcount visualblocks visualchars fullscreen",
 				"insertdatetime media nonbreaking save table contextmenu directionality",
-				"emoticons template paste textcolor colorpicker textpattern codemagic"
+				"emoticons paste textcolor colorpicker textpattern codemagic"
 			],
 			toolbar1: "styleselect | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent hr",
-			toolbar2: "undo redo | forecolor backcolor | link image emoticons | preview fullscreen | codemagic searchreplace",
+			toolbar2: "fontselect | undo redo | forecolor backcolor | link image emoticons | preview fullscreen | codemagic searchreplace",
 			image_advtab: true,
 			language : "de",
 			width : 680,
@@ -537,12 +537,12 @@ function add_tiny( $big = false, $small = false, $ids = array( 'big' => '#inhalt
 			theme: "modern",
 			plugins: [
 				"advlist autosave autolink lists link image charmap preview hr anchor pagebreak",
-				"searchreplace wordcount visualblocks visualchars code fullscreen",
+				"searchreplace wordcount visualblocks visualchars fullscreen",
 				"insertdatetime media nonbreaking save table contextmenu directionality",
-				"emoticons template paste textcolor colorpicker textpattern codemagic"
+				"emoticons paste textcolor colorpicker textpattern codemagic"
 			],
 			toolbar1: "styleselect | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent hr",
-			toolbar2: "undo redo | forecolor backcolor | link image emoticons | preview fullscreen | codemagic searchreplace",
+			toolbar2: "fontselect | undo redo | forecolor backcolor | link image emoticons | preview fullscreen | codemagic searchreplace",
 			image_advtab: true,
 			language : "de",
 			width : 680,

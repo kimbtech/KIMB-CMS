@@ -1,8 +1,9 @@
 /**
- *
- *
  * @author Josh Lobe
  * http://ultimatetinymcepro.com
+ *
+ * changed by KIMB-technologies
+ * http://kimb-technologies.eu/
  */
  
 jQuery(document).ready(function($) {
@@ -13,8 +14,8 @@ jQuery(document).ready(function($) {
 		
 		editor.addButton('codemagic', {
 			
-			image: url + '/images/codemagic.png',
-			tooltip: 'Code Magic',
+			icon: 'code',
+			tooltip: 'Quelltext',
 			onclick: open_codemagic
 		});
 		
@@ -22,7 +23,7 @@ jQuery(document).ready(function($) {
 			
 			editor.windowManager.open({
 					
-				title: 'Code Magic',
+				title: 'Quelltext',
 				width: 900,
 				height: 700,
 				url: url+'/codemagic.htm'
