@@ -64,6 +64,7 @@ else{
 				$sitecontent->add_site_content('<ul>');
 				$sitecontent->add_site_content('<li>Update von: '.$updinf['von'].'</li>');
 				$sitecontent->add_site_content('<li>Update zu: '.$updinf['zu'].'</li>');
+				$sitecontent->add_site_content('<li>Infos zum Update: '.$updinf['hinw'].'</li>');
 				$sitecontent->add_site_content('</ul>');
 				$sitecontent->add_site_content('<b style="color:red;">Ein Update birgt ein gewisses Risiko (z.B. CMS nicht mehr funktionstüchtig), bitte halten Sie ein Backup für den Fehlerfall bereit!</b>');
 				$sitecontent->add_site_content('<div style="background-color:yellow; padding:20px; border-radius:15px; text-align:center;">');
