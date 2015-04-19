@@ -207,18 +207,27 @@ elseif( $_GET['todo'] == 'checkall' ){
 			$addoninclude->write_kimb_replace( 'lastcheck', time() );
 		}
 
-		foreach( $addons as $addon ){
-			$ver = json_decode( file_get_contents( 'http://api.kimb-technologies.eu/cms/addon/getcurrentversion.php?addon='.$addon ) , true );
-			$oldini = parse_ini_file( __DIR__.'/../core/addons/'.$addon.'/add-on.ini' , true);
+		$querypar = implode( ',' , $addons );
+		$addwert = json_decode( file_get_contents( 'http://api.kimb-technologies.eu/cms/addon/getcurrentversion.php?addon='.$querypar ) , true );
 
-			if( compare_cms_vers( $ver['aktuell'], $oldini['inst']['addonversion'] ) == 'newer' && $ver['err'] == 'no' ){
-				$addoninclude->write_kimb_id( '21' , 'add' , $addon , 'upd' );
-			}
-			elseif( $ver['err'] == 'no' ){
-				$addoninclude->write_kimb_id( '21' , 'add' , $addon , 'noup' );
-			}
-			else{
-				$addoninclude->write_kimb_id( '21' , 'add' , $addon , '---empty---' );
+		foreach( $addwert as $ver ){
+
+			$addon = $ver['addon'];
+
+			if( in_array( $addon, $addons ) ){
+	
+					$oldini = parse_ini_file( __DIR__.'/../core/addons/'.$addon.'/add-on.ini' , true);
+
+					if( compare_cms_vers( $ver['aktuell'], $oldini['inst']['addonversion'] ) == 'newer' && $ver['err'] == 'no' ){
+						$addoninclude->write_kimb_id( '21' , 'add' , $addon , 'upd' );
+					}
+					elseif( $ver['err'] == 'no' ){
+						$addoninclude->write_kimb_id( '21' , 'add' , $addon , 'noup' );
+					}
+					else{
+						$addoninclude->write_kimb_id( '21' , 'add' , $addon , '---empty---' );
+					}
+
 			}
 		}
 
