@@ -711,4 +711,75 @@ function compare_cms_vers( $v1 , $v2 ) {
 	}
 }
 
+function make_path_array(){
+	global $idfile, $menuenames, $menuearray, $fileidlist, $filelisti;
+
+	$idfile = new KIMBdbf('menue/allids.kimb');
+	$menuenames = new KIMBdbf('menue/menue_names.kimb');
+	$menuearray = '';
+	$fileidlist = '';
+	$filelisti = '';
+
+	make_menue_array();
+
+	foreach( $menuearray as $menuear ){
+
+		$niveau = $menuear['niveau'];
+
+		if( !isset( $thisniveau ) ){
+			$grpath = $allgsysconf['siteurl'].'/'.$menuear['path'];
+		}
+		elseif( $thisniveau == $niveau ){
+			$grpath = substr( $grpath , '0', '-'.strlen(strrchr( $grpath , '/')));
+			$grpath = $grpath.'/'.$menuear['path'];
+		}
+		elseif( $thisniveau < $niveau ){
+			$grpath = $grpath.'/'.$menuear['path'];
+			$thisulaufp = $thisulauf + 1;
+		}
+		elseif( $thisniveau > $niveau ){
+			$i = 1;
+			while( $thisniveau != $niveau + $i  ){
+				$i++;
+				$grpath = substr( $grpath , '0', '-'.strlen(strrchr( $grpath , '/')));
+			}
+			$thisulaufp = $thisulaufp - $i;
+
+			$grpath = substr( $grpath , '0', '-'.strlen(strrchr( $grpath , '/')));
+			$grpath = substr( $grpath , '0', '-'.strlen(strrchr( $grpath , '/')));
+			$grpath = $grpath.'/'.$menuear['path'];
+		}
+		$url = $grpath.'/';
+
+		$patharr['id'] = $menuear['requid'];
+		$patharr['url'] = $url;
+
+		$return[] = $patharr;
+
+		$thisniveau = $niveau;
+
+	}
+
+	return $return;
+
+}
+
+function make_path_outof_reqid( $requid ){
+	global $allgsysconf;
+
+	if( $allgsysconf['urlrewrite'] == 'on' ){
+
+		foreach( make_path_array() as $path ){
+			if( $path['id'] == $requid ){
+				return $path['url'];
+			}
+		}
+
+		return '/index.php?id='.$requid;
+	}
+	else{
+		return '/index.php?id='.$requid;
+	}
+}
+
 ?>

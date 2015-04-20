@@ -29,6 +29,17 @@ if( isset($_SERVER['REQUEST_URI']) && $allgsysconf['urlrewrite'] == 'on' && !iss
 
 if( isset($_GET['url']) ){
 
+	// alte URL zu neuer
+
+	$oldurlfile = new KIMBdbf( 'menue/oldurl.kimb' );
+
+	$oldurl = $oldurlfile->search_kimb_xxxid( $_GET['url'] , 'url' );
+
+	if( $oldurl != false ){
+		$newrequid = $oldurlfile->read_kimb_id( $oldurl , 'id' );
+		open_url( make_path_outof_reqid( $newrequid ) );
+	}
+
 	// URL => RequestID
 
 	$urlteile = explode( '/' , $_GET['url'] );

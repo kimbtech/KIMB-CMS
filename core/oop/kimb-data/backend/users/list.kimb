@@ -15,3 +15,13 @@
 <[2-mail]>editor@editor.edi<[2-mail]>
 <[2-user]>editor<[2-user]>
 <[2-salt]>BAxpmgTSh6<[2-salt]>
+
+<[userids3]>3<[userids3]>
+<[allidslist1]>3<[allidslist1]>
+<[3-passw]>bbc06c25ae2fc5b9c26a47cd5fb726f807349fed<[3-passw]>
+<[3]>passw==salt==permiss==name==mail==user<[3]>
+<[3-salt]>6UcGj6F1s0<[3-salt]>
+<[3-permiss]>test<[3-permiss]>
+<[3-name]>test<[3-name]>
+<[3-mail]>test@test.test<[3-mail]>
+<[3-user]>test<[3-user]>
