@@ -37,6 +37,7 @@ if( isset($_GET['url']) ){
 
 	if( $oldurl != false ){
 		$newrequid = $oldurlfile->read_kimb_id( $oldurl , 'id' );
+		header("HTTP/1.1 301 Moved Permanently");
 		open_url( make_path_outof_reqid( $newrequid ) );
 	}
 
