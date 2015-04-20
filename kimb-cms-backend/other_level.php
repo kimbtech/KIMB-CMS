@@ -74,6 +74,12 @@ elseif( $_GET['todo'] == 'edit' && isset( $_GET['level'] ) ){
 
 	if( in_array( $_GET['level'] , $alllev ) ){
 
+		$sitecontent->add_html_header('<script>
+		function set_on( val ){
+			$( "input[value=" + val + "]" ).prop( "checked" , true);
+		}
+		</script>');
+
 		if( is_array( $_POST['numbers'] ) ){
 
 			foreach( $_POST['numbers'] as $num ){
@@ -108,25 +114,25 @@ elseif( $_GET['todo'] == 'edit' && isset( $_GET['level'] ) ){
 		$sitecontent->add_site_content('<span class="ui-icon ui-icon-info" title="Klicken Sie alle Menuepunkte an, auf die ein User der Gruppe Zugriff haben soll! ( Es dürfen nicht alle Felder deaktiviert sein! )"></span><br />');
 
 		$sitecontent->add_site_content('<input type="checkbox" name="numbers[]" value="one"'.$checks['one'].'> Seiten ( one )<br />');
-		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" value="two"'.$checks['two'].'> Neue Seite ( two )<br />');
-		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" value="three"'.$checks['three'].'> Seite bearbeiten ( three )<br />');
+		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'one\' );" value="two"'.$checks['two'].'> Neue Seite ( two )<br />');
+		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'one\' );" value="three"'.$checks['three'].'> Seite bearbeiten ( three )<br />');
 		$sitecontent->add_site_content('<input type="checkbox" name="numbers[]" value="four"'.$checks['four'].'> Menue ( four )<br />');
-		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" value="five"'.$checks['five'].'> Neues Menue ( five )<br />');
-		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" value="six"'.$checks['six'].'> Menue Zuordnen ( six )<br />');
-		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" value="seven"'.$checks['seven'].'> Menue bearbeiten ( seven )<br />');
+		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'four\' );" value="five"'.$checks['five'].'> Neues Menue ( five )<br />');
+		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'four\' );" value="six"'.$checks['six'].'> Menue Zuordnen ( six )<br />');
+		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'four\' );" value="seven"'.$checks['seven'].'> Menue bearbeiten ( seven )<br />');
 		$sitecontent->add_site_content('<input type="checkbox" name="numbers[]" value="eight"'.$checks['eight'].'> User ( eight ) <b title="Dies muss aktiviert sein, wenn ein User die Möglichkeit haben soll, sich selbst zu verändern! (z.B Passwort )">*</b><br />');
-		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" value="nine"'.$checks['nine'].'> Neuer User ( nine )<br />');
-		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" value="ten"'.$checks['ten'].'> User bearbeiten ( ten )<br />');
+		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'eight\' );" value="nine"'.$checks['nine'].'> Neuer User ( nine )<br />');
+		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'eight\' );" value="ten"'.$checks['ten'].'> User bearbeiten ( ten )<br />');
 		$sitecontent->add_site_content('<input type="checkbox" name="numbers[]" value="eleven"'.$checks['eleven'].'> Konfiguration ( eleven )<br />');
 		$sitecontent->add_site_content('<input type="checkbox" name="numbers[]" value="twelve"'.$checks['twelve'].'> Add-ons ( twelve )<br />');
-		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" value="thirteen"'.$checks['thirteen'].'> Normale-Add-on-Einstellungen ( thirteen )<br />');
-		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" value="fourteen"'.$checks['fourteen'].'> Admin-Add-on-Einstellungen ( fourteen )<br />');
-		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" value="fiveteen"'.$checks['fiveteen'].'> Add-on installieren ( fiveteen )<br />');
+		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'twelve\' );" value="thirteen"'.$checks['thirteen'].'> Normale-Add-on-Einstellungen ( thirteen )<br />');
+		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'twelve\' );" value="fourteen"'.$checks['fourteen'].'> Admin-Add-on-Einstellungen ( fourteen )<br />');
+		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'twelve\' );" value="fiveteen"'.$checks['fiveteen'].'> Add-on installieren ( fiveteen )<br />');
 		$sitecontent->add_site_content('<input type="checkbox" name="numbers[]" value="sixteen"'.$checks['sixteen'].'> Other ( sixteen )<br />');
-		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" value="seventeen"'.$checks['seventeen'].'> Filemanager ( seventeen )<br />');
-		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" value="eightteen"'.$checks['eightteen'].'> Themes ( eightteen )<br />');
-		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" value="nineteen"'.$checks['nineteen'].'> Userlevel ( nineteen ) <br />');
-		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" value="twenty"'.$checks['nineteen'].'> Umzug ( twenty ) <br />');
+		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'sixteen\' );" value="seventeen"'.$checks['seventeen'].'> Filemanager ( seventeen )<br />');
+		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'sixteen\' );" value="eightteen"'.$checks['eightteen'].'> Themes ( eightteen )<br />');
+		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'sixteen\' );" value="nineteen"'.$checks['nineteen'].'> Userlevel ( nineteen ) <br />');
+		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'sixteen\' );" value="twenty"'.$checks['nineteen'].'> Umzug ( twenty ) <br />');
 
 		$sitecontent->add_site_content('<input type="submit" value="Ändern" >');
 		$sitecontent->add_site_content('</form>');

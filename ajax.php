@@ -29,12 +29,12 @@ require_once(__DIR__.'/core/oop/kimbdbf.php');
 
 $conffile = new KIMBdbf('config.kimb');
 
-$allgsysconf = $conffile->read_kimb_id('001');
+$allgsysconf = $conffile->read_kimb_id( '001' );
 
 //session, ...
 
 session_start();
-error_reporting('0');
+error_reporting( 0 );
 header('X-Robots-Tag: '.$allgsysconf['robots']);
 header('Content-Type: text/html; charset=utf-8');
 

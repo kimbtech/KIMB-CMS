@@ -45,7 +45,7 @@ if( !empty( $_POST['user'] ) && !empty( $_POST['pass'] ) ){
 	$_POST['user'] = preg_replace( "/[^a-z]/" , "" , strtolower( $_POST['user'] ) );
 	$_POST['pass'] = preg_replace( "/[^A-Z0-9a-z]/" , "" , strtolower( $_POST['pass'] ) );
 
-	if($_SESSION["loginfehler"] == ''){ $_SESSION["loginfehler"] = '0'; }
+	if($_SESSION["loginfehler"] == ''){ $_SESSION["loginfehler"] = 0; }
 
 	$userfile = new KIMBdbf('/backend/users/list.kimb');
 		
@@ -95,7 +95,7 @@ if( $_SESSION['loginokay'] != $allgsysconf['loginokay'] ){
 
 	$sitecontent->add_html_header('<script>
 	$(function() {
-		$("div#login").html( \'<table><tr><td>Username:</td><td><input type="text" id="user" name="user" onkeydown="if(event.keyCode == 13){ return false; }" onchange="getsalt();" autofocus="autofocus"></td><td><img src="'.$allgsysconf['siteurl'].'/load/system/spin_load.gif" title="Loading Userdata" style="display:none;" id="loadergif" width="20" title="spin_load.gif"></td></tr><tr><td>Passwort:</td><td><input type="password" name="pass" id="pass" onkeydown="if(event.keyCode == 13){ return false; }" maxlength="32"><br /></td><td></td></tr><tr><td><input type="submit" value="Login"></td><td><img src="'.$allgsysconf['siteurl'].'/load/system/spin_load.gif" title="Loading Userdata" style="display:none;" id="loadergif" width="20" title="spin_load.gif"></td></table>\' );
+		$("div#login").html( \'<table><tr><td>Username:</td><td><input type="text" id="user" name="user" onkeydown="if(event.keyCode == 13){ return false; }" onchange="getsalt();" autofocus="autofocus"></td><td><img src="'.$allgsysconf['siteurl'].'/load/system/spin_load.gif" title="Loading Userdata" style="display:none;" id="loadergif" width="20" title="spin_load.gif"></td></tr><tr><td>Passwort:</td><td><input type="password" name="pass" id="pass" onkeydown="if(event.keyCode == 13){ return true; }" maxlength="32"><br /></td><td></td></tr><tr><td><input type="submit" value="Login"></td><td><img src="'.$allgsysconf['siteurl'].'/load/system/spin_load.gif" title="Loading Userdata" style="display:none;" id="loadergif" width="20" title="spin_load.gif"></td></table>\' );
 	});
 
 	function submitsys() {
