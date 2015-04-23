@@ -78,11 +78,11 @@ if( $_GET['file'] == 'index.php' ){
 				echo $salt;
 			}
 			else{
-				echo 'nok';
+				echo makepassw( 10, '', 'numaz' );
 			}
 		}
 		else{
-			echo 'nok';
+			echo makepassw( 10, '', 'numaz' );
 		}
 	}
 	else{
