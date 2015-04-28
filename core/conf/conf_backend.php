@@ -54,7 +54,11 @@ $sitecontent->add_html_header($kimbcmsinfo);
 
 require_once(__DIR__.'/funktionen.php');
 
-//Backend Add-ons
-
-require_once(__DIR__.'/../addons/addons_be_first.php');
+//Backend Add-ons ( mit zusätzlichem Schutz )
+if( $_SESSION['loginokay'] == $allgsysconf['loginokay'] && $_SESSION["ip"] == $_SERVER['REMOTE_ADDR'] && $_SESSION["useragent"] == $_SERVER['HTTP_USER_AGENT'] ){
+	require(__DIR__.'/../addons/addons_be_first.php');
+}
+elseif( substr( get_req_url() , -26 ) == 'kimb-cms-backend/index.php' || substr( get_req_url() , -16 ) == 'kimb-cms-backend' || substr( get_req_url() , -17 ) == 'kimb-cms-backend/' ){
+	require(__DIR__.'/../addons/addons_be_first.php');
+}
 ?>
