@@ -109,12 +109,12 @@ function get_requ_url(){
 }
 
 //backendlogin prüfen und error ausgeben
-function check_backend_login( $number , $permiss = 'none', $die = true ){
+function check_backend_login( $number , $permiss = 'less', $die = true ){
 	global $sitecontent, $allgsysconf;
 
 	if( $_SESSION['loginokay'] == $allgsysconf['loginokay'] && $_SESSION["ip"] == $_SERVER['REMOTE_ADDR'] && $_SESSION["useragent"] == $_SERVER['HTTP_USER_AGENT'] ){
 
-		if( $_SESSION['permission'] == 'more' || $_SESSION['permission'] == 'less' ){
+		if( ( $_SESSION['permission'] == 'more' || $_SESSION['permission'] == 'less' ) && ( $permiss == 'more' || $permiss == 'less' ) ){
 			if( $permiss == 'more' && $_SESSION['permission'] != 'more' ){
 				if( $die ){
 					if( is_object( $sitecontent ) ){
@@ -794,6 +794,17 @@ function check_addon_status( $addon ){
 	}
 
 	return false;
+}
+
+function get_req_url(){
+	if( strpos( $_SERVER['REQUEST_URI'], '?' ) !== false ){
+		$req = substr( $_SERVER['REQUEST_URI'] , '0', '-'.strlen(strrchr( $_SERVER['REQUEST_URI'] , '?' )));
+	}
+	else{
+		$req = $_SERVER['REQUEST_URI'];
+	}
+
+	return $req;
 }
 
 

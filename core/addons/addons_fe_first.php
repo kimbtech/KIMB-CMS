@@ -31,10 +31,17 @@ if( !isset( $addoninclude ) ){
 
 $all = $addoninclude->read_kimb_all_teilpl( 'fe_first' );
 
+//Machen!!!!!
+//Machen!!!!!
+//Machen!!!!!
+//Machen!!!!!
+
 foreach( $includes as $name ){
 
 	require_once(__DIR__.'/'.$name.'/include_fe_first.php');
 
 }
+
+$fesecondincludesaddons = $includes;
 
 ?>

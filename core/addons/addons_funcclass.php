@@ -26,9 +26,7 @@ if( !isset( $addoninclude ) ){
 }
 $all = $addoninclude->read_kimb_all_teilpl( 'funcclass' );
 
-if( !isset( $addonwish ) ){
-	$addonwish = new KIMBdbf('addon/wish/funcclass_stelle.kimb');
-}
+$addonwish = new KIMBdbf('addon/wish/funcclass_stelle.kimb');
 
 $includes = array();
 
@@ -48,8 +46,6 @@ foreach( $all as $add ){
 	}
 
 }
-
-print_r( $includes );
 
 foreach( $includes as $name ){
 
