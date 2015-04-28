@@ -219,6 +219,9 @@ else{
 }
 
 $sitecontent->add_site_content('<br /><br /><span class="ui-icon ui-icon-info" title="Die User können Sie unter &apos;User&apos; -> &apos;Auflisten&apos; -> &apos;Name ( User bearbeiten )&apos; den Gruppen zuordnen! Das Zuordnen ist nur für User der Gruppe Admin ( &apos;more&apos; ) möglich!"></span><br />');
+//Add-ons Ende 
+require_once(__DIR__.'/../core/addons/addons_be_second.php');
 
+//Ausgabe
 $sitecontent->output_complete_site();
 ?>

@@ -94,5 +94,9 @@ $sitecontent->add_site_content('</table></form>');
 
 $sitecontent->add_site_content('<div style="display:none;"><div id="del-confirm" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 25px 0;"></span>Möchten Sie die Weiterleitung wirklich löschen?</p></div></div>');
 
+//Add-ons Ende 
+require_once(__DIR__.'/../core/addons/addons_be_second.php');
+
+//Ausgabe
 $sitecontent->output_complete_site();
 ?>

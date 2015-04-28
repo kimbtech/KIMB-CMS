@@ -43,7 +43,7 @@ require_once(__DIR__.'/core/conf/funktionen.php');
 
 //System initialisiert!
 
-if( !isset( $_GET['file'] ) && !isset( $_GET['addon'] ) ){
+if( empty( $_GET['file'] ) && empty( $_GET['addon'] ) ){
 
 	echo('Fehlerhafte Ajax-Anfrage!');
 	die;

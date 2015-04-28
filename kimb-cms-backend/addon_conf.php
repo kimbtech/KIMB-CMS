@@ -129,6 +129,9 @@ else{
 	$sitecontent->echo_error( 'Ihre Anfrage war fehlerhaft!' , 'unknown');
 }
 
+//Add-ons Ende 
+require_once(__DIR__.'/../core/addons/addons_be_second.php');
 
+//Ausgabe
 $sitecontent->output_complete_site();
 ?>

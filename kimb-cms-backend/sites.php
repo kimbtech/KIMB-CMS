@@ -295,6 +295,9 @@ else{
 	$sitecontent->add_site_content('<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php" method="get"><input type="text" name="id" placeholder="ID"><input type="hidden" value="del" name="todo"><input type="submit" value="Los"> <span title="Geben Sie die SeitenID ein und löschen Sie sofort die Seite!">(Seite löschen)</span></form>');
 }
 
+//Add-ons Ende 
+require_once(__DIR__.'/../core/addons/addons_be_second.php');
 
+//Ausgabe
 $sitecontent->output_complete_site();
 ?>

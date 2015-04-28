@@ -56,5 +56,5 @@ require_once(__DIR__.'/funktionen.php');
 
 //Backend Add-ons
 
-require_once(__DIR__.'/../addons/addons_backend.php');
+require_once(__DIR__.'/../addons/addons_be_first.php');
 ?>

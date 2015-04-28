@@ -18,28 +18,39 @@
 /*************************************************/
 
 
+define("KIMB_CMS", "Clean Request");
+
 defined('KIMB_CMS') or die('No clean Request');
 
+//Klassen und Funktionen
+require_once(__DIR__.'/core/oop/kimbdbf.php');
 
-if( !empty( $_GET['addon'] ) ){
+//Konfiguration
 
-	if( !isset( $addoninclude ) ){
-		$addoninclude = new KIMBdbf('addon/includes.kimb');
-	}
+$conffile = new KIMBdbf('config.kimb');
 
-	if( $addoninclude->read_kimb_search_teilpl( 'ajax' , $search) ){
+$allgsysconf = $conffile->read_kimb_id( '001' );
 
-		if(strpos( $_GET['addon'] , "..") !== false){
-			echo ('Do not hack me!!');
-			die;
-		}
+//session, ...
 
-		require_once(__DIR__.'/'.$_GET['addon'].'/include_ajax.php');
+session_start();
+error_reporting( 0 );
+header('X-Robots-Tag: '.$allgsysconf['robots']);
+header('Content-Type: text/html; charset=utf-8');
 
-		die;
+//Funktionen laden
+require_once(__DIR__.'/core/conf/funktionen.php');
 
-	}
+//System initialisiert!
+
+if( $_GET['key'] == $allgsysconf['cronkey'] ){
+
+	require_once( __DIR__.'/core/addons/addons_cron.php' );
+
+	die;
 
 }
 
+echo( 'Fehlerhafter Cronzugriff!' );
+die;
 ?>

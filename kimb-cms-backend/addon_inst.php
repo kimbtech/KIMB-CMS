@@ -32,6 +32,8 @@ $sitecontent->add_html_header('<style>td { border:1px solid #000000; padding:2px
 
 //Add-ons installieren und löschen
 
+$allinclpar = array( 'ajax', 'cron', 'funcclass', 'be_first', 'be_second', 'fe_first', 'fe_second' );
+
 $_GET['addon'] = preg_replace( "/[^a-z_]/" , "" , $_GET['addon'] );
 
 if( isset( $_GET['del'] ) && isset( $_GET['addon'] ) ){
@@ -42,11 +44,10 @@ if( isset( $_GET['del'] ) && isset( $_GET['addon'] ) ){
 	if( is_dir( __DIR__.'/../load/addondata/'.$_GET['addon'].'/' ) ){
 		rm_r( __DIR__.'/../load/addondata/'.$_GET['addon'].'/' );
 	}
-	if ( $addoninclude->read_kimb_search_teilpl( 'ajax' , $addon ) || $addoninclude->read_kimb_search_teilpl( 'backend' , $addon ) || $addoninclude->read_kimb_search_teilpl( 'first' , $addon ) || $addoninclude->read_kimb_search_teilpl( 'second' , $addon ) ){
-		$addoninclude->write_kimb_teilpl( 'ajax' , $_GET['addon'] , 'del' );
-		$addoninclude->write_kimb_teilpl( 'first' , $_GET['addon'] , 'del' );
-		$addoninclude->write_kimb_teilpl( 'backend' , $_GET['addon'] , 'del' );
-		$addoninclude->write_kimb_teilpl( 'second' , $_GET['addon'] , 'del' );
+	foreach( $allinclpar as $par ){
+		if ( $addoninclude->read_kimb_search_teilpl( $par , $_GET['addon'] ) ){
+			$addoninclude->write_kimb_teilpl( $par , $_GET['addon'] , 'del' );
+		}
 	}
 
 	$sitecontent->echo_message( 'Das Add-on "'.$_GET['addon'].'" wurde gelöscht!' );
@@ -135,40 +136,16 @@ elseif( isset( $_FILES['userfile']['name'] ) ){
 }
 elseif( $_GET['todo'] == 'chdeak' && isset( $_GET['addon'] ) ){
 
-	if( !$addoninclude->read_kimb_search_teilpl( 'ajax' , $_GET['addon'] ) ){
-		if( file_exists(__DIR__.'/../core/addons/'.$_GET['addon'].'/include_ajax.php') ){
-			$addoninclude->write_kimb_teilpl( 'ajax' , $_GET['addon'] , 'add' );
-		}
-	}
-	else{
-		$addoninclude->write_kimb_teilpl( 'ajax' , $_GET['addon'] , 'del' );
-	}
+	foreach( $allinclpar as $par ){
 
-	if( !$addoninclude->read_kimb_search_teilpl( 'first' , $_GET['addon'] ) ){
-		if( file_exists(__DIR__.'/../core/addons/'.$_GET['addon'].'/include_first.php') ){
-			$addoninclude->write_kimb_teilpl( 'first' , $_GET['addon'] , 'add' );
+		if( !$addoninclude->read_kimb_search_teilpl( $par , $_GET['addon'] ) ){
+			if( file_exists(__DIR__.'/../core/addons/'.$_GET['addon'].'/include_'.$par.'.php') ){
+				$addoninclude->write_kimb_teilpl( $par , $_GET['addon'] , 'add' );
+			}
 		}
-	}
-	else{
-		$addoninclude->write_kimb_teilpl( 'first' , $_GET['addon'] , 'del' );
-	}
-
-	if( !$addoninclude->read_kimb_search_teilpl( 'backend' , $_GET['addon'] ) ){
-		if( file_exists(__DIR__.'/../core/addons/'.$_GET['addon'].'/include_backend.php') ){
-			$addoninclude->write_kimb_teilpl( 'backend' , $_GET['addon'] , 'add' );
+		else{
+			$addoninclude->write_kimb_teilpl( $par , $_GET['addon'] , 'del' );
 		}
-	}
-	else{
-		$addoninclude->write_kimb_teilpl( 'backend' , $_GET['addon'] , 'del' );
-	}
-
-	if( !$addoninclude->read_kimb_search_teilpl( 'second' , $_GET['addon'] ) ){
-		if( file_exists(__DIR__.'/../core/addons/'.$_GET['addon'].'/include_second.php') ){
-			$addoninclude->write_kimb_teilpl( 'second' , $_GET['addon'] , 'add' );
-		}
-	}
-	else{
-		$addoninclude->write_kimb_teilpl( 'second' , $_GET['addon'] , 'del' );
 	}
 
 	$sitecontent->echo_message( 'Der Status des Add-ons "'.$_GET['addon'].'" wurde geändert!' );
@@ -286,7 +263,7 @@ if( !isset( $showlist ) ){
 
 		$del = '<span onclick="var delet = del( \''.$addon.'\' ); delet();"><span class="ui-icon ui-icon-trash" title="Dieses Add-on löschen." style="display:inline-block;" ></span></span>';
 
-		if ( $addoninclude->read_kimb_search_teilpl( 'ajax' , $addon ) || $addoninclude->read_kimb_search_teilpl( 'backend' , $addon ) || $addoninclude->read_kimb_search_teilpl( 'first' , $addon ) || $addoninclude->read_kimb_search_teilpl( 'second' , $addon ) ){
+		if ( check_addon_status( $addon ) ){
 			$status = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_inst.php?todo=chdeak&amp;addon='.$addon.'"><span class="ui-icon ui-icon-check" style="display:inline-block;" title="Dieses Add-on ist zu Zeit aktiviert. ( click -> ändern )"></span></a>';
 		}
 		else{
@@ -327,6 +304,9 @@ if( !isset( $showlist ) ){
 	$sitecontent->add_site_content('<input type="submit" value="Installieren" title="Wählen Sie eine Add-on Zip Datei von Ihrem Rechner zur Installation." />');
 	$sitecontent->add_site_content('</form>');
 }
+//Add-ons Ende 
+require_once(__DIR__.'/../core/addons/addons_be_second.php');
 
+//Ausgabe
 $sitecontent->output_complete_site();
 ?>

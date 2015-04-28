@@ -1,5 +1,5 @@
 <[about:doc]>KIMB dbf V3.00B - KIMB-technologies<[about:doc]>
-<[001]>sitename==sitefavi==loginokay==siteurl==description==urlweitermeth==adminmail==robots==mailvon==cache==sitespr==systemversion==build==urlrewrite==cachelifetime==use_request_url==show_siteinfos==theme<[001]>
+<[001]>sitename==sitefavi==loginokay==siteurl==description==urlweitermeth==adminmail==robots==mailvon==cache==sitespr==systemversion==build==urlrewrite==cachelifetime==use_request_url==show_siteinfos==theme==cronkey<[001]>
 <[001-urlweitermeth]>1<[001-urlweitermeth]>
 <[001-robots]>index, follow<[001-robots]>
 <[001-cache]>off<[001-cache]>
@@ -19,3 +19,4 @@
 <[001-adminmail]>serveradmin@server.com<[001-adminmail]>
 <[001-mailvon]>cms@localhost:8000<[001-mailvon]>
 <[001-urlrewrite]>on<[001-urlrewrite]>
+<[001-cronkey]>testtest<[001-cronkey]>

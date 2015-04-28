@@ -551,6 +551,9 @@ else{
 	$sitecontent->add_site_content('<span id="startbox"><b><a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=list">Auflisten</b><br /><span class="ui-icon ui-icon-calculator"></span><br /><i>Alle Menues zum Bearbeiten, De-, Aktivieren und Löschen auflisten.</i></span></a>');
 }
 
+//Add-ons Ende 
+require_once(__DIR__.'/../core/addons/addons_be_second.php');
 
+//Ausgabe
 $sitecontent->output_complete_site();
 ?>

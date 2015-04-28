@@ -253,6 +253,9 @@ if( $_SESSION['secured'] == 'on' ){
 else{
 	$sitecontent->add_site_content( '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/other_filemanager.php?secured=on"><button>In das geschicherte Verzeichnis wechseln</button></a><br /></p>');
 }
+//Add-ons Ende 
+require_once(__DIR__.'/../core/addons/addons_be_second.php');
 
+//Ausgabe
 $sitecontent->output_complete_site();
 ?>

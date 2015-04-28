@@ -128,7 +128,8 @@ $info = array(
 	'cachelifetime' => 'Lebensdauer des Caches in Sekunden oder always ( always ist empfehlenswert )' ,
 	'use_request_url' => 'Für URL-Rewriting muss der Request entweder an /index.php?url=xxx gesendert werden oder per $SERVER[REQUEST_URI] verfügbar sein. Letzteres kann hier verboten werden, da es auf manchen Server zu Problemen führen könnte. ( ok / nok )' ,
 	'show_siteinfos' => 'Unten auf den Seiten anzeigen wann und von wem die Seite geändert wurde sowie den Permalink!' ,
-	'theme' => 'Wählen Sie ein installiertes Thema für Ihre Seite, ohne oder mit falschem Parameter wird das Standardthema verwendet. ( Dieser Wert wird automatisch bei einer Themeninstallation geändert. )' 
+	'theme' => 'Wählen Sie ein installiertes Thema für Ihre Seite, ohne oder mit falschem Parameter wird das Standardthema verwendet. ( Dieser Wert wird automatisch bei einer Themeninstallation geändert. )',
+	'cronkey' => 'Hier finden Sie den Cronkey. Diese Zeichenkette müssen Sie an die URL hängen, um den Systemcron ausführen zu können. (<cms-url>/cron.php?key=XXXX)'  
 );
 
 $i = 1;
@@ -172,6 +173,9 @@ $sitecontent->add_site_content('<textarea name="err404" id="err404" style="width
 $sitecontent->add_site_content('<textarea name="err403" id="err403" style="width:99%;">'.$sonder->read_kimb_one( 'error-403' ).'</textarea> <i>Error 403 &uarr;</i> <button onclick="tinychange( \'err403\' ); return false;">Editor I/O</button> <br />');
 $sitecontent->add_site_content('<input type="submit" value="Ändern"></form>');
 
+//Add-ons Ende 
+require_once(__DIR__.'/../core/addons/addons_be_second.php');
 
+//Ausgabe
 $sitecontent->output_complete_site();
 ?>

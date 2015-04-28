@@ -146,6 +146,9 @@ if( $_SESSION['loginokay'] != $allgsysconf['loginokay'] ){
 	$sitecontent->add_site_content( '</div></div></div>' );
 	$sitecontent->add_site_content( '</form><span id="passsalt" style="display:none;" >none</span><br /><br />' );
 }
+//Add-ons Ende 
+require_once(__DIR__.'/../core/addons/addons_be_second.php');
 
+//Ausgabe
 $sitecontent->output_complete_site();
 ?>

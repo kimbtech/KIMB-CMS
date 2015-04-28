@@ -782,4 +782,18 @@ function make_path_outof_reqid( $requid ){
 	}
 }
 
+function check_addon_status( $addon ){
+	global $addoninclude, $allinclpar;
+
+	foreach( $allinclpar as $par ){
+
+		if( $addoninclude->read_kimb_search_teilpl( $par , $addon ) ){
+			return true;
+		}
+
+	}
+
+	return false;
+}
+
 ?>

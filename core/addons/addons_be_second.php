@@ -18,28 +18,10 @@
 /*************************************************/
 
 
-defined('KIMB_CMS') or die('No clean Request');
+
+defined('KIMB_Backend') or die('No clean Request');
 
 
-if( !empty( $_GET['addon'] ) ){
 
-	if( !isset( $addoninclude ) ){
-		$addoninclude = new KIMBdbf('addon/includes.kimb');
-	}
-
-	if( $addoninclude->read_kimb_search_teilpl( 'ajax' , $search) ){
-
-		if(strpos( $_GET['addon'] , "..") !== false){
-			echo ('Do not hack me!!');
-			die;
-		}
-
-		require_once(__DIR__.'/'.$_GET['addon'].'/include_ajax.php');
-
-		die;
-
-	}
-
-}
 
 ?>

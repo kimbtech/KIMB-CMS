@@ -434,5 +434,9 @@ else{
 	$sitecontent->add_site_content('<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/user.php" method="get"><input type="text" name="user" placeholder="Username"><input type="hidden" value="edit" name="todo"><input type="hidden" name="del"><input type="submit" value="Los"> <span title="Geben Sie einen Usernamen ein und löschen Sie ihn sofort!">User löschen</span></form>');
 }
 
+//Add-ons Ende 
+require_once(__DIR__.'/../core/addons/addons_be_second.php');
+
+//Ausgabe
 $sitecontent->output_complete_site();
 ?>

@@ -37,13 +37,13 @@ if( !isset( $allgsysconf['siteurl'] ) ){
 //Menue und Site IDs aus Request 
 require_once(__DIR__.'/core/generating/get_ids.php');
 //Addons ermoeglichen einzugreifen
-require_once(__DIR__.'/core/addons/addons_first.php');
+require_once(__DIR__.'/core/addons/addons_fe_first.php');
 //Menuestruktur erstellen
 require_once(__DIR__.'/core/generating/make_menue.php');
 //Inhalt erstellen
 require_once(__DIR__.'/core/generating/make_content.php');
 //Addons ermoeglichen einzugreifen
-require_once(__DIR__.'/core/addons/addons_second.php');
+require_once(__DIR__.'/core/addons/addons_fe_second.php');
 
 
 $sitecontent->output_complete_site();

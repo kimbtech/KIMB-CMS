@@ -18,28 +18,31 @@
 /*************************************************/
 
 
+
 defined('KIMB_CMS') or die('No clean Request');
 
-
-if( !empty( $_GET['addon'] ) ){
-
-	if( !isset( $addoninclude ) ){
-		$addoninclude = new KIMBdbf('addon/includes.kimb');
-	}
-
-	if( $addoninclude->read_kimb_search_teilpl( 'ajax' , $search) ){
-
-		if(strpos( $_GET['addon'] , "..") !== false){
-			echo ('Do not hack me!!');
-			die;
-		}
-
-		require_once(__DIR__.'/'.$_GET['addon'].'/include_ajax.php');
-
-		die;
-
-	}
-
+if( !isset( $addoninclude ) ){
+	$addoninclude = new KIMBdbf('addon/includes.kimb');
 }
+
+$output['allgstart'] = time();
+
+foreach ( $addoninclude->read_kimb_all_teilpl( 'cron' ) as $name ){
+
+	$infos['start'] = time();
+	$infos['name'] = $name;
+
+	require_once(__DIR__.'/'.$name.'/include_cron.php');
+
+	$infos['end'] = time();
+
+	$output[] = $infos;
+}
+
+$output['allgend'] = time();
+
+echo json_encode( $output );
+
+die;
 
 ?>

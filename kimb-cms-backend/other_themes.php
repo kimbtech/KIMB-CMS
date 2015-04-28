@@ -146,7 +146,9 @@ $sitecontent->add_site_content('<input name="userfile" type="file" /><br />');
 $sitecontent->add_site_content('<input type="submit" value="Installieren" title="Wählen Sie eine Theme Zip Datei von Ihrem Rechner zur Installation." />');
 $sitecontent->add_site_content('</form>');
 
+//Add-ons Ende 
+require_once(__DIR__.'/../core/addons/addons_be_second.php');
 
-
+//Ausgabe
 $sitecontent->output_complete_site();
 ?>
