@@ -19,9 +19,42 @@
 
 
 
-defined('KIMB_Backend') or die('No clean Request');
+defined('KIMB_CMS') or die('No clean Request');
 
+if( !isset( $addoninclude ) ){
+	$addoninclude = new KIMBdbf('addon/includes.kimb');
+}
+$all = $addoninclude->read_kimb_all_teilpl( 'funcclass' );
 
+if( !isset( $addonwish ) ){
+	$addonwish = new KIMBdbf('addon/wish/funcclass_stelle.kimb');
+}
 
+$includes = array();
+
+foreach( $all as $add ){
+
+	$id = $addonwish->search_kimb_xxxid( $add , 'addon' );
+
+	if( $id != false ){
+		$wi = $addonwish->read_kimb_id( $id, 'stelle' );
+
+		if( $wi == 'vorn' ){
+			array_unshift( $includes , $add );
+		}
+		elseif( $wi == 'hinten' ){
+			$includes[] = $add;
+		}
+	}
+
+}
+
+print_r( $includes );
+
+foreach( $includes as $name ){
+
+	require_once(__DIR__.'/'.$name.'/include_funcclass.php');
+
+}
 
 ?>

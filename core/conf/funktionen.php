@@ -796,4 +796,7 @@ function check_addon_status( $addon ){
 	return false;
 }
 
+
+// Funktionen von Add-ons hinzufügen
+require_once( __DIR__.'/../addons/addons_funcclass.php' );
 ?>
