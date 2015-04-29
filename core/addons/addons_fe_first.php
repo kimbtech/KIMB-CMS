@@ -86,11 +86,6 @@ foreach( $all as $add ){
 
 }
 
-//Machen!!!!!
-//Machen!!!!!
-//Machen!!!!!
-//Machen!!!!!
-
 foreach( $includes as $name ){
 
 	require_once(__DIR__.'/'.$name.'/include_fe_first.php');
