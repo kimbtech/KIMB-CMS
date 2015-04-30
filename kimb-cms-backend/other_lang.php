@@ -28,9 +28,10 @@ check_backend_login( 'twentyone' , 'more');
 
 $sitecontent->add_site_content('<h2>Mehrsprachige Seite <span class="ui-icon ui-icon-info" title="Hier können Sie die Seite dieses CMS um weitere Sprachen erweitern!" style="display:inline-block;"></span></h2>');
 
+$sitecontent->add_html_header('<style>td { border:1px solid #000000; padding:2px;} td a { text-decoration:none; } label{ width:200px; }</style>');
+
 if( isset( $_GET['do'] ) && $allgsysconf['lang'] == 'on' ){
 
-	$sitecontent->add_html_header('<style>td { border:1px solid #000000; padding:2px;} td a { text-decoration:none; } label{ width:200px; }</style>');
 	$sitecontent->add_html_header('<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/system/langs.min.js"></script>');
 	$sitecontent->add_html_header('<script>$(function() { $( "#autoc" ).autocomplete({ source: langtag }); });
 	function setname(){ var tagna = $( "#autoc" ).val(); $( "#langnam" ).val( langobj[tagna] ); } </script>');
