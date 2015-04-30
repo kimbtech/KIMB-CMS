@@ -133,7 +133,7 @@ class KIMBdbf {
 	public function __destruct() {
 
 		if( $this->dateicontanfang != $this->dateicont && $this->dateidel == 'no' ){
-			$this->dateicont = str_replace( "\r\n\r\n", "\r\n", $this->dateicont);
+			$this->dateicont = preg_replace( "/[\r\n]+[\s\t]*[\r\n]+/", "\r\n", $this->dateicont );
 			$handle = fopen($this->path.'/kimb-data/'.$this->datei , 'w+');
 			$ok = fwrite($handle, $this->dateicont);
 			fclose($handle);

@@ -21,10 +21,9 @@ defined('KIMB_Backend') or die('No clean Request');
 
 class ADDonAPI{
 
-	protected $allgsysconf, $be, $fe, $funcclass, $addon;
+	protected $be, $fe, $funcclass, $addon;
 
 	public function __construct( $addon ){
-		$this->allgsysconf = $allgsysconf;
 		$this->addon = $addon;
 
 		$this->be = new KIMBdbf('addon/wish/be_all.kimb');
@@ -32,42 +31,112 @@ class ADDonAPI{
 		$this->funcclass = new KIMBdbf('addon/wish/funcclass_stelle.kimb');
 	}
 
-	protected function get_addon_id(){
+	protected function get_addon_id( $fi ){
 
-		$id = $addonwish->search_kimb_xxxid( $this->addon , 'addon' );
+		$id = $this->$fi->search_kimb_xxxid( $this->addon , 'addon' );
 
 		if( $id != false ){
 			return $id;
 		}
 		else{
-			return false;
+			$id = $this->$fi->next_kimb_id();
+			if( $this->$fi->write_kimb_id( $id , 'add' , 'addon' , $this->addon ) ){
+				return $id;
+			}
+			else{
+				return false;
+			}
 		}
 	}
 
 	public function set_be( $reihen, $site, $rechte ){
-		//Backend Wünsche speichern
+		// Backend Wünsche speichern
 
 		// $reihen => vorn oder hinten
 		// $site => XXX.php
 		// $rechte => more,less,one,six
+
+		if( $reihen != 'vorn' && $reihen != 'hinten' ){
+			return false;
+		}
+
+		$id = $this->get_addon_id( 'be' );
+
+		if( is_numeric( $id ) ){
+			$rstelle = $this->be->write_kimb_id( $id , 'add' , 'stelle' , $reihen );
+			$rrecht = $this->be->write_kimb_id( $id , 'add' , 'recht' , $rechte );
+			$rsite = $this->be->write_kimb_id( $id , 'add' , 'site' , $site );
+
+			if( $rstelle && $rrecht && $rsite ){
+				return true;
+			}
+		}
+
+		return false;
 	}
 
-	public function set_fe( $reihen, $id, $error ){
-		//Backend Wünsche speichern
+	public function set_fe( $reihen, $ids, $error ){
+		// Frtontend Wünsche speichern
 
 		// $reihen => vorn oder hinten
 		// $id => r/s/a + ( ID )
 		// $error => no/ all/ (nur) 404/ 403
+
+		if( $reihen != 'vorn' && $reihen != 'hinten' ){
+			return false;
+		}
+
+		$id = $this->get_addon_id( 'fe' );
+
+		if( is_numeric( $id ) ){
+			$rstelle = $this->fe->write_kimb_id( $id , 'add' , 'stelle' , $reihen );
+			$rids = $this->fe->write_kimb_id( $id , 'add' , 'ids' , $ids );
+			$rerror = $this->fe->write_kimb_id( $id , 'add' , 'error' , $error );
+
+			if( $rstelle && $rids && $rerror ){
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	public function set_funcclass( $reihen ){
-		//Funktionen und Klassen Wünsche speichern
+		// Funktionen und Klassen Wünsche speichern
 
 		// $reihen => vorn oder hinten
+
+		if( $reihen != 'vorn' && $reihen != 'hinten' ){
+			return false;
+		}
+
+		$id = $this->get_addon_id( 'funcclass' );
+
+		if( is_numeric( $id ) ){
+			if( $this->funcclass->write_kimb_id( $id , 'add' , 'stelle' , $reihen ) ){
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	public function del(){
-		//Add-on Wünsche löschen
+		// Add-on Wünsche löschen
+
+		$re = true;
+
+		foreach( array( 'fe', 'be', 'funcclass' ) as $fi ){
+			$id = $this->get_addon_id( $fi );
+			if( is_numeric( $id ) && $re == true ){
+				$re = $this->$fi->write_kimb_id( $id , 'del' );
+			}
+			else{
+				$re = false;
+			}
+		}
+
+		return $re;
 	}
 
 
