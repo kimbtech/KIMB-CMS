@@ -198,6 +198,7 @@ echo('
 					<li class="admin eightteen" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/other_themes.php" title="Verändern Sie das Design des Frontends mit KIMB-CMS Themes"><span class="ui-icon ui-icon-contact"></span>Themes</a></li>
 					<li class="admin nineteen" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/other_level.php" title="Erstellen Sie eigene Benutzerlevel für das Backend"><span class="ui-icon  ui-icon-locked"></span>Userlevel Backend</a></li>
 					<li class="admin twenty" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/other_umzug.php" title="Erstellen Sie Weiterleitungen von alten Links auf neue Seiten"><span class="ui-icon ui-icon-suitcase"></span>Umzug</a></li>
+					<li class="admin twentyone" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/other_lang.php" title="Erweitern Sie diese Seite um weitere Sprachen"><span class="ui-icon ui-icon-flag"></span>Mehrsprachige Seite</a></li>
 				</ul>
 			</li>
 			</ul>

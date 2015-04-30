@@ -129,7 +129,8 @@ $info = array(
 	'use_request_url' => 'Für URL-Rewriting muss der Request entweder an /index.php?url=xxx gesendert werden oder per $SERVER[REQUEST_URI] verfügbar sein. Letzteres kann hier verboten werden, da es auf manchen Server zu Problemen führen könnte. ( ok / nok )' ,
 	'show_siteinfos' => 'Unten auf den Seiten anzeigen wann und von wem die Seite geändert wurde sowie den Permalink!' ,
 	'theme' => 'Wählen Sie ein installiertes Thema für Ihre Seite, ohne oder mit falschem Parameter wird das Standardthema verwendet. ( Dieser Wert wird automatisch bei einer Themeninstallation geändert. )',
-	'cronkey' => 'Hier finden Sie den Cronkey. Diese Zeichenkette müssen Sie an die URL hängen, um den Systemcron ausführen zu können. (<cms-url>/cron.php?key=XXXX)'  
+	'cronkey' => 'Hier finden Sie den Cronkey. Diese Zeichenkette müssen Sie an die URL hängen, um den Systemcron ausführen zu können. (<cms-url>/cron.php?key=XXXX)',
+	'lang' => 'Hier können Sie das CMS für mehrsprachige Seiten freischalten. ( on / off ) ( Wird auch über Other -> Mehrsprachige Seite verändert )'  
 );
 
 $i = 1;

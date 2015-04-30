@@ -1,5 +1,5 @@
 <[about:doc]>KIMB dbf V3.00B - KIMB-technologies<[about:doc]>
-<[001]>sitename==sitefavi==loginokay==siteurl==description==urlweitermeth==adminmail==robots==mailvon==cache==sitespr==systemversion==build==urlrewrite==cachelifetime==use_request_url==show_siteinfos==theme==cronkey<[001]>
+<[001]>sitename==sitefavi==loginokay==siteurl==description==urlweitermeth==adminmail==robots==mailvon==cache==sitespr==systemversion==build==urlrewrite==cachelifetime==use_request_url==show_siteinfos==theme==cronkey==lang<[001]>
 <[001-urlweitermeth]>1<[001-urlweitermeth]>
 <[001-robots]>index, follow<[001-robots]>
 <[001-cache]>off<[001-cache]>
@@ -10,7 +10,6 @@
 <[001-use_request_url]>ok<[001-use_request_url]>
 <[001-show_siteinfos]>on<[001-show_siteinfos]>
 <[001-theme]>new<[001-theme]>
-
 <[001-sitename]>KIMB CMS<[001-sitename]>
 <[001-sitefavi]>http://localhost:8000/load/system/KIMB.ico<[001-sitefavi]>
 <[001-loginokay]>Hug0ip9lnx0tKluaX3HA8wp8mGAG0claoC2bWP46LDwyfLChOH<[001-loginokay]>
@@ -20,3 +19,4 @@
 <[001-mailvon]>cms@localhost:8000<[001-mailvon]>
 <[001-urlrewrite]>on<[001-urlrewrite]>
 <[001-cronkey]>testtest<[001-cronkey]>
+<[001-lang]>on<[001-lang]>
