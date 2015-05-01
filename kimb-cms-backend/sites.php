@@ -113,24 +113,26 @@ elseif( $_GET['todo'] == 'list' ){
 	$idfile = new KIMBdbf('menue/allids.kimb');
 
 	foreach ( $sites as $site ){
-		$sitef = new KIMBdbf('site/'.$site);
-		$id = preg_replace("/[^0-9]/","", $site);
-		$title = $sitef->read_kimb_one('title');
-		$name = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=edit&amp;id='.$id.'" title="Seite bearbeiten.">'.$title.'</a>';
-		if ( strpos( $site , 'deak' ) !== false ){
-			$status = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=deakch&amp;id='.$id.'"><span class="ui-icon ui-icon-close" title="Diese Seite ist zu Zeit deaktiviert, also nicht auffindbar. ( click -> ändern )"></span></a>';
+		if( $site != 'langfile.kimb'){
+			$sitef = new KIMBdbf('site/'.$site);
+			$id = preg_replace("/[^0-9]/","", $site);
+			$title = $sitef->read_kimb_one('title');
+			$name = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=edit&amp;id='.$id.'" title="Seite bearbeiten.">'.$title.'</a>';
+			if ( strpos( $site , 'deak' ) !== false ){
+				$status = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=deakch&amp;id='.$id.'"><span class="ui-icon ui-icon-close" title="Diese Seite ist zu Zeit deaktiviert, also nicht auffindbar. ( click -> ändern )"></span></a>';
+			}
+			else{
+				$status = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=deakch&amp;id='.$id.'"><span class="ui-icon ui-icon-check" title="Diese Seite ist zu Zeit aktiviert, also sichtbar. ( click -> ändern )"></span></a>';
+			}
+			$del = '<span onclick="var delet = del( '.$id.' ); delet();"><span class="ui-icon ui-icon-trash" title="Diese Seite löschen."></span></span>';
+			$zugeor = $idfile->search_kimb_xxxid( $id , 'siteid' );
+			if( $zugeor == false ){
+				$status .= '<span class="ui-icon ui-icon-alert" title="Achtung, diese Seite ist noch keinem Menü zugeordnet, daher ist sie im Frontend nicht auffindbar!"></span>';
+			}
+			$sitecontent->add_site_content('<tr><td>'.$id.'</td><td id="'.$title.'">'.$name.'</td><td>'.$status.'</td><td>'.$del.'</td></tr>');
+	
+			$liste = 'yes';
 		}
-		else{
-			$status = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=deakch&amp;id='.$id.'"><span class="ui-icon ui-icon-check" title="Diese Seite ist zu Zeit aktiviert, also sichtbar. ( click -> ändern )"></span></a>';
-		}
-		$del = '<span onclick="var delet = del( '.$id.' ); delet();"><span class="ui-icon ui-icon-trash" title="Diese Seite löschen."></span></span>';
-		$zugeor = $idfile->search_kimb_xxxid( $id , 'siteid' );
-		if( $zugeor == false ){
-			$status .= '<span class="ui-icon ui-icon-alert" title="Achtung, diese Seite ist noch keinem Menü zugeordnet, daher ist sie im Frontend nicht auffindbar!"></span>';
-		}
-		$sitecontent->add_site_content('<tr><td>'.$id.'</td><td id="'.$title.'">'.$name.'</td><td>'.$status.'</td><td>'.$del.'</td></tr>');
-
-		$liste = 'yes';
 	}
 	$sitecontent->add_site_content('</table>');
 
@@ -145,6 +147,73 @@ elseif( $_GET['todo'] == 'edit' && is_numeric( $_GET['id'] ) ){
 	check_backend_login('three');
 
 	$sitecontent->add_site_content('<h2>Seite bearbeiten</h2>');
+	
+	if( !is_object( $sitef ) ){
+		if( check_for_kimb_file( '/site/site_'.$_GET['id'].'.kimb' ) ){
+			$sitef = new KIMBdbf( '/site/site_'.$_GET['id'].'.kimb' );
+		}
+		elseif( check_for_kimb_file( '/site/site_'.$_GET['id'].'_deak.kimb' ) ){
+			$sitef = new KIMBdbf( '/site/site_'.$_GET['id'].'_deak.kimb' );
+		}
+		else{
+			$sitecontent->echo_error('Die Seite wurde nicht gefunden' , '404');
+			$sitecontent->output_complete_site();
+			die;
+		}
+	}
+	
+	if( $allgsysconf['lang'] == 'on' && $_GET['langid'] != 0 && is_numeric( $_GET['langid'] ) ){
+		$dbftag['title'] = 'title-'.$_GET['langid'];
+		$dbftag['keywords'] = 'keywords-'.$_GET['langid'];
+		$dbftag['description'] = 'description-'.$_GET['langid'];
+		$dbftag['inhalt'] = 'inhalt-'.$_GET['langid'];
+		$dbftag['footer'] = 'footer-'.$_GET['langid'];
+		
+		if( empty( $sitef->read_kimb_one( $dbftag['title'] ) ) && empty( $sitef->read_kimb_one( $dbftag['inhalt'] ) ) ){
+			$sitef->write_kimb_one( $dbftag['title'] , 'Title' );
+			$sitef->write_kimb_one( $dbftag['keywords'] , '' );
+			$sitef->write_kimb_one( $dbftag['description'] , '' );
+			$sitef->write_kimb_one( $dbftag['inhalt'] , '<h1>Inhalt</h1>' );
+			$sitef->write_kimb_one( $dbftag['footer'] , '' );				
+		}
+	}
+	else{
+		$dbftag['title'] = 'title';
+		$dbftag['keywords'] = 'keywords';
+		$dbftag['description'] = 'description';
+		$dbftag['inhalt'] = 'inhalt';
+		$dbftag['footer'] = 'footer';
+		
+		$_GET['langid'] = 0;				
+	}
+	
+	if( $allgsysconf['lang'] == 'on'){
+		
+		$langfile = new KIMBdbf( 'site/langfile.kimb' );
+		
+		$sitecontent->add_site_content('<select id="langs" style="padding:2px; padding-left:25px;" title="Bitte wählen Sie die Sprache, für die Sie die Inhalte verändern wollen!">');
+		
+		foreach( $langfile->read_kimb_all_teilpl( 'allidslist' ) as $id ){
+			$vals = $langfile->read_kimb_id( $id );
+			if( $id == $_GET['langid'] ){
+					$flagurl = $vals['flag'];
+			}
+			$sitecontent->add_site_content('<option style="background: url( '.$vals['flag'].' ) center left no-repeat; padding:2px; padding-left:25px;" value="'.$id.'">'.$vals['name'].'</option>');
+		}
+		
+		$sitecontent->add_site_content('</select>');
+		
+		$sitecontent->add_html_header('<script>	
+		$( function() {
+			$( "#langs" ).on( "change", function() {
+				var val = $( "#langs" ).val();
+				window.location = "'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=edit&id='.$_GET['id'].'&langid=" + val;
+			});
+			$( "#langs" ).val( '.$_GET['langid'].' );
+			$( "#langs" ).css( "background", "url( '.$flagurl.' ) center left no-repeat" );
+		});
+		</script>');
+	}
 
 	$sitecontent->add_html_header('<script>
 	var del = function( id ) {
@@ -184,39 +253,25 @@ elseif( $_GET['todo'] == 'edit' && is_numeric( $_GET['id'] ) ){
 	</script>');
 	add_tiny( true, true);
 
-	if( !is_object( $sitef ) ){
-		if( check_for_kimb_file( '/site/site_'.$_GET['id'].'.kimb' ) ){
-			$sitef = new KIMBdbf( '/site/site_'.$_GET['id'].'.kimb' );
-		}
-		elseif( check_for_kimb_file( '/site/site_'.$_GET['id'].'_deak.kimb' ) ){
-			$sitef = new KIMBdbf( '/site/site_'.$_GET['id'].'_deak.kimb' );
-		}
-		else{
-			$sitecontent->echo_error('Die Seite wurde nicht gefunden' , '404');
-			$sitecontent->output_complete_site();
-			die;
-		}
-	}
-
 	if( isset( $_POST['title'] ) || isset( $_POST['inhalt'] ) ){
 
-		$sitef->write_kimb_replace( 'title' , $_POST['title'] );
+		$sitef->write_kimb_replace( $dbftag['title'] , $_POST['title'] );
 		$sitef->write_kimb_replace( 'header' , $_POST['header'] );
-		$sitef->write_kimb_replace( 'keywords' , $_POST['keywords'] );
-		$sitef->write_kimb_replace( 'description' , $_POST['description'] );
-		$sitef->write_kimb_replace( 'inhalt' , $_POST['inhalt'] );
-		$sitef->write_kimb_replace( 'footer' , $_POST['footer'] );
+		$sitef->write_kimb_replace( $dbftag['keywords'] , $_POST['keywords'] );
+		$sitef->write_kimb_replace( $dbftag['description'] , $_POST['description'] );
+		$sitef->write_kimb_replace( $dbftag['inhalt'] , $_POST['inhalt'] );
+		$sitef->write_kimb_replace( $dbftag['footer'] , $_POST['footer'] );
 		$sitef->write_kimb_replace( 'time' , time() );
 		$sitef->write_kimb_replace( 'made_user' , $_SESSION['name'] );
 
 	}
 	
-	$seite['title'] = $sitef->read_kimb_one( 'title' );
+	$seite['title'] = $sitef->read_kimb_one( $dbftag['title'] );
 	$seite['header'] = $sitef->read_kimb_one( 'header' );
-	$seite['keywords'] = $sitef->read_kimb_one( 'keywords' );
-	$seite['description'] = $sitef->read_kimb_one( 'description' );
-	$seite['inhalt'] = $sitef->read_kimb_one( 'inhalt' );
-	$seite['footer'] = $sitef->read_kimb_one( 'footer' );
+	$seite['keywords'] = $sitef->read_kimb_one( $dbftag['keywords'] );
+	$seite['description'] = $sitef->read_kimb_one( $dbftag['description'] );
+	$seite['inhalt'] = $sitef->read_kimb_one( $dbftag['inhalt'] );
+	$seite['footer'] = $sitef->read_kimb_one( $dbftag['footer'] );
 	$seite['time'] = $sitef->read_kimb_one( 'time' );
 	$seite['time'] = date( "d.m.Y \u\m H:i" , $seite['time'] );
 
@@ -231,7 +286,7 @@ elseif( $_GET['todo'] == 'edit' && is_numeric( $_GET['id'] ) ){
 	$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/index.php?id='.$id.'" target="_blank"><span class="ui-icon ui-icon-newwin" style="display:inline-block;" title="Diese Seite anschauen."></span></a>');
 	$sitecontent->add_site_content('<div style="display:none;"><div id="del-confirm" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Möchten Sie die Seite wirklich löschen?</p></div></div>');
 	
-	$sitecontent->add_site_content('<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=edit&amp;id='.$_GET['id'].'" method="post"><br />');
+	$sitecontent->add_site_content('<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=edit&amp;id='.$_GET['id'].'&amp;langid='.$_GET['langid'].'" method="post"><br />');
 	$sitecontent->add_site_content('<input type="text" value="'.$seite['title'].'" name="title" style="width:74%;"> <i>Seitentitel</i><br />');
 	$sitecontent->add_site_content('<div style="position:relative;" ><textarea name="header" style="width:74%; height:50px;">'.htmlentities( $seite['header'] ).'</textarea><span style="position:absolute; top:0; left:75.5%;"> <i>HTML Header</i>');
 		$sitecontent->add_site_content('<br /> <select id="libs">');
