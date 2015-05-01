@@ -354,7 +354,14 @@ elseif( $_GET['todo'] == 'edit' ){
 		}
 		$id = $file->search_kimb_xxxid( $_GET['reqid'] , 'requestid');
 		if( $id  != false ){
-
+			
+			if( $allgsysconf['lang'] == 'on' && $_GET['langid'] != 0 && is_numeric( $_GET['langid'] ) ){
+				$menuenames = new KIMBdbf('menue/menue_names_lang_'.$_GET['langid'].'.kimb');
+			}
+			else{
+				$_GET['langid'] = 0;
+			}
+			
 			if( isset( $_POST['name'] ) && isset( $_POST['pfad'] ) ){
 				$_POST['pfad'] = preg_replace("/[^0-9A-Za-z_-]/","", $_POST['pfad']);
 				$ok = $file->search_kimb_xxxid( $_POST['pfad'] , 'path');
@@ -412,8 +419,13 @@ elseif( $_GET['todo'] == 'edit' ){
 			}
 			</script>');
 
-			$sitecontent->add_site_content('<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=edit&amp;file='.$_GET['file'].'&amp;reqid='.$_GET['reqid'].'" method="post" onsubmit="if( document.getElementById(\'check\').value == \'nok\' ){ return false; } ">');
+			$sitecontent->add_site_content('<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=edit&amp;file='.$_GET['file'].'&amp;reqid='.$_GET['reqid'].'&amp;langid='.$_GET['langid'].'" method="post" onsubmit="if( document.getElementById(\'check\').value == \'nok\' ){ return false; } ">');
+			
+			if( $allgsysconf['lang'] == 'on'){
+				make_lang_dropdown( '"'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=edit&file='.$_GET['file'].'&reqid='.$_GET['reqid'].'&langid=" + val', $_GET['langid'] );
+			}
 			$sitecontent->add_site_content('<input type="text" value="'.$menuenames->read_kimb_one( $_GET['reqid'] ).'" name="name" > <i title="Name des Menues der im Frontend angezeigt wird." >(Menuename)</i><br />');
+			
 			$sitecontent->add_site_content('<input type="text" value="'.$file->read_kimb_id( $id , 'path').'" name="pfad" id="pfad" onkeyup="pfadreplace();" onchange="checkpath();" > <i id="pfadtext" title="Ein Menuepfad besteht aus Buchstaben, Zahlen, &apos;_&apos; und &apos;-&apos;.">(Menuepfad)</i><br />');
 			$sitecontent->add_site_content('<input type="text" value="'.$file->read_kimb_id( $id , 'status').'" name="status" readonly="readonly"> <i title="Veränderbar auf Seite Auflisten sowie Zuordnung." >(Status)</i><br />');
 			$sitecontent->add_site_content('<input type="text" value="'.$file->read_kimb_id( $id , 'requestid').'" name="requid" readonly="readonly"> <i title="Automatisch bei Erstellung des Menue generiert.">(RequestID)</i><br />');

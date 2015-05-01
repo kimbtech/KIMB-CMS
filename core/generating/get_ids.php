@@ -62,6 +62,91 @@ if( isset($_GET['url']) ){
 		}
 	}
 	
+	if( $allgsysconf['lang'] == 'on' ){
+		$langfile = new KIMBdbf( 'site/langfile.kimb' );
+		
+		$langnull = $langfile->read_kimb_id( '0', 'tag' );
+		$langid = (int) '0';
+		if( $langnull != $urlteile[$i] ){
+			$langid = $langfile->search_kimb_xxxid( $urlteile[$i] , 'tag' );
+			$done = true;
+		}
+		
+		if( $langid == false && $done ){
+			$opennew = true;
+			if( strlen( $urlteile[$i] ) == 2 ){
+				$file = new KIMBdbf('url/first.kimb');
+				if( $file->search_kimb_xxxid( $urlteile[$i] , 'path' ) == false ){
+					$iplus = true;	
+				}
+			}
+		}
+		elseif( is_numeric( $langid ) ){
+			$requestlang = $langfile->read_kimb_id( $langid );
+			$requestlang['id'] = $langid; 
+			if( $requestlang['status'] == 'off' ){
+				$opennew = true;
+				$iplus = true;
+			}
+		}
+		
+		if( $opennew ){
+			
+			$langs = explode( ',', $_SERVER['HTTP_ACCEPT_LANGUAGE']);
+			foreach($langs as $lang){
+				$lang = substr($lang, 0, 2);
+				$langnull = $langfile->read_kimb_id( '0', 'tag' );
+				if( $langnull == $lang ){
+					$id = (int) '0';
+					$okay = true;
+				}
+				else{
+					$id = $langfile->search_kimb_xxxid( $lang , 'tag' );
+					$okay = false;					
+				}
+
+				if( $id != false || $okay ){ 
+					$langarr = $langfile->read_kimb_id( $id );
+					if( $langarr['status'] == 'on' ){
+						$url = '/'.$lang;
+						break;
+					}
+				}
+			}
+			
+			if( empty( $url ) ){
+				$url = '/'.$langfile->read_kimb_id( '0', 'tag' );
+			}
+			
+			if( $iplus ){
+				$i++;
+			}
+			
+			while( !empty( $urlteile[$i] ) ){
+				$url .= '/'.$urlteile[$i];
+				$i++;
+			}
+			
+			echo $url ;
+			
+			//header("HTTP/1.1 301 Moved Permanently");
+			//open_url( $url );
+			
+			die;
+		}
+		else{
+			$i++;
+			
+			foreach( $langfile->read_kimb_all_teilpl( 'allidslist' ) as $id ){
+				$vals = $langfile->read_kimb_id( $id );
+				if( $vals['status'] == 'on' ){
+					$vals['thissite'] = 'XX';
+					$allglangs[] = $vals;
+				}
+			}
+		}
+	}
+	
 	$file = new KIMBdbf('url/first.kimb');
 	$ok = $file->search_kimb_xxxid( $urlteile[$i] , 'path' );
 	if( $ok != false){
@@ -131,6 +216,8 @@ else{
 	$_GET['id'] = '1'; // Startseite
 
 }
+
+header( 'Content-Language: '.$requestlang['tag'] );
 
 // get MenueID && get SiteID
 

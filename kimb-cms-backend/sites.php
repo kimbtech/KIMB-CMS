@@ -188,31 +188,7 @@ elseif( $_GET['todo'] == 'edit' && is_numeric( $_GET['id'] ) ){
 	}
 	
 	if( $allgsysconf['lang'] == 'on'){
-		
-		$langfile = new KIMBdbf( 'site/langfile.kimb' );
-		
-		$sitecontent->add_site_content('<select id="langs" style="padding:2px; padding-left:25px;" title="Bitte wählen Sie die Sprache, für die Sie die Inhalte verändern wollen!">');
-		
-		foreach( $langfile->read_kimb_all_teilpl( 'allidslist' ) as $id ){
-			$vals = $langfile->read_kimb_id( $id );
-			if( $id == $_GET['langid'] ){
-					$flagurl = $vals['flag'];
-			}
-			$sitecontent->add_site_content('<option style="background: url( '.$vals['flag'].' ) center left no-repeat; padding:2px; padding-left:25px;" value="'.$id.'">'.$vals['name'].'</option>');
-		}
-		
-		$sitecontent->add_site_content('</select>');
-		
-		$sitecontent->add_html_header('<script>	
-		$( function() {
-			$( "#langs" ).on( "change", function() {
-				var val = $( "#langs" ).val();
-				window.location = "'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=edit&id='.$_GET['id'].'&langid=" + val;
-			});
-			$( "#langs" ).val( '.$_GET['langid'].' );
-			$( "#langs" ).css( "background", "url( '.$flagurl.' ) center left no-repeat" );
-		});
-		</script>');
+		make_lang_dropdown( '"'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=edit&id='.$_GET['id'].'&langid=" + val', $_GET['langid'] );
 	}
 
 	$sitecontent->add_html_header('<script>

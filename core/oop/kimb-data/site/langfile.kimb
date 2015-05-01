@@ -17,3 +17,9 @@
 <[2-status]>off<[2-status]>
 <[2-name]>Französisch<[2-name]>
 <[2-flag]>http://localhost:8000/load/system/flags/fr.gif<[2-flag]>
+<[allidslist4]>3<[allidslist4]>
+<[3-tag]>an<[3-tag]>
+<[3]>tag==status==name==flag<[3]>
+<[3-status]>off<[3-status]>
+<[3-name]>dd<[3-name]>
+<[3-flag]>http://localhost:8000/load/system/flags/an.gif<[3-flag]>

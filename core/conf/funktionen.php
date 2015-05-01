@@ -807,6 +807,40 @@ function get_req_url(){
 	return $req;
 }
 
+function make_lang_dropdown( $openurl, $langid ){
+		global $sitecontent;
+	
+		$langfile = new KIMBdbf( 'site/langfile.kimb' );
+		
+		$sitecontent->add_site_content('<select id="langs" style="padding:2px; padding-left:25px;" title="Bitte wählen Sie die Sprache, für die Sie die Inhalte verändern wollen!">');
+		
+		foreach( $langfile->read_kimb_all_teilpl( 'allidslist' ) as $id ){
+			$vals = $langfile->read_kimb_id( $id );
+			if( $id == $langid ){
+					$flagurl = $vals['flag'];
+			}
+			if( $vals['status'] == 'off' ){
+				$statinfo = ' (deaktiviert)';
+			}
+			else{
+				$statinfo = '';
+			}
+			$sitecontent->add_site_content('<option style="background: url( '.$vals['flag'].' ) center left no-repeat; padding:2px; padding-left:25px;" value="'.$id.'">'.$vals['name'].$statinfo.'</option>');
+		}
+		
+		$sitecontent->add_site_content('</select>');
+		
+		$sitecontent->add_html_header('<script>	
+		$( function() {
+			$( "#langs" ).on( "change", function() {
+				var val = $( "#langs" ).val();
+				window.location = '.$openurl.';
+			});
+			$( "#langs" ).val( '.$_GET['langid'].' );
+			$( "#langs" ).css( "background", "url( '.$flagurl.' ) center left no-repeat" );
+		});
+		</script>');
+}
 
 // Funktionen von Add-ons hinzufügen
 require_once( __DIR__.'/../addons/addons_funcclass.php' );
