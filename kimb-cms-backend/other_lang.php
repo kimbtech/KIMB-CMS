@@ -31,18 +31,121 @@ $sitecontent->add_site_content('<h2>Mehrsprachige Seite <span class="ui-icon ui-
 $sitecontent->add_html_header('<style>td { border:1px solid #000000; padding:2px;} td a { text-decoration:none; } label{ width:200px; }</style>');
 
 if( isset( $_GET['do'] ) && $allgsysconf['lang'] == 'on' ){
+	
+	$langfile = new KIMBdbf( 'site/langfile.kimb' );
+	
+	if( !empty( $_POST['stdtag'] ) && !empty( $_POST['stdlangname'] ) ){
+		
+		$vals = $langfile->read_kimb_id( '0' );
+		
+		$ch = false;
+		
+		if( $vals['tag'] != $_POST['stdtag'] ){
+			$langfile->write_kimb_id( '0', 'add', 'tag', $_POST['stdtag'] );
+			$ch = true;
+		}
+		if( $vals['status'] != 'on' ){
+			$langfile->write_kimb_id( '0', 'add', 'status', 'on' );
+			$ch = true;
+		}
+		if( $vals['name'] != $_POST['stdlangname'] ){
+			$langfile->write_kimb_id( '0', 'add', 'name', $_POST['stdlangname'] );
+			$ch = true;		
+		}
+		if( $vals['flag'] != $allgsysconf['siteurl'].'/load/system/flags/'.$_POST['stdtag'].'.gif' ){
+			if( is_file( __DIR__.'/../load/system/flags/'.$_POST['stdtag'].'.gif' ) ){
+				$langfile->write_kimb_id( '0', 'add', 'flag', $allgsysconf['siteurl'].'/load/system/flags/'.$_POST['stdtag'].'.gif' );
+			}
+			else{
+				$langfile->write_kimb_id( '0', 'add', 'flag', $allgsysconf['siteurl'].'/load/system/flags/new.gif' );			
+			}
+			$ch = true;
+		}
+		
+		if( $ch ){
+			$sitecontent->echo_message( 'Die Änderungen der Standardsprache wurden gespeichert!' );
+		}
+	}
+	if( !empty( $_POST['newtag'] ) && !empty( $_POST['newlangname'] ) ){
+		
+		$id = $langfile->next_kimb_id();
+		
+		$langfile->write_kimb_id( $id, 'add', 'tag', $_POST['newtag'] );
+		$langfile->write_kimb_id( $id, 'add', 'status', 'on' );
+		$langfile->write_kimb_id( $id, 'add', 'name', $_POST['newlangname'] );
+		if( is_file( __DIR__.'/../load/system/flags/'.$_POST['newtag'].'.gif' ) ){
+			$langfile->write_kimb_id( $id, 'add', 'flag', $allgsysconf['siteurl'].'/load/system/flags/'.$_POST['newtag'].'.gif' );
+		}
+		else{
+			$langfile->write_kimb_id( $id, 'add', 'flag', $allgsysconf['siteurl'].'/load/system/flags/new.gif' );			
+		}
+		
+		$sitecontent->echo_message( 'Eine neue Sprache wurde hinzugefügt!' );
+	}
+	if( isset( $_GET['chdeak'] ) && is_numeric( $_GET['id'] ) && $_GET['id'] != 0 ){
+		
+		$stat = $langfile->read_kimb_id( $_GET['id'], 'status' );
+		
+		if( $stat == 'on' ){
+			$langfile->write_kimb_id( $_GET['id'], 'add', 'status', 'off' );
+		}
+		else{
+			$langfile->write_kimb_id( $_GET['id'], 'add', 'status', 'on' );
+		}
+		
+		$sitecontent->echo_message( 'Der Status einer Sprache wurde geändert!' );
+	}
 
 	$sitecontent->add_html_header('<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/system/langs.min.js"></script>');
-	$sitecontent->add_html_header('<script>$(function() { $( "#autoc" ).autocomplete({ source: langtag }); });
-	function setname(){ var tagna = $( "#autoc" ).val(); $( "#langnam" ).val( langobj[tagna] ); } </script>');
+	$sitecontent->add_html_header('<script>$(function() { $( "#autoc" ).autocomplete({ source: langtag }); $( "#autocstd" ).autocomplete({ source: langtag }); });
+	function setnameflag( id , tagv, langn ){ var tagna = $( "input." + tagv ).val(); $( "#" + langn ).val( langobj[tagna] ); $( "img#" + id ).attr( "src" , "'.$allgsysconf['siteurl'].'/load/system/flags/" + tagna + ".gif" ); }
+	function make_uneditable( id ){ $("input#" + id ).attr( "readonly" , true); } function make_editable( id ){ $("input#" + id ).removeAttr( "readonly" , true); } </script>');
 
-	$langfile = new KIMBdbf( 'site/langfile.kimb' );
+	$sitecontent->add_site_content('<h3>Sprachen dieser Seite</h3>');
 
-	$sitecontent->add_site_content('<table width="100%"><tr> <th>ID</th> <th>Tag <span class="ui-icon ui-icon-info" style="display:inline-block;" title="Der Tag dient für die URL!"></span></th> <th>Name</th> <th>Status <span class="ui-icon ui-icon-info" style="display:inline-block;" title="Eine Sprache kann nicht gelöscht, nur deaktiviert, werden!"></span></th> </tr>');
-	$sitecontent->add_site_content('<tr> <td title="Standard ( Sprache des ersten Contents )" >0</td> <td></td> <td></td> <td></td> </tr>');
+	$sitecontent->add_site_content('<form method="post" action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/other_lang.php?do">');
+
+	$vals = $langfile->read_kimb_id( '0' );
+
+	$sitecontent->add_site_content('<table width="100%"><tr> <th>ID</th> <th>Tag <span class="ui-icon ui-icon-info" style="display:inline-block;" title="Der Tag dient für die URL!"></span></th> <th>Name</th> <th>Flagge</th> <th>Status <span class="ui-icon ui-icon-info" style="display:inline-block;" title="Eine Sprache kann nicht gelöscht, nur deaktiviert, werden!"></span></th> </tr>');
+	$sitecontent->add_site_content('<tr> 
+		<td>0 <span class="ui-icon ui-icon-info" title="Standard ( Sprache des ersten Contents )" style="display:inline-block;"></span></td> 
+		<td><input style="width:95%;" type="text" name="stdtag" id="autocstd" class="stdtag" placeholder="Geben Sie einen Tag für eine Sprache an ( nach ISO 639; z.B.: de, en )" title="Geben Sie einen Tag für eine Sprache an ( nach ISO 639; z.B.: de, en )" onchange="setnameflag( \'stdflag\', \'stdtag\', \'stdlangnam\' );" value="'.$vals['tag'].'"></td> 
+		<td><input style="width:95%;" type="text" readonly="readonly" onfocus="make_editable( \'stdlangnam\' );" onblur="make_uneditable( \'stdlangnam\' );" name="stdlangname" title="Klicken zum Ändern!" id="stdlangnam" value="'.$vals['name'].'"></td>
+		');
+		if( !empty( $vals['flag'] ) ){
+			$sitecontent->add_site_content('<td><img src="'.$vals['flag'].'" id="stdflag" title="Flag" alt="Flagge" /></td>');
+		}
+		else{
+			$sitecontent->add_site_content('<td><img src="'.$allgsysconf['siteurl'].'/load/system/flags/new.gif" id="stdflag" title="Flag" alt="Flagge" /></td>');	
+		}
+		$sitecontent->add_site_content(' 
+		<td><input type="submit" value="Ändern"></td>
+	</tr><tr><td colspan="5"></td></tr>');
+	
+	foreach( $langfile->read_kimb_all_teilpl( 'allidslist' ) as $id ){
+		if( $id != 0){
+			$vals = $langfile->read_kimb_id( $id );
+			if( $vals['status'] == 'on' ){
+				$status = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/other_lang.php?do&amp;chdeak&amp;id='.$id.'"><span class="ui-icon ui-icon-check" style="display:inline-block;" title="Diese Sprache ist zu Zeit aktiviert. ( click -> ändern )" ></sapn></a>';	
+			}
+			else{
+				$status = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/other_lang.php?do&amp;chdeak&amp;id='.$id.'"><span class="ui-icon ui-icon-close" style="display:inline-block;" title="Diese Sprache ist zu Zeit deaktiviert. ( click -> ändern )" ></sapn></a>';
+			}
+			$sitecontent->add_site_content('<tr> <td>'.$id.'</td> <td>'.$vals['tag'].'</td> <td>'.$vals['name'].'</td> <td><img src="'.$vals['flag'].'" id="stdflag" title="Flag" alt="Flagge" /></td> <td>'.$status.'</td> </tr>');
+		}
+	}
 
 
-	$sitecontent->add_site_content('<tr> <td></td> <td><input type="text" name="newtag" id="autoc" onchange="setname();"></td> <td><input type="text" name="langname" id="langnam"></td> <td></td> </tr>');
+	$sitecontent->add_site_content('<tr> 
+		<td>X</td> 
+		<td><input style="width:95%;" type="text" name="newtag" id="autoc" class="newtag" placeholder="Geben Sie einen Tag für eine Sprache an ( nach ISO 639; z.B.: de, en )" title="Geben Sie einen Tag für eine Sprache an ( nach ISO 639; z.B.: de, en )" onchange="setnameflag( \'flag\', \'newtag\', \'langnam\' );"></td> 
+		<td><input style="width:95%;" type="text" readonly="readonly" onfocus="make_editable( \'langnam\' );" onblur="make_uneditable( \'langnam\' );" name="newlangname" title="Klicken zum Ändern!" id="langnam"></td> 
+		<td><img src="'.$allgsysconf['siteurl'].'/load/system/flags/new.gif" id="flag" title="Flag" alt="Flagge" /></td> 
+		<td><input type="submit" value="Hinzufügen"></td> 
+	</tr>');
+	
+	$sitecontent->add_site_content('</form>');
 
 
 }
