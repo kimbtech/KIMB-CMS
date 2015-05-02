@@ -37,8 +37,7 @@ if( isset($_GET['url']) ){
 
 	if( $oldurl != false ){
 		$newrequid = $oldurlfile->read_kimb_id( $oldurl , 'id' );
-		header("HTTP/1.1 301 Moved Permanently");
-		open_url( make_path_outof_reqid( $newrequid ) );
+		open_url( make_path_outof_reqid( $newrequid ), 'insystem', 301 );
 	}
 
 	// URL => RequestID
@@ -131,7 +130,6 @@ if( isset($_GET['url']) ){
 				$i++;
 			}
 			
-			header("HTTP/1.1 301 Moved Permanently");
 			open_url( $url );
 			
 			die;
@@ -269,7 +267,6 @@ if( $allgsysconf['lang'] == 'on' ){
 				}
 			}
 			
-			header("HTTP/1.1 301 Moved Permanently");
 			open_url( '/index.php?id='.$_GET['id'].'&langid='.$langid );
 			
 			die;

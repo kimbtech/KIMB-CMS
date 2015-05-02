@@ -30,7 +30,7 @@ class cacheCMS{
 		$this->sitecontent = $sitecontent;
 	}
 
-	public function cache_menue($id, $name, $link, $niveau, $clicked, $langid = 0 ){
+	public function cache_menue($id, $name, $link, $niveau, $clicked, $requid, $langid = 0 ){
 		if(!is_object($this->menuefile)){	
 			if( $langid != 0 ){
 				$this->menuefile = new KIMBdbf('/cache/menue_'.$id.'_lang_'.$langid.'.kimb');	
@@ -49,6 +49,7 @@ class cacheCMS{
 		$this->menuefile->write_kimb_id( $fileid , 'add' , 'name' , $name );
 		$this->menuefile->write_kimb_id( $fileid , 'add' , 'niveau' , $niveau );
 		$this->menuefile->write_kimb_id( $fileid , 'add' , 'clicked' , $clicked );
+		$this->menuefile->write_kimb_id( $fileid , 'add' , 'requid' , $requid );
 
 		return true;
 	}
@@ -70,12 +71,13 @@ class cacheCMS{
 				$link = $this->menuefile->read_kimb_id( $fileid , 'link');
 				$niveau = $this->menuefile->read_kimb_id( $fileid , 'niveau');
 				$clicked = $this->menuefile->read_kimb_id( $fileid , 'clicked');
+				$requid = $this->menuefile->read_kimb_id( $fileid , 'requid');
 
 				if( $name == '' ){
 					break;
 				}
 
-				$this->sitecontent->add_menue_one_entry($name, $link, $niveau, $clicked );
+				$this->sitecontent->add_menue_one_entry($name, $link, $niveau, $clicked, $requid );
 
 				$fileid++;
 			}

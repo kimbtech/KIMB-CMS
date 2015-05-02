@@ -37,7 +37,7 @@ function send_mail($to, $inhalt){
 }
 
 //browser an url weiterleiten
-function open_url($url, $area = 'insystem'){
+function open_url($url, $area = 'insystem', $code = 303 ){
 	global $allgsysconf;
 
 	if( $area == 'insystem'){
@@ -45,7 +45,7 @@ function open_url($url, $area = 'insystem'){
 	}
 
 	if($allgsysconf['urlweitermeth'] == '1'){
-		header('Location: '.$url);
+		header('Location: '.$url, true, $code );
 		die;
 	}
 	elseif($allgsysconf['urlweitermeth'] == '2'){
@@ -310,7 +310,7 @@ function gen_menue( $allgrequestid , $filename = 'url/first.kimb' , $grpath = '/
 		}
 		if( $file->read_kimb_id( $id , 'status') == 'on' ){
 			if( $allgsysconf['urlrewrite'] == 'on' ){
-				$sitecontent->add_menue_one_entry( $menuname , $allgsysconf['siteurl'].$grpath.$path , $niveau, $clicked);
+				$sitecontent->add_menue_one_entry( $menuname , $allgsysconf['siteurl'].$grpath.$path , $niveau, $clicked, $requid);
 
 				if( $breadarrfertig == 'nok' ){
 					$breadcrumbarr[$niveau]['link'] = $allgsysconf['siteurl'].$grpath.$path; 
@@ -323,11 +323,11 @@ function gen_menue( $allgrequestid , $filename = 'url/first.kimb' , $grpath = '/
 				}
 
 				if(is_object($sitecache)){
-					$sitecache->cache_menue($allgmenueid, $menuname , $allgsysconf['siteurl'].$grpath.$path , $niveau , $clicked, $requestlangid );
+					$sitecache->cache_menue($allgmenueid, $menuname , $allgsysconf['siteurl'].$grpath.$path , $niveau , $clicked, $requid, $requestlangid );
 				}
 			}
 			else{
-				$sitecontent->add_menue_one_entry( $menuname , $allgsysconf['siteurl'].'/index.php?id='.$requid , $niveau, $clicked);
+				$sitecontent->add_menue_one_entry( $menuname , $allgsysconf['siteurl'].'/index.php?id='.$requid , $niveau, $clicked, $requid);
 
 				if( $breadarrfertig == 'nok' ){
 					$breadcrumbarr[$niveau]['link'] = $allgsysconf['siteurl'].'/index.php?id='.$requid; 
@@ -340,7 +340,7 @@ function gen_menue( $allgrequestid , $filename = 'url/first.kimb' , $grpath = '/
 				}
 
 				if(is_object($sitecache)){
-					$sitecache->cache_menue($allgmenueid, $menuname , $allgsysconf['siteurl'].'/index.php?id='.$requid , $niveau , $clicked);
+					$sitecache->cache_menue($allgmenueid, $menuname , $allgsysconf['siteurl'].'/index.php?id='.$requid , $niveau , $clicked, $requid);
 				}
 			}
 		}

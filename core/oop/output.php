@@ -23,7 +23,7 @@ defined('KIMB_CMS') or die('No clean Request');
 
 class system_output{
 
-	protected $title, $header, $allgsysconf, $menue, $sitecontent, $addon, $footer, $sonderfile;
+	protected $title, $header, $allgsysconf, $menue, $sitecontent, $addon, $footer, $sonderfile, $hidden_menu;
 
 	public function __construct($allgsysconf){
 		$this->allgsysconf = $allgsysconf;
@@ -32,19 +32,24 @@ class system_output{
 	}
 
 	public function add_menue_one_entry($name, $link, $niveau, $clicked , $allgrequestid){
+		
 		if( $clicked == 'yes' ){
 			$this->add_html_header( '<link rel="canonical" href="'.$link.'">' );
 		}
-		if( isset( $this->allgsysconf['theme'] ) ){
-			if( file_exists( __DIR__.'/../theme/output_menue_'.$this->allgsysconf['theme'].'.php' ) ){
-				require(__DIR__.'/../theme/output_menue_'.$this->allgsysconf['theme'].'.php');
+		
+		if( !in_array( $allgrequestid, $this->hidden_menu  ) ){
+		
+			if( isset( $this->allgsysconf['theme'] ) ){
+				if( file_exists( __DIR__.'/../theme/output_menue_'.$this->allgsysconf['theme'].'.php' ) ){
+					require(__DIR__.'/../theme/output_menue_'.$this->allgsysconf['theme'].'.php');
+				}
+				else{
+					require(__DIR__.'/../theme/output_menue_norm.php');
+				}
 			}
 			else{
 				require(__DIR__.'/../theme/output_menue_norm.php');
 			}
-		}
-		else{
-			require(__DIR__.'/../theme/output_menue_norm.php');
 		}
 	}
 
@@ -113,6 +118,16 @@ class system_output{
 
 	}
 
+	public function hide_menu( $array ){
+		if( !is_array() ){
+			$array = (array) $array;
+		}
+		foreach( $array as $val ){
+			if( $val != 1){
+				$this->hidden_menu[] = $val;
+			}	
+		}
+	}
 
 	public function output_complete_site(){
 
