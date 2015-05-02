@@ -116,6 +116,10 @@ class BEmenue{
 				//menuename schreiben
 				$menuenames->write_kimb_new( $newm['requestid'] , $newm['name'] );
 				
+				if( empty( $newm['file'] ) ){
+					$newm['file'] = $GET['file'];
+				}
+				
 				return $newm;
 	}
 	
