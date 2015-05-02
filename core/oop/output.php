@@ -66,6 +66,11 @@ class system_output{
 			$this->sitecontent .= $schlusszeile."\r\n";
 		}
 	}
+	
+	public function set_lang( $allglangs, $requestlang ){
+		$this->allglangs = $allglangs;
+		$this->requestlang = $requestlang; 
+	}
 
 	public function add_site_content($content){
 		$this->sitecontent .= $content;

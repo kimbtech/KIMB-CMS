@@ -67,7 +67,11 @@ if( isset($_GET['url']) ){
 		
 		$langnull = $langfile->read_kimb_id( '0', 'tag' );
 		$langid = (int) '0';
-		if( $langnull != $urlteile[$i] ){
+		if( empty( $urlteile[$i] ) ){
+			$langid = false;
+			$done = true;
+		}
+		elseif( $langnull != $urlteile[$i] ){
 			$langid = $langfile->search_kimb_xxxid( $urlteile[$i] , 'tag' );
 			$done = true;
 		}
@@ -127,20 +131,24 @@ if( isset($_GET['url']) ){
 				$i++;
 			}
 			
-			echo $url ;
-			
-			//header("HTTP/1.1 301 Moved Permanently");
-			//open_url( $url );
+			header("HTTP/1.1 301 Moved Permanently");
+			open_url( $url );
 			
 			die;
 		}
 		else{
 			$i++;
 			
+			$ii = $i;
+			while( !empty( $urlteile[$ii] ) ){
+				$url .= '/'.$urlteile[$ii];
+				$ii++;
+			}
+			
 			foreach( $langfile->read_kimb_all_teilpl( 'allidslist' ) as $id ){
 				$vals = $langfile->read_kimb_id( $id );
 				if( $vals['status'] == 'on' ){
-					$vals['thissite'] = 'XX';
+					$vals['thissite'] = $allgsysconf['siteurl'].'/'.$vals['tag'].$url;
 					$allglangs[] = $vals;
 				}
 			}
@@ -201,6 +209,8 @@ if( isset($_GET['url']) ){
 	
 }
 elseif( isset($_GET['id']) ){
+	
+	$idreq = true;
 
 	// RequestID => weiter gehts ...
 
@@ -208,16 +218,81 @@ elseif( isset($_GET['id']) ){
 		$sitecontent->echo_error( 'Fehlerhafte RequestID !' );
 		$allgerr = 'unknown';
 		$_GET['id'] = '1';
-
 	}
 }
 else{
 
 	$_GET['id'] = '1'; // Startseite
+	
+	$idreq = true;
 
 }
 
-header( 'Content-Language: '.$requestlang['tag'] );
+if( $allgsysconf['lang'] == 'on' ){
+	if( $idreq ){
+		
+		$langfile = new KIMBdbf( 'site/langfile.kimb' );
+		
+		if( is_numeric( $_SESSION['lang']['id'] ) && !is_numeric( $_GET['langid'] ) ){
+			$_GET['langid'] = $_SESSION['lang']['id'];
+		}
+		
+		if( is_numeric( $_GET['langid'] ) ){
+			
+			$requestlang = $langfile->read_kimb_id( $_GET['langid'] );
+			$requestlang['id'] = $_GET['langid']; 
+			if( $requestlang['status'] == 'off' ){
+				$nolangidset = true;
+			}
+		}
+		
+		if( $nolangidset || !is_numeric( $_GET['langid'] ) ){
+			$langs = explode( ',', $_SERVER['HTTP_ACCEPT_LANGUAGE']);
+			foreach($langs as $lang){
+				$lang = substr($lang, 0, 2);
+				$langnull = $langfile->read_kimb_id( '0', 'tag' );
+				if( $langnull == $lang ){
+					$id = (int) '0';
+					$okay = true;
+				}
+				else{
+					$id = $langfile->search_kimb_xxxid( $lang , 'tag' );
+					$okay = false;					
+				}
+
+				if( $id != false || $okay ){ 
+					$langarr = $langfile->read_kimb_id( $id );
+					if( $langarr['status'] == 'on' ){
+						$langid = $id;
+						break;
+					}
+				}
+			}
+			
+			header("HTTP/1.1 301 Moved Permanently");
+			open_url( '/index.php?id='.$_GET['id'].'&langid='.$langid );
+			
+			die;
+		}	
+		
+			foreach( $langfile->read_kimb_all_teilpl( 'allidslist' ) as $id ){
+				$vals = $langfile->read_kimb_id( $id );
+				if( $vals['status'] == 'on' ){
+					$vals['thissite'] = $allgsysconf['siteurl'].'/index.php?id='.$_GET['id'].'&langid='.$id;
+					$allglangs[] = $vals;
+				}
+			}
+	}
+	
+	header( 'Content-Language: '.$requestlang['tag'] );
+	
+	$sitecontent->set_lang( $allglangs, $requestlang );
+	
+	$_SESSION['lang'] = $requestlang;
+	
+	print_r( $allglangs );
+	print_r( $requestlang );
+}
 
 // get MenueID && get SiteID
 

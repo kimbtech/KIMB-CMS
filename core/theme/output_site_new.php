@@ -5,7 +5,12 @@
 //    array( $this->allgsysconf )
 // Diese Datei ist Teil eines Objekts
 
-echo('<!DOCTYPE html> <html> <head>'."\r\n");
+if( $this->allgsysconf['lang'] == 'on' ){
+	echo('<!DOCTYPE html> <html lang="'.$this->requestlang['tag'].'"> <head>'."\r\n");
+}
+else{
+	echo('<!DOCTYPE html> <html> <head>'."\r\n");
+}
 echo ('<title>'.$this->allgsysconf['sitename'].' : '.$this->title.'</title>'."\r\n");
 echo ('<link rel="shortcut icon" href="'.$this->allgsysconf['sitefavi'].'" type="image/x-icon; charset=binary">'."\r\n");
 echo ('<link rel="icon" href="'.$this->allgsysconf['sitefavi'].'" type="image/x-icon; charset=binary">'."\r\n");

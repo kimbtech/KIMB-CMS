@@ -14,7 +14,7 @@
 <[allidslist3]>2<[allidslist3]>
 <[2-tag]>fr<[2-tag]>
 <[2]>tag==status==name==flag<[2]>
-<[2-status]>off<[2-status]>
+<[2-status]>on<[2-status]>
 <[2-name]>Französisch<[2-name]>
 <[2-flag]>http://localhost:8000/load/system/flags/fr.gif<[2-flag]>
 <[allidslist4]>3<[allidslist4]>
