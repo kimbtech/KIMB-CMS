@@ -853,6 +853,21 @@ function make_lang_dropdown( $openurl, $langid ){
 		</script>');
 }
 
+function make_menue_array_helper(  ){
+	global $idfile, $menuenames, $menuearray, $fileidlist, $filelisti;
+
+	$menuearray = array();
+	$fileidlist = '';
+	$filelisti = '';
+
+	$idfile = new KIMBdbf('menue/allids.kimb');
+	$menuenames = new KIMBdbf('menue/menue_names.kimb');
+	
+	make_menue_array();
+	
+	return $menuearray;
+}
+
 // Funktionen von Add-ons hinzufügen
 require_once( __DIR__.'/../addons/addons_funcclass.php' );
 ?>
