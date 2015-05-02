@@ -48,6 +48,15 @@ echo ('<link href="'.$this->allgsysconf['siteurl'].'/load/system/theme/touch_ico
 
 echo('</head><body>'."\r\n");
 	echo('<div id="page">'."\r\n");
+	
+	if( $this->allgsysconf['lang'] == 'on' ){
+		echo( '<div id="lang"><ul>' );
+		foreach( $this->allglangs as $lang ){
+			echo( '<li><a href="'.$lang['thissite'].'"><img src="'.$lang['flag'].'" title="'.$lang['name'].'" alt=""></a></li>' );
+		}
+		echo( '</ul></div>' );
+	}
+	
 		echo('<div id="header">'."\r\n");
 			echo('<a href="'.$this->allgsysconf['siteurl'].'/">'.$this->allgsysconf['sitename']."\r\n");
 			echo('<img src="'.$this->allgsysconf['siteurl'].'/load/system/theme/logo.png" style="border:none; float:right;"></a>'."\r\n");
@@ -108,6 +117,7 @@ echo('</head><body>'."\r\n");
 
 		echo('</div>'."\r\n");
 	echo('</div>'."\r\n");
+		
 	echo ('<script>if( document.getElementById( "contentm" ) != null ){ var cont = document.getElementById( "contentm" ); } else{ var cont = document.getElementById( "contents" ); } cont.style.paddingTop = document.getElementById("breadcrumb").clientHeight + "px";  document.getElementById("footer").style.width = cont.offsetWidth + "px"; if( document.getElementById( "permalink" ) != null ){ cont.style.paddingBottom = document.getElementById("permalink").clientHeight + "px"; } if( document.getElementById( "usertime" ) != null ){ cont.style.paddingBottom = document.getElementById("usertime").clientHeight + "px"; }</script>'."\r\n");
 echo('</body> </html>');
 

@@ -17,8 +17,6 @@
 //IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 /*************************************************/
 
-
-
 defined('KIMB_CMS') or die('No clean Request');
 
 if(!is_object( $idfile )){
@@ -32,18 +30,30 @@ else{
 	$allgrequestid = $idfile->search_kimb_xxxid( $allgmenueid , 'menueid' );
 }
 
+if( $allgsysconf['lang'] == 'off' ){
+	$requestlang['id'] = 0;
+}
+
 if( $allgsysconf['cache'] == 'on' ){
-	if( $sitecache->load_cached_menue($allgmenueid) ){
+	if( $sitecache->load_cached_menue($allgmenueid, $requestlang['id'] ) ){
 		$menuecache = 'loaded';
 	}
 }
 
-$menuenames = new KIMBdbf('menue/menue_names.kimb');
+if( $allgsysconf['lang'] == 'on' && $requestlang['id'] != 0 ){
+	$menuenames = new KIMBdbf('menue/menue_names_lang_'.$requestlang['id'].'.kimb');
+	$menuenameslangst = new KIMBdbf('menue/menue_names.kimb');
+}
+else{
+	$menuenames = new KIMBdbf('menue/menue_names.kimb');
+	$menuenameslangst = $menuenames;
+}
+
 
 if( $menuecache != 'loaded'){
 
 	$breadarrfertig = 'nok';
-
+	
 	gen_menue( $allgrequestid );
 
 	$breadcrumblinks = '<div id="breadcrumb" >';
@@ -59,12 +69,22 @@ if( $menuecache != 'loaded'){
 	$breadcrumblinks .= '</div>';
 
 	if( is_object($sitecache) ){
-		$sitecache->cache_addon( $allgmenueid , $breadcrumblinks , 'breadcrumb');
+		if( $allgsysconf['lang'] == 'on' && $requestlang['id'] != 0 ){
+			$sitecache->cache_addon( $allgmenueid , $breadcrumblinks , 'breadcrumb-'.$requestlang['id'] );
+		}
+		else{
+			$sitecache->cache_addon( $allgmenueid , $breadcrumblinks , 'breadcrumb' );
+		}
 	}
 
 }
 else{
-	$breadcrumblinks = $sitecache->get_cached_addon( $allgmenueid , 'breadcrumb' );
+	if( $allgsysconf['lang'] == 'on' && $requestlang['id'] != 0 ){
+		$breadcrumblinks = $sitecache->get_cached_addon( $allgmenueid , 'breadcrumb-'.$requestlang['id'] );
+	}
+	else{
+		$breadcrumblinks = $sitecache->get_cached_addon( $allgmenueid , 'breadcrumb' );
+	}
 
 	$breadcrumblinks = $breadcrumblinks[0];
 }

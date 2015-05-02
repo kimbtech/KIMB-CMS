@@ -30,9 +30,14 @@ class cacheCMS{
 		$this->sitecontent = $sitecontent;
 	}
 
-	public function cache_menue($id, $name, $link, $niveau, $clicked){
-		if(!is_object($this->menuefile)){
-			$this->menuefile = new KIMBdbf('/cache/menue_'.$id.'.kimb');
+	public function cache_menue($id, $name, $link, $niveau, $clicked, $langid = 0 ){
+		if(!is_object($this->menuefile)){	
+			if( $langid != 0 ){
+				$this->menuefile = new KIMBdbf('/cache/menue_'.$id.'_lang_'.$langid.'.kimb');	
+			}
+			else{
+				$this->menuefile = new KIMBdbf('/cache/menue_'.$id.'.kimb');
+			}
 		}
 		if( !isset( $this->menue )){
 			$this->menuefile->delete_kimb_file( );
@@ -47,9 +52,14 @@ class cacheCMS{
 
 		return true;
 	}
-	public function load_cached_menue($id){
-		if(!is_object($this->menuefile)){
-			$this->menuefile = new KIMBdbf('/cache/menue_'.$id.'.kimb');
+	public function load_cached_menue($id, $langid = 0){
+		if(!is_object($this->menuefile)){	
+			if( $langid != 0 ){
+				$this->menuefile = new KIMBdbf('/cache/menue_'.$id.'_lang_'.$langid.'.kimb');	
+			}
+			else{
+				$this->menuefile = new KIMBdbf('/cache/menue_'.$id.'.kimb');
+			}
 		}
 		$time = $this->menuefile->read_kimb_one( 'time' );
 		if(( time()-$time <= $this->allgsysconf['cachelifetime'] || $this->allgsysconf['cachelifetime'] == 'always' ) && $time != ''){
@@ -80,12 +90,11 @@ class cacheCMS{
 			$this->sitefile = new KIMBdbf('/cache/addon_'.$id.'.kimb');
 		}
 		if( !isset( $this->addon )){
-			$this->sitefile->delete_kimb_file( );
-			$this->sitefile->write_kimb_new( 'time' , time() );
+			$this->sitefile->write_kimb_one( 'time' , time() );
 			$this->addon = 'yes';
 		}
 
-		$this->sitefile->write_kimb_new( 'inhalt-'.$name , $inhalt );
+		$this->sitefile->write_kimb_one( 'inhalt-'.$name , $inhalt );
 		
 		return true;
 	}

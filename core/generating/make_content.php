@@ -33,15 +33,40 @@ if( $allgerr == '403' ){
 	$sitecontent->echo_error( 'Sie haben keinen Zugriff auf diese Seite!' , '403' );
 }
 elseif( is_object( $sitefile ) && !isset( $allgerr ) ){
-
-	$seite['title'] = $sitefile->read_kimb_one( 'title' );
+	
+	if( $allgsysconf['lang'] == 'on' && $requestlang['id'] != 0 ){
+			
+		$dbftag['title'] = 'title-'.$requestlang['id'];
+		$dbftag['keywords'] = 'keywords-'.$requestlang['id'];
+		$dbftag['description'] = 'description-'.$requestlang['id'];
+		$dbftag['inhalt'] = 'inhalt-'.$requestlang['id'];
+		$dbftag['footer'] = 'footer-'.$requestlang['id'];
+		
+		if( empty($sitefile->read_kimb_one( $dbftag['title'] )) && empty($sitefile->read_kimb_one( $dbftag['inhalt'] )) ){
+			$sitecontent->echo_error( 'Achtung: Diese Seite ist nicht in der von Ihnen gewünschten Sprache verfügbar!' );
+			$normtags = true;
+		}
+	}
+	else{
+		$normtags = true;
+	}
+	
+	if( $normtags ){
+		$dbftag['title'] = 'title';
+		$dbftag['keywords'] = 'keywords';
+		$dbftag['description'] = 'description';
+		$dbftag['inhalt'] = 'inhalt';
+		$dbftag['footer'] = 'footer';	
+	}
+		
+	$seite['title'] = $sitefile->read_kimb_one( $dbftag['title'] );
 	$seite['header'] = $sitefile->read_kimb_one( 'header' );
-	$seite['keywords'] = $sitefile->read_kimb_one( 'keywords' );
-	$seite['description'] = $sitefile->read_kimb_one( 'description' );
-	$seite['inhalt'] = $sitefile->read_kimb_one( 'inhalt' );
+	$seite['keywords'] = $sitefile->read_kimb_one( $dbftag['keywords'] );
+	$seite['description'] = $sitefile->read_kimb_one( $dbftag['description'] );
+	$seite['inhalt'] = $sitefile->read_kimb_one( $dbftag['inhalt'] );
 	$seite['time'] = $sitefile->read_kimb_one( 'time' );
 	$seite['made_user'] = $sitefile->read_kimb_one( 'made_user' );
-	$seite['footer'] = $sitefile->read_kimb_one( 'footer' );
+	$seite['footer'] = $sitefile->read_kimb_one( $dbftag['footer'] );
 	$seite['req_id'] = $_GET['id'];
 
 	$sitecontent->add_site($seite);

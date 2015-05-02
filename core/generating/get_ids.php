@@ -289,9 +289,6 @@ if( $allgsysconf['lang'] == 'on' ){
 	$sitecontent->set_lang( $allglangs, $requestlang );
 	
 	$_SESSION['lang'] = $requestlang;
-	
-	print_r( $allglangs );
-	print_r( $requestlang );
 }
 
 // get MenueID && get SiteID

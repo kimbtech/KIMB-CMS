@@ -280,7 +280,15 @@ function copy_r( $dir , $dest ){
 
 //Menue
 function gen_menue( $allgrequestid , $filename = 'url/first.kimb' , $grpath = '/' , $niveau = '1'){
-	global $sitecache, $sitecontent, $menuenames, $allgsysconf, $allgmenueid, $breadcrumbarr, $breadarrfertig;
+	global $sitecache, $sitecontent, $menuenames, $allgsysconf, $allgmenueid, $breadcrumbarr, $breadarrfertig, $requestlang, $requestlangid, $menuenameslangst;
+	
+	if( $allgsysconf['lang'] == 'on' && $grpath == '/' && !empty( $requestlang['tag'] ) ){
+		$grpath = '/'.$requestlang['tag'].'/';
+		$requestlangid = $requestlang['id'];
+	}
+	elseif( $grpath == '/' && empty( $requestlang['tag'] ) ){
+		$requestlangid = 0;
+	}
 
 	$file = new KIMBdbf( $filename );
 	$id = 1;
@@ -288,6 +296,9 @@ function gen_menue( $allgrequestid , $filename = 'url/first.kimb' , $grpath = '/
 		$requid = $file->read_kimb_id( $id , 'requestid' );
 		$path = $file->read_kimb_id( $id , 'path' );
 		$menuname = $menuenames->read_kimb_one( $requid );
+		if( empty( $menuname ) ){
+			$menuname = $menuenameslangst->read_kimb_one( $requid );
+		}
 		if( $allgrequestid == $requid ){
 			$clicked = 'yes';
 		}
@@ -312,7 +323,7 @@ function gen_menue( $allgrequestid , $filename = 'url/first.kimb' , $grpath = '/
 				}
 
 				if(is_object($sitecache)){
-					$sitecache->cache_menue($allgmenueid, $menuname , $allgsysconf['siteurl'].$grpath.$path , $niveau , $clicked);
+					$sitecache->cache_menue($allgmenueid, $menuname , $allgsysconf['siteurl'].$grpath.$path , $niveau , $clicked, $requestlangid );
 				}
 			}
 			else{

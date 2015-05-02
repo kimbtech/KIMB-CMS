@@ -277,3 +277,18 @@ input#searchform{
 		left:-2px;
 	}
 }
+
+div#lang ul{
+	list-style: none;
+	text-align: right;
+	margin-left:50%;
+	padding:5px;
+	margin-bottom:-5px;
+}
+div#lang ul li{
+	display: inline-block;
+	margin: 0 5px;
+}
+div#lang ul li img{
+	border: none;
+}

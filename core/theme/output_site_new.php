@@ -28,7 +28,18 @@ echo ('<script> var clicks = new Array(); function menueclick( id ){ var isTouch
 	echo("\r\n");
 
 echo('</head><body>'."\r\n");
-	echo('<div id="page">'."\r\n");
+
+echo('<div id="page">'."\r\n");
+
+	if( $this->allgsysconf['lang'] == 'on' ){
+		echo( '<div id="lang"><ul>' );
+		foreach( $this->allglangs as $lang ){
+			echo( '<li><a href="'.$lang['thissite'].'"><img src="'.$lang['flag'].'" title="'.$lang['name'].'" alt=""></a></li>' );
+		}
+		echo( '</ul></div>' );
+	}
+
+	//echo('<div id="page">'."\r\n");
 		echo('<div id="header">'."\r\n");
 			echo('<a href="'.$this->allgsysconf['siteurl'].'/"><span>'.$this->allgsysconf['sitename'].'</span>'."\r\n");
 			echo('<img src="'.$this->allgsysconf['siteurl'].'/load/system/theme/logo.png" style="border:none; float:right;"></a>'."\r\n");
@@ -88,7 +99,9 @@ echo('</head><body>'."\r\n");
 			echo("\r\n");
 
 		echo('</div>'."\r\n");
+	
 	echo('</div>'."\r\n");
+	
 	echo ('<script>if( document.getElementById( "contentm" ) != null ){ var cont = document.getElementById( "contentm" ); var fooadd = 4; } else{ var cont = document.getElementById( "contents" ); var fooadd = 4; } cont.style.paddingTop = document.getElementById("breadcrumb").clientHeight + 5 + "px";  document.getElementById("footer").style.width = cont.offsetWidth - 24 + fooadd + "px"; if( document.getElementById( "permalink" ) != null ){ cont.style.paddingBottom = document.getElementById("permalink").clientHeight + 5 + "px"; } if( document.getElementById( "usertime" ) != null ){ cont.style.paddingBottom = document.getElementById("usertime").clientHeight + 5 + "px"; }</script>'."\r\n");
 echo('</body> </html>');
 
