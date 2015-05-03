@@ -96,7 +96,7 @@ $sitecontent->add_site_content('<input type="radio" name="stat" value="on" '.$ch
 $sitecontent->add_site_content('<input type="radio" name="stat" value="off" '.$checked['statoff'].'> <span style="display:inline-block;" title="Das neue Menue auf den Status &apos;off&apos; setzen!" class="ui-icon ui-icon-closethick"></span>');
 
 $sitecontent->add_site_content('<br /><h4>Erlaubte Menues</h4><table>');
-$sitecontent->add_site_content('<th></th> <th>Menü <b title="Menü auf diesem Niveau erlauben">*</b></th> <th>Untermenü <b title="Untermenü erlauben">*</b></th>');
+$sitecontent->add_site_content('<th></th> <th>Menü <b title="Menü auf diesem Niveau erlauben">*</b></th> <th>Untermenü <b title="Untermenü erlauben ( Ein Untermenü kann nur einmal erstellt werden, danach wird es automatisch als Menü gelistet. )">*</b></th>');
 
 $menuearray =  make_menue_array_helper();
 

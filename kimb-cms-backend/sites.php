@@ -38,7 +38,7 @@ if( $_GET['todo'] == 'new' ){
 	add_tiny( true, true);
 
 	if( isset( $_POST['title'] ) || isset( $_POST['inhalt'] ) ){
-
+/*
 		$i=1;
 		while( 5 == 5 ){
 			if( !check_for_kimb_file( '/site/site_'.$i.'.kimb') && !check_for_kimb_file( '/site/site_'.$i.'_deak.kimb') ){
@@ -57,13 +57,137 @@ if( $_GET['todo'] == 'new' ){
 		$sitef->write_kimb_new( 'footer' , $_POST['footer'] );
 		$sitef->write_kimb_new( 'time' , time() );
 		$sitef->write_kimb_new( 'made_user' , $_SESSION['name'] );
+		
+*/		
+		//Easy Menue
+		$easyfile = new KIMBdbf( 'backend/easy_menue.kimb' );
+		
+		if( $easyfile->read_kimb_one( 'oo' ) == 'on'  ){
+			if( $_POST['menue'] != 'none' ||  $_POST['untermenue'] != 'none' ){
+				
+				//Daten testen
+				if(  $_POST['menue'] != 'none' ){
+					if(  $_POST['menue'] == 'first' || is_numeric( $_POST['menue'] )  ){
+						if( $easyfile->read_kimb_search_teilpl( 'same' , $_POST['menue'] )  ){
+							$tested = true;
+							$file = $_POST['menue'];	
+						}
+					}			
+				}
+				elseif( $_POST['untermenue'] != 'none' ){
+					$array = explode( '||', $_POST['untermenue'] );
+					if( is_numeric( $array[0] ) && ( $array[1] == 'first' || is_numeric( $array[1] ) ) ){
+						if( $easyfile->read_kimb_search_teilpl( 'deeper' , $_POST['untermenue'] )  ){
+							$tested = true;
+							$requid = $array[0];
+							$file = $array[1];
+						}
+					}
+				}
+				
+				//Menue machen
+				if( $tested ){
+					echo 'do';
+					echo $requid;
+					echo $file;
+					
+					//Menue Status
+					
+					//Untermenu nur ein mal, dann als Menü
+				}
+			}
+		}
 
-		open_url('/kimb-cms-backend/sites.php?todo=edit&id='.$i);
+//		open_url('/kimb-cms-backend/sites.php?todo=edit&id='.$i);
 		die;
-
 	}
+
+	//Easy Menue
+	
+	$easyfile = new KIMBdbf( 'backend/easy_menue.kimb' );
 	
 	$sitecontent->add_site_content('<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=new" method="post"><br />');
+	
+	if( $easyfile->read_kimb_one( 'oo' ) == 'on'  ){
+	
+		$menuearray =  make_menue_array_helper();
+	
+		$selectmen = '<select name="menue"> <option value="none" selected="selected"></option>';
+		$selectunte .= '<select name="untermenue"> <option value="none" selected="selected"></option>';
+	
+		foreach( $menuearray as $menue ){
+			
+			if( empty( $menue['nextid'] ) ){
+				$deeper = $menue['requid'].'||'.$menue['fileid'];
+				
+				if( $easyfile->read_kimb_search_teilpl( 'deeper' , $deeper )  ){
+					$selectunte .= '<option value="'.$deeper.'">'.$menue['menuname'].'</option>';
+					$done['deeper'] = true;
+				}
+			}
+			if( !in_array( $menue['fileid'], $filearr ) ){
+				$same = $menue['fileid'];
+				
+				if( $easyfile->read_kimb_search_teilpl( 'same' , $same)  ){			
+					$selectmen .= '<option value="'.$same.'">'.$menue['menuname'].'</option>';
+					$done['same'] = true;
+				}
+			}
+			$filearr[] = $menue['fileid'];
+			
+		}
+		
+		$selectmen .= '</select>';
+		$selectunte .= '</select>';
+		
+		if( !$done['deeper'] ){
+			$selectunte = '<b>Keine Freigaben</b>';
+		}
+		if( !$done['same'] ){
+			$selectmen = '<b>Keine Freigaben</b>';
+		}
+		
+		$achtung = '<br />Der Pfad und der Titel werden auf Basis des Seitentitels erstellt!';
+		if( $easyfile->read_kimb_one( 'stat' ) == 'off' ){
+			$achtung .= '<br /><i>Achtung, nach der Erstellung muss das neue Menü noch aktiviert werden!</i>!';
+		}
+		
+		$sitecontent->add_html_header('<script>
+		$(function() { 
+			$( "ul#easymenue li" ).button();
+		}); 
+		function make_viewable( id ){
+			$( "div#menueee" ).css( "display", "none" );
+			$( "div#untermenueee" ).css( "display", "none" );
+			$( "select[name=menue]" ).val( "none" );
+			$( "select[name=untermenue]" ).val( "none" );
+			$( "div#" + id ).css( "display", "block" );
+			
+			return false;
+		}
+		</script>');
+		
+		$sitecontent->add_site_content('
+		<h4>Easy Menue</h4>
+		<ul id="easymenue">
+			<li onclick="return make_viewable( \'menueee\' );">Neues Menü</li>
+			<li onclick="return make_viewable(\'untermenueee\' );">Neues Untermenü</li>
+			<li onclick="return make_viewable( \'eee\' );">Ausblenden</li>
+		</ul>
+		<div id="menueee" style="display:none;">
+			Bitte wählen Sie bei welchem Menü das neue Menü für diese Seite erstellt werden soll!<br />
+			'.$selectmen.$achtung.'
+		</div>
+		<div id="untermenueee" style="display:none;">
+			Bitte wählen Sie unter welchem Menü das neue Menü für diese Seite erstellt werden soll!<br />
+			'.$selectunte.$achtung.'
+		</div>
+		 <h4>Seitenerstellung</h4>
+		');
+	}
+	
+	//Seitenerstellung
+	
 	$sitecontent->add_site_content('<input type="text" value="Titel" name="title" style="width:74%;"> <i>Seitentitel</i><br />');
 	$sitecontent->add_site_content('<textarea name="header" style="width:74%; height:50px;"></textarea><i>HTML Header </i><br />');
 	$sitecontent->add_site_content('<input type="text" name="keywords" style="width:74%;"> <i>Keywords</i><br />');
