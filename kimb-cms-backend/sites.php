@@ -38,7 +38,7 @@ if( $_GET['todo'] == 'new' ){
 	add_tiny( true, true);
 
 	if( isset( $_POST['title'] ) || isset( $_POST['inhalt'] ) ){
-/*
+		
 		$i=1;
 		while( 5 == 5 ){
 			if( !check_for_kimb_file( '/site/site_'.$i.'.kimb') && !check_for_kimb_file( '/site/site_'.$i.'_deak.kimb') ){
@@ -57,8 +57,7 @@ if( $_GET['todo'] == 'new' ){
 		$sitef->write_kimb_new( 'footer' , $_POST['footer'] );
 		$sitef->write_kimb_new( 'time' , time() );
 		$sitef->write_kimb_new( 'made_user' , $_SESSION['name'] );
-		
-*/		
+				
 		//Easy Menue
 		$easyfile = new KIMBdbf( 'backend/easy_menue.kimb' );
 		
@@ -87,18 +86,34 @@ if( $_GET['todo'] == 'new' ){
 				
 				//Menue machen
 				if( $tested ){
-					echo 'do';
-					echo $requid;
-					echo $file;
+										
+					$GET['file'] = $file;
+					if(  $_POST['menue'] != 'none' ){
+						$GET['niveau'] = 'same';
+					}
+					elseif( $_POST['untermenue'] != 'none' ){
+						$GET['niveau'] = 'deeper';
+						$GET['requid'] = $requid;
+					}
+					$POST['name'] = $_POST['title'];
+					$POST['siteid'] = $i;
+					$status = $easyfile->read_kimb_one( 'stat' );
 					
-					//Menue Status
+					$bemenue = new BEmenue( $allgsysconf, $sitecontent );
 					
-					//Untermenu nur ein mal, dann als Menü
+					$return = $bemenue->make_menue_new_dbf( $GET, $POST, $status );
+					
+					//Untermenu nur einmal, dann als Menü
+					if( $_POST['untermenue'] != 'none' ){
+						$easyfile->write_kimb_teilpl( 'deeper' , $_POST['untermenue'], 'del');
+						
+						$easyfile->write_kimb_teilpl( 'same' , $return['file'], 'add');
+					}
 				}
 			}
 		}
 
-//		open_url('/kimb-cms-backend/sites.php?todo=edit&id='.$i);
+		open_url('/kimb-cms-backend/sites.php?todo=edit&id='.$i);
 		die;
 	}
 
@@ -147,7 +162,7 @@ if( $_GET['todo'] == 'new' ){
 			$selectmen = '<b>Keine Freigaben</b>';
 		}
 		
-		$achtung = '<br />Der Pfad und der Titel werden auf Basis des Seitentitels erstellt!';
+		$achtung = '<br />Der Pfad und der Name des Menüs werden auf Basis des Seitentitels erstellt!';
 		if( $easyfile->read_kimb_one( 'stat' ) == 'off' ){
 			$achtung .= '<br /><i>Achtung, nach der Erstellung muss das neue Menü noch aktiviert werden!</i>!';
 		}

@@ -34,7 +34,15 @@ class BEmenue{
 		$this->sitecontent->add_html_header('<style>td { border:1px solid #000000; padding:2px;} td a { text-decoration:none; }</style>');
 	}
 	
-	public function make_menue_new_dbf( $GET, $POST ){
+	public function make_menue_new_dbf( $GET, $POST, $status = 'on' ){
+		//erstellt neue Menues
+		//benötigt
+		//	$GET['file'], $GET['niveau'], $GET['requid']
+		//	$POST['name'], $POST['pfad'] (kann leer sein, dann aus Name),$POST['siteid'] (kann leer sein, dann keine Seite)
+		//	[ $status ]
+		//Rückgabe
+		//	Array $newm ( name, pfad, nextid, requestid,status,siteid,menueid )
+		
 				$allgsysconf = $this->allgsysconf;
 				$sitecontent = $this->sitecontent;
 				$idfile = $this->idfile;
@@ -56,8 +64,8 @@ class BEmenue{
 				else{
 					$newm['siteid'] = '---empty---';
 				}
-				$newm['menueid'] = $newm['requestid'].mt_rand();
-				$newm['status'] = 'on';
+				$newm['menueid'] = $newm['requestid'].mt_rand( 100, 999 );
+				$newm['status'] = $status;
 	
 				if( $GET['file'] == 'first' ){
 					$file = new KIMBdbf( 'url/first.kimb' );
@@ -131,6 +139,8 @@ class BEmenue{
 	}
 	
 	public function make_menue_new(){
+		//Zeigt dem User den Dialog zum Erstellen neuer Menues an
+		
 		$allgsysconf = $this->allgsysconf;
 		$sitecontent = $this->sitecontent;
 		$idfile = $this->idfile;
@@ -196,6 +206,7 @@ class BEmenue{
 	
 		
 	public function make_menue_connect(){
+			//Zeigt dem User den Dialog zum Verbinden von Menues mit Seiten
 		
 			$allgsysconf = $this->allgsysconf;
 			$sitecontent = $this->sitecontent;
