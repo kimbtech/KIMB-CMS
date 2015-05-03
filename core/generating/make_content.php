@@ -21,12 +21,14 @@
 
 defined('KIMB_CMS') or die('No clean Request');
 
-if( check_for_kimb_file( '/site/site_'.$allgsiteid.'.kimb' ) ){
-	$sitefile = new KIMBdbf( '/site/site_'.$allgsiteid.'.kimb' );
-}
-else{
-	$sitecontent->echo_error( 'Diese Seite existiert nicht!' , '404' );
-	$allgerr = '404';
+if( $allgerr != '404' ){
+	if( check_for_kimb_file( '/site/site_'.$allgsiteid.'.kimb' ) ){
+		$sitefile = new KIMBdbf( '/site/site_'.$allgsiteid.'.kimb' );
+	}
+	else{
+		$sitecontent->echo_error( 'Diese Seite existiert nicht!' , '404' );
+		$allgerr = '404';
+	}
 }
 
 if( $allgerr == '403' ){
