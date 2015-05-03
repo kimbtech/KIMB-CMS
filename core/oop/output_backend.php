@@ -162,7 +162,6 @@ class backend_output{
 				echo('<div id="menue">'."\r\n");
 echo('
 <!-- Menue - jQuery UI -->
-<!-- Menue - jQuery UI -->
 
 			<ul id="menu">
 			<li class="editor one" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/sites.php" title="Seiten erstellen, löschen, bearbeiten"><span class="ui-icon ui-icon-document"></span>Seiten</a>
@@ -199,10 +198,10 @@ echo('
 					<li class="admin nineteen" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/other_level.php" title="Erstellen Sie eigene Benutzerlevel für das Backend"><span class="ui-icon  ui-icon-locked"></span>Userlevel Backend</a></li>
 					<li class="admin twenty" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/other_umzug.php" title="Erstellen Sie Weiterleitungen von alten Links auf neue Seiten"><span class="ui-icon ui-icon-suitcase"></span>Umzug</a></li>
 					<li class="admin twentyone" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/other_lang.php" title="Erweitern Sie diese Seite um weitere Sprachen"><span class="ui-icon ui-icon-flag"></span>Mehrsprachige Seite</a></li>
+					<li class="admin twentytwo" ><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/other_easymenue.php" title="Erlauben Sie Usern, welche nur Seiten erstellen können, zu einer Seite ein Menue zu erstellen!"><span class="ui-icon ui-icon-link"></span>Easy Menue</a></li>
 				</ul>
 			</li>
 			</ul>
-<!-- Menue - jQuery UI -->
 <!-- Menue - jQuery UI -->
 ');
 				echo ('</div>'."\r\n");

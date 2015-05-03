@@ -338,6 +338,23 @@ class KIMBdbf {
 		}
 	}
 	
+	public function write_kimb_teilpl_del_all( $teil ){
+		$teil = $this->umbruch_weg($teil, 'tag');
+		$count = '1';
+		$i = '0';
+		while( 5 == 5 ){
+			$teilread = $teil.$count;
+			$gelesen = $this->read_kimb_one($teilread);
+			if( !empty( $gelesen ) ){
+				$this->write_kimb_delete_pr($teilread);
+			}
+			else{
+				return true;
+			}
+			$count++;
+		}
+	}
+	
 	//kimb datei loeschen
 	public function delete_kimb_file(){
 		if(unlink($this->path.'/kimb-data/'.$this->datei)){

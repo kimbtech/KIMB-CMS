@@ -82,7 +82,14 @@ class BEmenue{
 						$sitecontent->output_complete_site();
 						die;
 					}
-					$file->write_kimb_id( $oldid , 'add' , 'nextid' , $i );
+					if( empty( $file->read_kimb_id( $oldid , 'nextid' ) ) ){
+						$file->write_kimb_id( $oldid , 'add' , 'nextid' , $i );
+					}
+					else{
+						$newm['file'] = 'error';
+						$newm['requestid'] = '';
+						return $newm;
+					}
 	
 					$file = new KIMBdbf( 'url/nextid_'.$i.'.kimb' );
 					

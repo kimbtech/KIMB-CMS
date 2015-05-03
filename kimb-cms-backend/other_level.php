@@ -136,6 +136,7 @@ elseif( $_GET['todo'] == 'edit' && isset( $_GET['level'] ) ){
 		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'sixteen\' );" value="nineteen"'.$checks['nineteen'].'> Userlevel ( nineteen ) <br />');
 		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'sixteen\' );" value="twenty"'.$checks['twenty'].'> Umzug ( twenty ) <br />');
 		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'sixteen\' );" value="twentyone"'.$checks['twentyone'].'> Mehrsprachige Seite ( twentyone ) <br />');
+		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'sixteen\' );" value="twentytwo"'.$checks['twentytwo'].'> Easy Menue ( twentytwo ) <br />');
 
 		$sitecontent->add_site_content('<input type="submit" value="Ändern" >');
 		$sitecontent->add_site_content('</form>');
