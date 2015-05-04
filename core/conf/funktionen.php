@@ -312,16 +312,6 @@ function gen_menue( $allgrequestid , $filename = 'url/first.kimb' , $grpath = '/
 			if( $allgsysconf['urlrewrite'] == 'on' ){
 				$sitecontent->add_menue_one_entry( $menuname , $allgsysconf['siteurl'].$grpath.$path , $niveau, $clicked, $requid);
 
-				if( $breadarrfertig == 'nok' ){
-					$breadcrumbarr[$niveau]['link'] = $allgsysconf['siteurl'].$grpath.$path; 
-					$breadcrumbarr[$niveau]['name'] = $menuname;
-
-					if( $clicked == 'yes' ){
-						$breadarrfertig = 'ok';
-						$breadcrumbarr['maxniv'] = $niveau;
-					}
-				}
-
 				if(is_object($sitecache)){
 					$sitecache->cache_menue($allgmenueid, $menuname , $allgsysconf['siteurl'].$grpath.$path , $niveau , $clicked, $requid, $requestlangid );
 				}
@@ -329,18 +319,31 @@ function gen_menue( $allgrequestid , $filename = 'url/first.kimb' , $grpath = '/
 			else{
 				$sitecontent->add_menue_one_entry( $menuname , $allgsysconf['siteurl'].'/index.php?id='.$requid , $niveau, $clicked, $requid);
 
-				if( $breadarrfertig == 'nok' ){
-					$breadcrumbarr[$niveau]['link'] = $allgsysconf['siteurl'].'/index.php?id='.$requid; 
-					$breadcrumbarr[$niveau]['name'] = $menuname;
-
-					if( $clicked == 'yes' ){
-						$breadarrfertig = 'ok';
-						$breadcrumbarr['maxniv'] = $niveau;
-					}
-				}
-
 				if(is_object($sitecache)){
 					$sitecache->cache_menue($allgmenueid, $menuname , $allgsysconf['siteurl'].'/index.php?id='.$requid , $niveau , $clicked, $requid);
+				}
+			}
+		}
+		
+		if( $allgsysconf['urlrewrite'] == 'on' ){
+			if( $breadarrfertig == 'nok' ){
+				$breadcrumbarr[$niveau]['link'] = $allgsysconf['siteurl'].$grpath.$path; 
+				$breadcrumbarr[$niveau]['name'] = $menuname;
+
+				if( $clicked == 'yes' ){
+					$breadarrfertig = 'ok';
+					$breadcrumbarr['maxniv'] = $niveau;
+				}
+			}
+		}
+		else{
+			if( $breadarrfertig == 'nok' ){
+				$breadcrumbarr[$niveau]['link'] = $allgsysconf['siteurl'].'/index.php?id='.$requid; 
+				$breadcrumbarr[$niveau]['name'] = $menuname;
+
+				if( $clicked == 'yes' ){
+					$breadarrfertig = 'ok';
+					$breadcrumbarr['maxniv'] = $niveau;
 				}
 			}
 		}

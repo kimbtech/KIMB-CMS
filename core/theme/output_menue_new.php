@@ -35,8 +35,12 @@ elseif( $this->niveau == $niveau ){
 	$this->menue .= '</li><li>'."\r\n";
 }
 elseif( $this->niveau < $niveau ){
-	$this->menue .= '<ul><li>'."\r\n";
-	$this->ulauf = $this->ulauf + 1;
+	$i = 1;
+	while( $this->niveau != $niveau - $i  ){
+		$i++;
+	}
+	$this->menue .= str_repeat( '<ul>' , $i ).'<li>'."\r\n";
+	$this->ulauf = $this->ulauf + $i;
 }
 elseif( $this->niveau > $niveau ){
 	$i = 1;
