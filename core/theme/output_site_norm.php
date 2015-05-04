@@ -42,6 +42,7 @@ echo ('<link rel="stylesheet" type="text/css" href="'.$this->allgsysconf['siteur
 echo ('<link rel="stylesheet" type="text/css" href="'.$this->allgsysconf['siteurl'].'/load/system/theme/design.css" media="screen">'."\r\n");
 echo ('<link rel="stylesheet" type="text/css" href="'.$this->allgsysconf['siteurl'].'/load/system/theme/print.css" media="print">'."\r\n");
 echo ('<link href="'.$this->allgsysconf['siteurl'].'/load/system/theme/touch_icon.png" rel="apple-touch-icon" />'."\r\n");
+echo ('<script> var clicks = new Array(); function menueclick( id ){ var isTouch = (("ontouchstart" in window) || (navigator.msMaxTouchPoints > 0)); var iOS = ( navigator.userAgent.match(/(iPad|iPhone|iPod)/g) ? true : false ); if( isTouch && !iOS ){ if (!( id in clicks)) { clicks[id] = 0; } clicks[id]++; if( clicks[id] == 2 ){ return true; } else{ return false; } } else{ return true; } }</script>'."\r\n");
 		
 	echo($this->header);
 	echo("\r\n");
@@ -49,13 +50,6 @@ echo ('<link href="'.$this->allgsysconf['siteurl'].'/load/system/theme/touch_ico
 echo('</head><body>'."\r\n");
 	echo('<div id="page">'."\r\n");
 	
-	if( $this->allgsysconf['lang'] == 'on' ){
-		echo( '<div id="lang"><ul>' );
-		foreach( $this->allglangs as $lang ){
-			echo( '<li><a href="'.$lang['thissite'].'"><img src="'.$lang['flag'].'" title="'.$lang['name'].'" alt=""></a></li>' );
-		}
-		echo( '</ul></div>' );
-	}
 	
 		echo('<div id="header">'."\r\n");
 			echo('<a href="'.$this->allgsysconf['siteurl'].'/">'.$this->allgsysconf['sitename']."\r\n");
@@ -74,7 +68,7 @@ echo('</head><body>'."\r\n");
 
 			$search_sitemap['searchsiteid'] = $search_sitemap['file']->read_kimb_one( 'searchsiteid' ); // off oder id
 
-			if( $search_sitemap['searchsiteid'] != 'off' ){
+			if( $search_sitemap['searchsiteid'] != 'off' && !empty( $search_sitemap['searchsiteid'] ) ){
 
 				echo('<li>'."\r\n");
 				echo('<form method="post"  action="'.$allgsysconf['siteurl'].'/index.php?id='.$search_sitemap['searchsiteid'].'">'."\r\n");
@@ -82,6 +76,16 @@ echo('</head><body>'."\r\n");
 				echo('</form>'."\r\n");	
 				echo('</li>'."\r\n");
 			}
+		}
+		
+		if( $this->allgsysconf['lang'] == 'on' ){
+			echo('<li id="lang">'."\r\n");
+			
+			foreach( $this->allglangs as $lang ){
+				echo( '<a href="'.$lang['thissite'].'"><img src="'.$lang['flag'].'" title="'.$lang['name'].'" alt="'.$lang['name'].'"></a>' );
+			}
+			
+			echo('</li>'."\r\n");
 		}
 
 		echo('</ul></div>'."\r\n");
@@ -118,7 +122,7 @@ echo('</head><body>'."\r\n");
 		echo('</div>'."\r\n");
 	echo('</div>'."\r\n");
 		
-	echo ('<script>if( document.getElementById( "contentm" ) != null ){ var cont = document.getElementById( "contentm" ); } else{ var cont = document.getElementById( "contents" ); } cont.style.paddingTop = document.getElementById("breadcrumb").clientHeight + "px";  document.getElementById("footer").style.width = cont.offsetWidth + "px"; if( document.getElementById( "permalink" ) != null ){ cont.style.paddingBottom = document.getElementById("permalink").clientHeight + "px"; } if( document.getElementById( "usertime" ) != null ){ cont.style.paddingBottom = document.getElementById("usertime").clientHeight + "px"; }</script>'."\r\n");
+	echo ('<script>if( document.getElementById( "contentm" ) != null ){ var cont = document.getElementById( "contentm" ); var fooadd = 4; } else{ var cont = document.getElementById( "contents" ); var fooadd = 4; } cont.style.paddingTop = document.getElementById("breadcrumb").clientHeight + 5 + "px";  document.getElementById("footer").style.width = cont.offsetWidth  - fooadd + "px"; if( document.getElementById( "permalink" ) != null ){ cont.style.paddingBottom = document.getElementById("permalink").clientHeight + 5 + "px"; } if( document.getElementById( "usertime" ) != null ){ cont.style.paddingBottom = document.getElementById("usertime").clientHeight + 5 + "px"; }</script>'."\r\n");
 echo('</body> </html>');
 
 ?>

@@ -9,7 +9,7 @@
 <[001-cachelifetime]>always<[001-cachelifetime]>
 <[001-use_request_url]>ok<[001-use_request_url]>
 <[001-show_siteinfos]>on<[001-show_siteinfos]>
-<[001-theme]>new<[001-theme]>
+<[001-theme]>norm<[001-theme]>
 <[001-sitename]>KIMB CMS<[001-sitename]>
 <[001-sitefavi]>http://localhost:8000/load/system/KIMB.ico<[001-sitefavi]>
 <[001-loginokay]>Hug0ip9lnx0tKluaX3HA8wp8mGAG0claoC2bWP46LDwyfLChOH<[001-loginokay]>

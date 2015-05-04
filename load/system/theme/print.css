@@ -1,135 +1,133 @@
 body {
-	background:#fff;
+	background:white;
 	font-family: Ubuntu,Arial,sans-serif;
 	font-size:100%;
-	color:#000;
+	color:#000000;
 }
 h1 {
 	font-size:1.8em;
-	color:#f00;
+	color:black;
 	text-align:center;
 	margin: auto;
+	font-weight: bold;
 }
 h2 {
 	font-size:1.3em;
-	color:#f00;
+	color:black;
 	text-align:center;
 	margin: auto;
+	font-weight: bold;
+}
+input, textarea, button{
+	font-size:100%;
+	font-family:Ubuntu,Arial,sans-serif;
 }
 
 /*Definitionen <div>*/
 
 #page {
-	width:100%;
 	margin:auto;
 	text-align:left;
+	border-radius:20px;
+	background-color:white;
 }
 
 #header{
 	height:100px;
 	font-size:40px;
-	color:#000;
-	background-color:#fff;
-	border-radius: 15px;
-	margin-top:10px;
-	margin-bottom:10px;
-	border:solid 2px #000;
+	color:black;
+	background-color:gray;
+	border-radius: 20px;
+	border:solid 2px black;
 	padding:15px;
+}
+
+#header span{
+	border-bottom:solid 5px black;
 }
 
 #header a{
 	text-decoration: none;
 }
 #header a:hover{
-	color:#000;
+	color:black;
 }
 #header a:visited{
-	color:#000;
+	color:black;
 }
 #header a:link{
-	color:#000;
+	color:black;
+}
+
+#site{
+	padding-right:2px;
+	padding-left:2px;
 }
 
 #apps{
-	display:none;
+	display: none;
 }
 
-#contents, #contentm{
+#contentm, #contents{
 	height:auto;
 	min-height:250px;
-	padding-top:10px;
-	padding-bottom:10px;
-	padding-right:05px;
-	padding-left:05px;
-	width:96%;
-	margin-top:10px;
-	border-radius: 15px;
+	padding:10px;
+	border-radius: 20px;
 	background-color:#ffffff;
-	border:solid 2px #000;
+	border:solid 2px black;
 	position:relative;	
 }
 
 #footer{
-	width:96% !important;
-	margin-right:2%;
 	height:auto;
-	padding-top:10px;
-	padding-bottom:10px;
+	padding:10px;
 	text-align:center;
 	font-size:0.8em;
-	color:#000000;
-	background-color:#fff;
-	float:right;
-	border-radius: 15px;
+	color:#000;
+	background-color:white;
+	border-radius: 20px;
 	margin-top:20px;
-	border:solid 2px #000;
+	border:solid 2px black;
 }
 
 #errorbox{
-	background-color:gray;
-	border-radius:15px;
+	background:gray;
+	border-radius:20px;
 	padding:20px;
+	margin: 5px 0;
 
 }
 
 #usertime{
-	position: absolute;
-	bottom:-2px;
-	right:-2px;
-	border:solid 2px #000;
-	background-color:#ccc;
-	border-radius:15px;
-	padding:4px;
+	display: none;
 }
 
 #permalink{
 	position: absolute;
 	bottom:-2px;
 	left:-2px;
-	border:solid 2px #000;
-	background-color:#ccc;
-	border-radius:15px;
-	padding:4px;
+	border:solid 2px black;
+	background-color:white;
+	border-radius:20px;
+	padding:5px;
 }
 
 #breadcrumb{
 	position: absolute;
 	top:-2px;
 	left:-2px;
-	border:solid 2px #000;
-	background-color:#ccc;
-	border-radius:15px;
-	padding:4px;
-	width:100%;
+	border:solid 2px black;
+	background-color:white;
+	border-radius:20px;
+	padding:5px;
+	min-width:30%;
 	min-height:1.1em;
 }
 
-input, textarea, button{
-	font-size:100%;
-	font-family:Ubuntu;
+#nav {
+	display: none;
 }
 
-#nav {
-	display:none;
-
+div#lang ul{
+	display: none;
 }

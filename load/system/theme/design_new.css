@@ -281,7 +281,6 @@ input#searchform{
 div#lang ul{
 	list-style: none;
 	text-align: right;
-	margin-left:50%;
 	padding:5px;
 	margin-bottom:-5px;
 }

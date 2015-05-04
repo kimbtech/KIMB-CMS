@@ -17,12 +17,16 @@
 //IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 /*************************************************/
 
-
 // Diese Datei wird für jedes Menue ausgeführt
 // Folgende Variablen sind definiert:
 //    $name, $niveau, $clicked, $link
 // Diese Datei ist Teil eines Objekts
 // Das fertige Menue wird, je nach Theme über $this->menue ausgegeben
+
+if( !isset( $this->menuenumid ) ){
+	$this->menuenumid = 0;
+}
+$this->menuenumid ++;
 
 if( !isset( $this->niveau ) ){
 	$this->menue .= '<li>'."\r\n";
@@ -44,10 +48,10 @@ elseif( $this->niveau > $niveau ){
 }
 
 if( $clicked == 'yes' ){
-	$this->menue .=  '<a id="liclicked" href="'.$link.'">'.$name.'</a>'."\r\n";
+	$this->menue .=  '<a id="liclicked" href="'.$link.'" onclick=" return menueclick( '.$this->menuenumid.' ); ">'.$name.'</a>'."\r\n";
 }
 else{
-	$this->menue .=  '<a href="'.$link.'">'.$name.'</a>'."\r\n";
+	$this->menue .=  '<a href="'.$link.'" onclick=" return menueclick( '.$this->menuenumid.' ); ">'.$name.'</a>'."\r\n";
 }
 
 $this->niveau = $niveau;

@@ -1,4 +1,21 @@
 <?php
+/*************************************************/
+//KIMB-technologies
+//KIMB CMS
+//KIMB ContentManagementSystem
+//www.KIMB-technologies.eu
+/*************************************************/
+//CC BY-ND 4.0
+//http://creativecommons.org/licenses/by-nd/4.0/
+//http://creativecommons.org/licenses/by-nd/4.0/legalcode
+/*************************************************/
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+//BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+//IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+//WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+//IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+/*************************************************/
+	
 // Diese Datei gibt das Grundgerüst für die Ausgabe
 // Folgende Variablen sollten verwendet werden:
 //    $this->header, $this->title, $this->menue, $this->addon, $this->sitecontent, $this->footer
@@ -34,12 +51,12 @@ echo('<div id="page">'."\r\n");
 	if( $this->allgsysconf['lang'] == 'on' ){
 		echo( '<div id="lang"><ul>' );
 		foreach( $this->allglangs as $lang ){
-			echo( '<li><a href="'.$lang['thissite'].'"><img src="'.$lang['flag'].'" title="'.$lang['name'].'" alt=""></a></li>' );
+			echo( '<li><a href="'.$lang['thissite'].'"><img src="'.$lang['flag'].'" title="'.$lang['name'].'" alt="'.$lang['name'].'"></a></li>' );
 		}
 		echo( '</ul></div>' );
 	}
 
-	//echo('<div id="page">'."\r\n");
+
 		echo('<div id="header">'."\r\n");
 			echo('<a href="'.$this->allgsysconf['siteurl'].'/"><span>'.$this->allgsysconf['sitename'].'</span>'."\r\n");
 			echo('<img src="'.$this->allgsysconf['siteurl'].'/load/system/theme/logo.png" style="border:none; float:right;"></a>'."\r\n");
@@ -51,7 +68,7 @@ echo('<div id="page">'."\r\n");
 			echo('</li>');
 			echo( str_repeat( '</ul>' , $this->ulauf ) );
 
-		if( is_dir( __DIR__.'/../addons/search_sitemap/' ) ){
+		if( is_dir( __DIR__.'/../addons/search_sitemap/' ) && !empty( $search_sitemap['searchsiteid'] ) ){
 
 			$search_sitemap['file'] = new KIMBdbf( 'addon/search_sitemap__conf.kimb' );
 
