@@ -877,6 +877,21 @@ function make_menue_array_helper(  ){
 	return $menuearray;
 }
 
+function list_sites_array( $dir = 'site/' ){
+	$sites = scan_kimb_dir( $dir );
+	foreach ( $sites as $site ){
+		if( $site != 'langfile.kimb'){
+			$sitef = new KIMBdbf('site/'.$site);
+			$id = preg_replace("/[^0-9]/","", $site);
+			$title = $sitef->read_kimb_one('title');
+		
+			$allsites[] = array( 'site' => $title, 'id' => $id );
+		}
+	}
+	
+	return $allsites;
+}
+
 // Funktionen von Add-ons hinzufügen
 require_once( __DIR__.'/../addons/addons_funcclass.php' );
 ?>

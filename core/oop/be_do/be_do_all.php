@@ -23,10 +23,11 @@
 //http://www.gnu.org/licenses/gpl-3.0.txt
 /*************************************************/
 
+defined('KIMB_CMS') or die('No clean Request');
 
+define('KIMB_Backend', 'Clean Request');
 
-defined('KIMB_Backend') or die('No clean Request');
-
+require_once(__DIR__.'/js_dialog.php');
 
 require_once(__DIR__.'/menue.php');
 

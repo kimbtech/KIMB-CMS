@@ -59,13 +59,18 @@ if( empty( $_GET['file'] ) && empty( $_GET['addon'] ) ){
 //Addons ermoeglichen einzugreifen
 require_once(__DIR__.'/core/addons/addons_ajax.php');
 
-//Systemeigen:
-//Systemeigen:
-//Systemeigen:
+//Systemeigen
+//Systemeigen
+//Systemeigen
+
+//BE Klassen
+require_once(__DIR__.'/core/oop/be_do/be_do_all.php');
 
 if( $_GET['file'] == 'index.php' ){
 
-	if( empty( $_SESSION["loginfehler"] ) ){ $_SESSION["loginfehler"] = 0; }
+	if( empty( $_SESSION["loginfehler"] ) ){
+		$_SESSION["loginfehler"] = 0; 
+	}
 
 	$user = $_GET['user'];
 	$user = preg_replace( "/[^a-z]/" , "" , strtolower( $user ) );
@@ -101,7 +106,7 @@ if( $_GET['file'] == 'index.php' ){
 elseif( $_GET['file'] == 'menue.php' ){
 
 	check_backend_login('seven' , 'more');
-
+	
 	if( $_GET['urlfile'] == 'first' || is_numeric( $_GET['urlfile'] ) ){
 		if( $_GET['urlfile'] == 'first' ){
 			$file = new KIMBdbf( 'url/first.kimb' );
@@ -109,9 +114,9 @@ elseif( $_GET['file'] == 'menue.php' ){
 		else{
 			$file = new KIMBdbf( 'url/nextid_'.$_GET['urlfile'].'.kimb' );
 		}
-
+	
 		$_GET['search'] = preg_replace("/[^0-9A-Za-z_-]/","", $_GET['search']);
-
+	
 		if( !$file->search_kimb_xxxid( $_GET['search'] , 'path') ){
 			echo 'ok';
 		}
@@ -120,92 +125,19 @@ elseif( $_GET['file'] == 'menue.php' ){
 		}
 	}
 	elseif( ($_GET['fileid'] == 'first' || is_numeric( $_GET['fileid'] ) ) && ( $_GET['updo'] == 'up' || $_GET['updo'] == 'down' ) && is_numeric( $_GET['requid'] ) ){
-		if( $_GET['fileid'] == 'first' ){
-			$file = new KIMBdbf( 'url/first.kimb' );
-		}
-		else{
-			$file = new KIMBdbf( 'url/nextid_'.$_GET['fileid'].'.kimb' );
-		}
-		$id = $file->search_kimb_xxxid( $_GET['requid'] , 'requestid');
-		if( $id  != false ){
-			if( $id == 1 && $_GET['updo'] == 'up' ){
-				echo 'nok';
-				die;
-			}
-			if( $file->read_kimb_id( $id+1 , 'path' ) == '' && $_GET['updo'] == 'down' ){
-				echo 'nok';
-				die;
-			}
-
-			$wid = 1;
-			while( 5 == 5 ){
-				$wpath = $file->read_kimb_id( $wid , 'path' );
-				$wnextid = $file->read_kimb_id( $wid , 'nextid' );
-				$wrequid = $file->read_kimb_id( $wid , 'requestid' );
-				$wstatus = $file->read_kimb_id( $wid , 'status');
-
-				if( $wnextid == '' ){
-					$wnextid = '---empty---';
-				}
-				
-				if( $wpath == '' ){
-					break;
-				}
-
-				$newmenuefile[$wid] = array( 'path' => $wpath, 'nextid' => $wnextid , 'requid' => $wrequid, 'status' => $wstatus );
-				
-				$wid++;
-			}
-
-			if( $_GET['updo'] == 'down' ){
-				$newid = $id+1;
-			}
-			if( $_GET['updo'] == 'up' ){
-				$newid = $id-1;
-			}
-
-			$i = 1;
-			$file->delete_kimb_file();
-			while( 5 == 5 ){
-				if( $newid == $i ){
-
-					$data = $newmenuefile[$id];
-
-					$file->write_kimb_id( $i , 'add' , 'path' , $data['path'] );
-					$file->write_kimb_id( $i , 'add' , 'nextid' , $data['nextid'] );
-					$file->write_kimb_id( $i , 'add' , 'requestid' , $data['requid'] );
-					$file->write_kimb_id( $i , 'add' , 'status' , $data['status'] );
-
-					$i++;
-				}
-
-				$data = $newmenuefile[$i];
-
-				if( $data['requid'] == $_GET['requid'] && $_GET['updo'] == 'down' ){
-					$data = $newmenuefile[$i+1];
-				}
-
-				if( $data['requid'] == $_GET['requid'] && $_GET['updo'] == 'up' ){
-					$data = $newmenuefile[$i-1];
-				}
-
-				if( !isset( $data['path'] ) ){
-					break;
-				}
-
-				$file->write_kimb_id( $i , 'add' , 'path' , $data['path'] );
-				$file->write_kimb_id( $i , 'add' , 'nextid' , $data['nextid'] );
-				$file->write_kimb_id( $i , 'add' , 'requestid' , $data['requid'] );
-				$file->write_kimb_id( $i , 'add' , 'status' , $data['status'] );
-
-				$i++;				
-			}
+		
+		$bemenue = new BEmenue( $allgsysconf, $sitecontent );
+		
+		$GET = $_GET;
+		
+		if( $bemenue->make_menue_versch( $GET ) ){
 			echo 'ok';
 		}
 		else{
 			echo 'nok';
 		}
 	}
+	
 	die;
 }
 elseif( $_GET['file'] == 'user.php' && isset( $_GET['user'] ) ){

@@ -30,6 +30,8 @@ defined('KIMB_CMS') or die('No clean Request');
 
 //Klassen und Funktionen
 require_once(__DIR__.'/core/oop/kimbdbf.php');
+//BE Klassen
+require_once(__DIR__.'/core/oop/be_do/be_do_all.php');
 
 //Konfiguration
 
