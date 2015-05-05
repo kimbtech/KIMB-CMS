@@ -38,9 +38,6 @@ require_once(__DIR__.'/../core/oop/be_do/be_do_all.php');
 
 $bemenue = new BEmenue( $allgsysconf, $sitecontent );
 
-$idfile = new KIMBdbf('menue/allids.kimb');
-$menuenames = new KIMBdbf('menue/menue_names.kimb');
-
 
 if( $_GET['todo'] == 'new' ){
 	check_backend_login('five' , 'more');

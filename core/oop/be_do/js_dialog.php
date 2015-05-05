@@ -103,7 +103,7 @@ class JSforBE{
 	
 	}
 	
-	public function for_menue_edit( $file ){
+	public function for_menue_edit(  ){
 		$allgsysconf = $this->allgsysconf;
 		$sitecontent = $this->sitecontent;
 		
@@ -150,6 +150,116 @@ class JSforBE{
 				</script>');
 	}
 	
+	public function for_site_new( $selectmen, $selectunte, $achtung ){
+		$sitecontent = $this->sitecontent;
+		
+		$sitecontent->add_html_header('<script>
+			$(function() { 
+				$( "ul#easymenue li" ).button();
+			}); 
+			function make_viewable( id ){
+				$( "div#menueee" ).css( "display", "none" );
+				$( "div#untermenueee" ).css( "display", "none" );
+				$( "select[name=menue]" ).val( "none" );
+				$( "select[name=untermenue]" ).val( "none" );
+				$( "div#" + id ).css( "display", "block" );
+				
+				return false;
+			}
+		</script>');
+			
+		$sitecontent->add_site_content('
+			<h4>Easy Menue</h4>
+			<ul id="easymenue">
+				<li onclick="return make_viewable( \'menueee\' );">Neues Menü</li>
+				<li onclick="return make_viewable(\'untermenueee\' );">Neues Untermenü</li>
+				<li onclick="return make_viewable( \'eee\' );">Ausblenden</li>
+			</ul>
+			<div id="menueee" style="display:none;">
+				Bitte wählen Sie bei welchem Menü das neue Menü für diese Seite erstellt werden soll!<br />
+				'.$selectmen.$achtung.'
+			</div>
+			<div id="untermenueee" style="display:none;">
+				Bitte wählen Sie unter welchem Menü das neue Menü für diese Seite erstellt werden soll!<br />
+				'.$selectunte.$achtung.'
+			</div>
+		 <h4>Seitenerstellung</h4>');
+	}
+	
+	public function for_site_list(){
+		$allgsysconf = $this->allgsysconf;
+		$sitecontent = $this->sitecontent;
+		
+		$sitecontent->add_html_header('<script>
+		var del = function( id ) {
+			$( "#del-confirm" ).show( "fast" );
+			$( "#del-confirm" ).dialog({
+			resizable: false,
+			height:200,
+			modal: true,
+			buttons: {
+				"Delete": function() {
+					$( this ).dialog( "close" );
+					window.location = "'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=del&id="+id;
+					return true;
+				},
+				Cancel: function() {
+					$( this ).dialog( "close" );
+					return false;
+				}
+			}
+			});
+		}
+		function search(){
+			var search = $( "input.search" ).val();
+			window.location = "'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=list#" + search;
+		}
+		</script>');
+	
+		$sitecontent->add_site_content('<div style="display:none;"><div id="del-confirm" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Möchten Sie die Seite wirklich löschen?</p></div></div>');
+	}
+	
+	public function for_site_edit(){
+		$allgsysconf = $this->allgsysconf;
+		$sitecontent = $this->sitecontent;
+		
+		$sitecontent->add_html_header('<script>
+		var del = function( id ) {
+			$( "#del-confirm" ).show( "fast" );
+			$( "#del-confirm" ).dialog({
+			resizable: false,
+			height:200,
+			modal: true,
+			buttons: {
+				"Delete": function() {
+					$( this ).dialog( "close" );
+					window.location = "'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=del&id="+id;
+					return true;
+				},
+				Cancel: function() {
+					$( this ).dialog( "close" );
+					return false;
+				}
+			}
+			});
+		}
+	
+		$( function() {
+			$( "#libs" ).on( "change", function() {
+				var valadd, valold, valnew;
+	
+				valadd = $( "#libs" ).val();
+				valold = $( "textarea[name=header]" ).val();
+	
+				valnew = valold + valadd;
+	
+				$( "textarea[name=header]" ).val( valnew );
+	
+				return false;
+			});
+		});
+		</script>');
+	}
 	
 }
 ?>
