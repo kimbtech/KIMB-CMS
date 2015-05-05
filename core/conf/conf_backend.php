@@ -40,11 +40,14 @@ $sitecontent = new backend_output($allgsysconf);
 
 $kimbcmsinfo = '<!--
 
-	Diese Seite basiert auf dem KIMB-CMS!
-	www.KIMB-technologies.eu
+	This site is made with KIMB-CMS!
+	http://www.KIMB-technologies.eu
+	https://bitbucket.org/kimbtech/kimb-cms/
 
-	CC BY-ND 4.0
-	http://creativecommons.org/licenses/by-nd/4.0/
+	GNU General Public License v3
+	http://www.gnu.org/licenses/gpl-3.0
+	
+	The Backend can only be used with an account!
 
 -->';
 

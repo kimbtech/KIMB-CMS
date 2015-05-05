@@ -119,7 +119,7 @@ if( isset( $_GET['do'] ) && $allgsysconf['lang'] == 'on' ){
 	$sitecontent->add_site_content('<table width="100%"><tr> <th>ID</th> <th>Tag <span class="ui-icon ui-icon-info" style="display:inline-block;" title="Der Tag dient für die URL!"></span></th> <th>Name</th> <th>Flagge</th> <th>Status <span class="ui-icon ui-icon-info" style="display:inline-block;" title="Eine Sprache kann nicht gelöscht, nur deaktiviert, werden!"></span></th> </tr>');
 	$sitecontent->add_site_content('<tr> 
 		<td>0 <span class="ui-icon ui-icon-info" title="Standard ( Sprache des ersten Contents )" style="display:inline-block;"></span></td> 
-		<td><input style="width:95%;" type="text" name="stdtag" id="autocstd" class="stdtag" placeholder="Geben Sie einen Tag für eine Sprache an ( nach ISO 639; z.B.: de, en )" title="Geben Sie einen Tag für eine Sprache an ( nach ISO 639; z.B.: de, en )" onchange="setnameflag( \'stdflag\', \'stdtag\', \'stdlangnam\' );" value="'.$vals['tag'].'"></td> 
+		<td><input style="width:95%;" type="text" name="stdtag" id="autocstd" class="stdtag" placeholder="Geben Sie einen Tag für eine Sprache an ( nach ISO 639; z.B.: de, en )" title="Geben Sie einen Tag für eine Sprache an ( nach ISO 639; z.B.: de, en )" onblur="setnameflag( \'stdflag\', \'stdtag\', \'stdlangnam\' );" value="'.$vals['tag'].'"></td> 
 		<td><input style="width:95%;" type="text" readonly="readonly" onfocus="make_editable( \'stdlangnam\' );" onblur="make_uneditable( \'stdlangnam\' );" name="stdlangname" title="Klicken zum Ändern!" id="stdlangnam" value="'.$vals['name'].'"></td>
 		');
 		if( !empty( $vals['flag'] ) ){
@@ -141,14 +141,14 @@ if( isset( $_GET['do'] ) && $allgsysconf['lang'] == 'on' ){
 			else{
 				$status = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/other_lang.php?do&amp;chdeak&amp;id='.$id.'"><span class="ui-icon ui-icon-close" style="display:inline-block;" title="Diese Sprache ist zu Zeit deaktiviert. ( click -> ändern )" ></sapn></a>';
 			}
-			$sitecontent->add_site_content('<tr> <td>'.$id.'</td> <td>'.$vals['tag'].'</td> <td>'.$vals['name'].'</td> <td><img src="'.$vals['flag'].'" id="stdflag" title="Flag" alt="Flagge" /></td> <td>'.$status.'</td> </tr>');
+			$sitecontent->add_site_content('<tr> <td>'.$id.'</td> <td>'.$vals['tag'].'</td> <td>'.$vals['name'].'</td> <td><img src="'.$vals['flag'].'" title="Flag" alt="Flagge" /></td> <td>'.$status.'</td> </tr>');
 		}
 	}
 
 
 	$sitecontent->add_site_content('<tr> 
 		<td>X</td> 
-		<td><input style="width:95%;" type="text" name="newtag" id="autoc" class="newtag" placeholder="Geben Sie einen Tag für eine Sprache an ( nach ISO 639; z.B.: de, en )" title="Geben Sie einen Tag für eine Sprache an ( nach ISO 639; z.B.: de, en )" onchange="setnameflag( \'flag\', \'newtag\', \'langnam\' );"></td> 
+		<td><input style="width:95%;" type="text" name="newtag" id="autoc" class="newtag" placeholder="Geben Sie einen Tag für eine Sprache an ( nach ISO 639; z.B.: de, en )" title="Geben Sie einen Tag für eine Sprache an ( nach ISO 639; z.B.: de, en )" onblur="setnameflag( \'flag\', \'newtag\', \'langnam\' );"></td> 
 		<td><input style="width:95%;" type="text" readonly="readonly" onfocus="make_editable( \'langnam\' );" onblur="make_uneditable( \'langnam\' );" name="newlangname" title="Klicken zum Ändern!" id="langnam"></td> 
 		<td><img src="'.$allgsysconf['siteurl'].'/load/system/flags/new.gif" id="flag" title="Flag" alt="Flagge" /></td> 
 		<td><input type="submit" value="Hinzufügen"></td> 
