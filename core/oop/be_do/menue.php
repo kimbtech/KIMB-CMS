@@ -382,7 +382,7 @@ class BEmenue{
 				}
 	
 				$sitecontent->add_html_header('<script>var normpath = "'.$file->read_kimb_id( $id , 'path').'" </script>');
-				$this->jsobject->for_menue_edit();
+				$this->jsobject->for_menue_edit( $_GET['file'] );
 	
 				$sitecontent->add_site_content('<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=edit&amp;file='.$_GET['file'].'&amp;reqid='.$_GET['reqid'].'&amp;langid='.$_GET['langid'].'" method="post" onsubmit="if( document.getElementById(\'check\').value == \'nok\' ){ return false; } ">');
 				

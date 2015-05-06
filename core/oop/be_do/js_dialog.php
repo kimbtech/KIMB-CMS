@@ -103,7 +103,7 @@ class JSforBE{
 	
 	}
 	
-	public function for_menue_edit(  ){
+	public function for_menue_edit( $file ){
 		$allgsysconf = $this->allgsysconf;
 		$sitecontent = $this->sitecontent;
 		
@@ -122,7 +122,7 @@ class JSforBE{
 						$("i#pfadtext").text("(Menuepfad -- Überprüfung läuft)");
 						$("i#pfadtext").css( "background-color", "orange" );
 	
-						$.get( "'.$allgsysconf['siteurl'].'/ajax.php?file=menue.php&urlfile='.$_GET['file'].'&search=" + pathinput , function( data ) {
+						$.get( "'.$allgsysconf['siteurl'].'/ajax.php?file=menue.php&urlfile='.$file.'&search=" + pathinput , function( data ) {
 							$( "input#check" ).val( data );
 							if( data == "nok" ){
 								$("i#pfadtext").text("(Menuepfad -- Achtung dieser Pfad ist schon vergeben!!)");
@@ -259,7 +259,263 @@ class JSforBE{
 			});
 		});
 		</script>');
+		
+		$sitecontent->add_site_content('<div style="display:none;"><div id="del-confirm" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Möchten Sie die Seite wirklich löschen?</p></div></div>');
 	}
 	
+	protected function for_user_new_edit_passwind(){
+		$allgsysconf = $this->allgsysconf;
+		$sitecontent = $this->sitecontent;
+		
+		$sitecontent->add_html_header('<script>
+		function setbar( val, title ){	
+			$( "form" ).append( "<div id=\'passbar\'><div class=\'barlabel\'></div></div>" );
+			$( "#passbar" ).progressbar({ value: val });
+			$( ".barlabel" ).text( title );			
+			return;
+		}
+		
+		function passwordbarchange( id ){
+			var inputval = $( "input#" + id ).val();
+			var inputvallen = $( "input#" + id ).val().length;
+			var passbarval = 0;
+			var text;
+
+			if( inputval.match(/([a-zA-Z])/) ){
+				passbarval += 10;
+			}
+			if( inputval.match(/([0-9])/) ){
+				passbarval += 10;
+			}			
+			if( inputval.match(/([!,%,&,@,#,*,?,_,])/) ){
+				passbarval += 15;
+			}
+			if( inputval.match(/([!,%,&,@,#,*,?,_,].*[!,%,&,@,#,*,?,_,])/) ){
+				passbarval += 25;
+			}
+			
+			if( inputvallen > 5 ){
+				inputvallen = inputvallen - 5;
+				passbarval += inputvallen * 5;
+			}
+			else{
+				passbarval = 0;
+			}
+			
+			if( passbarval <= 25 ){
+				text = "Das soll ein Passwort sein?";
+			}
+			else if( passbarval <= 50 ){
+				text = "Gut, aber es geht noch besser!";
+			}
+			else if( passbarval <= 75 ){
+				text = "Das sieht doch gut aus!";
+			}
+			else if( passbarval <= 100 ){
+				text = "Da wird selbst die NSA schwitzen!";
+			}
+			
+			setbar( passbarval, text );
+			return;
+		}
+		</script>');
+	}
+	
+	public function for_user_new(){
+		$allgsysconf = $this->allgsysconf;
+		$sitecontent = $this->sitecontent;
+		
+		$this->for_user_new_edit_passwind();
+		
+		$sitecontent->add_html_header('<script>
+		function checkuser(){
+			var userinput = $( "input#user" ).val();
+			if( "" != userinput ){
+	
+				$( "input#check" ).val( "nok" );
+				$("i#textuser").text("Username -- Überprüfung läuft");
+				$("i#textuser").css( "background-color", "orange" );
+				$("i#textuser").css( "color", "white" );
+				$("i#textuser").css( "padding", "5px" );
+	
+				$.get( "'.$allgsysconf['siteurl'].'/ajax.php?file=user.php&user=" + userinput , function( data ) {
+					$( "input#check" ).val( data );
+					if( data == "nok" ){
+						$("i#textuser").text("Username - Achtung, dieser Name ist schon vergeben!!");
+						$("i#textuser").css( "background-color", "red" );
+					}
+					else{
+						$( "input#check" ).val( "ok" );
+						$("i#textuser").text("Username - OK");
+						$("i#textuser").css( "background-color", "green" );
+					}
+				});
+			}
+			else{
+				$( "input#check" ).val( "ok" );
+				$("i#pfadtext").text("(Menuepfad -- OK)");
+				$("i#pfadtext").css( "background-color", "green" );
+			}
+		}
+		function checkpw() {
+			var valeins = $( "input#passwort1" ).val();
+			var valzwei = $( "input#passwort2" ).val();
+			
+			passwordbarchange( "passwort1" );
+	
+			if( valzwei == "" || valeins == "" ){
+				$("i#pwtext").text( "Das Passwort darf nicht leer sein!!" );
+				$("i#pwtext").css( "background-color", "red" );
+				$("i#pwtext").css( "color", "white" );
+				$("i#pwtext").css( "padding", "5px" );
+			}
+			else if( valzwei != valeins ){
+				$("i#pwtext").text("Passwörter stimmen nicht überein!");
+				$("i#pwtext").css( "background-color", "red" );
+				$("i#pwtext").css( "color", "white" );
+				$("i#pwtext").css( "padding", "5px" );
+			}
+			else{
+				$("i#pwtext").text("Passwörter - OK");
+				$("i#pwtext").css( "background-color", "green" );
+				$("i#pwtext").css( "color", "white" );
+				$("i#pwtext").css( "padding", "5px" );
+			}
+		}
+		function checkmail(){
+			var valmail = $( "input#mail" ).val();
+			var mailmatch = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+	
+			if( mailmatch.test( valmail ) ){
+				$("i#mailadr").text( "E-Mail Adresse - OK" );
+				$("i#mailadr").css( "background-color", "green" );
+				$("i#mailadr").css( "color", "white" );
+				$("i#mailadr").css( "padding", "5px" );
+				
+			}
+			else{
+				$("i#mailadr").text( "Die E-Mail Adresse ist fehlerhaft!" );
+				$("i#mailadr").css( "background-color", "red" );
+				$("i#mailadr").css( "color", "white" );
+				$("i#mailadr").css( "padding", "5px" );
+			}
+		}
+	
+		function checksumbit(){
+	
+			var valeins = $( "input#passwort1" ).val();
+			var valzwei = $( "input#passwort2" ).val();
+			var valmail = $( "input#mail" ).val();
+			var salt = $( "input#salt" ).val();
+			
+			if( $( "input#check" ).val() == "nok" ){
+				return false;
+			}
+	
+			var mailmatch = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+			if( mailmatch.test( valmail ) == false ){
+				return false;
+			}
+	
+			if( valzwei != valeins ){ 
+				return false;
+			}
+			if( valeins != "" ) {
+				$( "input#passwort1" ).val( SHA1( salt + valeins ) );
+				$( "input#passwort2" ).val( "" );
+				return true;
+			}
+			else{
+				return false;
+			}
+	
+		}
+		function userreplace() {
+			var usern;
+	
+			$( "input#check" ).val( "nok" );
+	
+			$("i#textuser").css( "color", "white" );
+			$("i#textuser").css( "padding", "5px" );
+			$( "i#textuser" ).html("(Username -- Überprüfung ausstehend) <button onclick=\'checkuser(); return false;\'>Prüfen</button>");
+			$( "i#textuser" ).css( "background-color", "blue" );
+			usern = $( "input#user" ).val().toLowerCase();
+			$( "input#user" ).val(  usern.replace( /[^a-z]/g, "") );
+		}
+		</script>');
+	}
+	
+	public function for_user_edit( $user ){
+		$allgsysconf = $this->allgsysconf;
+		$sitecontent = $this->sitecontent;
+		
+		$this->for_user_new_edit_passwind();
+		
+		$sitecontent->add_html_header('<script>
+			function deluser() {
+				$( "#del-confirm" ).show( "fast" );
+				$( "#del-confirm" ).dialog({
+				resizable: false,
+				height:220,
+				modal: true,
+				buttons: {
+					"Delete": function() {
+						$( this ).dialog( "close" );
+						window.location = "'.$allgsysconf['siteurl'].'/kimb-cms-backend/user.php?todo=edit&user='.$user.'&del";
+						return true;
+					},
+					Cancel: function() {
+						$( this ).dialog( "close" );
+						return false;
+					}
+				}
+				});
+			}
+			function checkpw() {
+				var valeins = $( "input#passwort1" ).val();
+				var valzwei = $( "input#passwort2" ).val();
+				
+				passwordbarchange( "passwort1" );
+	
+				if( valzwei == "" || valeins == "" ){
+					$("i#pwtext").text( "Passwort - keine Änderung" );
+					$("i#pwtext").css( "background-color", "white" );
+					$("i#pwtext").css( "color", "black" );
+				}
+				else if( valzwei != valeins ){
+					$("i#pwtext").text("Passwörter stimmen nicht überein!");
+					$("i#pwtext").css( "background-color", "red" );
+					$("i#pwtext").css( "color", "white" );
+					$("i#pwtext").css( "padding", "5px" );
+				}
+				else{
+					$("i#pwtext").text("Passwörter - OK");
+					$("i#pwtext").css( "background-color", "green" );
+					$("i#pwtext").css( "color", "white" );
+					$("i#pwtext").css( "padding", "5px" );
+				}
+			}
+			function changesub() {
+				var valeins = $( "input#passwort1" ).val();
+				var valzwei = $( "input#passwort2" ).val();
+				var salt = $( "input#salt" ).val();
+	
+				if( valeins != valzwei ){
+					return false;
+				}
+				if( valeins != "" ) {
+					var valneu = SHA1( salt + valeins );
+	
+					$( "input#passwort1" ).val( valneu );
+					$( "input#passwort2" ).val( "" );
+	
+					return true;
+				}
+				return true;
+			}	
+			</script>');
+			
+			$sitecontent->add_site_content('<div style="display:none;"><div id="del-confirm" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 40px 0;"></span>Möchten Sie den User "'.$user.'" wirklich löschen?<br /><b>Sollten Sie alle User löschen verliehren Sie den Systemzugriff!</b></p></div></div>');
+	}
 }
 ?>

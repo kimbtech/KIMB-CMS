@@ -34,7 +34,7 @@ $conffile = new KIMBdbf('config.kimb');
 $allgsysconf = $conffile->read_kimb_id('001');
 
 //session, ...
-
+session_name ("KIMBCMS");
 session_start();
 error_reporting( 0 );
 header('X-Robots-Tag: none');

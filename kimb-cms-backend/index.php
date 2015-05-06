@@ -39,6 +39,7 @@ require_once(__DIR__.'/../core/oop/be_do/be_do_all.php');
 if($_GET['todo'] == 'logout'){
 
 	$loginfehler = $_SESSION["loginfehler"];
+	session_unset();
 	session_destroy();
 	session_start();
 	$_SESSION["loginfehler"] = $loginfehler;	
