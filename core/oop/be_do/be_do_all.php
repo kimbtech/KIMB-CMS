@@ -32,6 +32,7 @@ require_once(__DIR__.'/js_dialog.php');
 require_once(__DIR__.'/menue.php');
 require_once(__DIR__.'/sites.php');
 require_once(__DIR__.'/user.php');
+require_once(__DIR__.'/syseinst.php');
 
 
 ?>

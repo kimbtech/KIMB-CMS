@@ -517,5 +517,34 @@ class JSforBE{
 			
 			$sitecontent->add_site_content('<div style="display:none;"><div id="del-confirm" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 40px 0;"></span>Möchten Sie den User "'.$user.'" wirklich löschen?<br /><b>Sollten Sie alle User löschen verliehren Sie den Systemzugriff!</b></p></div></div>');
 	}
+	
+	public function for_syseinst_all(){
+		$allgsysconf = $this->allgsysconf;
+		$sitecontent = $this->sitecontent;
+		
+		$sitecontent->add_html_header('<script>
+		var del = function( teil ) {
+			$( "#del-confirm" ).show( "fast" );
+			$( "#del-confirm" ).dialog({
+			resizable: false,
+			height: 250,
+			modal: true,
+			buttons: {
+				"Delete": function() {
+					$( this ).dialog( "close" );
+					window.location = "'.$allgsysconf['siteurl'].'/kimb-cms-backend/syseinst.php?konf&todo=del&teil=" + teil;
+					return true;
+				},
+				Cancel: function() {
+					$( this ).dialog( "close" );
+					return false;
+				}
+			}
+			});
+		}
+		</script>');
+		
+		$sitecontent->add_site_content('<div style="display:none;"><div id="del-confirm" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 50px 0;"></span>Möchten Sie den Wert wirklich löschen?<br />Tun Sie dies nur wenn Sie genau wissen was Sie tun!!</p></div></div>');
+	}
 }
 ?>
