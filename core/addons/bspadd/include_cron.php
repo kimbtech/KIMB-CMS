@@ -20,6 +20,10 @@
 
 defined('KIMB_CMS') or die('No clean Request');
 
+$infos['e'] = 'cron';
+
 $infos['ee'] = 'cron';
+
+$infos['eee'] = 'cron';
 
 ?>

@@ -44,7 +44,7 @@ session_name ("KIMBCMS");
 session_start();
 error_reporting( 0 );
 header('X-Robots-Tag: '.$allgsysconf['robots']);
-header('Content-Type: text/html; charset=utf-8');
+header('Content-Type: application/json, charset=utf-8');
 
 //Funktionen laden
 require_once(__DIR__.'/core/conf/funktionen.php');

@@ -27,7 +27,7 @@ defined('KIMB_Backend') or die('No clean Request');
 
 class ADDonAPI{
 
-	protected $be, $fe, $funcclass, $addon;
+	protected $be, $fe, $funcclass, $addon,$cron;
 
 	public function __construct( $addon ){
 		$this->addon = $addon;
@@ -35,6 +35,7 @@ class ADDonAPI{
 		$this->be = new KIMBdbf('addon/wish/be_all.kimb');
 		$this->fe = new KIMBdbf('addon/wish/fe_all.kimb');
 		$this->funcclass = new KIMBdbf('addon/wish/funcclass_stelle.kimb');
+		$this->cron = new KIMBdbf('addon/wish/cron_age.kimb');
 	}
 
 	protected function get_addon_id( $fi ){
@@ -126,13 +127,31 @@ class ADDonAPI{
 
 		return false;
 	}
+	
+	public function set_cron( $minage ){
+		// Cron Aufrufabstand in Sekunden speichern
+
+		// $minage => Sekunden zu warten zwischen Abrufen 
+
+		if( is_numeric( $minage ) ){
+			$id = $this->get_addon_id( 'cron' );
+
+			if( is_numeric( $id ) ){
+				if( $this->cron->write_kimb_id( $id , 'add' , 'minage' , $minage ) && $this->cron->write_kimb_id( $id , 'add' , 'lastaufruf' , '1000' ) ){
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
 
 	public function del(){
 		// Add-on Wünsche löschen
 
 		$re = true;
 
-		foreach( array( 'fe', 'be', 'funcclass' ) as $fi ){
+		foreach( array( 'fe', 'be', 'funcclass', 'cron' ) as $fi ){
 			$id = $this->get_addon_id( $fi );
 			if( is_numeric( $id ) && $re == true ){
 				$re = $this->$fi->write_kimb_id( $id , 'del' );
