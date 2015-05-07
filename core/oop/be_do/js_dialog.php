@@ -267,11 +267,35 @@ class JSforBE{
 		$allgsysconf = $this->allgsysconf;
 		$sitecontent = $this->sitecontent;
 		
-		$sitecontent->add_html_header('<script>
-		function setbar( val, title ){	
-			$( "form" ).append( "<div id=\'passbar\'><div class=\'barlabel\'></div></div>" );
+		$sitecontent->add_html_header('
+		<style>
+		#passbar{
+			position: relative;
+		}
+		div.barlabel{
+			position: absolute;
+			left: 50%;
+    			font-weight: bold;
+			top:4px;
+		}
+		#passbar .ui-widget-header{
+			background: url( "'.$allgsysconf['siteurl'].'/load/system/jquery/images/ui-bg_diagonals-medium_100_0f0_40x40.png" ) repeat scroll 50% 50% #0f0;
+		}
+		</style>
+		<script>
+		var added = false;
+		function setbar( val, title ){
+			if( added == false ){
+				$( "div#pwind" ).append( "<div id=\'passbar\'><div class=\'barlabel\'></div></div>" );
+				$( "div#passbar" ).css( "margin", "5px 0" );
+				added = true;
+			}
 			$( "#passbar" ).progressbar({ value: val });
-			$( ".barlabel" ).text( title );			
+			$( ".barlabel" ).text( title );
+			var barlabelcorr = $( ".barlabel" ).width() / 2;
+			$( ".barlabel" ).css( "left", "calc( 50% - " + barlabelcorr + "px )" );
+			
+			$( "#passbar" ).css( "display", "block" );	
 			return;
 		}
 		
@@ -284,14 +308,26 @@ class JSforBE{
 			if( inputval.match(/([a-zA-Z])/) ){
 				passbarval += 10;
 			}
+			if( inputval.match(/([A-Z])/) ){
+				passbarval += 10;
+			}
 			if( inputval.match(/([0-9])/) ){
+				passbarval += 5;
+			}
+			if( inputval.match(/([0-9].*[0-9])/) ){
+				passbarval += 10;
+			}
+			if( inputval.match(/([0-9].*[0-9].*[0-9])/) ){
 				passbarval += 10;
 			}			
 			if( inputval.match(/([!,%,&,@,#,*,?,_,])/) ){
 				passbarval += 15;
 			}
 			if( inputval.match(/([!,%,&,@,#,*,?,_,].*[!,%,&,@,#,*,?,_,])/) ){
-				passbarval += 25;
+				passbarval += 15;
+			}
+			if( inputval.match(/([!,%,&,@,#,*,?,_,].*[!,%,&,@,#,*,?,_,].*[!,%,&,@,#,*,?,_,])/) ){
+				passbarval += 15;
 			}
 			
 			if( inputvallen > 5 ){
@@ -312,10 +348,14 @@ class JSforBE{
 				text = "Das sieht doch gut aus!";
 			}
 			else if( passbarval <= 100 ){
-				text = "Da wird selbst die NSA schwitzen!";
+				text = "Da werden die Hacker schwitzen!";
 			}
 			
 			setbar( passbarval, text );
+			return;
+		}
+		function passbar_weg(){
+			$( "#passbar" ).css( "display", "none" );
 			return;
 		}
 		</script>');
@@ -360,8 +400,6 @@ class JSforBE{
 		function checkpw() {
 			var valeins = $( "input#passwort1" ).val();
 			var valzwei = $( "input#passwort2" ).val();
-			
-			passwordbarchange( "passwort1" );
 	
 			if( valzwei == "" || valeins == "" ){
 				$("i#pwtext").text( "Das Passwort darf nicht leer sein!!" );
@@ -474,8 +512,6 @@ class JSforBE{
 			function checkpw() {
 				var valeins = $( "input#passwort1" ).val();
 				var valzwei = $( "input#passwort2" ).val();
-				
-				passwordbarchange( "passwort1" );
 	
 				if( valzwei == "" || valeins == "" ){
 					$("i#pwtext").text( "Passwort - keine Änderung" );

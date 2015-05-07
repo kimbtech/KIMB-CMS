@@ -117,7 +117,7 @@ class BEuser{
 		$sitecontent->add_site_content('<input type="text" name="user" onkeyup=" userreplace(); " onchange=" checkuser(); " id="user"> <i id="textuser" title="Username für das Login ( später keine Änderung möglich )">Username - bitte eingeben</i><br />');
 		$sitecontent->add_site_content('<input type="text" name="name" > <i title="Name des Users" >Name</i><br />');
 		$sitecontent->add_site_content('<input type="text" name="mail" id="mail" onkeyup=" checkmail(); " onchange=" checkmail(); " > <i id="mailadr" title="E-Mail Adresse des Users für Nachrichten und Meldungen">E-Mail Adresse - bitte eingeben</i><br />');
-		$sitecontent->add_site_content('<input type="password" name="passwort1" id="passwort1" onkeyup=" checkpw(); "> <i title="Lassen Sie das Feld leer um das Passwort unverändert zu lassen!" id="pwtext">Passwort - bitte eingeben</i> <br />');
+		$sitecontent->add_site_content('<input type="password" name="passwort1" id="passwort1" onkeyup=" checkpw(); passwordbarchange( \'passwort1\' );" onblur="passbar_weg(); "> <i title="Lassen Sie das Feld leer um das Passwort unverändert zu lassen!" id="pwtext">Passwort - bitte eingeben</i> <div id="pwind"></div>');
 		$sitecontent->add_site_content('<input type="password" name="passwort2" id="passwort2" onkeyup=" checkpw(); "> <i title="Zur Sicherheit erneut eigeben." id="pwtext">Passwort - bitte eingeben</i> <br />');
 		$sitecontent->add_site_content('<input type="radio" name="level" value="less" checked="checked">Editor <input type="radio" name="level" value="more">Admin &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i title="Das Rechte-Level des Users einstellen.">Level</i><br />');
 		$sitecontent->add_site_content('<input type="hidden" value="nok" id="check" >');
@@ -249,7 +249,7 @@ class BEuser{
 						$sitecontent->add_site_content('<input type="radio" name="level" value="less">Editor <input type="radio" name="level" value="more" >Admin '.$other.' &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i title="Das Rechte-Level des Users einstellen.">Level</i><br />');
 					}
 				}
-				$sitecontent->add_site_content('<input type="password" name="passwort1" id="passwort1" onkeyup=" checkpw(); "> <i title="Lassen Sie das Feld leer um das Passwort unverändert zu lassen!" id="pwtext">Passwort - keine Änderung</i> <br />');
+				$sitecontent->add_site_content('<input type="password" name="passwort1" id="passwort1" onkeyup=" checkpw(); passwordbarchange( \'passwort1\' );" onblur="passbar_weg();"> <i title="Lassen Sie das Feld leer um das Passwort unverändert zu lassen!" id="pwtext">Passwort - keine Änderung</i> <div id="pwind"></div>');
 				$sitecontent->add_site_content('<input type="password" name="passwort2" id="passwort2" onkeyup=" checkpw(); "> <i title="Zur Sicherheit erneut eigeben." id="pwtext">Passwort - keine Änderung</i> <br />');
 				$sitecontent->add_site_content('<input type="submit" value="Ändern" ><br />');
 				$sitecontent->add_site_content('<input type="hidden" value="'.makepassw( 10, '', 'numaz' ).'" id="salt" name="salt" >');
