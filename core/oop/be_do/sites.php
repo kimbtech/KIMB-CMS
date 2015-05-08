@@ -31,12 +31,12 @@ class BEsites{
 	
 	protected $allgsysconf, $sitecontent;
 	
-	public function __construct( $allgsysconf, $sitecontent ){
+	public function __construct( $allgsysconf, $sitecontent, $tabelle = true ){
 		$this->allgsysconf = $allgsysconf;
 		$this->sitecontent = $sitecontent;
 		$this->jsobject = new JSforBE( $allgsysconf, $sitecontent );
 		
-		if( is_object( $this->sitecontent ) ){
+		if( is_object( $this->sitecontent ) && $tabelle ){
 			$this->sitecontent->add_html_header('<style>td { border:1px solid #000000; padding:2px;} td a { text-decoration:none; }</style>');
 		}
 	}

@@ -31,13 +31,13 @@ class BEuser{
 	
 	protected $allgsysconf, $sitecontent, $userfile;
 	
-	public function __construct( $allgsysconf, $sitecontent ){
+	public function __construct( $allgsysconf, $sitecontent, $tabelle = true ){
 		$this->allgsysconf = $allgsysconf;
 		$this->sitecontent = $sitecontent;
 		$this->jsobject = new JSforBE( $allgsysconf, $sitecontent );
 		$this->userfile = new KIMBdbf('backend/users/list.kimb');
 		
-		if( is_object( $this->sitecontent ) ){
+		if( is_object( $this->sitecontent ) && $tabelle ){
 			$this->sitecontent->add_html_header('<style>td { border:1px solid #000000; padding:2px;} td a { text-decoration:none; }</style>');
 		}
 	}
@@ -143,6 +143,31 @@ class BEuser{
 		}
 	}
 	
+	public function make_user_changepw( $user, $pw = '---auto---' ){
+		
+		if( empty( $user ) ){
+			return false;
+		}
+		if( $pw == '---auto---' ){
+			$pw = makepassw( 12, '', 'numaz' );
+		}
+		$salt = makepassw( 10, '', 'numaz' );
+		$passw = $pw;
+		$pw = sha1( $salt.$pw );
+
+		$POST['user'] = $user;
+		$POST['salt'] = $salt;
+		$POST['passwort1'] = $pw;
+		
+		if( $this->make_user_edit_dbf_new( $POST ) ){
+			return $passw;
+		}
+		else{
+			return false;
+		}
+		
+	}
+	
 	public function make_user_edit_dbf_new( $POST ){
 		$allgsysconf = $this->allgsysconf;
 		$sitecontent = $this->sitecontent;
@@ -150,28 +175,37 @@ class BEuser{
 		
 		$id = $userfile->search_kimb_xxxid( $POST['user'] , 'user' );		
 		if( $id != false ){
+			$ch = false;
+			
 			$userinfo = $userfile->read_kimb_id( $id );
 			if( $userinfo['passw'] != $POST['passwort1'] && !empty( $POST['passwort1'] ) ){
 				$userfile->write_kimb_id( $id , 'add' , 'passw' , $POST['passwort1'] );
 				$userfile->write_kimb_id( $id , 'add' , 'salt' , $POST['salt'] );
 				$sitecontent->echo_message( 'Das Passwort wurde geändert!' );
+				$ch = true;
 			}
-			if( $userinfo['permiss'] != $POST['level'] && $_SESSION['permission'] == 'more' ){
+			if( $userinfo['permiss'] != $POST['level'] && $_SESSION['permission'] == 'more'  && !empty( $POST['level'] )){
 				$userfile->write_kimb_id( $id , 'add' , 'permiss' , $POST['level'] );
 				$sitecontent->echo_message( 'Das Nutzerlevel wurde geändert!' );
 				if($POST['level'] != 'more' ){
 					$sitecontent->echo_message( '<b style="color:red;">Achtung, setzen Sie nicht alle User auf ein niedriges Level, sonst können Sie den Systemzugriff verliehren!!</b>' );
 				}
+				$ch = true;
 			}
-			if( $userinfo['name'] != $POST['name'] ){
+			if( $userinfo['name'] != $POST['name'] &&  !empty( $POST['name'] ) ){
 				$userfile->write_kimb_id( $id , 'add' , 'name' , $POST['name'] );
 				$sitecontent->echo_message( 'Der Name wurde geändert!' );
+				$ch = true;
 			}
-			if( $userinfo['mail'] != $POST['mail'] ){
+			if( $userinfo['mail'] != $POST['mail'] &&  !empty( $POST['mail'] ) ){
 				$userfile->write_kimb_id( $id , 'add' , 'mail' , $POST['mail'] );
 				$sitecontent->echo_message( 'Die E-Mail Adresse wurde geändert!' );
+				$ch = true;
 			}
-			$sitecontent->echo_message( 'Achtung, einige Änderungen werden erst ab erneutem Login wirksam!' );
+			
+			if( $ch ){
+				$sitecontent->echo_message( 'Achtung, einige Änderungen werden erst ab erneutem Login wirksam!' );
+			}
 			
 			return true;
 		}
