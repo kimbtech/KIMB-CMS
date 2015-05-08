@@ -30,10 +30,65 @@ defined('KIMB_Backend') or die('No clean Request');
 class JSforBE{
 	
 	protected $allgsysconf, $sitecontent, $idfile, $menuenames;
+	protected $nomenuepaths = 'var array = [ "ajax.php", "cron.php", "configurator.php", "index.php", "LICENSE.txt", "readme", "robots.txt","core","kimb-cms-backend", "load" ];';
 	
 	public function __construct( $allgsysconf, $sitecontent ){
 		$this->allgsysconf = $allgsysconf;
 		$this->sitecontent = $sitecontent;
+	}
+	
+	public function for_menue_new(){
+		$allgsysconf = $this->allgsysconf;
+		$sitecontent = $this->sitecontent;
+
+		$sitecontent->add_html_header('<script>
+		$(function() {
+			$("i#pfad").css( "background-color", "gray" );
+			$("i#pfad").css( "color", "white" );
+			$("i#pfad").css( "padding", "5px" );
+		} );
+		'.$this->nomenuepaths.'
+		function checkpath() {
+			var umg = $( "input[name=pfad]" ).val();
+			var check = $( "input[name=check]" ).val();
+			
+			pfad = umg.replace( /[^0-9A-Za-z_.-]/g, "");
+		
+			if(  jQuery.inArray( pfad, array  ) !== -1 ){
+				$( "input[name=check]" ).val("nok");
+				$("i#pfad").css( "background-color", "red" );
+				$("i#pfad").text("(Dieser Pfad ist für das System reserviert!)");
+			}
+			else{
+				$( "input[name=check]" ).val("ok");
+				$("i#pfad").css( "background-color", "green" );
+				$("i#pfad").text("(Dieser Pfad ist okay!)");
+			}
+			
+			$( "input[name=pfad]" ).val( pfad );
+		}
+		
+		function makepfad() {
+			var name, klein, pfad, umg;
+	
+			name = $( "input[name=name]" ).val();
+	
+			klein = name.toLowerCase();
+			umg = klein.replace( / /g , "-");
+	
+			$( "input[name=pfad]" ).val( umg );
+			
+			checkpath();
+		}
+		
+		function checksubmit(){
+			var check = $( "input[name=check]" ).val();
+			if( check == "nok" ){
+				return false;
+			}
+			return true;
+		}
+		</script>');
 	}
 	
 	public function for_menue_list() {
@@ -114,9 +169,16 @@ class JSforBE{
 					$("i#pfadtext").css( "color", "white" );
 					$("i#pfadtext").css( "padding", "5px" );
 				});
+				
+				'.$this->nomenuepaths.'
 				function checkpath(){
 					var pathinput = $( "input#pfad" ).val();
-					if( normpath != pathinput ){
+					if(  jQuery.inArray( pathinput, array  ) !== -1 ){
+						$( "input#check" ).val( "nok" );
+						$("i#pfadtext").text("(Menuepfad -- Dieser Pfad ist für das System reserviert!)");
+						$("i#pfadtext").css( "background-color", "red" );
+					}
+					else if( normpath != pathinput ){
 	
 						$( "input#check" ).val( "nok" );
 						$("i#pfadtext").text("(Menuepfad -- Überprüfung läuft)");
@@ -145,7 +207,7 @@ class JSforBE{
 					$( "input#check" ).val( "nok" );
 					$( "i#pfadtext" ).html("(Menuepfad -- Überprüfung ausstehend) <button onclick=\'checkpath(); return false;\'>Prüfen</button>");
 					$( "i#pfadtext" ).css( "background-color", "blue" );
-					$( "input#pfad" ).val( $( "input#pfad" ).val().replace( /[^0-9A-Za-z_-]/g, "") );
+					$( "input#pfad" ).val( $( "input#pfad" ).val().replace( /[^0-9A-Za-z_.-]/g, "") );
 				}
 				</script>');
 	}

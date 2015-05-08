@@ -60,10 +60,10 @@ class BEmenue{
 				//nötige vars
 				$newm['name'] = $POST['name'];
 				if( $POST['pfad'] == '' ){
-					$newm['pfad'] = preg_replace("/[^0-9A-Za-z_-]/","", $POST['name']);
+					$newm['pfad'] = preg_replace("/[^0-9A-Za-z_.-]/","", $POST['name']);
 				}
 				else{
-					$newm['pfad'] = preg_replace("/[^0-9A-Za-z_-]/","", $POST['pfad']);
+					$newm['pfad'] = preg_replace("/[^0-9A-Za-z_.-]/","", $POST['pfad']);
 				}
 				$newm['nextid'] = '---empty---';
 				$newm['requestid'] = $idfile->next_kimb_id();
@@ -170,20 +170,7 @@ class BEmenue{
 				die;
 			}
 	
-			$sitecontent->add_html_header('<script>
-			function makepfad() {
-				var name, klein, pfad, umg;
-	
-				name = $( "input[name=name]" ).val();
-	
-				klein = name.toLowerCase();
-				umg = klein.replace( / /g , "-");
-				pfad = umg.replace( /[^0-9A-Za-z_-]/g, "");
-	
-				$( "input[name=pfad]" ).val( pfad );
-	
-			}
-			</script>');
+			$this->jsobject->for_menue_new();
 	
 			$sitedr = '<select name="siteid"><option value="none" selected="selected">None</option>';
 			$sites = list_sites_array();
@@ -192,11 +179,12 @@ class BEmenue{
 			}
 			$sitedr .= '</select>';
 	
-			$sitecontent->add_site_content('<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=new&amp;file='.$_GET['file'].'&amp;niveau='.$_GET['niveau'].'&amp;requid='.$_GET['requid'].'" method="post">');
+			$sitecontent->add_site_content('<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=new&amp;file='.$_GET['file'].'&amp;niveau='.$_GET['niveau'].'&amp;requid='.$_GET['requid'].'" method="post" onsubmit="return checksubmit();">');
 			$sitecontent->add_site_content('<input type="text" name="name" onkeyup=" makepfad(); " onchange=" makepfad(); " > <i title="Pflichtfeld">(Menuename *)</i><br />');
-			$sitecontent->add_site_content('<input type="text" name="pfad" > <i title="Manuell oder automatisch aus Menuename">(Pfad)</i><br />');
+			$sitecontent->add_site_content('<input type="text" name="pfad" onkeyup="checkpath();" > <i title="Manuell oder automatisch aus Menuename" id="pfad">(Pfad)</i><br />');
 			$sitecontent->add_site_content($sitedr.' <i title="Auch später über Zuordnung zu definieren">(SiteID)</i><br />');
 			$sitecontent->add_site_content('<input type="submit" value="Erstellen" ><br />');
+			$sitecontent->add_site_content('<input type="hidden" value="ok" name="check">');
 			$sitecontent->add_site_content('</form>');
 	
 		}
@@ -367,7 +355,7 @@ class BEmenue{
 				}
 				
 				if( isset( $_POST['name'] ) && isset( $_POST['pfad'] ) ){
-					$_POST['pfad'] = preg_replace("/[^0-9A-Za-z_-]/","", $_POST['pfad']);
+					$_POST['pfad'] = preg_replace("/[^0-9A-Za-z_.-]/","", $_POST['pfad']);
 					$ok = $file->search_kimb_xxxid( $_POST['pfad'] , 'path');
 					if( $ok == false || $ok == $id ){
 						if( $file->read_kimb_id( $id , 'path') != $_POST['pfad'] ){

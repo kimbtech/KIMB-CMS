@@ -116,7 +116,7 @@ elseif( $_GET['file'] == 'menue.php' ){
 			$file = new KIMBdbf( 'url/nextid_'.$_GET['urlfile'].'.kimb' );
 		}
 	
-		$_GET['search'] = preg_replace("/[^0-9A-Za-z_-]/","", $_GET['search']);
+		$_GET['search'] = preg_replace("/[^0-9A-Za-z_.-]/","", $_GET['search']);
 	
 		if( !$file->search_kimb_xxxid( $_GET['search'] , 'path') ){
 			echo 'ok';
