@@ -33,7 +33,7 @@ if( !empty( $_GET['addon'] ) ){
 		$addoninclude = new KIMBdbf('addon/includes.kimb');
 	}
 
-	if( $addoninclude->read_kimb_search_teilpl( 'ajax' , $search) ){
+	if( $addoninclude->read_kimb_search_teilpl( 'ajax' , $_GET['addon']) ){
 
 		if(strpos( $_GET['addon'] , "..") !== false){
 			echo ('Do not hack me!!');

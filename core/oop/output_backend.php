@@ -25,7 +25,7 @@
 
 
 
-defined('KIMB_Backend') or die('No clean Request');
+defined('KIMB_CMS') or die('No clean Request');
 
 class backend_output{
 

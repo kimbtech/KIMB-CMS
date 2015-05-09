@@ -23,14 +23,13 @@
 //http://www.gnu.org/licenses/gpl-3.0.txt
 /*************************************************/
 
+defined('KIMB_CMS') or die('No clean Request');
 
-
-defined('KIMB_Backend') or die('No clean Request');
+//Klassen Autoload
+require_once( __DIR__.'/../oop/all_oop.php' );
 
 //erstelle globale conf Variablen aus config.kimb
-
 $conffile = new KIMBdbf('config.kimb');
-
 $allgsysconf = $conffile->read_kimb_id('001');
 
 //session, ...

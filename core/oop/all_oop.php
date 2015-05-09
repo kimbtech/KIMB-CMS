@@ -23,12 +23,25 @@
 //http://www.gnu.org/licenses/gpl-3.0.txt
 /*************************************************/
 
-
-
 defined('KIMB_CMS') or die('No clean Request');
 
-require_once(__DIR__.'/kimbdbf.php');
-require_once(__DIR__.'/cache.php');
-require_once(__DIR__.'/output.php');
+function autoload_classes( $class ){
+	$classarray = array(
+		'ADDonAPI' => 'addon_api',
+		'cacheCMS' => 'cache',
+		'KIMBdbf' => 'kimbdbf',
+		'system_output' => 'output',
+		'backend_output' => 'output_backend',
+		'JSforBE' => 'be_do/js_dialog',
+		'BEmenue' => 'be_do/menue',
+		'BEsites' => 'be_do/sites',
+		'BEsyseinst' => 'be_do/syseinst',
+		'BEuser' => 'be_do/user'	
+	);
+	
+	require_once( __DIR__.'/'.$classarray[$class].'.php' );
+}
+
+spl_autoload_register('autoload_classes');
 
 ?>

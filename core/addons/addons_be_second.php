@@ -23,7 +23,7 @@
 //http://www.gnu.org/licenses/gpl-3.0.txt
 /*************************************************/
 
-defined('KIMB_Backend') or die('No clean Request');
+defined('KIMB_CMS') or die('No clean Request');
 
 foreach( $besecondincludesaddons as $name ){
 

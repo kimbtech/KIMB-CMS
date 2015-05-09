@@ -24,15 +24,10 @@
 /*************************************************/
 
 
+define("KIMB_CMS", "Clean Request");
 
-define("KIMB_Backend", "Clean Request");
-
-//Objekte Initialisieren
-require_once(__DIR__.'/../core/oop/all_oop_backend.php');
 //Konfiguration laden
 require_once(__DIR__.'/../core/conf/conf_backend.php');
-//BE Klassen
-require_once(__DIR__.'/../core/oop/be_do/be_do_all.php');
 
 check_backend_login( 'fiveteen' , 'more');
 

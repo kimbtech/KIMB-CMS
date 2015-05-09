@@ -28,6 +28,8 @@
 //    array( $this->allgsysconf )
 // Diese Datei ist Teil eines Objekts
 
+defined('KIMB_CMS') or die('No clean Request');
+
 if( $this->allgsysconf['lang'] == 'on' ){
 	echo('<!DOCTYPE html> <html lang="'.$this->requestlang['tag'].'"> <head>'."\r\n");
 }

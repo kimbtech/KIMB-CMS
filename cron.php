@@ -23,20 +23,14 @@
 //http://www.gnu.org/licenses/gpl-3.0.txt
 /*************************************************/
 
-
 define("KIMB_CMS", "Clean Request");
 
-defined('KIMB_CMS') or die('No clean Request');
 
-//Klassen und Funktionen
-require_once(__DIR__.'/core/oop/kimbdbf.php');
-//BE Klassen
-require_once(__DIR__.'/core/oop/be_do/be_do_all.php');
+//Klassen Autoload
+require_once( __DIR__.'/core/oop/all_oop.php' );
 
 //Konfiguration
-
 $conffile = new KIMBdbf('config.kimb');
-
 $allgsysconf = $conffile->read_kimb_id( '001' );
 
 //session, ...

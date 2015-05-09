@@ -29,6 +29,8 @@
 // Diese Datei ist Teil eines Objekts
 // Das fertige Menue wird, je nach Theme über $this->menue ausgegeben
 
+defined('KIMB_CMS') or die('No clean Request');
+
 if( !isset( $this->menuenumid ) ){
 	$this->menuenumid = 0;
 }
