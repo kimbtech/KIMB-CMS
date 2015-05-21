@@ -644,5 +644,34 @@ class JSforBE{
 		
 		$sitecontent->add_site_content('<div style="display:none;"><div id="del-confirm" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 50px 0;"></span>Möchten Sie den Wert wirklich löschen?<br />Tun Sie dies nur wenn Sie genau wissen was Sie tun!!</p></div></div>');
 	}
+	
+	public function for_addon_inst(){
+		$allgsysconf = $this->allgsysconf;
+		$sitecontent = $this->sitecontent;
+		
+		$sitecontent->add_html_header('<script>
+		var del = function( addon ) {
+			$( "#del-confirm" ).show( "fast" );
+			$( "#del-confirm" ).dialog({
+			resizable: false,
+			height:200,
+			modal: true,
+			buttons: {
+				"Delete": function() {
+					$( this ).dialog( "close" );
+					window.location = "'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_inst.php?addon=" + addon + "&del";
+					return true;
+				},
+				Cancel: function() {
+					$( this ).dialog( "close" );
+					return false;
+				}
+			}
+			});
+		}
+		</script>');
+		
+		$sitecontent->add_site_content('<div style="display:none;"><div id="del-confirm" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Möchten Sie dieses Addon wirklich löschen?</p></div></div>');	
+	}
 }
 ?>

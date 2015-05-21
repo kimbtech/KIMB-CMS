@@ -802,8 +802,7 @@ function make_path_outof_reqid( $requid ){
 	}
 }
 
-function check_addon_status( $addon ){
-	global $addoninclude, $allinclpar;
+function check_addon_status( $addon, $addoninclude, $allinclpar ){
 
 	foreach( $allinclpar as $par ){
 

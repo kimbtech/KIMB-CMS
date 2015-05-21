@@ -36,7 +36,9 @@ function autoload_classes( $class ){
 		'BEmenue' => 'be_do/menue',
 		'BEsites' => 'be_do/sites',
 		'BEsyseinst' => 'be_do/syseinst',
-		'BEuser' => 'be_do/user'	
+		'BEuser' => 'be_do/user',
+		'BEaddconf' => 'be_do/addon_conf',
+		'BEaddinst' => 'be_do/addon_inst'
 	);
 	
 	require_once( __DIR__.'/'.$classarray[$class].'.php' );

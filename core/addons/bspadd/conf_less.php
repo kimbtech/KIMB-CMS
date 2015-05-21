@@ -17,7 +17,7 @@
 //IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 /*************************************************/
 
-defined('KIMB_Backend') or die('No clean Request');
+defined('KIMB_CMS') or die('No clean Request');
 
 echo 'less';
 

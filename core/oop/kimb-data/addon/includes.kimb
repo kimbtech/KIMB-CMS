@@ -1,5 +1,4 @@
 <[about:doc]>KIMB Datei V.0.1 KIMB CMS<[about:doc]>
-<[lastcheck]>1430410201<[lastcheck]>
 <[21-admin_login_mail]>noup<[21-admin_login_mail]>
 <[21]>admin_login_mail==analytics==api_login==auto_update==be_passw==captcha==easy_publish==felogin==galerie==guestbook==html_out==im_export==kontakt==search_sitemap==sitemapxml==bspadd==bspaddr<[21]>
 <[21-analytics]>noup<[21-analytics]>
@@ -18,3 +17,4 @@
 <[21-sitemapxml]>noup<[21-sitemapxml]>
 <[21-bspadd]><[21-bspadd]>
 <[21-bspaddr]><[21-bspaddr]>
+<[lastcheck]>1432219498<[lastcheck]>

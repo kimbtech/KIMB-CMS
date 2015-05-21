@@ -30,99 +30,24 @@ require_once(__DIR__.'/../core/conf/conf_backend.php');
 
 //Add-on Konfiguration
 
-$sitecontent->add_html_header('<style>td { border:1px solid #000000; padding:2px;} td a { text-decoration:none; }</style>');
-
 if(strpos( $_GET['addon'] , "..") !== false){
 	echo ('Do not hack me!!');
 	die;
 }
 
-if( isset( $_GET['addon'] ) ){
-
-	if( is_file( __DIR__.'/../core/addons/'.$_GET['addon'].'/add-on.ini' ) ){
-
-		$ini = parse_ini_file( __DIR__.'/../core/addons/'.$_GET['addon'].'/add-on.ini' , true);
-		$addonname = $ini['about']['name'];
-	}
-	else{
-		$addonname = $_GET['addon'];
-	}
-}
+$beaddconf = new BEaddconf( $allgsysconf, $sitecontent );
 
 if( $_GET['todo'] == 'more' ){
 	check_backend_login( 'fourteen' , 'more');
 	
-	if( isset( $_GET['addon'] ) ){
-
-		$sitecontent->add_site_content('<h2>Add-on "'.$addonname.'" konfigurieren</h2>');
-		$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=more">&larr; Alle Add-ons</a>');
-		$sitecontent->add_site_content('<a style="position:absolute; right:12px;" href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=less&addon='.$_GET['addon'].'">Zur Add-on Nutzung &rarr;</a><hr />');
-
-		if( file_exists(__DIR__.'/../core/addons/'.$_GET['addon'].'/conf_more.php') ){
-			require_once( __DIR__.'/../core/addons/'.$_GET['addon'].'/conf_more.php' );
-		}
-		else{
-			$sitecontent->echo_error( 'Das gewählte Add-on wurde nicht gefunden!' , 'unknown');
-		}
-	}
-	else{
-		$sitecontent->add_site_content('<h2>Ein Addon wählen</h2>');
-		$sitecontent->add_site_content('<table width="100%"><tr> <th>Add-on</th> </tr>');
-
-		$addons = listaddons();
-		foreach( $addons as $addon ){
-			
-			$sitecontent->add_site_content('<tr> <td><a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=more&amp;addon='.$addon.'">'.$addon.'</a></td> </tr>');
-
-			$liste = 'yes';
-		}
-		$sitecontent->add_site_content('</table>');
-
-		if( $liste != 'yes' ){
-			$sitecontent->echo_error( 'Es wurden keine Add-ons gefunden!' );
-		}
-	}
-
+	$beaddconf->make_more();
 
 }
 elseif( $_GET['todo'] == 'less' ){
 
 	check_backend_login( 'thirteen' );
 
-	if( isset( $_GET['addon'] ) ){
-
-		$sitecontent->add_site_content('<h2>Add-on "'.$addonname.'" nutzen</h2>');
-		$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=less">&larr; Alle Add-ons</a>');
-		if( check_backend_login( 'fourteen' , 'more', false) ){
-			$sitecontent->add_site_content('<a style="position:absolute; right:12px;" href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=more&addon='.$_GET['addon'].'">Zur Add-on Konfiguration &rarr;</a>');
-		}
-		$sitecontent->add_site_content('<hr />');
-
-		if( file_exists(__DIR__.'/../core/addons/'.$_GET['addon'].'/conf_less.php') ){
-			require_once( __DIR__.'/../core/addons/'.$_GET['addon'].'/conf_less.php' );
-		}
-		else{
-			$sitecontent->echo_error( 'Das gewählte Add-on wurde nicht gefunden!' , 'unknown');
-		}
-	}
-	else{
-		$sitecontent->add_site_content('<h2>Ein Addon wählen</h2>');
-		$sitecontent->add_site_content('<table width="100%"><tr> <th>Add-on</th> </tr>');
-
-		$addons = listaddons();
-		foreach( $addons as $addon ){
-			
-			$sitecontent->add_site_content('<tr> <td><a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=less&amp;addon='.$addon.'">'.$addon.'</a></td> </tr>');
-
-			$liste = 'yes';
-
-		}
-		$sitecontent->add_site_content('</table>');
-
-		if( $liste != 'yes' ){
-			$sitecontent->echo_error( 'Es wurden keine Add-ons gefunden!' );
-		}
-	}
+	$beaddconf->make_less();
 
 }
 else{
