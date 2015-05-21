@@ -47,6 +47,6 @@ require_once(__DIR__.'/core/generating/make_content.php');
 //Addons ermoeglichen einzugreifen
 require_once(__DIR__.'/core/addons/addons_fe_second.php');
 
-
+//Seite ausgeben
 $sitecontent->output_complete_site();
 ?>

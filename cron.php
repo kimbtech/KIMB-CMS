@@ -33,7 +33,7 @@ require_once( __DIR__.'/core/oop/all_oop.php' );
 $conffile = new KIMBdbf('config.kimb');
 $allgsysconf = $conffile->read_kimb_id( '001' );
 
-//session, ...
+//session, Fehleranzeige, Robots-Header, Content, Codierung
 session_name ("KIMBCMS");
 session_start();
 error_reporting( 0 );
@@ -45,14 +45,18 @@ require_once(__DIR__.'/core/conf/funktionen.php');
 
 //System initialisiert!
 
+//Stimmt der Key?
 if( $_GET['key'] == $allgsysconf['cronkey'] ){
 
+	//Key stimmt -> Add-ons ausführen
 	require_once( __DIR__.'/core/addons/addons_cron.php' );
 
+	//beenden
 	die;
 
 }
 
+//Key wohl falsch!
 echo( 'Fehlerhafter Cronzugriff!' );
 die;
 ?>

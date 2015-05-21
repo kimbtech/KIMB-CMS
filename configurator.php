@@ -23,14 +23,18 @@
 //http://www.gnu.org/licenses/gpl-3.0.txt
 /*************************************************/
 
-
+//Fehler, Inhalt, Codierung
 error_reporting( 0 );
 header('Content-Type: text/html; charset=utf-8');
 
+//Nur mit conf-enable Datei den Konfigurator erlauben, sonst unerlaubte Konfiguration möglich
 if(file_exists ('conf-enable') != 'true'){
+	//User bitten den Konfigurator zu aktivieren
 	echo('<title>KIMB CMS - Installation</title><link rel="shortcut icon" href="load/system/KIMB.ico" type="image/x-icon; charset=binary"><h1>Error - 404</h1>Bitte schalten Sie den Configurator frei, erstellen Sie eine leere "conf-enable" Datei im CMS-Root-Verzeichnis.<br /> Please activate the configurator, create an empty "conf-enable" file in the CMS root folder.'); die;
 }
 
+//HTML des Konfigurators 
+//inkl. Warnung per JS wenn /core/ aufrufbar!
 echo('
 <!DOCTYPE HTML >
 <html><head>
@@ -60,6 +64,23 @@ body {
 	border:solid 2px orange;
 
 }
+ul{
+	list-style-type:none;
+}
+ul li{
+	padding: 5px;
+	margin:5px;
+	border-radius:15px;
+}
+.err{
+	background-color:red;
+}
+.war{
+	background-color:orange;
+}
+.okay{
+	background-color:lightgreen;
+}
 </style>
 <script language="javascript" src="load/system/jquery/jquery.min.js"></script>
 <script language="javascript" src="load/system/hash.js"></script>
@@ -84,11 +105,11 @@ $(function() {
 <br />
 ');
 
-
+//Ganz unten bei else{} gehts los!
 
 if($_GET['step'] == '2'){
 
-	//Zufallsgenerator Loginokay
+	//Zufallsgenerator Passwortsalt
 	$alles = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 	$laenge = '10';
 	$anzahl = strlen($alles);
@@ -100,8 +121,9 @@ if($_GET['step'] == '2'){
 		$i++;
 	}
 
+	//Formular für die Konfiguration
 	echo '<h2>Allgemeine Systemeinstellungen</h2>';
-	echo '<form method="post" action="configurator.php?step=3" onsubmit=" document.getElementById(\'passw\').value = SHA1( \''.$output.'\' + document.getElementById(\'passw\').value ); " >';
+	echo '<form method="post" action="configurator.php?step=3" onsubmit=" if( document.getElementById(\'passw\').value != \'\' ){ document.getElementById(\'passw\').value = SHA1( \''.$output.'\' + document.getElementById(\'passw\').value );} else{ alert( \'Bitte geben Sie ein Passwort für den Administrator an!\' ); return false; } " >';
 	echo '<input type="text" name="sitename" value="KIMB CMS" size="60"><br />(Name der Seite)<br /><br />';
 	echo '<input type="text" name="metades" value="CMS von KIMB-technologies" size="60"><br />(Meta Seitenbeschreibung)<br /><br />';
 	echo '<input type="text" name="sysadminmail" value="serveradmin@server.com" size="60"><br />(E-Mail Adresse des Systemadministrators)<br /><br />';
@@ -119,6 +141,7 @@ if($_GET['step'] == '2'){
 
 elseif($_GET['step'] == '3'){
 
+	//Alle Felder richtig gefüllt
 	if( $_POST['sitename'] == '' || $_POST['metades'] == '' || $_POST['sysadminmail'] == '' || $_POST['passhash'] == '' || $_POST['name'] == '' || $_POST['usermail'] == '' ){
 
 		echo( '<h1 style="color:red;">Alle Felder m&uuml;ssen gef&uuml;llt sein !!</h1><br /><br />' );
@@ -159,7 +182,7 @@ elseif($_GET['step'] == '3'){
 <[001-mailvon]>cms@'.$_SERVER['HTTP_HOST'].'<[001-mailvon]>
 <[001-urlrewrite]>'.$_POST['urlrew'].'<[001-urlrewrite]>';
 
-
+	//Schreibe in Konfigurationsdatei
 	$handle = fopen(__DIR__.'/core/oop/kimb-data/config.kimb', 'a+');
 	fwrite($handle, $addconf);
 	fclose($handle);
@@ -170,94 +193,135 @@ elseif($_GET['step'] == '3'){
 <[1-name]>'.$_POST['name'].'<[1-name]>
 <[1-mail]>'.$_POST['usermail'].'<[1-mail]>';
 
-
+	//schreiben in Userdatei
 	$handle = fopen(__DIR__.'/core/oop/kimb-data/backend/users/list.kimb', 'a+');
 	fwrite($handle, $adduser);
 	fclose($handle);
 
-	echo('Installation erfolgreich! <a href="'.$url.'/" target="_blank"><button>Zur Seite</button></a><br />');
-	echo('Installation erfolgreich! <a href="'.$url.'/kimb-cms-backend/" target="_blank"><button>Zum Backend</button></a><br />');
+	//fertig anzeigen
+	echo('Installation erfolgreich!<br /><br /> <a href="'.$url.'/" target="_blank"><button>Zur Seite</button></a><br />');
+	echo('<a href="'.$url.'/kimb-cms-backend/" target="_blank"><button>Zum Backend</button></a><br />');
 
+	//Konfigurator sperren
 	unlink('conf-enable');
 
 }
 else{
-
-	if (version_compare(PHP_VERSION, '5.0.0', '<' )) {
-    		echo '<b style="color:#dd4444; font-size:30px;">Dieses System wurde f&uuml;r PHP 5 und h&ouml;her entwickelt, bitte f&uuml;hren Sie ein PHP-Update durch!</b><br />';
-	}	
-
-	$count = '0';
-
-	if(is_writable('core/oop/kimb-data') && is_writable('core/oop/kimb-data/addon') && is_writable('core/oop/kimb-data/cache') && is_writable('core/oop/kimb-data/menue') && is_writable('core/oop/kimb-data/site') && is_writable('core/oop/kimb-data/url') && is_writable('core/oop/kimb-data/backend') && is_writable('core/oop/kimb-data/backend/users') ){
-		echo 'core/oop/kimb-data und Unterverzeichnise sind schreibbar -> OK<br />';
-		$count++;
+	
+	echo '<h2>Serverprüfung</h2>';
+	echo '<ul>';
+	
+	//PHP - Version OK?
+	if (version_compare(PHP_VERSION, '5.3.0' ) >= 0 ) {
+    		echo '<li class="okay">Sie verwenden PHP 5.3.0 oder neuer!</li>';
+		$okay[] = 'okay';
 	}
 	else{
-		echo '<b style="color:#dd4444">core/oop/kimb-data und Unterverzeichnise sind nicht schreibbar -> Fehler!!</b><br />';
+		echo '<li class="err">Dieses System wurde f&uuml;r PHP 5.3.0 und h&ouml;her entwickelt, bitte f&uuml;hren Sie ein PHP-Update durch!</li>';
+		$okay[] = 'err';
 	}
-
-	if(is_writable('core/oop/kimb-data/index.kimb')){
-		echo '( Die Dateien unter core/oop/kimb-data/ sind auch schreibbar -> OK )<br /><br />';
-		$count++;
-	}
-	else{
-		echo'<b style="color:#dd4444">Die Dateien unter core/oop/kimb-data/ sind nicht schreibbar -> Fehler!!</b><br /><br />';
-	}
-
-	if(is_writable('core/addons')){
-		echo 'core/addons ist schreibbar -> OK<br /><br />';
-		$count++;
+	
+	//url fopen okay?
+	if( ini_get( 'allow_url_fopen' ) ){
+		$okay[] = 'okay';
+		echo '<li class="okay">Ihr Server erlaubt PHP Requests per HTTP zu anderen Servern!</li>';
 	}
 	else{
-		echo '<b style="color:#dd4444">core/addons ist nicht schreibbar -> Fehler!!</b><br /><br />';
+		$okay[] = 'war';
+		echo '<li class="war">Ihr Server erlaubt PHP keine Requests per HTTP zu anderen Servern!</li>';
 	}
 
-	if(is_writable('core/secured')){
-		echo 'core/secured ist schreibbar -> OK<br /><br />';
-		$count++;
+	//cURL
+	if( function_exists('curl_version') ){
+		$okay[] = 'okay';
+		echo '<li class="okay">Ihr Server hat cURL !</li>';
 	}
 	else{
-		echo '<b style="color:#dd4444">core/secured ist nicht schreibbar -> Fehler!!</b><br /><br />';
+		$okay[] = 'war';
+		echo '<li class="war">Ihrem Server fehlt cURL!</li>';
 	}
-
-	if(is_writable('core/theme')){
-		echo 'core/theme ist schreibbar -> OK<br /><br />';
-		$count++;
-	}
-	else{
-		echo '<b style="color:#dd4444">core/theme ist nicht schreibbar -> Fehler!!</b><br /><br />';
-	}
-
-	if(is_writable('load/addondata')){
-		echo 'load/addondata ist schreibbar -> OK<br /><br />';
-		$count++;
+	
+	//PHP GD
+	if (defined('GD_VERSION')) {   
+		$okay[] = 'okay';
+		echo '<li class="okay">Ihr Server hat PHP_GD !</li>';
 	}
 	else{
-		echo '<b style="color:#dd4444">load/addondata ist nicht schreibbar -> Fehler!!</b><br /><br />';
+		$okay[] = 'war';
+		echo '<li class="war">Ihrem Server fehlt PHP_GD!</li>';
 	}
+	//nötige schreibbare Verzeichnisse und Dateien
+	$checkfolders = array(
+		'core/oop/kimb-data',
+		'core/oop/kimb-data/index.kimb',
+		'core/oop/kimb-data/addon',
+		'core/oop/kimb-data/addon/index.kimb',
+		'core/oop/kimb-data/addon/wish',
+		'core/oop/kimb-data/addon/wish/index.kimb',
+		'core/oop/kimb-data/cache',
+		'core/oop/kimb-data/cache/index.kimb',
+		'core/oop/kimb-data/menue',
+		'core/oop/kimb-data/menue/index.kimb',
+		'core/oop/kimb-data/site',
+		'core/oop/kimb-data/site/index.kimb',
+		'core/oop/kimb-data/url',
+		'core/oop/kimb-data/url/index.kimb',
+		'core/oop/kimb-data/backend',
+		'core/oop/kimb-data/backend/index.kimb',
+		'core/oop/kimb-data/backend/users',
+		'core/oop/kimb-data/backend/users/index.kimb',
+		'core/addons',
+		'core/secured',
+		'core/secured/logo.png',
+		'core/theme',
+		'core/theme/output_site_norm.php',
+		'load/addondata',
+		'load/userdata',
+		'load/system/theme',
+		'load/system/theme/design.css',
+		'conf-enable'
+	 );
 
-	if(is_writable('load/userdata')){
-		echo 'load/userdata ist schreibbar -> OK<br /><br />';
-		$count++;
+	//alle Verzeichnisse testen und Fehler bzw. $count++
+	$count = 0;
+	foreach( $checkfolders as $folder ){
+
+		if( is_writable( __DIR__.'/'.$folder ) ){
+			$count++;
+		}
+		else{
+			echo '<li class="err">"'.$folder.'" ist nicht schreibbar!</li>';
+		}
+	}
+	
+	//Hat count den richtigen Wert, dann alles okay
+	if($count == count( $checkfolders ) ){
+		echo '<li class="okay">Alle benötigten Verzeichnisse sind schreibbar!</li>';
+		$okay[] = 'okay';
 	}
 	else{
-		echo '<b style="color:#dd4444">load/userdata ist nicht schreibbar -> Fehler!!</b><br /><br />';
+		$okay[] = 'err';
 	}
 
-	if(is_writable('load/system/theme')){
-		echo 'load/system/theme ist schreibbar -> OK<br /><br />';
-		$count++;
-	}
-	else{
-		echo '<b style="color:#dd4444">load/system/theme ist nicht schreibbar -> Fehler!!</b><br /><br />';
-	}
+	echo '</ul>';
 
-	if($count == '8'){
+	//okay auswerten
+	//wiederholen oder weiter zu Schritt 2
+	if( array_search ('err' , $okay ) === false && array_search ('war' , $okay ) === false ){
+		echo('<ul><li class="okay">Alle Bedingungen für das KIMB-CMS sind erfüllt!<br /><br />');
+		
+		echo('<a href="configurator.php?step=2"><button>Weiter</button></a></li></ul>');
+	}
+	elseif( array_search ('err' , $okay ) === false ){
+		echo('<ul><li class="war">Die grundlegenden Bedingungen für das KIMB-CMS sind erfüllt, es könnte aber zu Problemen kommen!<br /><br />');
+		
 		echo('<a href="configurator.php?step=2"><button>Weiter</button></a></br />');
+		echo('<a href="configurator.php"><button>Neue Systemprüfung</button></a></li></ul>');
 	}
 	else{
-		echo('<b style="color:#dd4444">Die Fehler m&uuml;ssen entfernt werden.<br />Dateirechte eingestellt?</b><br /> <a href="configurator.php"><button>N&auml;chster Versuch</button></a></br />');
+		echo('<ul><li class="err">Die grundlegenden Bedingungen für das KIMB-CMS sind nicht erfüllt!<br /><br />');
+		
+		echo('<a href="configurator.php"><button>Neue Systemprüfung</button></a></li></ul>');
 	}
 
 }
