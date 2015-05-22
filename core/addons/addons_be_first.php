@@ -24,70 +24,100 @@
 /*************************************************/
 
 
-
 defined('KIMB_CMS') or die('No clean Request');
 
-//includes addons die first wollen
+//Add-ons BE first (oben) Einbindung
 
+//Add-on Datei laden, wenn nicht schon getan
 if( !isset( $addoninclude ) ){
 	$addoninclude = new KIMBdbf('addon/includes.kimb');
 }
 
+//Alle Add-ons auslesen, die BE first wollen
 $all = $addoninclude->read_kimb_all_teilpl( 'be_first' );
 
+//Add-on Wunschdate lesen
+//	Stellen, Rechte des Users und Reihenfolge vom Add-on gewünscht
 $addonwish = new KIMBdbf('addon/wish/be_all.kimb');
 
-//Reihenfolge && Rechte && Sites
+//alles prüfen Reihenfolge && Rechte && Sites
+
+//leeres Array für Add-ons die später geladen werden sollen
 $includes = array();
+//url für Stelle (Seite) 
 $url = get_req_url();
 
+//Alle BE first Add-ons nacheinander Wünsche prüfen 
 foreach( $all as $add ){
 
+	//ID des Add-on Wunsches lesen
 	$id = $addonwish->search_kimb_xxxid( $add , 'addon' );
 
+	//Add-on gefunden?
 	if( $id != false ){
 
-		//Rechte
+		//1. Rechte
+		//Rechte lesen
 		$re = $addonwish->read_kimb_id( $id, 'recht' );
+		//erstmal nicht laden
 		$recht = false;
 
+		//Rechte String lesen
+		//	$rechte => more,less,one,six
+		//aufteiolen und nacheinader prüfen
 		foreach( explode( ',' , $re ) as $res ){
+			//more gewünscht und hat User more?
 			if( $res == 'more' && $_SESSION['permission'] == 'more' ){
 				$recht = true;
 			}
+			//less gewünscht und hat User less?
 			elseif( $res == 'less' && $_SESSION['permission'] == 'less' ){
 				$recht = true;
 			}
+			//andere Rechte gewünscht und diese vorhanden ?
 			elseif( check_backend_login( $res , 'none', false ) ){
 				$recht = true;
 			}
+			//keine Rechtewünsche, also einbinden
 			elseif( $res == 'no' ){
 				$recht = true;
 			}
 
+			//eingebunden, dann weiter zu 2.
 			if( $recht ){
 				break;
 			}
 		}
 
-		//Sites
+		//2. Sites (Stellen)
+		//Stellen String lesen
+		//	XXX => XXX.php
 		$si = $addonwish->read_kimb_id( $id, 'site' );
+		//alle, dann einbinden
 		if( $si == 'all' ){
 			$site = true;
 		}
+		//aktuelle Seite, dann einbinden
 		elseif( substr( $url , '-'.strlen( 'kimb-cms-backend/'.$si.'.php' ) ) == 'kimb-cms-backend/'.$si.'.php' ){
 			$site = true;
 		}
+		//passt dann wohl nicht
 		else{
 			$site = false;
 		}
 
+		//Seite und Recht okay?
 		if( $site && $recht ){
-			//Reihenfolge
+			//3. Reihenfolge
+			
+			//Reihenfolge String lesen
+			//	vorn oder hinten
 			$wi = $addonwish->read_kimb_id( $id, 'stelle' );
+			//vorne, dann vorne an das Include Array anfügen
 			if( $wi == 'vorn' ){
 				array_unshift( $includes , $add );
 			}
+			//hinten, also hinten an das Include Array anfügen
 			elseif( $wi == 'hinten' ){
 				$includes[] = $add;
 			}
@@ -96,13 +126,15 @@ foreach( $all as $add ){
 
 }
 
-//Ausführen
+//alles aus den Include Array ausführen
 foreach( $includes as $name ){
 
 	require_once(__DIR__.'/'.$name.'/include_be_first.php');
 
 }
 
+//Include Array sichern für BE unten (second)
+//	first und second gleiche Wünsche
 $besecondincludesaddons = $includes;
 
 ?>

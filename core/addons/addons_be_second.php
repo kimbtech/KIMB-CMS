@@ -25,6 +25,8 @@
 
 defined('KIMB_CMS') or die('No clean Request');
 
+//gesichertes Include Array von first verwenden
+//alles ausführen
 foreach( $besecondincludesaddons as $name ){
 
 	require_once(__DIR__.'/'.$name.'/include_be_second.php');

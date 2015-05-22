@@ -26,22 +26,29 @@
 
 defined('KIMB_CMS') or die('No clean Request');
 
+//Add-on Ajax Einbindung
 
+//Add-on gewählt?
 if( !empty( $_GET['addon'] ) ){
 
+	//Add-on Datei laden, wenn nicht schon getan
 	if( !isset( $addoninclude ) ){
 		$addoninclude = new KIMBdbf('addon/includes.kimb');
 	}
 
+	//ist das Add-on für Ajax freigeschaltet
 	if( $addoninclude->read_kimb_search_teilpl( 'ajax' , $_GET['addon']) ){
 
+		//keine Angriffe
 		if(strpos( $_GET['addon'] , "..") !== false){
 			echo ('Do not hack me!!');
 			die;
 		}
 
+		//Add-on Datei einbinden
 		require_once(__DIR__.'/'.$_GET['addon'].'/include_ajax.php');
 
+		//beenden
 		die;
 
 	}
