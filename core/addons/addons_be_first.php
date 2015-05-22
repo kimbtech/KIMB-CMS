@@ -36,7 +36,7 @@ if( !isset( $addoninclude ) ){
 //Alle Add-ons auslesen, die BE first wollen
 $all = $addoninclude->read_kimb_all_teilpl( 'be_first' );
 
-//Add-on Wunschdate lesen
+//Add-on Wunschdaten lesen
 //	Stellen, Rechte des Users und Reihenfolge vom Add-on gewünscht
 $addonwish = new KIMBdbf('addon/wish/be_all.kimb');
 

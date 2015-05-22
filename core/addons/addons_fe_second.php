@@ -25,6 +25,7 @@
 
 defined('KIMB_CMS') or die('No clean Request');
 
+//alles aus geishcertem Array von FE fist (oben) ausführen
 foreach( $fesecondincludesaddons as $name ){
 
 	require_once(__DIR__.'/'.$name.'/include_fe_second.php');

@@ -28,25 +28,28 @@ defined('KIMB_CMS') or die('No clean Request');
 //Klassen Autoload
 require_once( __DIR__.'/../oop/all_oop.php' );
 
-//erstelle globale conf Variablen aus config.kimb
+//Konfiguration lesen
 $conffile = new KIMBdbf('config.kimb');
 $allgsysconf = $conffile->read_kimb_id('001');
 
-//session, ...
+//session, Fehleranzeige, Robots-Header, Content, Codierung
 session_name ("KIMBCMS");
 session_start();
 error_reporting( 0 );
 header('X-Robots-Tag: '.$allgsysconf['robots']);
 header('Content-Type: text/html; charset=utf-8');
 
-//wichtige Objekte
+//wichtige Objekte erstellen
 
+//Seiteninhat
 $sitecontent = new system_output($allgsysconf);
 
+//wenn Cache aktiviert, cache laden
 if($allgsysconf['cache'] == 'on'){
 	$sitecache = new cacheCMS($allgsysconf, $sitecontent);
 }
 
+//Info über das CMS dem HTML-Code hinzufügen
 $kimbcmsinfo = '<!--
 
 	This site is made with KIMB-CMS!
@@ -60,7 +63,6 @@ $kimbcmsinfo = '<!--
 
 $sitecontent->add_html_header($kimbcmsinfo);
 
-//allgemeine Funktionen
-
+//allgemeine Funktionen usw. laden
 require_once(__DIR__.'/funktionen.php');
 ?>

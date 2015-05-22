@@ -25,12 +25,17 @@
 
 defined('KIMB_CMS') or die('No clean Request');
 
-//gesichertes Include Array von first verwenden
-//alles ausführen
-foreach( $besecondincludesaddons as $name ){
-
-	require_once(__DIR__.'/'.$name.'/include_be_second.php');
-
+//gesichertes Include Array von first vorhanden?
+//	(kann teilweise durch /core/conf/conf_backend.php fehlen)
+if( is_array( $besecondincludesaddons ) ){
+	
+	//gesichertes Include Array von first verwenden
+	//alles ausführen
+	foreach( $besecondincludesaddons as $name ){
+	
+		require_once(__DIR__.'/'.$name.'/include_be_second.php');
+	
+	}
 }
 
 ?>

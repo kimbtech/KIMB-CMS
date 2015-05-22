@@ -28,47 +28,60 @@
 defined('KIMB_CMS') or die('No clean Request');
 
 //email versenden
+// $to => Empfänger
+// $inhalt => Inhalt
 function send_mail($to, $inhalt){
 	global $allgsysconf;
-	if( $inhalt == '' || $to == ''){
+	
+	//nicht leer ?
+	if( empty( $inhalt ) || empty( $to ) ){
 		return false;
 	}
 
-	if(mail($to, 'Nachricht von: '.$allgsysconf['sitename'], $inhalt, 'From: '.$allgsysconf['sitename'].' <'.$allgsysconf['mailvon'].'>')){
-		return true;
-	}
-	else{
-		return false;
-	}
+	//sende Mail und gebe zurück
+	return mail($to, 'Nachricht von: '.$allgsysconf['sitename'], $inhalt, 'From: '.$allgsysconf['sitename'].' <'.$allgsysconf['mailvon'].'>');
 }
 
-//browser an url weiterleiten
+//Browser an  andere URL weiterleiten
+//	$url => zu öffnende URL
+//	$area => insystem ($allgsysconf['siteurl'] + $url)
+//	$code => HTTP-Code
 function open_url($url, $area = 'insystem', $code = 303 ){
 	global $allgsysconf;
 
+	//innerhalb des CMS weiterleiten, also $allgsysconf['siteurl'] vor die URL setzen
 	if( $area == 'insystem'){
 		$url = $allgsysconf['siteurl'].$url;
 	}
 
+	//Weiterleitung per HTTP ?
 	if($allgsysconf['urlweitermeth'] == '1'){
+		//machen und beenden
 		header('Location: '.$url, true, $code );
 		die;
 	}
+	//Weiterleitung per HTML ?
 	elseif($allgsysconf['urlweitermeth'] == '2'){
+		//machen und beenden
 		echo('<meta http-equiv="Refresh" content="0; URL='.$url.'">');
 		die;
 	}
 }
 
-//schaauen ob kimb datei vorhanden
+//schauen ob kimb datei vorhanden
+//	$datei => KIMB-Datei Name
 function check_for_kimb_file($datei){
+	//Dateinamen bereinigen
 	$datei = preg_replace('/[\r\n]+/', '', $datei);
 	$datei = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '..'),array('ae','oe','ue','ss','Ae','Oe','Ue', '', '.'), $datei);
 	$datei = preg_replace( '/[^A-Za-z0-9]_.-/' , '' , $datei );
+	//Sicherheit des Dateisystems
 	if(strpos($datei, "..") !== false){
 		echo ('Do not hack me!!');
 		die;
 	}
+	//Datei vorhanden?
+	//Rückgabe
 	if(file_exists(__DIR__.'/../oop/kimb-data/'.$datei)){
 		return true;
 	}
@@ -77,33 +90,49 @@ function check_for_kimb_file($datei){
 	}
 }
 
-//alle kimb dateien in verzeichnis ausgeben
+// für scan_kimb_dir, alles außer Zahlen aus Sting entfernen
 function justnum( $str ) { return preg_replace( "/[^0-9]/" , "" , $str ); }
 
+//alle KIMB-Dateien in einem Verzeichnis ausgeben
+// $datei => Verzeichnis
 function scan_kimb_dir($datei){
+	//Dateinamen bereinigen
 	$datei = preg_replace('/[\r\n]+/', '', $datei);
 	$datei = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '..'),array('ae','oe','ue','ss','Ae','Oe','Ue', '', '.'), $datei);
 	$datei = preg_replace( '/[^A-Za-z0-9]_.-/' , '' , $datei );
+	//Dateisystem schützen
 	if(strpos($datei, "..") !== false){
 		echo ('Do not hack me!!');
 		die;
 	}
+	//Verzeichnis in Array lesen
 	$files = scandir(__DIR__.'/../oop/kimb-data/'.$datei);
+	
+	//Rückgabe Array aufbauen
 	$i = 0;
+	//Alle Dateien durchgehen
 	foreach ( $files as $file ){
+		//Dateiname werder . noch .. oder index.kimb?
 		if( $file != '.' && $file != '..' && $file != 'index.kimb' ){
+			//zum Rückgabe Array hinzufügen und Index erhöhen
 			$return[$i] .= $file;
 			$i++;
 		}
 	}
 	
+	//Rückgabe nach ID (Zahl im Dateinamen) sortieren 
+	
+	//Array mit nur IDs aus Rückgabe Array erstellen
 	$returnref = array_map( 'justnum' , $return );
+	
+	//Rückgabe Array nach dem Array $returnref sortieren
 	array_multisort( $returnref, $return);
 
+	//Array Rückgabe ausführen
 	return $return;
 }
 
-//request URL
+//request URL herausfinden
 function get_requ_url(){
 	if(isset($_SERVER['HTTPS'])){
 		$urlg = 'https://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
@@ -115,14 +144,22 @@ function get_requ_url(){
 }
 
 //backendlogin prüfen und error ausgeben
+//	$number => englische Zahl für BE Seiten
+//	$permiss => more,less,none
+//	die => true,false (soll der Ablauf abgebrochen werden und Error 403 angezeigt werden wenn keine Rechte)
 function check_backend_login( $number , $permiss = 'less', $die = true ){
 	global $sitecontent, $allgsysconf;
 
+	//Allgemein eingeloggt?
 	if( $_SESSION['loginokay'] == $allgsysconf['loginokay'] && $_SESSION["ip"] == $_SERVER['REMOTE_ADDR'] && $_SESSION["useragent"] == $_SERVER['HTTP_USER_AGENT'] ){
 
+		//Hat User Permission more oder less und ist dies als Parameter gegeben?
 		if( ( $_SESSION['permission'] == 'more' || $_SESSION['permission'] == 'less' ) && ( $permiss == 'more' || $permiss == 'less' ) ){
+			//wenn more gegeben, aber User nicht more -> keine Rechte
 			if( $permiss == 'more' && $_SESSION['permission'] != 'more' ){
+				//die oder nur return false
 				if( $die ){
+					//Seiteninhalt per Klasse, dann nutzen, sonst ohne
 					if( is_object( $sitecontent ) ){
 						$sitecontent->echo_error( 'Sie haben keine Rechte diese Seite zu sehen!' , '403');
 						$sitecontent->output_complete_site();
@@ -136,15 +173,28 @@ function check_backend_login( $number , $permiss = 'less', $die = true ){
 					return false;
 				}
 			}
+			
+			//Permission less übergeben und User muss more oder less sein -> OK
 			return true;
 		}
+		//kein more oder less bei dem User oder nicht als Parameter gegeben
 		else{
+			//lese BE Leveldatei
 			$levellist = new KIMBdbf( 'backend/users/level.kimb' );
+			//lese die englischen Zahlen der Nutzergruppe des Users
 			$permissteile = $levellist->read_kimb_one( $_SESSION['permission'] );
+			//Nutzergruppe vorhanden?
 			if( !empty( $permissteile ) ){
+					//Zerteile den Sting mit den englischen Zahlen in einzelne, packe in eine Array
 					$permissteile = explode( ',' , $permissteile );
+					
+					//ist in der Nutzergruppe (Array $permissteile) die englische Zahl (Parameter) vorhanden?
 					if( !in_array( $number , $permissteile ) ){
+						//keine Rechte
+						
+						//die oder nur return false
 						if( $die ){
+							//Seiteninhalt per Klasse, dann nutzen, sonst ohne
 							if( is_object( $sitecontent ) ){
 								$sitecontent->echo_error( 'Sie haben keine Rechte diese Seite zu sehen!' , '403');
 								$sitecontent->output_complete_site();
@@ -159,15 +209,19 @@ function check_backend_login( $number , $permiss = 'less', $die = true ){
 						}
 					}
 					else{
+						//Nutzergruppe des Users hat Rechte für gegebene englische Zahl (Paramter $number)
 						return true;
 					}
 
 			}
+			//Nutzergruppe existiert nicht
 			else{
+				//die oder nur return false
 				if( $die ){
+					//Seiteninhalt per Klasse, dann nutzen, sonst ohne
 					if( is_object( $sitecontent ) ){
-							$sitecontent->echo_error( 'Sie haben keine Rechte diese Seite zu sehen!' , '403');
-							$sitecontent->output_complete_site();
+						$sitecontent->echo_error( 'Sie haben keine Rechte diese Seite zu sehen!' , '403');
+						$sitecontent->output_complete_site();
 					}
 					else{
 						echo( '403 - Sie haben keine Rechte diese Seite zu sehen!' );
@@ -180,8 +234,11 @@ function check_backend_login( $number , $permiss = 'less', $die = true ){
 			}
 		}
 	}
+	//gar nicht eingeloggt -> keine Rechte
 	else{
+		//die oder nur return false
 		if( $die ){
+			//Seiteninhalt per Klasse, dann nutzen, sonst ohne
 			if( is_object( $sitecontent ) ){
 					$sitecontent->echo_error( 'Sie haben keine Rechte diese Seite zu sehen!' , '403');
 					$sitecontent->output_complete_site();
@@ -197,8 +254,10 @@ function check_backend_login( $number , $permiss = 'less', $die = true ){
 	}
 }
 
-//kimb datei umbenennen
+//KIMB-Datei umbenennen/verschieben
+// wie PHP rename( $datei1, $datei2  );
 function rename_kimbdbf( $datei1 , $datei2 ){
+	//Dateinamen bereinigen
 	$datei1 = preg_replace('/[\r\n]+/', '', $datei1);
 	$datei1 = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '..'),array('ae','oe','ue','ss','Ae','Oe','Ue', '', '.'), $datei1);
 	$datei1 = preg_replace( '/[^A-Za-z0-9]_.-/' , '' , $datei1 );
@@ -207,12 +266,13 @@ function rename_kimbdbf( $datei1 , $datei2 ){
 	$datei2 = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '..'),array('ae','oe','ue','ss','Ae','Oe','Ue', '', '.'), $datei2);
 	$datei2 = preg_replace( '/[^A-Za-z0-9]_.-/' , '' , $datei2 );
 
+	//Dateisystem schützen
 	if(strpos($datei2, "..") !== false || strpos($datei1, "..") !== false){
 		echo ('Do not hack me!!');
 		die;
 	}
-
-
+	
+	//Dateien umbenennen/verschieben
 	return rename( __DIR__.'/../oop/kimb-data/'.$datei1 , __DIR__.'/../oop/kimb-data/'.$datei2 );
 }
 
