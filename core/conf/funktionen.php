@@ -146,7 +146,7 @@ function get_requ_url(){
 //backendlogin prüfen und error ausgeben
 //	$number => englische Zahl für BE Seiten
 //	$permiss => more,less,none
-//	die => true,false (soll der Ablauf abgebrochen werden und Error 403 angezeigt werden wenn keine Rechte)
+//	$die => true,false (soll der Ablauf abgebrochen werden und Error 403 angezeigt werden wenn keine Rechte)
 function check_backend_login( $number , $permiss = 'less', $die = true ){
 	global $sitecontent, $allgsysconf;
 
@@ -255,7 +255,7 @@ function check_backend_login( $number , $permiss = 'less', $die = true ){
 }
 
 //KIMB-Datei umbenennen/verschieben
-// wie PHP rename( $datei1, $datei2  );
+//wie PHP rename( $datei1, $datei2  );
 function rename_kimbdbf( $datei1 , $datei2 ){
 	//Dateinamen bereinigen
 	$datei1 = preg_replace('/[\r\n]+/', '', $datei1);
@@ -277,120 +277,187 @@ function rename_kimbdbf( $datei1 , $datei2 ){
 }
 
 //rekursiv leoschen
+//	$dir => Verzeichnis
 function rm_r($dir){
+	//lese Verzeichnis
 	$files = scandir($dir);
+	//gehe Dateien und Ordner durch
 	foreach ($files as $file) {
 		if($file == '.' || $file == '..'){
 			//nichts
 		}
 		else{
+			//Datei oder Ordner?
 			if(is_dir($dir.'/'.$file)){
+				//lösche den Ordner
+				//	Verschachtelung der Funktion
 				rm_r($dir.'/'.$file);
 			}
 			else{
+				//lösche Datei direkt
 				unlink($dir.'/'.$file);
 			}
 		}
 	}
+	//verlasse und lösche Ordner
 	return rmdir($dir);
 }
 
 //rekursiv zippen
+//	$zip => PHP Zip Objekt
+//	$dir => zu zippendes Verzeichnis
+//	$base => Basis Ordner in der Zip Datei
 function zip_r($zip, $dir, $base = '/'){
+	//gibt es $dir überhaupt?
 	if (!file_exists($dir)){
 		return false;
 	}
+	//lese Verzeichnis
 	$files = scandir($dir);
 
+	//gehe Verzeichnis durch
 	foreach ($files as $file){
 		if ($file == '..' || $file == '.'){
 			//nichts
 		}
 		else{
-
+			//füge Datei direkt in die Zip Datei
 			if (is_file($dir.'/'.$file)){
 				$zip->addFile($dir.'/'.$file, $base.$file);
 			}
+			//erstelle einen neuen Ordner in der Zip
+			//Verschachtelung der Funktion mit richiger $base
        			elseif (is_dir($dir.'/'.$file)){
 				$zip->addEmptyDir($base.$file);
 				zip_r($zip, $dir.'/'.$file, $base.$file.'/');
 			}
 		}
 	}
+	//fertig
 	return true;
 }
 
+//rekursiv kopieren
+//	$dir => zu kopierender Ordner
+//	$dest => Ziel für Kopien
 function copy_r( $dir , $dest ){
 
+	//wenn Ziel nicht vorhanden machen einen neuen Ordner mit richtigen Rechten
 	if( !is_dir( $dest ) ){
 		mkdir( $dest );
 		chmod( $dest , ( fileperms( $dest.'/../' ) & 0777));
 	}
 	
+	//ließ alle Dateien im Verzeichnis
 	$files = scandir( $dir );
 	foreach ($files as $file){
 		if ($file == '..' || $file == '.'){
 			//nichts
 		}
 		else{
+			//kopiere Dateien direkt
 			if ( is_file($dir.'/'.$file) ){
 				copy( $dir.'/'.$file , $dest.'/'.$file );
 			}
+			//Verschachtelung der Funktion bei Ordnern
        			elseif ( is_dir($dir.'/'.$file) ){
 				copy_r( $dir.'/'.$file , $dest.'/'.$file );
 			}
 		}
 	}
+	//beenden
 	return true;
 }
 
-//Menue
+//Menue erstellen
+//Aufruf nur bei der Menueerstellung im Frontend !!
+//Diese Funktion wird verschachtelt aufgerufen, für jeden Menuepunkt ruft Sie die $sitecontent->add_menue_one_entry(); Methode des Themes auf.
+//	$allgrequestid	=> RequestID der Seite für die das gesamte Menü sein soll
+//	$filename => Dateiname der URL Datei des aktuell zu erstellenden Menues
+//	$grpath => Grundverzeichnis des aktuell zu erstellenden Menues
+///	$niveau => Niveau des aktuell zu erstellenden Menues
 function gen_menue( $allgrequestid , $filename = 'url/first.kimb' , $grpath = '/' , $niveau = '1'){
+	//$sitecache => wenn aktiviert Cache Objekt
+	//$sitecontent => Seitenausgabeobjekt
+	//$menuenames => Menuenamen KIMBdbf Objekt (Usersprache)
+	//$allgsysconf => Systemkonfiguration
+	//$allgmenueid => ID des Menue (an RequestID gebunden)
+	//$breadcrumbarr => Array für Breadcrumb
+	//$breadarrfertig => Breadcrumb Array fertig oder nicht (wird von dieser Funktion auf fertig gesetzt)
+	//$requestlang => Array mit Sprache der auszugebenden Seite (Multilingual Site)
+	//$requestlangid => ID der Sprache der auszugebenden Seite (Multilingual Site)
+	//$menuenameslangst =>  Menuenamen KIMBdbf Objekt (Standardsprache)
 	global $sitecache, $sitecontent, $menuenames, $allgsysconf, $allgmenueid, $breadcrumbarr, $breadarrfertig, $requestlang, $requestlangid, $menuenameslangst;
 	
+	//beim ersten Durchlauf die Sprachdaten setzen, sofern Multilingual Site aktiviert
 	if( $allgsysconf['lang'] == 'on' && $grpath == '/' && !empty( $requestlang['tag'] ) ){
+		//Menuelinks mit Sprachtag erweitern
 		$grpath = '/'.$requestlang['tag'].'/';
+		//ID der Sprache der auszugebenden Seite speichern
 		$requestlangid = $requestlang['id'];
 	}
+	//Multilingual Site aus, also Standardsprache
 	elseif( $grpath == '/' && empty( $requestlang['tag'] ) ){
 		$requestlangid = 0;
 	}
 
+	//Menueerstellung
+	//URL-Datei laden
 	$file = new KIMBdbf( $filename );
+	//URL-Datei ID auf 1 setzen
+	//	in den URL-Dateien sind alle IDs fortlaufen ab 1 vergeben (1,2,3) 
 	$id = 1;
+	//jeden Menüpunkt der Datei in einer Schleife lesen
 	while( 5 == 5 ){
+		//Resquest ID für Menuepunkt lesen
 		$requid = $file->read_kimb_id( $id , 'requestid' );
+		//Pfad für Menuepunkt lesen
 		$path = $file->read_kimb_id( $id , 'path' );
+		//Menuenamen lesen (in jeweiliger Sprache)
 		$menuname = $menuenames->read_kimb_one( $requid );
+		//ist der Menuename leer? (kann sein, wenn in einer Sprache nicht vorhanden)
 		if( empty( $menuname ) ){
+			//Menuename in Standardsprache ausgeben
 			$menuname = $menuenameslangst->read_kimb_one( $requid );
 		}
+		//ist dieser Menuepunkt der Menuepunkt der grade aufgerufenen Seite
 		if( $allgrequestid == $requid ){
 			$clicked = 'yes';
 		}
 		else{
 			$clicked = 'no';
 		}
+		
+		//sollte der Pfad leer sein ist die URL Datei ausgelesen, Funktion wird verlassen
 		if( $path == '' ){
 			return true;
 		}
+		
+		//sofern der Menuepunkt aktiviert ist, wird er ausgegeben
 		if( $file->read_kimb_id( $id , 'status') == 'on' ){
+			//als Rewrite URL ausgeben?
 			if( $allgsysconf['urlrewrite'] == 'on' ){
+				//führe Ausgabemethode aus
 				$sitecontent->add_menue_one_entry( $menuname , $allgsysconf['siteurl'].$grpath.$path , $niveau, $clicked, $requid);
-
+				
+				//wenn Cache geladen, cache Menuepunkt
 				if(is_object($sitecache)){
 					$sitecache->cache_menue($allgmenueid, $menuname , $allgsysconf['siteurl'].$grpath.$path , $niveau , $clicked, $requid, $requestlangid );
 				}
 			}
+			//oder als ID URL
 			else{
+				//führe Ausgabemethode aus
 				$sitecontent->add_menue_one_entry( $menuname , $allgsysconf['siteurl'].'/index.php?id='.$requid , $niveau, $clicked, $requid);
 
+				//wenn Cache geladen, cache Menuepunkt
 				if(is_object($sitecache)){
 					$sitecache->cache_menue($allgmenueid, $menuname , $allgsysconf['siteurl'].'/index.php?id='.$requid , $niveau , $clicked, $requid);
 				}
 			}
 		}
 		
+		//erstelle Breadcrumb Array
 		if( $allgsysconf['urlrewrite'] == 'on' ){
 			if( $breadarrfertig == 'nok' ){
 				$breadcrumbarr[$niveau]['link'] = $allgsysconf['siteurl'].$grpath.$path; 

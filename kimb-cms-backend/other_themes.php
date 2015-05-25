@@ -147,7 +147,7 @@ $sitecontent->add_site_content('<div style="display:none;"><div id="del-confirm"
 $sitecontent->add_site_content('<br /><br /><h2>Theme installieren</h2>');
 $sitecontent->add_site_content('<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/other_themes.php" enctype="multipart/form-data" method="post">');
 $sitecontent->add_site_content('<input name="userfile" type="file" /><br />');
-$sitecontent->add_site_content('<input type="submit" value="Installieren" title="Wählen Sie eine Theme Zip Datei von Ihrem Rechner zur Installation." />');
+$sitecontent->add_site_content('<input type="submit" value="Installieren" title="Wählen Sie eine Theme Datei (&apos;*.kimbthe&apos;) von Ihrem Rechner zur Installation." />');
 $sitecontent->add_site_content('</form>');
 
 //Add-ons Ende 
