@@ -458,30 +458,30 @@ function gen_menue( $allgrequestid , $filename = 'url/first.kimb' , $grpath = '/
 		}
 		
 		//erstelle Breadcrumb Array
-		if( $allgsysconf['urlrewrite'] == 'on' ){
-			if( $breadarrfertig == 'nok' ){
-				$breadcrumbarr[$niveau]['link'] = $allgsysconf['siteurl'].$grpath.$path; 
-				$breadcrumbarr[$niveau]['name'] = $menuname;
+		//ist es schon fertig (wenn clicked schon yes war)
+		if( $breadarrfertig == 'nok' ){
+			//Link und Name dem Array hinzufügen
 
-				if( $clicked == 'yes' ){
-					$breadarrfertig = 'ok';
-					$breadcrumbarr['maxniv'] = $niveau;
-				}
+			//Unterscheidung für URL zuwischen URL-Rewrite und ID
+			if( $allgsysconf['urlrewrite'] == 'on' ){
+				$breadcrumbarr[$niveau]['link'] = $allgsysconf['siteurl'].$grpath.$path;
+			}
+			else{
+				$breadcrumbarr[$niveau]['link'] = $allgsysconf['siteurl'].'/index.php?id='.$requid;
+			} 
+			$breadcrumbarr[$niveau]['name'] = $menuname;
+
+			//clicked yes, also letzter Wert im Array 
+			if( $clicked == 'yes' ){
+				$breadarrfertig = 'ok';
+				$breadcrumbarr['maxniv'] = $niveau;
 			}
 		}
-		else{
-			if( $breadarrfertig == 'nok' ){
-				$breadcrumbarr[$niveau]['link'] = $allgsysconf['siteurl'].'/index.php?id='.$requid; 
-				$breadcrumbarr[$niveau]['name'] = $menuname;
-
-				if( $clicked == 'yes' ){
-					$breadarrfertig = 'ok';
-					$breadcrumbarr['maxniv'] = $niveau;
-				}
-			}
-		}
+		
+		//Nextid des aktuellen Menüpunktes lesen (Untermenüs vorhanden?)
 		$nextid = $file->read_kimb_id( $id , 'nextid');
 		if( $nextid != '' ){
+			//wenn vorhanden, dann diese Funktion verschachtelt starten (mit passenden Parametern)
 			$newniveau = $niveau + 1;
 			gen_menue( $allgrequestid , 'url/nextid_'.$nextid.'.kimb' , $grpath.$path.'/' , $newniveau);
 		}
@@ -489,9 +489,14 @@ function gen_menue( $allgrequestid , $filename = 'url/first.kimb' , $grpath = '/
 	}
 }
 
+//Array mit allen Menüpunkten erstellen
+//Aufruf z.B. im Backend "Menue" -> "Auflisten"
+//Ausgabe eines Menuearrays
+// => Aufruf über "make_menue_array_helper()" empfohlen [erfüllt automatisch alle Abhängigkeiten]
 function make_menue_array( $filename = 'url/first.kimb' , $niveau = '1' , $fileid = 'first' , $oldfilelisti = 'none'){
 	global $menuenames, $idfile, $menuearray, $fileidlist, $filelisti;
 
+	//für Array mit den URL-Dateien, welche die NextID enthalten, erstellen
 	if( !isset( $filelisti ) ){
 		$filelisti = 0;
 	}
@@ -499,9 +504,14 @@ function make_menue_array( $filename = 'url/first.kimb' , $niveau = '1' , $filei
 		$filelisti++;
 	}
 
+	//gewünschte URL-Datei öffnen
 	$file = new KIMBdbf( $filename );
+	//URL-Datei ID auf 1 setzen
+	//	in den URL-Dateien sind alle IDs fortlaufen ab 1 vergeben (1,2,3) 
 	$id = 1;
+	//ID für ID durchgehen
 	while( 5 == 5 ){
+		//einzelne Werte auslesen
 		$path = $file->read_kimb_id( $id , 'path' );
 		$nextid = $file->read_kimb_id( $id , 'nextid' );
 		$requid = $file->read_kimb_id( $id , 'requestid' );
@@ -511,15 +521,21 @@ function make_menue_array( $filename = 'url/first.kimb' , $niveau = '1' , $filei
 		$menueid = $idfile->read_kimb_id( $requid , 'menueid' );
 		$fileidbefore = $fileidlist[$oldfilelisti];
 
+		//kein Path mehr definiert, also keine Menüpunkte des Menüs mehr!
 		if( $path == '' ){
+			//Funktion verlassen
 			return true;
 		}
-
+		
+		//für Array mit den URL-Dateien, welche die NextID enthalten
 		$fileidlist[$filelisti] = $fileid;
 
+		//alle Daten des Menüpunktes in ein Array schreiben
 		$menuearray[] = array( 'niveau' => $niveau, 'path' => $path, 'nextid' => $nextid , 'requid' => $requid, 'status' => $status, 'menuname' => $menuname, 'siteid' => $siteid, 'menueid' => $menueid, 'fileid' => $fileid , 'fileidbefore' => $fileidbefore );
 
+		//Nextid des aktuellen Menüpunktes lesen (Untermenüs vorhanden?)
 		if( $nextid != '' ){
+			//wenn vorhanden, dann diese Funktion verschachtelt starten (mit passenden Parametern)
 			$newniveau = $niveau + 1;
 			make_menue_array( 'url/nextid_'.$nextid.'.kimb' , $newniveau , $nextid , $filelisti );
 		}
@@ -527,44 +543,68 @@ function make_menue_array( $filename = 'url/first.kimb' , $niveau = '1' , $filei
 	}
 }
 
+//Erstellung eines Dropdowns mit allen Menüpunkten und deren ID
+//Zur Auswahl einer Seite/ eines Menüpunktes  bei Add-ons sinnvoll
+//	$name => name des <select> Tags
+//	$id => Wahl der zu wählenden ID, z.B. requid, siteid, menueid [alles aus $menuearray von make_menue_array();]
 function id_dropdown( $name, $id = 'siteid' ){
+	//Abhängigkeiten von make_menue_array(); erfüllen
 	global $idfile, $menuenames, $menuearray;
 	$idfile = new KIMBdbf('menue/allids.kimb');
 	$menuenames = new KIMBdbf('menue/menue_names.kimb');
 
+	//bei mehrfachem Aufruf nur einmal make_menue_array() nötig
 	if( !isset( $menuearray ) ){
 		make_menue_array();
 	}
 
+	//Dropdown erstellen
 	$return = '<select name="'.$name.'" >';
 
 	foreach( $menuearray as $menuear ){
 
+		//Lesen der Daten: ID, Name, Niveau
 		$niveau = str_repeat( '==>' , $menuear['niveau'] );
 		$valid = $menuear[$id];
 		$menuename = $menuear['menuname'];
 
+		//Aufbau eines Wertes: VALUE = <ID>; AUSWAHL = <Darstellung des Niveau mit "==>"> <Menüname> - <ID>
 		$return .= '<option value="'.$valid.'">'.$niveau.' '.$menuename.' - '.$valid.'</option>';
 	}
 
+	//beenden
 	$return .= '</select>';
 
+	//fertiges HTML-Select zurückgeben
 	return $return;
 
 }
 
+//Array mit allen installierten Add-on Namen (ID-Name) erstellen
+//	Rückgabe: Array
 function listaddons(){
 
+	//Add-on Verzeichnis lesen
 	$files = scandir(__DIR__.'/../addons/');
+
 	foreach ($files as $file) {
+		//alles was nicht passt aussortieren
 		if( $file != '.' && $file != '..' &&  is_dir(__DIR__.'/../addons/'.$file) ){
+			//Array füllen
 			$read[] = $file;
 		}
 	}
+	
+	//Array Rückgabe
 	return $read;
 }
 
+//Zufallsstrings erzeugen
+//	$laenge => Länge des zu erzeugenden Stings
+// 	$chars => Charakter des Stings
+//	$wa => voreingestellte Charakter nutzen ('az' = A bis z; 'num' = 0 bis 9; 'numaz' = 0 bis 9 und A bis z; $chars und $wa nicht gegeben = alles inkl. Sonderzeichen)
 function makepassw( $laenge , $chars = '!"#%&()*+,-./:;?[\]_0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz', $wa = 'off' ){
+	//Sofern voreingestellte Charakter gewünscht, Auswahl dieser
 	if( $wa == 'az' ){
 		$chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 	}
@@ -574,22 +614,36 @@ function makepassw( $laenge , $chars = '!"#%&()*+,-./:;?[\]_0123456789ABCDEFGHIJ
 	elseif( $wa == 'numaz' ){
 		$chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 	}
+	
+	//Anzahl der möglichen Charakter bestimmen
 	$anzahl = strlen($chars);
+	//mit dem ersten Charakter geht es los
 	$i = '1';
+	//noch keine Ausgabe
 	$output = '';
+	//solange weniger oder genausoviele Charakter wie gwünscht im Sting weiteren erstellen 
 	while($i <= $laenge){
-		$stelle = mt_rand('0', $anzahl); 
+		//Charakter zufällig wählen (Zufallszahl als Stelle für $chars nutzen)
+		$stelle = mt_rand('0', $anzahl);
+		//Ausgabe erweitern 
 		$output .= $chars{$stelle};
 		$i++;
 	}
+	//Ausgeben
 	return $output;
 }
 
+//Verzeichnis rekursiv auf Fotos duchsuchen und als JSON String ausgeben (für Foto Auswahl von TinyMCE)
+//Achtung: Komma am Ende des JSON Strings!! (mit listdirrec(); entfernt)
+//	$dir => zu durchsuchendes Verzeichnis auf dem Server
+//	$grdir => grundlegende URL zum zu durchsuchenden Verzeichnis auf dem Server
 function listdirrec_f( $dir, $grdir ){
 	global $allgsysconf;
 	
+	//Verezichnis lesen
 	$files = scandir( $dir );
 
+	//alle Dateien duchgehen
 	foreach( $files as $file ){
 
 		if( $file == '..' || $file == '.' ){
@@ -597,22 +651,27 @@ function listdirrec_f( $dir, $grdir ){
 		}
 		elseif( is_file( $dir.'/'.$file ) ){
 
+			//wenn Datei, dann MIME Type bestimmen
 			$mime = mime_content_type ( $dir.'/'.$file );
 
+			//MIME String zuschneiden (nur image bleibt)
 			$mime = substr( $mime, 0, 5 ); 
 
+			//wenn MIME image, dann zu JSON Sting hinzufügen
 			if( $mime == 'image' ){
 				$out .= '{title: "'.$grdir.'/'.$file.'", value: "'.$allgsysconf['siteurl'].$grdir.'/'.$file.'"},';
 			}
 		}
 		elseif( is_dir( $dir.'/'.$file ) ){
+			//wenn Verzeichnis, dann dieses durchsuchen
 			$out .= listdirrec_f( $dir.'/'.$file , $grdir.'/'.$file );
 		}
 	}
-
+	//JSON Sting ausgeben
 	return $out;
 }
 
+//wie listdirrec_f(); nur ohne Komma am Ende und bei mehrfachem Aufruf Speicherung der Strings
 function listdirrec( $dir, $grdir ){
 	global $listdirrecold;
 
@@ -626,12 +685,24 @@ function listdirrec( $dir, $grdir ){
 	}
 }
 
+//einfaches Hinzufügen von TinyMCE in eine Textarea
+//Die benötigten JavaScript Dateien werden im Backend automatisch geladen, im Frontend ist das Hinzufügen des HTML-Headers '<!-- TinyMCE -->' nötig!
+//	$big => großes Feld aktivieren (mit TinyMCE Menü) [boolean]
+//	$small => kleines Feld aktivieren (ohne TinyMCE menü) [boolean]
+//	$ids => Array ()'big' => ' HTML ID des Textarea für großes Feld ', 'small' => ' HTML ID des Textarea für kleines Feld ' ) 
 function add_tiny( $big = false, $small = false, $ids = array( 'big' => '#inhalt', 'small' => '#footer' ) ){
 	global $sitecontent, $allgsysconf, $tinyoo;
 
+	//$tinyoo => gibt an, ob JS Funktion tinychange(); schon in der Ausagabe 
+
+	//JavaScript Ausgabe beginnen
 	$sitecontent->add_html_header('<script>');
 
+	//Funktion tinychange(); schon da?
 	if( !$tinyoo ){
+		//wenn nicht, dann hinzufügen
+		//	Die Funktion tinychange(); verändert den Status des TinyMCE Editoren. Bei einem Aufruf von tinychange( <<HTML ID der Textarea>> ); wird deren TinyMCE Status verändert.
+		//	TinyMCE wird entweder ausgeblendet oder eingeblendet.
 		$sitecontent->add_html_header('
 		var tiny = [];
 
@@ -649,7 +720,11 @@ function add_tiny( $big = false, $small = false, $ids = array( 'big' => '#inhalt
 		$tinyoo = true;
 	}
 
+	//großer TinyMCE gewünscht?
 	if( $big ){
+		//Initialisierung von TinyMCE
+		//	http://www.tinymce.com
+		//	Angabe der Textarea ID aus $ids
 		$sitecontent->add_html_header('
 		tinymce.init({
 			selector: "'.$ids['big'].'",
@@ -681,7 +756,11 @@ function add_tiny( $big = false, $small = false, $ids = array( 'big' => '#inhalt
 		');
 
 	}
+	//kleiner TinyMCE gewünscht?
 	if( $small ){
+		//Initialisierung von TinyMCE
+		//	http://www.tinymce.com
+		//	Angabe der Textarea ID aus $ids
 		$sitecontent->add_html_header('
 		tinymce.init({
 			selector: "'.$ids['small'].'",
@@ -712,10 +791,16 @@ function add_tiny( $big = false, $small = false, $ids = array( 'big' => '#inhalt
 		tiny[\''.substr( $ids['small'], 1 ).'\'] = true;
 		');
 	}
-
+	//Script beenden
 	$sitecontent->add_html_header('</script>');
 }
 
+//CMS und KIMB-Software Versionsstings vergleichen
+//	Verhaeltnis von $v1 zu $v2, z.B.:
+//		return 'newer'	-> 	$v1 neuer als $v2
+//		return 'older'	-> 	$v1 aelter als $v2
+//		return 'same'	-> 	$v1 gleich wie $v2
+//		return false	-> 	$v1 oder $v2 haben eine fehlerhafte Syntax
 function compare_cms_vers( $v1 , $v2 ) {
 
 	$v[0] = $v1;
@@ -858,7 +943,10 @@ function compare_cms_vers( $v1 , $v2 ) {
 	}
 }
 
+//Ein Array wie make_menue_array_helper();, nur mit Path und ID, erstellen
+//	Rückgabe Array
 function make_path_array(){
+	//Abhängigkeiten von make_menue_array(); erfüllen
 	global $idfile, $menuenames, $menuearray, $fileidlist, $filelisti;
 
 	$idfile = new KIMBdbf('menue/allids.kimb');
@@ -867,61 +955,89 @@ function make_path_array(){
 	$fileidlist = '';
 	$filelisti = '';
 
+	//make_menue_array(); ausführen
 	make_menue_array();
 
+	//$menuearray durchgehen
 	foreach( $menuearray as $menuear ){
 
+		//akuelles Niveau lesen
 		$niveau = $menuear['niveau'];
 
+		//schon Durchgang vorher?
 		if( !isset( $thisniveau ) ){
-			$grpath = $allgsysconf['siteurl'].'/'.$menuear['path'];
+			//keiner, also $grpath neu setzen
+			$grpath = '/'.$menuear['path'];
 		}
 		elseif( $thisniveau == $niveau ){
+			//Niveaus unverändert, alten $grpath von letztem Teil (/ Trennung) befreien
 			$grpath = substr( $grpath , '0', '-'.strlen(strrchr( $grpath , '/')));
+			//neuen Path ansetzen
 			$grpath = $grpath.'/'.$menuear['path'];
 		}
 		elseif( $thisniveau < $niveau ){
+			//altes Niveau kleiner, also tiefer rein ($grpath mit letztem Teil erweitern)
 			$grpath = $grpath.'/'.$menuear['path'];
-			$thisulaufp = $thisulauf + 1;
+			//Menütiefe mitzählen
+			$thisulaufp = $thisulaufp + 1;
 		}
 		elseif( $thisniveau > $niveau ){
+			//altes Niveau größer, also wieder raus
+			//	$grpath anpassen, mehrere Niveaus auf einmal raus möglich, daher per Schleife bis es passt
 			$i = 1;
 			while( $thisniveau != $niveau + $i  ){
 				$i++;
 				$grpath = substr( $grpath , '0', '-'.strlen(strrchr( $grpath , '/')));
 			}
+			//Menütiefe mitzählen
 			$thisulaufp = $thisulaufp - $i;
 
+			//weiterhin letzten / abschneiden
 			$grpath = substr( $grpath , '0', '-'.strlen(strrchr( $grpath , '/')));
+			//und alten $grpath von letztem Teil (/ Trennung) befreien
 			$grpath = substr( $grpath , '0', '-'.strlen(strrchr( $grpath , '/')));
+			//neuen Path ansetzen
 			$grpath = $grpath.'/'.$menuear['path'];
 		}
+		//URL hat immer eine / am Ende
 		$url = $grpath.'/';
 
+		//ID und Path[URL]den neuen Array hinzufügen
 		$patharr['id'] = $menuear['requid'];
 		$patharr['url'] = $url;
 
+		//Ausgabearray erstellen
 		$return[] = $patharr;
 
+		//aktuelles Niveau für nächsten Durchgang speichern
 		$thisniveau = $niveau;
 
 	}
 
+	//Ausgaben
 	return $return;
 
 }
 
+//Pfad aus RequestID erstellen
+//	$requid => RequestID
+//	Rückgabe URL-Pfad oder URL ID-Zugriff (relatativ zu $allgsysconf['siteurl'] )
+//direkte Weiterleitung z.B.: open_url( make_path_outof_reqid( $requid ) );
 function make_path_outof_reqid( $requid ){
 	global $allgsysconf;
 
+	//URL-Rewriting an?
 	if( $allgsysconf['urlrewrite'] == 'on' ){
 
+		//Path Array erstellen und durchgehen
 		foreach( make_path_array() as $path ){
+			//wenn RequestID in Array == gewünscht RequestID, Pfad ausgeben
 			if( $path['id'] == $requid ){
 				return $path['url'];
 			}
 		}
 
+		//Alternativ per ID-Zugriff
 		return '/index.php?id='.$requid;
 	}
 	else{
@@ -929,19 +1045,29 @@ function make_path_outof_reqid( $requid ){
 	}
 }
 
+//Add-on Status prüfen
+//	Rückgabe => boolean
+//	$addon => Name (ID) des zu testenden Add-ons
+//	$addoninclude => KIMBdbf includes.kimb
+//	$allinclpar => Array aus BEaddinst->allinclpar
 function check_addon_status( $addon, $addoninclude, $allinclpar ){
 
+	//alle Include Stellen durchgehen
 	foreach( $allinclpar as $par ){
 
+		//nach Add-on und Stelle suchen
 		if( $addoninclude->read_kimb_search_teilpl( $par , $addon ) ){
+			//gefunden, also Add-on aktiviert
 			return true;
 		}
 
 	}
-
+	//nicht gefunden, deaktiviert
 	return false;
 }
 
+//Die RequestURL ohne alles nach dem ? extrahieren
+//	Rückgabe => RequestURL
 function get_req_url(){
 	if( strpos( $_SERVER['REQUEST_URI'], '?' ) !== false ){
 		$req = substr( $_SERVER['REQUEST_URI'] , '0', '-'.strlen(strrchr( $_SERVER['REQUEST_URI'] , '?' )));
@@ -953,42 +1079,62 @@ function get_req_url(){
 	return $req;
 }
 
+//Sprachwahl Dropdown machen
+//	$openurl => zu öffnende URL nach Sprachwahl z.B.: '"'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=edit&id='.$_GET['id'].'&langid=" + val' ( '+ val'' wird als JavaScript Variable verwendet und enthält die gewählte LangID)
+//	$langid => aktuel zu wählenden Sprache (per LangID)
 function make_lang_dropdown( $openurl, $langid ){
 		global $sitecontent;
-	
+		
+		//Lang Datei lesen	
 		$langfile = new KIMBdbf( 'site/langfile.kimb' );
 		
+		//Select beginnen (padding für Flaggen)
 		$sitecontent->add_site_content('<select id="langs" style="padding:2px; padding-left:25px;" title="Bitte wählen Sie die Sprache, für die Sie die Inhalte verändern wollen!">');
 		
+		//alle Sprachen lesen und durchgehen
 		foreach( $langfile->read_kimb_all_teilpl( 'allidslist' ) as $id ){
+			//gesamte Sprache lesen
 			$vals = $langfile->read_kimb_id( $id );
+			
+			//aktuelle Sprache == Sprache des aktuellen foreach?
 			if( $id == $langid ){
-					$flagurl = $vals['flag'];
+				//URL zu Flagge extra speichern
+				$flagurl = $vals['flag'];
 			}
+			//Status der Sprache testen
 			if( $vals['status'] == 'off' ){
 				$statinfo = ' (deaktiviert)';
 			}
 			else{
 				$statinfo = '';
 			}
+			
+			//Select Option machen: Flagge und Sprachname mit Status; VALUE = ID
 			$sitecontent->add_site_content('<option style="background: url( '.$vals['flag'].' ) center left no-repeat; padding:2px; padding-left:25px;" value="'.$id.'">'.$vals['name'].$statinfo.'</option>');
 		}
 		
+		//Select beenden
 		$sitecontent->add_site_content('</select>');
 		
+		//JS Code um aktuelle Sprache im Select zu aktivieren
+		//bei Änderung entsprechenden Seite aufrufen
 		$sitecontent->add_html_header('<script>	
 		$( function() {
 			$( "#langs" ).on( "change", function() {
 				var val = $( "#langs" ).val();
 				window.location = '.$openurl.';
 			});
-			$( "#langs" ).val( '.$_GET['langid'].' );
+			$( "#langs" ).val( '.$langid.' );
 			$( "#langs" ).css( "background", "url( '.$flagurl.' ) center left no-repeat" );
 		});
 		</script>');
 }
 
-function make_menue_array_helper(  ){
+//Array mit allen Menüpunkten erstellen
+//Vereinfachter Zugriff für make_menue_array(); [erfüllt automatisch alle Abhängigekeiten]
+//	Rückgabe: Menuearray
+function make_menue_array_helper(){
+	//Abhängigekeiten erfüllen
 	global $idfile, $menuenames, $menuearray, $fileidlist, $filelisti;
 
 	$menuearray = array();
@@ -998,23 +1144,35 @@ function make_menue_array_helper(  ){
 	$idfile = new KIMBdbf('menue/allids.kimb');
 	$menuenames = new KIMBdbf('menue/menue_names.kimb');
 	
+	//ausführen	
 	make_menue_array();
 	
+	//Rückgabe
 	return $menuearray;
 }
 
+//Alle Seiten in Array listen
+//	Rückgabe => Array[] array( 'site' => Seitename, 'id' => SeitenID )
+//	$dir => Verzeichnis mit Seitendateien unter kimb-data/
 function list_sites_array( $dir = 'site/' ){
+	//KIMBdbf Verzeichnis lesen
 	$sites = scan_kimb_dir( $dir );
+	//nacheinander durchgehen
 	foreach ( $sites as $site ){
 		if( $site != 'langfile.kimb'){
+			//wenn nicht langfile
+			
+			//Seitendatei lesen und ID sowie Seitenamen bestimmen
 			$sitef = new KIMBdbf('site/'.$site);
 			$id = preg_replace("/[^0-9]/","", $site);
 			$title = $sitef->read_kimb_one('title');
 		
+			//der Ausgabe hinzufügen
 			$allsites[] = array( 'site' => $title, 'id' => $id );
 		}
 	}
 	
+	//ausgeben
 	return $allsites;
 }
 
