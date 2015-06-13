@@ -51,7 +51,8 @@ class BEsyseinst{
 		'show_siteinfos' => 'Unten auf den Seiten anzeigen wann und von wem die Seite geändert wurde sowie den Permalink!' ,
 		'theme' => 'Wählen Sie ein installiertes Thema für Ihre Seite, ohne oder mit falschem Parameter wird das Standardthema verwendet. ( Dieser Wert wird automatisch bei einer Themeninstallation geändert. )',
 		'cronkey' => 'Hier finden Sie den Cronkey. Diese Zeichenkette müssen Sie an die URL hängen, um den Systemcron ausführen zu können. (<cms-url>/cron.php?key=XXXX)',
-		'lang' => 'Hier können Sie das CMS für mehrsprachige Seiten freischalten. ( on / off ) ( Wird auch über Other -> Mehrsprachige Seite verändert )'  
+		'lang' => 'Hier können Sie das CMS für mehrsprachige Seiten freischalten. ( on / off ) ( Wird auch über Other -> Mehrsprachige Seite verändert )' ,
+		'coolifetime' => 'Lebenszeit des Session Cookies in Sekunden, 0 -> bis Browser geschlossen wird'
 	);
 	
 	public function __construct( $allgsysconf, $sitecontent,$conffile ){

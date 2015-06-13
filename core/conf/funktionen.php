@@ -24,8 +24,61 @@
 /*************************************************/
 
 
-
 defined('KIMB_CMS') or die('No clean Request');
+
+//Session und HTTP Header des CMS initialisieren
+//	$robots => Header robots tag
+//	$cont => MIME der Ausgabe
+function SYS_INIT( $robots, $cont = 'text/html' ){
+	global $allgsysconf;
+	
+	//Lebenszeit des Cookie aus Konfiguration
+	$lifetime = $allgsysconf['coolifetime'];
+	//SSL oder nicht?
+	if( substr( $allgsysconf['siteurl'], 0, 8) == 'https://' ){
+		$secure = true;
+	}
+	else{
+		$secure = false;		
+	}
+	
+	//Domain & Path aus Konfiguration
+	//http(s):// abschneiden
+	if( $secure ){
+		$do = substr( $allgsysconf['siteurl'], 8);	
+	}
+	else{
+		$do = substr( $allgsysconf['siteurl'], 7);
+	}
+	
+	//Ende der Domain am / erkennen
+	$po = strpos ( $do, '/' );
+	//kein /, dann Ende der Domain = Länge von $do
+	if( empty( $po )){
+		$po = strlen($do);
+	}
+	//Domain bestimmen
+	$domain = substr( $do, 0, $po );
+	if( strpos( $domain, ':') !== false ){
+		//Domain Port entfernen
+		$dopp = strpos( $domain, ':');
+		$domain = substr( $domain, 0, $dopp );
+	}
+	//Path bestimmen
+	$path = substr( $do, $po ).'/';
+	
+	//Sicherung der Session ID
+	ini_set('session.use_only_cookies', 1);
+	//Session Cookie vorbereiten
+	session_set_cookie_params ( $lifetime, $path, $domain, $secure, true );
+	session_name ("KIMBCMS");
+	//Session Cookie setzen
+	session_start();
+	//Fehlermeldungen & HTTP Header
+	error_reporting( 0 );
+	header('X-Robots-Tag: '.$robots);
+	header('Content-Type: '.$cont.'; charset=utf-8');
+}
 
 //email versenden
 // $to => Empfänger

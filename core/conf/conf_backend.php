@@ -32,12 +32,11 @@ require_once( __DIR__.'/../oop/all_oop.php' );
 $conffile = new KIMBdbf('config.kimb');
 $allgsysconf = $conffile->read_kimb_id('001');
 
+//Allgemeine Funktionen usw. laden
+require_once(__DIR__.'/funktionen.php');
+
 //session, Fehleranzeige, Robots-Header, Content, Codierung
-session_name ("KIMBCMS");
-session_start();
-error_reporting( 0 );
-header('X-Robots-Tag: none');
-header('Content-Type: text/html; charset=utf-8');
+SYS_INIT( 'none' );
 
 //wichtige Objekte
 
@@ -58,9 +57,6 @@ $kimbcmsinfo = '<!--
 
 -->';
 $sitecontent->add_html_header($kimbcmsinfo);
-
-//Allgemeine Funktionen usw. laden
-require_once(__DIR__.'/funktionen.php');
 
 //Backend Add-ons (mit zusätzlichem Schutz)
 //Wenn User eingeloggt, immer die BE Add-ons laden

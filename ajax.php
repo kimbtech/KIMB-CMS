@@ -32,15 +32,11 @@ require_once( __DIR__.'/core/oop/all_oop.php' );
 $conffile = new KIMBdbf('config.kimb');
 $allgsysconf = $conffile->read_kimb_id( '001' );
 
-//session, Fehleranzeige, Robots-Header, Content, Codierung
-session_name ("KIMBCMS");
-session_start();
-error_reporting( 0 );
-header('X-Robots-Tag: '.$allgsysconf['robots']);
-header('Content-Type: text/html; charset=utf-8');
-
 //Funktionen laden
 require_once(__DIR__.'/core/conf/funktionen.php');
+
+//session, Fehleranzeige, Robots-Header, Content, Codierung
+SYS_INIT( $allgsysconf['robots'] );
 
 //System initialisiert!
 
