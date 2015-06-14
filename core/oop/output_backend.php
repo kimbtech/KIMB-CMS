@@ -27,8 +27,13 @@
 
 defined('KIMB_CMS') or die('No clean Request');
 
+//Diese Klasse ist die zentrale Ausgabeklasse des CMS Backends.
+//Alle Ausgaben werden hier zusammengefasst und zum Ende ausgegeben.
+//Die Klasse ist im Backend immer als $sitecontent verfügbar!
+
 class backend_output{
 
+	//Klasse init
 	protected $header, $allgsysconf, $sitecontent, $sonderfile;
 
 	public function __construct($allgsysconf){
@@ -36,23 +41,28 @@ class backend_output{
 		$this->sonderfile = new KIMBdbf('sonder.kimb');
 	}
 
+	//Seiteninhalte hinzufügen
 	public function add_site_content($content){
 		$this->sitecontent .= $content."\r\n";
 	}
 
+	//HTML Header hinzufügen
 	public function add_html_header($inhalt){
 		$this->header .= $inhalt."\r\n";
 	}
 
-	public function echo_message($message){
+	//Meldung ausgeben
+	public function echo_message($message, $heading = 'Meldung' ){
 		$this->sitecontent .= '<div class="ui-widget" style="position: relative;">'."\r\n";
 		$this->sitecontent .= '<div class="ui-state-highlight ui-corner-all" style="padding:10px;">'."\r\n";
 		$this->sitecontent .= '<span class="ui-icon ui-icon-info" style="position:absolute; left:20px; top:7px;"></span>'."\r\n";
-		$this->sitecontent .= '<h1>Meldung</h1>'.$message."\r\n";
+		$this->sitecontent .= '<h1>'.$heading.'</h1>'.$message."\r\n";
 		$this->sitecontent .= '</div></div>'."\r\n";
 	}
 
-	public function echo_error($message = '', $art = 'unknown'){
+	//Fehler ausgeben
+	//	404, 403 oder ?
+	public function echo_error($message = '', $art = 'unknown', $heading = 'Error - Fehler'){
 		$this->sitecontent .= '<div class="ui-widget" style="position: relative;">'."\r\n";
 		$this->sitecontent .= '<div class="ui-state-error ui-corner-all" style="padding:10px;">'."\r\n";
 		$this->sitecontent .= '<span class="ui-icon ui-icon-alert" style="position:absolute; left:20px; top:7px;"></span>'."\r\n";
@@ -68,14 +78,17 @@ class backend_output{
 			header('HTTP/1.0 403 Forbidden');
 		}
 		else{
-			$this->sitecontent .= '<h1>Error - Fehler</h1>'.$message."\r\n";
+			$this->sitecontent .= '<h1>'.$heading.'</h1>'.$message."\r\n";
 		}
 		$this->sitecontent .= '</div></div>'."\r\n";
 	}
 
-
+	//gesamte Seite ausgeben
 	public function output_complete_site(){
+		//HTML Code
 		echo('<!DOCTYPE html> <html> <head>'."\r\n");
+		//HTML Header
+		//	inkl. allen JS & CSS
 			echo ('<title>'.$this->allgsysconf['sitename'].' : Backend</title>'."\r\n");
 			echo ('<link rel="shortcut icon" href="'.$this->allgsysconf['sitefavi'].'" type="image/x-icon; charset=binary">'."\r\n");
 			echo ('<link rel="icon" href="'.$this->allgsysconf['sitefavi'].'" type="image/x-icon; charset=binary">'."\r\n");
@@ -90,26 +103,36 @@ class backend_output{
 			echo ('<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/hash.js"></script>'."\r\n");
 			echo ('<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/nicEdit.js"></script>'."\r\n");
 			echo ('<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/tinymce/tinymce.min.js"></script>'."\r\n");
+			
+			//Menü disabled, je nach Rechten
 			echo ('<script>'."\r\n");
 			echo ('$(function() {'."\r\n");
 			if( $_SESSION['permission'] == 'more' ){
-
+				//alles aktiviert
 			}
 			elseif( $_SESSION['permission'] == 'less' ){
+				//nur admin deaktiviert
 				echo ('	$( "ul#menu li.admin" ).addClass("ui-state-disabled");'."\r\n");
 
 			}
 			elseif( $_SESSION['loginokay'] == $this->allgsysconf['loginokay'] ){
+				//Systemspezifisches Level
+				//	alles nach und nach nachschauen und dann evtl. deaktivieren
 
+				//Level suchen
 				if( !is_object( $levellist ) ){
 					$levellist = new KIMBdbf( 'backend/users/level.kimb' );
 				}
 				$permissteile = $levellist->read_kimb_one( $_SESSION['permission'] );
 				
-				if( $permissteile != '' ){
+				if( !empty( $permissteile ) ){
+					//Level in englische Zahlen teilen
 					$permissteile = explode( ',' , $permissteile );
+					//alle englischen Zahlen lesen und teilen
 					$all = $levellist->read_kimb_one( 'all' );
 					$all = explode( ',' , $all );
+					
+					//alles was im Level nicht ist, dafür aber in der Gesamtmenge der englischen Zahlen, ausblenden
 					foreach( $all as $teil ){
 						if( !in_array( $teil , $permissteile ) ){
 							echo ('	$( "ul#menu li.'.$teil.'" ).addClass("ui-state-disabled");'."\r\n");
@@ -117,6 +140,7 @@ class backend_output{
 					}
 				}
 				else{
+					//Userlevel nicht gefunden -> Fehler
 					$this->sitecontent = '';
 					$this->echo_error( 'Ihr Userlevel ist fehlerhaft!' );
 					echo ('	$( "ul#menu li.admin" ).addClass("ui-state-disabled");'."\r\n");
@@ -125,30 +149,40 @@ class backend_output{
 
 			}
 			else{
+				//nicht eingeloggt, alles deaktivieren
 				echo ('	$( "ul#menu li.admin" ).addClass("ui-state-disabled");'."\r\n");
 				echo ('	$( "ul#menu li.editor" ).addClass("ui-state-disabled");'."\r\n");
 			}
+			//Tooltips und Menü starten
 			echo ('	$( document ).tooltip();'."\r\n");
 			echo ('	$( "#menu" ).menu();'."\r\n");
 			echo ('});'."\r\n");
 			echo ('</script>'."\r\n");
 			
+				//HTML Header
 				echo($this->header);
 				echo("\r\n");
 
 		echo('</head><body>'."\r\n");
 				echo('<div id="header">'."\r\n");
+					//KIMB-CMS Backend Schriftzug
 					echo("<pre>\r\n _  _____ __  __ ____         ____ __  __ ____  \r\n| |/ /_ _|  \/  | __ )       / ___|  \/  / ___| \r\n| ' / | || |\/| |  _ \ _____| |   | |\/| \___ \ \r\n| . \ | || |  | | |_) |_____| |___| |  | |___) |\r\n|_|\_\___|_|  |_|____/       \____|_|  |_|____/ \r\n</pre>"."\r\n");
 				echo('</div>'."\r\n");
 				echo('<div id="page">'."\r\n");
 				echo('<div id="userinfo">'."\r\n");
+				//kleiner Kasten rechts oben mit Infos
 				if( $_SESSION['loginokay'] == $this->allgsysconf['loginokay'] ){
+					//bei Login
+					
+					//Begrüßung
 					echo ('Hallo User <i><u>'.$_SESSION['name'].'</u></i>'."\r\n");
+					//Schnellzugriffe
 					echo ('<div style="float:right; position:absolute; right:10px; top:0px;">');
 					echo ('<a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/user.php?todo=edit&amp;user='.$_SESSION['user'].'" title="Usereinstellungen bearbeiten"><span class="ui-icon ui-icon-pencil"></span></a>'."\r\n");
 					echo ('<a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/index.php?todo=logout" title="Abmelden und die Sitzung beenden!"><span class="ui-icon ui-icon-power"></span></a>'."\r\n");
 					echo ('<a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/index.php" title="Hauptseite des Backends ( Login, ... )"><span class="ui-icon ui-icon-home"></span></a>'."\r\n");
 					echo ('</div><br />');
+					//Userrechte Hinweise
 					if( $_SESSION['permission'] == 'more' ){
 						echo ('<i title="Sie haben alle Rechte in Backend!" >Admin</i>'."\r\n");
 					}
@@ -158,13 +192,19 @@ class backend_output{
 					else{
 						echo ('<i title="Sie haben ein von Ihrem Admin erstelles Zugriffslevel!" >Systemspezifisch</i>'."\r\n");
 					}
+					//Cache leeren Button
 					echo ('<div style="float:right; position:absolute; right:40px; bottom:7px;"><a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/syseinst.php?todo=purgecache" title="Den Cache leeren. (Dies ist nur nach einer Änderung im Menü oder für bestimmte Add-ons nötig!)"><span class="ui-icon 	ui-icon-refresh"></span></a></div>'."\r\n");
  
 				}
 				else{
+					//ohne Login nichts zu sehen
 					echo('Nicht eingeloggt!<br /><span class="ui-icon ui-icon-cancel"></span>'."\r\n");
 				}
 				echo('</div>'."\r\n");
+				//jQuery UI Menue
+				//	ul, li verschachtelt
+				//	jeder Link hat zwei Klassen, einmal die voreingestellten Rechte (less,more) mit den Klassen (admin, editor), außerdem
+				//	findet man die englischen Zahlen (von der Backend Rechteverwaltung) für jeden einzelnen Link 
 				echo('<div id="menue">'."\r\n");
 echo('
 <!-- Menue - jQuery UI -->
@@ -211,14 +251,19 @@ echo('
 <!-- Menue - jQuery UI -->
 ');
 				echo ('</div>'."\r\n");
+				//kleiner Kasten links unten 
 				echo ('<div id="version">'."\r\n");
+					//CMS Infos & Links für nicht-Backend-Nutzer				
 					echo ('<b>KIMB-technologies CMS<br />V. '.$this->allgsysconf['systemversion'].'</b><br />'."\r\n");
 					echo ('<i>Diese Seite ist nur für Administratoren!</i><br />'."\r\n");
 					echo ('<a href="'.$this->allgsysconf['siteurl'].'/">Zurück</a><br />'."\r\n");
 					echo ('<a href="'.$this->allgsysconf['siteurl'].'/kimb-cms-backend/index.php">Backend Login</a>'."\r\n");
-					echo ('</div>'."\r\n");
+				echo ('</div>'."\r\n");
+					
+				//Seiteninhalt
 				echo('<div id="content">'."\r\n");
 
+					//ausgeben
 					echo($this->sitecontent);
 					echo("\r\n");
 
@@ -227,4 +272,5 @@ echo('
 	}
 }
 
+//feddig
 ?>

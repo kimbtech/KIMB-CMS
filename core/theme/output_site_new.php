@@ -1,8 +1,7 @@
 <?php
 /*************************************************/
-//KIMB CMS
-//KIMB ContentManagementSystem
-//Copyright (c) 2014 by KIMB-technologies
+//KIMB CMS New Theme
+//Copyright (c) 2015 by KIMB-technologies
 /*************************************************/
 //This program is free software: you can redistribute it and/or modify
 //it under the terms of the GNU General Public License version 3
@@ -22,11 +21,7 @@
 //http://www.gnu.org/licenses/gpl-3.0.txt
 /*************************************************/
 	
-// Diese Datei gibt das Grundgerüst für die Ausgabe
-// Folgende Variablen sollten verwendet werden:
-//    $this->header, $this->title, $this->menue, $this->addon, $this->sitecontent, $this->footer
-//    array( $this->allgsysconf )
-// Diese Datei ist Teil eines Objekts
+//Diese Datei gleicht der "output_site_norm.php", Kommentare finden Sie dort!
 
 defined('KIMB_CMS') or die('No clean Request');
 

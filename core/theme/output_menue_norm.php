@@ -31,34 +31,53 @@
 
 defined('KIMB_CMS') or die('No clean Request');
 
+//jedem Menüpunkt eine ID geben, damit das Menü per Touch gut zu bedienen ist 
 if( !isset( $this->menuenumid ) ){
 	$this->menuenumid = 0;
 }
 $this->menuenumid ++;
 
+//eine verschachtelte ul, li Tabelle bauen
+
+//schon Durchgang vorher?
 if( !isset( $this->niveau ) ){
+	//die erste li öffnen
 	$this->menue .= '<li>'."\r\n";
 }
+//Niveau gleich?
 elseif( $this->niveau == $niveau ){
+	//li beenden und neues öffnen
 	$this->menue .= '</li><li>'."\r\n";
 }
+//altes Niveau kleiner?
 elseif( $this->niveau < $niveau ){
+	//altes Niveau kleiner, also tiefer rein
+	
+	//die Tiefe feststellen und entsprechend viele ul öffnen 
 	$i = 1;
 	while( $this->niveau != $niveau - $i  ){
 		$i++;
 	}
 	$this->menue .= str_repeat( '<ul>' , $i ).'<li>'."\r\n";
+	//Menütiefe mitzählen
 	$this->ulauf = $this->ulauf + $i;
 }
+//altes Niveau größer?
 elseif( $this->niveau > $niveau ){
+	//altes Niveau größer, also wieder raus
+	
+	//wie oft raus feststellen und entsprechend viele ul schließen
 	$i = 1;
 	while( $this->niveau != $niveau + $i  ){
 		$i++;
 	}
 	$this->menue .= '</li>'.str_repeat( '</ul>' , $i ).'<li>'."\r\n";
+	//Menütiefe mitzählen
 	$this->ulauf = $this->ulauf - $i;
 }
 
+//Den Menüpunkt der Ausgabe anfügen
+//	wenn dieser 'clicked' ist (also der Menüpunkt der aktuellen Seite) die id #liclicked anfügen
 if( $clicked == 'yes' ){
 	$this->menue .=  '<a id="liclicked" href="'.$link.'" onclick=" return menueclick( '.$this->menuenumid.' ); ">'.$name.'</a>'."\r\n";
 }

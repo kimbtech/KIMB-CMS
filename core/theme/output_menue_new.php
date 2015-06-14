@@ -1,9 +1,8 @@
 <?php
 	
 /*************************************************/
-//KIMB CMS
-//KIMB ContentManagementSystem
-//Copyright (c) 2014 by KIMB-technologies
+//KIMB CMS New Theme
+//Copyright (c) 2015 by KIMB-technologies
 /*************************************************/
 //This program is free software: you can redistribute it and/or modify
 //it under the terms of the GNU General Public License version 3
@@ -23,11 +22,7 @@
 //http://www.gnu.org/licenses/gpl-3.0.txt
 /*************************************************/
 	
-// Diese Datei wird für jedes Menue ausgeführt
-// Folgende Variablen sind definiert:
-//    $name, $niveau, $clicked, $link
-// Diese Datei ist Teil eines Objekts
-// Das fertige Menue wird, je nach Theme über $this->menue ausgegeben
+//Diese Datei gleicht der "output_menue_norm.php", Kommentare finden Sie dort!
 
 defined('KIMB_CMS') or die('No clean Request');
 

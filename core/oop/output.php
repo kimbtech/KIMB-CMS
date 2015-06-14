@@ -27,9 +27,9 @@
 
 defined('KIMB_CMS') or die('No clean Request');
 
-//Diese Klasse ist die zentrale Ausgabeklasse des CMS.
+//Diese Klasse ist die zentrale Ausgabeklasse des CMS Frontends.
 //Alle Ausgaben werden hier zusammengefasst und zum Ende dem Theme übergeben
-//Die Klasse ist immer als $sitecontent verfügabar!
+//Die Klasse ist im Frontend immer als $sitecontent verfügbar!
 
 class system_output{
 
