@@ -25,7 +25,11 @@
 
 defined('KIMB_CMS') or die('No clean Request');
 
+//Hier wird das Autoload für alles Klassen registriert.
+
 function autoload_classes( $class ){
+	//Alle autoloads in Array
+	//	Klassenname => Dateiname (ohne Endung, evtl. mit Pfad)
 	$classarray = array(
 		'ADDonAPI' => 'addon_api',
 		'cacheCMS' => 'cache',
@@ -41,9 +45,11 @@ function autoload_classes( $class ){
 		'BEaddinst' => 'be_do/addon_inst'
 	);
 	
+	//laden der gewünschten Klasse
 	require_once( __DIR__.'/'.$classarray[$class].'.php' );
 }
 
+//Autoload Funktion registrieren
 spl_autoload_register('autoload_classes');
 
 ?>

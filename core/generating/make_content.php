@@ -23,43 +23,54 @@
 //http://www.gnu.org/licenses/gpl-3.0.txt
 /*************************************************/
 
-
-
 defined('KIMB_CMS') or die('No clean Request');
 
+//Sofern Seite gefunden, nach Seitendatei suchen und lesen
 if( $allgerr != '404' ){
 	if( check_for_kimb_file( '/site/site_'.$allgsiteid.'.kimb' ) ){
 		$sitefile = new KIMBdbf( '/site/site_'.$allgsiteid.'.kimb' );
 	}
 	else{
+		//keine Seitendatei -> Fehler
 		$sitecontent->echo_error( 'Diese Seite existiert nicht!' , '404' );
 		$allgerr = '404';
 	}
 }
 
+//bei Fehler 403 keine Seite anzeigen (Fehler wird von Add-ons erzeugt)
 if( $allgerr == '403' ){
 	$sitecontent->echo_error( 'Sie haben keinen Zugriff auf diese Seite!' , '403' );
 }
+//es sollten keine Fehler gesetzt sein und natülich muss die Seitendatei geladen sein
 elseif( is_object( $sitefile ) && !isset( $allgerr ) ){
+	//Seitendaten lesen und ausgeben
 	
+	//Bei mehrsprachigen Seiten, die richige Version wählen
 	if( $allgsysconf['lang'] == 'on' && $requestlang['id'] != 0 ){
-			
+		
+		//Die Seiteninhalt werden ja nach Sprache mit einem anderen Tag abgespeichert.
+		//Hier wird der zu lesende Tag mit Hilfe der SprachID definiert
 		$dbftag['title'] = 'title-'.$requestlang['id'];
 		$dbftag['keywords'] = 'keywords-'.$requestlang['id'];
 		$dbftag['description'] = 'description-'.$requestlang['id'];
 		$dbftag['inhalt'] = 'inhalt-'.$requestlang['id'];
 		$dbftag['footer'] = 'footer-'.$requestlang['id'];
 		
+		//Nicht jede Seite ist in alle Sprachen übersetzt, sollte dies nicht der Fall sein, wird eine Meldung angezeit und die Seite in der Standardsprache geladen 
 		if( empty($sitefile->read_kimb_one( $dbftag['title'] )) && empty($sitefile->read_kimb_one( $dbftag['inhalt'] )) ){
-			$sitecontent->echo_error( 'Achtung: Diese Seite ist nicht in der von Ihnen gewünschten Sprache verfügbar!' );
+			//Meldung
+			$sitecontent->echo_error( 'Diese Seite ist nicht in der von Ihnen gewünschten Sprache verfügbar!', 'unknown', 'Hinweis' );
+			//normale Tags nutzen
 			$normtags = true;
 		}
 	}
 	else{
+		//normsle Tags nutzen
 		$normtags = true;
 	}
 	
 	if( $normtags ){
+		//normale Tags laden
 		$dbftag['title'] = 'title';
 		$dbftag['keywords'] = 'keywords';
 		$dbftag['description'] = 'description';
@@ -67,6 +78,8 @@ elseif( is_object( $sitefile ) && !isset( $allgerr ) ){
 		$dbftag['footer'] = 'footer';	
 	}
 		
+	//alle Seiteninhalte lesen und in Array speichern
+	//header, time, made_user und ID haben keine Sprache
 	$seite['title'] = $sitefile->read_kimb_one( $dbftag['title'] );
 	$seite['header'] = $sitefile->read_kimb_one( 'header' );
 	$seite['keywords'] = $sitefile->read_kimb_one( $dbftag['keywords'] );
@@ -77,9 +90,12 @@ elseif( is_object( $sitefile ) && !isset( $allgerr ) ){
 	$seite['footer'] = $sitefile->read_kimb_one( $dbftag['footer'] );
 	$seite['req_id'] = $_GET['id'];
 
+	//das Array mit den Seiteninhalten zur Ausgabe geben
 	$sitecontent->add_site($seite);
 
 }
+//wenn noch kein Fehler vorhanden ist und man hier landet, ist irgendwas beim laden der Seiteninhalt falsch gelaufen
+//	User informieren
 elseif( !isset( $allgerr ) ){
 	$sitecontent->echo_error( 'Fehler beim Erstellen des Seiteninhalts !' );
 	$allgerr = 'unknown';

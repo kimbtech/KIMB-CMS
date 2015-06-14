@@ -461,7 +461,7 @@ function gen_menue( $allgrequestid , $filename = 'url/first.kimb' , $grpath = '/
 	//	in den URL-Dateien sind alle IDs fortlaufen ab 1 vergeben (1,2,3) 
 	$id = 1;
 	//jeden Menüpunkt der Datei in einer Schleife lesen
-	while( 5 == 5 ){
+	while( true ){
 		//Resquest ID für Menuepunkt lesen
 		$requid = $file->read_kimb_id( $id , 'requestid' );
 		//Pfad für Menuepunkt lesen
@@ -563,7 +563,7 @@ function make_menue_array( $filename = 'url/first.kimb' , $niveau = '1' , $filei
 	//	in den URL-Dateien sind alle IDs fortlaufen ab 1 vergeben (1,2,3) 
 	$id = 1;
 	//ID für ID durchgehen
-	while( 5 == 5 ){
+	while( true ){
 		//einzelne Werte auslesen
 		$path = $file->read_kimb_id( $id , 'path' );
 		$nextid = $file->read_kimb_id( $id , 'nextid' );

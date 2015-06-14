@@ -85,7 +85,7 @@ class BEmenue{
 	
 				if( $GET['niveau'] == 'deeper' && is_numeric( $GET['requid'] ) ){
 					$i = 1;
-					while( 5 == 5 ){
+					while( true ){
 						if( !check_for_kimb_file( 'url/nextid_'.$i.'.kimb' ) ){
 							break;
 						}
@@ -206,7 +206,7 @@ class BEmenue{
 		
 			if( $_POST['post'] == 'post' ){
 				$i = 0;
-				while( 5 == 5 ){
+				while( true ){
 					if( $_POST[$i.'-site'] != $idfile->read_kimb_id( $_POST[$i] , 'siteid' ) ){
 						if( $idfile->write_kimb_id( $_POST[$i] , 'add' , 'siteid' , $_POST[$i.'-site'] ) ){
 							$sitecontent->echo_message( 'Die Seite '.$_POST[$i.'-site'].' wurde einem Menue zugeordnet!<a href="'.$allgsysconf['siteurl'].'/index.php?id='.$_POST[$i].'" target="_blank"><span class="ui-icon ui-icon-newwin" title="Die Seite mit Menue aufrufen."></span></a>' );
@@ -411,7 +411,7 @@ class BEmenue{
 		$nextid = $file->read_kimb_id( $id , 'nextid');
 		if( $id  != false && $nextid == ''){
 			$wid = 1;
-			while( 5 == 5 ){
+			while( true ){
 				if( $wid != $id ){
 					$wpath = $file->read_kimb_id( $wid , 'path' );
 					$wnextid = $file->read_kimb_id( $wid , 'nextid' );
@@ -511,7 +511,7 @@ class BEmenue{
 				}
 	
 				$wid = 1;
-				while( 5 == 5 ){
+				while( true ){
 					$wpath = $file->read_kimb_id( $wid , 'path' );
 					$wnextid = $file->read_kimb_id( $wid , 'nextid' );
 					$wrequid = $file->read_kimb_id( $wid , 'requestid' );
@@ -539,7 +539,7 @@ class BEmenue{
 	
 				$i = 1;
 				$file->delete_kimb_file();
-				while( 5 == 5 ){
+				while( true ){
 					if( $newid == $i ){
 	
 						$data = $newmenuefile[$id];

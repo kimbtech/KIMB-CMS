@@ -26,7 +26,10 @@
 
 defined('KIMB_CMS') or die('No clean Request');
 
-error_reporting(0);
+//Die KIMBdbf ist die zentrale Klasse für alles Datenbankaufgaben.
+//Alle Daten werden hiermit gespeichert.
+//==> Weitere Infos zu KIMBdbf
+//	https://download.kimb-technologies.eu/explorer.php?action=rein&path=%2FKIMBdbf
 
 //objektorientiert
 //objektorientiert
@@ -348,7 +351,7 @@ class KIMBdbf {
 		$teil = $this->umbruch_weg($teil, 'tag');
 		$count = '1';
 		$i = '0';
-		while( 5 == 5 ){
+		while( true ){
 			$teilread = $teil.$count;
 			$gelesen = $this->read_kimb_one($teilread);
 			if( !empty( $gelesen ) ){

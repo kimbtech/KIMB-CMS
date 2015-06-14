@@ -234,8 +234,8 @@ if( isset($_GET['url']) && $allgsysconf['urlrewrite'] == 'on' && !isset($_GET['i
 				//jede Sprache lesen
 				$vals = $langfile->read_kimb_id( $id );
 				if( $vals['status'] == 'on' ){
-					//wenn aktiviert Sprache aktiviert
-					//	Sprachwechesel URL anfügen
+					//wenn aktiviert Sprache hinzufügen
+					//	Sprachwechsel URL anfügen
 					$vals['thissite'] = $allgsysconf['siteurl'].'/'.$vals['tag'].$url;
 					//Array für CMS/ Theme füllen
 					$allglangs[] = $vals;
@@ -246,121 +246,214 @@ if( isset($_GET['url']) && $allgsysconf['urlrewrite'] == 'on' && !isset($_GET['i
 	
 	//eigentliche Erzeugung der ID aus der URL
 	
-	//erste URL-Date lesen (in dieser gehts immer los)
+	//erste URL-Datei lesen (in dieser gehts immer los)
 	$file = new KIMBdbf('url/first.kimb');
+	//erstes Verzeichnis aus dem URL-Array suchen
 	$ok = $file->search_kimb_xxxid( $urlteile[$i] , 'path' );
+	//gefunden ?
 	if( $ok != false){
+		//also gefunden
+		
+		//NextID gibt die ID der nächsten URL-Datei an
 		$nextid = $file->read_kimb_id( $ok , 'nextid' );
+		//ein URL-Verzeichnis weiter gehen
 		$i++;
-		if( is_numeric( $nextid ) && $nextid != '' && $urlteile[$i] != '' ){
-			while( 5 == 5 ){
+		//wenn keine NextID, dann kein Untermenü, wenns weiter geht sollte
+		//das nächste URL-Verzeichnis existieren 
+		if( is_numeric( $nextid ) && !empty( $nextid ) && !empty( $urlteile[$i] ) ){
+			//weiter in einer Schleife auslesen
+			while( true ){
+				//URL-Datei mit entsprechender NextID öffnen
 				$file = new KIMBdbf('url/nextid_'.$nextid.'.kimb');
+				//nächstes URL-Verzeichnis suchen
 				$ok = $file->search_kimb_xxxid( $urlteile[$i] , 'path' );
 				if( $ok != false){
+					//gefunden!
+					
+					//NextID gibt die ID der nächsten URL-Datei an
 					$nextid = $file->read_kimb_id( $ok , 'nextid' );
+					//ein URL-Verzeichnis weiter gehen
 					$i++;
-					if( is_numeric( $nextid ) && $nextid != '' && $urlteile[$i] != '' ){
-						
+					//wenn keine NextID, dann kein Untermenü, wenns weiter geht sollte
+					//das nächste URL-Verzeichnis existieren 
+					if( is_numeric( $nextid ) && !empty( $nextid ) && !empty( $urlteile[$i] ) ){
+						//nichts tun, auf nächsten Durchlauf der Schleife warten
 					}
 					else{
+						//wohl kein Untermenü mehr, also RequestID bestimmen
 						$_GET['id'] = $file->read_kimb_id( $ok , 'requestid' );
-						if( $urlteile[$i] != '' ){
+						//noch ein weiteres URL-Verzeichnis?
+						if( !empty( $urlteile[$i] ) ){
+							//das darf nicht sein -> 404
+							
+							//Fehlermedlung und $allgerr für z.B. Add-ons und RequestID = 0 (nicht vergeben!)
 							$sitecontent->echo_error( 'Diese URL zeigt auf keine Seite!' , '404' );
 							$allgerr = '404';
 							$_GET['id'] = '0';
 						}
-						if( !is_numeric($_GET['id']) || $_GET['id'] == '' ){
+						//Ist die gelesene RequestID richtig?
+						if( !is_numeric($_GET['id']) || empty( $_GET['id'] ) ){
+							//wohl nicht
+							
+							//Fehlermedlung und $allgerr für z.B. Add-ons und RequestID = 0 (nicht vergeben!)
 							$sitecontent->echo_error( 'Fehlerhafte RequestURL !', '404' );
 							$allgerr = '404';
 							$_GET['id'] = '0';
 						}
+						//Schleife verlassen, alles fertig
 						break;
 					}
 				}
 				else{
+					//es existiert eine NextID, aber in der Datei fehlt das Verzeichnis
+					
+					//Fehlermedlung und $allgerr für z.B. Add-ons und RequestID = 0 (nicht vergeben!)
 					$sitecontent->echo_error( 'Diese URL zeigt auf keine Seite!' , '404' );
 					$allgerr = '404';
 					$_GET['id'] = '0';
+					//Schleife verlassen
 					break;
 				}
 			}		
 		}
 		else{
+			//keine NextID nach erstem Verzeichnis und auch keine restilichen URL-Verzeichnisse
+			
+			//RequestID bestimmen
 			$_GET['id'] = $file->read_kimb_id( $ok , 'requestid' );
-			if( $urlteile[$i] != '' ){
+			//noch ein weiteres URL-Verzeichnis?
+			if( !empty( $urlteile[$i] ) ){
+				//Fehlermedlung und $allgerr für z.B. Add-ons und RequestID = 0 (nicht vergeben!)
 				$sitecontent->echo_error( 'Diese URL zeigt auf keine Seite!' , '404' );
 				$allgerr = '404';
 				$_GET['id'] = '0';
 			}
-			if( !is_numeric($_GET['id']) || $_GET['id'] == '' ){
+			//Ist die gelesene RequestID richtig?
+			if( !is_numeric($_GET['id']) || empty( $_GET['id'] ) ){
+				//das kann hier bedeuten, dass die Startseite gesucht wird
+				//also RequestID = 1 (1 ist immer Startseite)
 				$_GET['id'] = '1';
 			}
 		}
 	}
+	//wird evtl. die Startseite gesucht (Aufruf der Seite /index.php)
 	elseif( $urlteile[$i] == 'index.php' ){
+		//also RequestID = 1 (1 ist immer Startseite)
 		$_GET['id'] = '1';
+		//der Aufruf findet hier nicht über URL-Rewriting statt! (wäre sonst /)
 		$idreq = true;
 	}
 	else{
+		//nichts passendes gefunden, also keine richtige URL
+		
+		//Fehlermedlung und $allgerr für z.B. Add-ons und RequestID = 0 (nicht vergeben!)
 		$sitecontent->echo_error( 'Diese URL zeigt auf keine Seite!' , '404' );
 		$allgerr = '404';
+		$_GET['id'] = '0';
 	}
 	
 }
+//Kein URL-Zugriff sondern Zugriff per ID
 elseif( isset($_GET['id']) ){
 	
+	//erstmal merken (findet hier nicht über URL-Rewriting)
 	$idreq = true;
 
-	// RequestID => weiter gehts ...
-
+	// RequestID ist ja schon gegeben, nichts zu tun
+	
+	//einmal testen ist angebracht, eine ID muss aus Zahlen bestehen!
 	if( !is_numeric($_GET['id']) ){
+		//eine ID aus etwas anderem als Zahlen -> Fehler
+		
+		//Fehlermedlung und $allgerr für z.B. Add-ons und RequestID = 0 (nicht vergeben!)
 		$sitecontent->echo_error( 'Fehlerhafte RequestID !' );
-		$allgerr = 'unknown';
-		$_GET['id'] = '1';
+		$allgerr = '404';
+		$_GET['id'] = '0';
 	}
 }
 else{
-
+	//keine ID gegeben und URL-Rewriting auch nicht, dann am besten auf die Startseite!
 	$_GET['id'] = '1'; // Startseite
 	
+	//der Aufruf findet hier nicht über URL-Rewriting statt! (wäre sonst /)
 	$idreq = true;
 
 }
 
+//weitere Anpassungen für mehrsprachige Seiten
 if( $allgsysconf['lang'] == 'on' ){
+	
+	//beim URL-Rewriting haben wir schon alles über die Sprachwahl herausgefunden,
+	//bei einem Aufruf über die ID fehlt dies noch
 	if( $idreq ){
+		//los gehts
 		
+		//Sprachdatei lesen
 		$langfile = new KIMBdbf( 'site/langfile.kimb' );
 		
+		//Beim ID-Zugriff wird die SprachID in der Session gespeichert, kann aber jederzeit
+		//per GET-Paramter &langid=00 geändert werden
+		
+		//kein GET-Paramter gegeben, aber Session gefüllt?
 		if( is_numeric( $_SESSION['lang']['id'] ) && !is_numeric( $_GET['langid'] ) ){
+			//Wert aus der Session nutzen
 			$_GET['langid'] = $_SESSION['lang']['id'];
 		}
 		
+		//IDs sollten Zahlen sein!
 		if( is_numeric( $_GET['langid'] ) ){
 			
+			//das Array $requestlang dient im weiteren Programmablauf dazu alles über die aktuell gewählte Sprache auffindbar zu machen
+			//und wird hier erstellt
 			$requestlang = $langfile->read_kimb_id( $_GET['langid'] );
-			$requestlang['id'] = $_GET['langid']; 
-			if( $requestlang['status'] == 'off' ){
+			//wenn Sprache vorhanden, dann ist es ein Array
+			if( is_array( $requestlang ) ) {
+				$requestlang['id'] = $_GET['langid'];
+				//nur aktivierte Sprachen verwenden!!
+				if( $requestlang['status'] == 'off' ){
+					//nicht aktiviert, also keine Sprache gesetzt
+					$nolangidset = true;
+				}
+			}
+			else{
+				//Sprache nicht vorhanden, also keine Sprache gesetzt
 				$nolangidset = true;
 			}
 		}
 		
+		//wenn keine Sprache gesetzt oder eine nicht nummerische ID
+		//Benutzer zu einer anderen Sprache umleiten
 		if( $nolangidset || !is_numeric( $_GET['langid'] ) ){
+			//Der Browser eines Benutzer gibt Sprachwünsche an, bei der Umleitung daran orientieren
 			$langs = explode( ',', $_SERVER['HTTP_ACCEPT_LANGUAGE']);
+			//es können mehrere Sprachen gewünscht werden (je früher genannt, desto lieber gesehen)
 			foreach($langs as $lang){
+				//durchgehen der Wünsche
+				
+				//Die Wünsche sehen teilweise so aus: en-US
+				//	daher nur die ersten zwei Zeichen für als Lang-Tag nutzen
 				$lang = substr($lang, 0, 2);
+				
+				//Ist die Standardsprache vielleicht vom Benutzer gewünscht? 
 				$langnull = $langfile->read_kimb_id( '0', 'tag' );
 				if( $langnull == $lang ){
+					//wenn ja, LangID = 0
 					$id = (int) '0';
+					//schon alles okay!
 					$okay = true;
 				}
 				else{
+					//Ist eine andere Sprache des CMS vom Benutzer gewünscht?
 					$id = $langfile->search_kimb_xxxid( $lang , 'tag' );
+					//nicht unbedingt okay, vielleicht nichts gefunden
 					$okay = false;					
 				}
 
+				//wurde eine passende Sprache gefunden oder ist es okay (Standardsprache)
 				if( $id != false || $okay ){ 
+					//die ID der jetzt gewählten Sprache herausfinden
 					$langarr = $langfile->read_kimb_id( $id );
+					//wenn Status an, dann umleiten und foreach verlassen
 					if( $langarr['status'] == 'on' ){
 						$langid = $id;
 						break;
@@ -368,37 +461,55 @@ if( $allgsysconf['lang'] == 'on' ){
 				}
 			}
 			
+			//wenn im foreach nichts gefunden, dann standardsprache
+			if( empty( $langid ) ){
+				$langid = '0';
+			}
+			
+			//User umleiten und beenden
 			open_url( '/index.php?id='.$_GET['id'].'&langid='.$langid );
 			
 			die;
 		}	
 		
+			//Erzeugung eines Array mit den allgemeinen Sprachdaten z.B. für das Theme
+			//	alle Sprachen durchgehen		
 			foreach( $langfile->read_kimb_all_teilpl( 'allidslist' ) as $id ){
+				//jede Sprache lesen
 				$vals = $langfile->read_kimb_id( $id );
+				//wenn aktiviert Sprache hinzufügen
+				//	Sprachwechsel URL anfügen
 				if( $vals['status'] == 'on' ){
 					$vals['thissite'] = $allgsysconf['siteurl'].'/index.php?id='.$_GET['id'].'&langid='.$id;
+					//Array für CMS/ Theme füllen
 					$allglangs[] = $vals;
 				}
 			}
 	}
 	
+	//die Sprache dem Browser per HTTP-Header mitteilen
 	header( 'Content-Language: '.$requestlang['tag'] );
-	
+	//Die Sprachdaten dem Theme mitteilen
 	$sitecontent->set_lang( $allglangs, $requestlang );
-	
+	//Sprachdaten in der Session speichern (auch bei URL-Rewriting, vielleicht wechselt User zu ID-Zugriff)
 	$_SESSION['lang'] = $requestlang;
 }
 
+//wenn kein Fehler 404, aus der RequestID die anderen IDs feststellen
 if( $allgerr != '404' ){
 	// get MenueID && get SiteID
 	
+	//Datei mit den IDs lesen
 	$idfile = new KIMBdbf('menue/allids.kimb');
 	
+	//SiteID lesen
 	$allgsiteid = $idfile->read_kimb_id($_GET['id'], 'siteid');
-	
+	//MenueID lesen
 	$allgmenueid = $idfile->read_kimb_id($_GET['id'], 'menueid');
 	
-	if( $allgsiteid == ''  || $allgmenueid == '' || $allgsiteid == false  || $allgmenueid == false ){
+	//alles okay bei der Bestimmung der IDs
+	if( empty( $allgsiteid )  || empty( $allgmenueid ) || !$allgsiteid || !$allgmenueid ){
+		//wenn nicht dann Fehler ausgeben
 		$sitecontent->echo_error( 'Fehlerhafte RequestID Zuordnung!' , '404' );
 		$allgerr = '404';
 	}
@@ -406,6 +517,9 @@ if( $allgerr != '404' ){
 	//Weitergabe von $allgsiteid, $allgmenueid, $allgerr
 }
 else{
+	//schon ein Fehler gewesen!
+	
+	//alle IDs auf 0 setzen
 	$allgsiteid = 0;
 	$allgmenueid = 0;
 	$_GET['id'] = '0';

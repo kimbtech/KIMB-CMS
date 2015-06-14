@@ -46,7 +46,7 @@ class BEsites{
 			$sitecontent = $this->sitecontent;
 		
 			$i=1;
-			while( 5 == 5 ){
+			while( true ){
 				if( !check_for_kimb_file( '/site/site_'.$i.'.kimb') && !check_for_kimb_file( '/site/site_'.$i.'_deak.kimb') ){
 					break;
 				}
