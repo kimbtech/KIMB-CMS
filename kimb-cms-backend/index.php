@@ -30,6 +30,14 @@ require_once(__DIR__.'/../core/conf/conf_backend.php');
 
 //BE-Login
 
+$htmlcode_drin = '<h2>Willkommen!</h2>';
+$htmlcode_drin .= 'Hallo '.$_SESSION['name'].',<br />Sie können jetzt Ihre Homepage bearbeiten!';
+$htmlcode_drin .= '<br /><br />';
+$htmlcode_drin .= '<a id="startbox-x" href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php"><span id="startbox"><b>Seiten</b><br /><span class="ui-icon ui-icon-document"></span><br /><i>Seiten erstellen, löschen, bearbeiten</i></span></a>';
+$htmlcode_drin .= '<a id="startbox-x" href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php"><span id="startbox"><b>Menue</b><br /><span class="ui-icon ui-icon-newwin"></span><br /><i>Menüs erstellen, löschen, bearbeiten</i></span></a>';
+$htmlcode_drin .= '<a id="startbox-x" href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/user.php"><span id="startbox"><b>User</b><br /><span class="ui-icon ui-icon-person"></span><br /><i>Backenduser erstellen, löschen, bearbeiten</i></span></a>';
+$htmlcode_drin .= '<a id="startbox-x" href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/syseinst.php"><span id="startbox"><b>Konfiguration</b><br /><span class="ui-icon ui-icon-gear"></span><br /><i>Systemkonfiguration anpassen</i></span></a>';
+
 if($_GET['todo'] == 'logout'){
 
 	$loginfehler = $_SESSION["loginfehler"];
@@ -62,8 +70,7 @@ if( !empty( $_POST['user'] ) && !empty( $_POST['pass'] ) ){
 		if( $passhash == $passpruef ){
 			//eingeloggt
 			$sitecontent->echo_message('Sie wurden eingeloggt!');
-			$sitecontent->add_site_content('<h2>Willkommen!</h2>');
-			$sitecontent->add_site_content('Hallo '.$_SESSION['name'].',<br />Sie können jetzt Ihre Homepage bearbeiten!');
+			$sitecontent->add_site_content($htmlcode_drin);
 
 			$_SESSION['loginokay'] = $allgsysconf['loginokay'];
 			$_SESSION['name'] = $userfile->read_kimb_id( $userda , 'name' );
@@ -89,8 +96,7 @@ elseif( ( empty( $_POST['user'] ) || empty( $_POST['pass'] ) ) && ( isset( $_POS
 } 
 elseif( $_SESSION['loginokay'] == $allgsysconf['loginokay'] ){
 	$sitecontent->echo_message('Sie sind eingeloggt!');
-	$sitecontent->add_site_content('<h2>Willkommen!</h2>');
-	$sitecontent->add_site_content('Hallo '.$_SESSION['name'].',<br />Sie können jetzt Ihre Homepage bearbeiten!');
+	$sitecontent->add_site_content($htmlcode_drin);
 }
 if( $_SESSION['loginokay'] != $allgsysconf['loginokay'] ){
 	$loginsalt = makepassw( 50, '', 'numaz' );

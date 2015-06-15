@@ -87,7 +87,7 @@ h2 {
 }
 
 #startbox{
-	display:inline-block;
+	display:block;
 	height:100px;
 	background-color:#cccccc;
 	border:2px solid #000000;
@@ -95,10 +95,17 @@ h2 {
 	border-radius:3px;
 	text-decoration:none;
 	color:#000000;
+	padding:5px;
+	margin:10px;
 }
 
-#startbox span{
+#startbox .ui-icon{
 	margin:auto;
+}
+
+#startbox-x{
+	display: inline-block;
+	width: 300px;
 }
 
 input[readonly=readonly]{

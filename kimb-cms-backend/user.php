@@ -62,8 +62,8 @@ else{
 
 	$sitecontent->add_site_content('<h2>User</h2>');
 
-	$sitecontent->add_site_content('<span id="startbox"><b><a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/user.php?todo=new">Erstellen</b><br /><span class="ui-icon ui-icon-plusthick"></span><br /><i>Einen neuen User erstellen.</i></span></a>');
-	$sitecontent->add_site_content('<span id="startbox"><b><a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/user.php?todo=list">Auflisten</b><br /><span class="ui-icon ui-icon-calculator"></span><br /><i>Alle User zum Bearbeiten und Löschen auflisten.</i></span></a>');
+	$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/user.php?todo=new"><span id="startbox"><b>Erstellen</b><br /><span class="ui-icon ui-icon-plusthick"></span><br /><i>Einen neuen User erstellen.</i></span></a>');
+	$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/user.php?todo=list"><span id="startbox"><b>Auflisten</b><br /><span class="ui-icon ui-icon-calculator"></span><br /><i>Alle User zum Bearbeiten und Löschen auflisten.</i></span></a>');
 
 	$sitecontent->add_site_content('<hr /><u>Schnellzugriffe:</u><br /><br />');
 	$sitecontent->add_site_content('<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/user.php" method="get"><input type="text" name="user" placeholder="Username"><input type="hidden" value="edit" name="todo"><input type="submit" value="Los"> <span title="Geben Sie Usernamen ein und bearbeiten Sie ihn sofort!">User bearbeiten</span></form>');

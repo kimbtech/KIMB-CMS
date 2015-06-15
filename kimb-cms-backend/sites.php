@@ -79,9 +79,9 @@ else{
 	check_backend_login('one');
 
 	$sitecontent->add_site_content('<h2>Seiten</h2>');
-
-	$sitecontent->add_site_content('<span id="startbox"><b><a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=new">Erstellen</b><br /><span class="ui-icon ui-icon-plusthick"></span><br /><i>Eine neue Seite erstellen.</i></span></a>');
-	$sitecontent->add_site_content('<span id="startbox"><b><a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=list">Auflisten</b><br /><span class="ui-icon ui-icon-calculator"></span><br /><i>Alle Seiten zum Bearbeiten, De-, Aktivieren und Löschen auflisten.</i></span></a>');
+	
+	$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=new"><span id="startbox" class="kompl"><b>Erstellen</b><br /><span class="ui-icon ui-icon-plusthick"></span><br /><i>Eine neue Seite erstellen.</i></span></a>');
+	$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=list"><span id="startbox" class="kompl" ><b>Auflisten</b><br /><span class="ui-icon ui-icon-calculator"></span><br /><i>Alle Seiten zum Bearbeiten, De-, Aktivieren und Löschen auflisten.</i></span></a>');
 
 	$sitecontent->add_site_content('<hr /><u>Schnellzugriffe:</u><br /><br />');
 	$sitecontent->add_site_content('<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php" method="get"><input type="text" name="id" placeholder="ID"><input type="hidden" value="edit" name="todo"><input type="submit" value="Los"> <span title="Geben Sie die SeitenID ein und bearbeiten Sie sofort die Inhalte!">(Seite bearbeiten)</span></form>');
