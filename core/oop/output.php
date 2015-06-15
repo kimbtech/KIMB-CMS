@@ -214,6 +214,16 @@ class system_output{
 
 		//JavaScript dem Header anfügen
 		$this->header = $add.$this->header;
+		
+		//den URL-Placeholder duch die aktuelle URL ersetzen
+		$this->header = str_replace( '<!--SYS-SITEURL-->', $this->allgsysconf['siteurl'], $this->header );
+		$this->footer = str_replace( '<!--SYS-SITEURL-->', $this->allgsysconf['siteurl'], $this->footer );
+		$this->sitecontent = str_replace( '<!--SYS-SITEURL-->', $this->allgsysconf['siteurl'], $this->sitecontent );
+		$this->addon = str_replace( '<!--SYS-SITEURL-->', $this->allgsysconf['siteurl'], $this->addon );
+		//	auch bei den Sprachflaggen
+		foreach( $this->allglangs as $key => $value ){
+			$this->allglangs[$key]['flag'] = str_replace( '<!--SYS-SITEURL-->', $this->allgsysconf['siteurl'], $value['flag'] );
+		}
 
 		//alles dem Theme übergeben
 		//	wenn Theme nicht gefunden Fallback auf Standard

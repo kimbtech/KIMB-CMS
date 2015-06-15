@@ -85,6 +85,11 @@ class backend_output{
 
 	//gesamte Seite ausgeben
 	public function output_complete_site(){
+		
+		//den URL-Placeholder duch die aktuelle URL ersetzen
+		$this->header = str_replace( '<!--SYS-SITEURL-->', $this->allgsysconf['siteurl'], $this->header );
+		$this->sitecontent = str_replace( '<!--SYS-SITEURL-->', $this->allgsysconf['siteurl'], $this->sitecontent );
+		
 		//HTML Code
 		echo('<!DOCTYPE html> <html> <head>'."\r\n");
 		//HTML Header

@@ -146,6 +146,10 @@ class BEsyseinst{
 		$dos = array( 'footer' => 'footer', 'error-404' => 'err404', 'error-403' => 'err403' );
 		
 		foreach( $dos as $key => $val ){
+			
+			//den URL-Placeholder einsetzen
+			$POST[$val] = str_replace( $allgsysconf['siteurl'],  '<!--SYS-SITEURL-->', $POST[$val] );
+			
 			if( $sonder->read_kimb_one( $key ) != $POST[$val] ){
 				if( $sonder->write_kimb_replace( $key , $POST[$val] ) ){
 					$sitecontent->echo_message( 'Der "'.$key.'" wurde geändert!' );

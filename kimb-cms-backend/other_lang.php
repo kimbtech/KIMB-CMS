@@ -58,10 +58,10 @@ if( isset( $_GET['do'] ) && $allgsysconf['lang'] == 'on' ){
 		}
 		if( $vals['flag'] != $allgsysconf['siteurl'].'/load/system/flags/'.$_POST['stdtag'].'.gif' ){
 			if( is_file( __DIR__.'/../load/system/flags/'.$_POST['stdtag'].'.gif' ) ){
-				$langfile->write_kimb_id( '0', 'add', 'flag', $allgsysconf['siteurl'].'/load/system/flags/'.$_POST['stdtag'].'.gif' );
+				$langfile->write_kimb_id( '0', 'add', 'flag', '<!--SYS-SITEURL-->/load/system/flags/'.$_POST['stdtag'].'.gif' );
 			}
 			else{
-				$langfile->write_kimb_id( '0', 'add', 'flag', $allgsysconf['siteurl'].'/load/system/flags/new.gif' );			
+				$langfile->write_kimb_id( '0', 'add', 'flag', '<!--SYS-SITEURL-->/load/system/flags/new.gif' );			
 			}
 			$ch = true;
 		}
@@ -80,10 +80,10 @@ if( isset( $_GET['do'] ) && $allgsysconf['lang'] == 'on' ){
 			$langfile->write_kimb_id( $id, 'add', 'status', 'on' );
 			$langfile->write_kimb_id( $id, 'add', 'name', $_POST['newlangname'] );
 			if( is_file( __DIR__.'/../load/system/flags/'.$_POST['newtag'].'.gif' ) ){
-				$langfile->write_kimb_id( $id, 'add', 'flag', $allgsysconf['siteurl'].'/load/system/flags/'.$_POST['newtag'].'.gif' );
+				$langfile->write_kimb_id( $id, 'add', 'flag', '<!--SYS-SITEURL-->/load/system/flags/'.$_POST['newtag'].'.gif' );
 			}
 			else{
-				$langfile->write_kimb_id( $id, 'add', 'flag', $allgsysconf['siteurl'].'/load/system/flags/new.gif' );			
+				$langfile->write_kimb_id( $id, 'add', 'flag', '<!--SYS-SITEURL-->/load/system/flags/new.gif' );			
 			}
 			
 			$sitecontent->echo_message( 'Eine neue Sprache wurde hinzugefügt!' );

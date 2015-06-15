@@ -44,6 +44,11 @@ class BEsites{
 	public function make_site_new_dbf( $POST ){
 			$allgsysconf = $this->allgsysconf;
 			$sitecontent = $this->sitecontent;
+			
+			//den URL-Placeholder einsetzen
+			$POST['inhalt'] = str_replace( $allgsysconf['siteurl'],  '<!--SYS-SITEURL-->', $POST['inhalt'] );
+			$POST['footer'] = str_replace( $allgsysconf['siteurl'],  '<!--SYS-SITEURL-->', $POST['footer'] );
+			$POST['header'] = str_replace( $allgsysconf['siteurl'],  '<!--SYS-SITEURL-->', $POST['header'] );
 		
 			$i=1;
 			while( true ){
@@ -301,6 +306,11 @@ class BEsites{
 		add_tiny( true, true);
 	
 		if( isset( $_POST['title'] ) || isset( $_POST['inhalt'] ) ){
+			
+			//den URL-Placeholder einsetzen
+			$_POST['inhalt'] = str_replace( $allgsysconf['siteurl'],  '<!--SYS-SITEURL-->', $_POST['inhalt'] );
+			$_POST['footer'] = str_replace( $allgsysconf['siteurl'],  '<!--SYS-SITEURL-->', $_POST['footer'] );
+			$_POST['header'] = str_replace( $allgsysconf['siteurl'],  '<!--SYS-SITEURL-->', $_POST['header'] );
 	
 			$sitef->write_kimb_replace( $dbftag['title'] , $_POST['title'] );
 			$sitef->write_kimb_replace( 'header' , $_POST['header'] );

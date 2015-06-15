@@ -803,7 +803,8 @@ function add_tiny( $big = false, $small = false, $ids = array( 'big' => '#inhalt
 			autosave_interval: "20s",
 			autosave_restore_when_empty: true,
 			autosave_retention: "60m",
-			menubar: "file edit insert view format table"
+			menubar: "file edit insert view format table",
+			convert_urls: false
 		});
 		tiny[\''.substr( $ids['big'], 1 ).'\'] = true;
 		');
@@ -839,7 +840,8 @@ function add_tiny( $big = false, $small = false, $ids = array( 'big' => '#inhalt
 			autosave_retention: "60m",
 			image_list: function( success ) {
 				success( [ '.listdirrec( __DIR__.'/../../load/userdata', '/load/userdata' ).' ] );
-			}
+			},
+			convert_urls: false
 		});
 		tiny[\''.substr( $ids['small'], 1 ).'\'] = true;
 		');

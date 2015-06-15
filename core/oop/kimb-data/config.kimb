@@ -20,4 +20,4 @@
 <[001-urlrewrite]>on<[001-urlrewrite]>
 <[001-cronkey]>testtest<[001-cronkey]>
 <[001-lang]>on<[001-lang]>
-<[001-coolifetime]>1200<[001-coolifetime]>
+<[001-coolifetime]>0<[001-coolifetime]>
