@@ -23,13 +23,18 @@
 //http://www.gnu.org/licenses/gpl-3.0.txt
 /*************************************************/
 
-
-
 defined('KIMB_CMS') or die('No clean Request');
+
+//Diese Datei beherbergt die Backend Klasse für alle Backend JavaScript Codes.
+//Die Methoden werden von den anderen Backend Klassen aufgerufen.
+
+//Die Dialoge basieren auf jQuery-UI $.dialog();
 
 class JSforBE{
 	
+	//Klasse init.
 	protected $allgsysconf, $sitecontent, $idfile, $menuenames;
+	//nicht zu vergebende Menüpfade
 	protected $nomenuepaths = 'var array = [ "ajax.php", "cron.php", "configurator.php", "index.php", "LICENSE.txt", "readme", "robots.txt","core","kimb-cms-backend", "load" ];';
 	
 	public function __construct( $allgsysconf, $sitecontent ){
@@ -37,10 +42,13 @@ class JSforBE{
 		$this->sitecontent = $sitecontent;
 	}
 	
+	//Menü neu erstellen
 	public function for_menue_new(){
 		$allgsysconf = $this->allgsysconf;
 		$sitecontent = $this->sitecontent;
 
+		//Überprüfung des Pfades auf nicht zu vergebenden Pfade
+		//Generierung eines Pfades aus dem eingegebenen Namen des Menüs
 		$sitecontent->add_html_header('<script>
 		$(function() {
 			$("i#pfad").css( "background-color", "gray" );
@@ -91,10 +99,14 @@ class JSforBE{
 		</script>');
 	}
 	
+	//Menüs auflisten
 	public function for_menue_list() {
 		$allgsysconf = $this->allgsysconf;
 		$sitecontent = $this->sitecontent;
 	
+		//Ausführung des Löschvorgangs mit Abfragedialog
+		//Abbruch des Löschvorgangs mit Hinweis bei vorhandenem Untermenü
+		//verschieben des Menüs nach oben oder unten per AJAX und reload oder Fehlerdialog
 		$sitecontent->add_html_header('<script>
 		var del = function( fileid , requid , fileidbefore) {
 			$( "#del-confirm" ).show( "fast" );
@@ -152,16 +164,20 @@ class JSforBE{
 		}
 		</script>');
 		
+		//Inhalte der Dialoge
 		$sitecontent->add_site_content('<div style="display:none;"><div id="del-confirm" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Möchten Sie das Menue wirklich löschen?</p></div></div>');
 		$sitecontent->add_site_content('<div style="display:none;"><div id="del-untermenue" title="Löschen nicht möglich!"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Das Menue kann erst gelöscht werden, wenn es keine Untermenues mehr hat!</p></div></div>');
 		$sitecontent->add_site_content('<div style="display:none;"><div id="updown" title="Fehler beim Verschieben!"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 100px 0;"></span>Achtung, Menues können nur innerhalb ihres Niveaus verschoben werden!<br /><br />Auch ein Verschieben auf einen höheren Platz als den Ersten oder einen tieferen als den Letzten ist nicht möglich!</p></div></div>');
 	
 	}
 	
+	//Menü berabeiten
 	public function for_menue_edit( $file ){
 		$allgsysconf = $this->allgsysconf;
 		$sitecontent = $this->sitecontent;
 		
+				//Überprüfung des Pfades auf nicht zu vergebende Pfade und schon vergebene Pfade (AJAX)
+				//Hinweis auf Gültigkeit des Pfades geben
 				$sitecontent->add_html_header('<script>
 				$(function() {
 					$("i#pfadtext").text("(Menuepfad -- OK)");
@@ -212,9 +228,12 @@ class JSforBE{
 				</script>');
 	}
 	
+	//Seite neu erstellen
 	public function for_site_new( $selectmen, $selectunte, $achtung ){
 		$sitecontent = $this->sitecontent;
 		
+		//Code für EasyMenü
+		//Auswahl für Menü/Untermenü einblenden
 		$sitecontent->add_html_header('<script>
 			$(function() { 
 				$( "ul#easymenue li" ).button();
@@ -229,7 +248,8 @@ class JSforBE{
 				return false;
 			}
 		</script>');
-			
+		
+		//HTML Code für EasyMenü
 		$sitecontent->add_site_content('
 			<h4>Easy Menue</h4>
 			<ul id="easymenue">
@@ -248,10 +268,13 @@ class JSforBE{
 		 <h4>Seitenerstellung</h4>');
 	}
 	
+	//Seiten auflisten
 	public function for_site_list(){
 		$allgsysconf = $this->allgsysconf;
 		$sitecontent = $this->sitecontent;
 		
+		//Dialog mit Löschabfrage
+		//'Suche'
 		$sitecontent->add_html_header('<script>
 		var del = function( id ) {
 			$( "#del-confirm" ).show( "fast" );
@@ -277,14 +300,18 @@ class JSforBE{
 			window.location = "'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=list#" + search;
 		}
 		</script>');
-	
+
+		//Dialoginhalt
 		$sitecontent->add_site_content('<div style="display:none;"><div id="del-confirm" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Möchten Sie die Seite wirklich löschen?</p></div></div>');
 	}
 	
+	//Seite berabeiten
 	public function for_site_edit(){
 		$allgsysconf = $this->allgsysconf;
 		$sitecontent = $this->sitecontent;
 		
+		//Dialog mit Löschabfrage
+		//Hinzufügen von JavaScript Header Platzhaltern
 		$sitecontent->add_html_header('<script>
 		var del = function( id ) {
 			$( "#del-confirm" ).show( "fast" );
@@ -322,13 +349,19 @@ class JSforBE{
 		});
 		</script>');
 		
+		//Dialoginhalt
 		$sitecontent->add_site_content('<div style="display:none;"><div id="del-confirm" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Möchten Sie die Seite wirklich löschen?</p></div></div>');
 	}
 	
+	//User erstellen Passwortindikator (Stärkebalken)
 	protected function for_user_new_edit_passwind(){
 		$allgsysconf = $this->allgsysconf;
 		$sitecontent = $this->sitecontent;
 		
+		//Design
+		//Hinzufügen des Balkens und setzen des Wertes
+		//Errechnen des Wertes und anpassen des Balkens
+		//Entfernen des Balkens
 		$sitecontent->add_html_header('
 		<style>
 		#passbar{
@@ -423,12 +456,19 @@ class JSforBE{
 		</script>');
 	}
 	
+	//User erstellen
 	public function for_user_new(){
 		$allgsysconf = $this->allgsysconf;
 		$sitecontent = $this->sitecontent;
 		
+		//Passwortindikator
 		$this->for_user_new_edit_passwind();
 		
+		//Überprüfung des Usernamens (AJAX)
+		//Passwörter vergleichen
+		//E-Mail überprüfen
+		//Alles vorm Submit prüfen, Passwort Hash
+		//Hinweis auf Status des Usernamen 
 		$sitecontent->add_html_header('<script>
 		function checkuser(){
 			var userinput = $( "input#user" ).val();
@@ -545,12 +585,17 @@ class JSforBE{
 		</script>');
 	}
 	
+	//User bearbeiten
 	public function for_user_edit( $user ){
 		$allgsysconf = $this->allgsysconf;
 		$sitecontent = $this->sitecontent;
 		
+		//Passwortindikator
 		$this->for_user_new_edit_passwind();
 		
+		//Dialog mit Löschabfrage
+		//Passwörter überprüfen
+		//Alles vorm Submit prüfen, Passwort Hash
 		$sitecontent->add_html_header('<script>
 			function deluser() {
 				$( "#del-confirm" ).show( "fast" );
@@ -613,13 +658,16 @@ class JSforBE{
 			}	
 			</script>');
 			
+			//Dialoginhalt
 			$sitecontent->add_site_content('<div style="display:none;"><div id="del-confirm" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 40px 0;"></span>Möchten Sie den User "'.$user.'" wirklich löschen?<br /><b>Sollten Sie alle User löschen verliehren Sie den Systemzugriff!</b></p></div></div>');
 	}
 	
+	//Konfiguration
 	public function for_syseinst_all(){
 		$allgsysconf = $this->allgsysconf;
 		$sitecontent = $this->sitecontent;
 		
+		//Dialog zum löschen von Inhalten
 		$sitecontent->add_html_header('<script>
 		var del = function( teil ) {
 			$( "#del-confirm" ).show( "fast" );
@@ -642,13 +690,16 @@ class JSforBE{
 		}
 		</script>');
 		
+		//Dialoginhalt
 		$sitecontent->add_site_content('<div style="display:none;"><div id="del-confirm" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 50px 0;"></span>Möchten Sie den Wert wirklich löschen?<br />Tun Sie dies nur wenn Sie genau wissen was Sie tun!!</p></div></div>');
 	}
 	
+	//Add-ons Installieren
 	public function for_addon_inst(){
 		$allgsysconf = $this->allgsysconf;
 		$sitecontent = $this->sitecontent;
 		
+		//Dialog zum Löschen
 		$sitecontent->add_html_header('<script>
 		var del = function( addon ) {
 			$( "#del-confirm" ).show( "fast" );
@@ -671,6 +722,7 @@ class JSforBE{
 		}
 		</script>');
 		
+		//Dialoginhalt
 		$sitecontent->add_site_content('<div style="display:none;"><div id="del-confirm" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Möchten Sie dieses Addon wirklich löschen?</p></div></div>');	
 	}
 }
