@@ -23,12 +23,13 @@
 //http://www.gnu.org/licenses/gpl-3.0.txt
 /*************************************************/
 
-
+//Diese Datei beherbergt die Backend Klasse für die Seitenerstellung.
 
 defined('KIMB_CMS') or die('No clean Request');
 
 class BEsites{
 	
+	//Klasse init.
 	protected $allgsysconf, $sitecontent;
 	
 	public function __construct( $allgsysconf, $sitecontent, $tabelle = true ){
@@ -41,6 +42,7 @@ class BEsites{
 		}
 	}
 	
+	//Seite neu erstellen
 	public function make_site_new_dbf( $POST ){
 			$allgsysconf = $this->allgsysconf;
 			$sitecontent = $this->sitecontent;
@@ -50,6 +52,7 @@ class BEsites{
 			$POST['footer'] = str_replace( $allgsysconf['siteurl'],  '<!--SYS-SITEURL-->', $POST['footer'] );
 			$POST['header'] = str_replace( $allgsysconf['siteurl'],  '<!--SYS-SITEURL-->', $POST['header'] );
 		
+			//nach einer leeren Seitendatei/ID suchen
 			$i=1;
 			while( true ){
 				if( !check_for_kimb_file( '/site/site_'.$i.'.kimb') && !check_for_kimb_file( '/site/site_'.$i.'_deak.kimb') ){
@@ -58,8 +61,10 @@ class BEsites{
 				$i++;
 			}
 	
+			//Seitendatei erstellen
 			$sitef = new KIMBdbf( '/site/site_'.$i.'.kimb' );
 	
+			//übergebene Inhalte eintragen
 			$sitef->write_kimb_new( 'title' , $POST['title'] );
 			$sitef->write_kimb_new( 'header' , $POST['header'] );
 			$sitef->write_kimb_new( 'keywords' , $POST['keywords'] );
@@ -72,12 +77,16 @@ class BEsites{
 			//Easy Menue
 			$easyfile = new KIMBdbf( 'backend/easy_menue.kimb' );
 			
+			//überhaupt aktiviert?
 			if( $easyfile->read_kimb_one( 'oo' ) == 'on'  ){
+				//vom User gewünscht
 				if( $POST['menue'] != 'none' ||  $POST['untermenue'] != 'none' ){
 					
 					//Daten testen
 					if(  $POST['menue'] != 'none' ){
+						//valide?
 						if(  $POST['menue'] == 'first' || is_numeric( $POST['menue'] )  ){
+							//erlaubt?
 							if( $easyfile->read_kimb_search_teilpl( 'same' , $POST['menue'] )  ){
 								$tested = true;
 								$file = $POST['menue'];	
@@ -86,7 +95,9 @@ class BEsites{
 					}
 					elseif( $POST['untermenue'] != 'none' ){
 						$array = explode( '||', $POST['untermenue'] );
+						//valide?
 						if( is_numeric( $array[0] ) && ( $array[1] == 'first' || is_numeric( $array[1] ) ) ){
+							//erlaubt?
 							if( $easyfile->read_kimb_search_teilpl( 'deeper' , $POST['untermenue'] )  ){
 								$tested = true;
 								$requid = $array[0];
@@ -97,7 +108,8 @@ class BEsites{
 					
 					//Menue machen
 					if( $tested ){
-											
+						
+						//alle Date sammeln/ vorbereiten				
 						$GET['file'] = $file;
 						if(  $POST['menue'] != 'none' ){
 							$GET['niveau'] = 'same';
@@ -110,11 +122,12 @@ class BEsites{
 						$POST['siteid'] = $i;
 						$status = $easyfile->read_kimb_one( 'stat' );
 						
+						//mit der Backend Menü Klasse Menü erstellen
 						$bemenue = new BEmenue( $allgsysconf, $sitecontent );
 						
 						$return = $bemenue->make_menue_new_dbf( $GET, $POST, $status );
 						
-						//Untermenu nur einmal, dann als Menü
+						//Untermenu nur einmal, dann als Menü bei Easy Menü
 						if( $POST['untermenue'] != 'none' ){
 							$easyfile->write_kimb_teilpl( 'deeper' , $POST['untermenue'], 'del');
 							
@@ -123,81 +136,102 @@ class BEsites{
 					}
 				}
 			}
-			
+			//okay, SiteID zurück
 			return $i;	
 	}
 	
-	
+	//Seite neu erstellen, HTML
 	public function make_site_new(){
 		$allgsysconf = $this->allgsysconf;
 		$sitecontent = $this->sitecontent;
 		
 		$sitecontent->add_site_content('<h2>Neue Seite</h2>');
 	
+		//TinyMCE
 		add_tiny( true, true);
 	
+		//Daten übergaben
 		if( isset( $_POST['title'] ) || isset( $_POST['inhalt'] ) ){
 			
+			//Seite erstellen
 			$i = $this->make_site_new_dbf( $_POST );
 			
+			//Seite bearbeiten öffnen
 			open_url('/kimb-cms-backend/sites.php?todo=edit&id='.$i);
 			die;
 		}
 	
 		//Easy Menue
-		
+		//Datei lesen
 		$easyfile = new KIMBdbf( 'backend/easy_menue.kimb' );
 		
 		$sitecontent->add_site_content('<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=new" method="post"><br />');
 		
+		//Easy Menue aktiviert
 		if( $easyfile->read_kimb_one( 'oo' ) == 'on'  ){
 		
+			//Menüarray machen
 			$menuearray =  make_menue_array_helper();
 		
+			//Dropdowns starten
 			$selectmen = '<select name="menue"> <option value="none" selected="selected"></option>';
 			$selectunte .= '<select name="untermenue"> <option value="none" selected="selected"></option>';
 		
+			//alle Menüpunkte durchgehen
 			foreach( $menuearray as $menue ){
 				
+				//Untermenü möglich?
 				if( empty( $menue['nextid'] ) ){
 					$deeper = $menue['requid'].'||'.$menue['fileid'];
 					
+					//erlaubt?
 					if( $easyfile->read_kimb_search_teilpl( 'deeper' , $deeper )  ){
+						//wenn ja, dann gleich ins Dropdown
 						$selectunte .= '<option value="'.$deeper.'">'.$menue['menuname'].'</option>';
 						$done['deeper'] = true;
 					}
 				}
+				//URL-Datei das erste mal?
 				if( !in_array( $menue['fileid'], $filearr ) ){
 					$same = $menue['fileid'];
 					
-					if( $easyfile->read_kimb_search_teilpl( 'same' , $same)  ){			
+					//Menü erlaubt?
+					if( $easyfile->read_kimb_search_teilpl( 'same' , $same)  ){	
+						//wenn ja, dann gleich ins Dropdown	
 						$selectmen .= '<option value="'.$same.'">'.$menue['menuname'].'</option>';
 						$done['same'] = true;
 					}
 				}
+				//alle schon gemachten Dateien speichern
 				$filearr[] = $menue['fileid'];
 				
 			}
 			
+			//Dropdowns beenden
 			$selectmen .= '</select>';
 			$selectunte .= '</select>';
 			
+			//Keine Elemente in den Dropdowns?
 			if( !$done['deeper'] ){
+				//Fehlermeldung
 				$selectunte = '<b>Keine Freigaben</b>';
 			}
 			if( !$done['same'] ){
+				//Fehlermeldung
 				$selectmen = '<b>Keine Freigaben</b>';
 			}
 			
+			//Hinweise
 			$achtung = '<br />Der Pfad und der Name des Menüs werden auf Basis des Seitentitels erstellt!';
 			if( $easyfile->read_kimb_one( 'stat' ) == 'off' ){
 				$achtung .= '<br /><i>Achtung, nach der Erstellung muss das neue Menü noch aktiviert werden!</i>!';
 			}
 			
+			//JavaScript für EasyMenue
 			$this->jsobject->for_site_new( $selectmen, $selectunte, $achtung );
 		}
 		
-		//Seitenerstellung
+		//Seitenerstellung Formular
 		$sitecontent->add_site_content('<input type="text" value="Titel" name="title" style="width:74%;"> <i>Seitentitel</i><br />');
 		$sitecontent->add_site_content('<textarea name="header" style="width:74%; height:50px;"></textarea><i>HTML Header </i><br />');
 		$sitecontent->add_site_content('<input type="text" name="keywords" style="width:74%;"> <i>Keywords</i><br />');
@@ -208,34 +242,47 @@ class BEsites{
 
 	}
 	
+	//Seiten auflisten
 	public function make_site_list(){
 		$allgsysconf = $this->allgsysconf;
 		$sitecontent = $this->sitecontent;
 		
 		$sitecontent->add_site_content('<h2>Liste aller Seiten</h2>');
 		
+		//JavaScript
 		$this->jsobject->for_site_list();
 		
+		//alle Seiten lesen
 		$sites = scan_kimb_dir('site/');
 
+		//Tabelle und Link zum Seite erstellen; Suchbox
 		$sitecontent->add_site_content('<span><a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=new"><span class="ui-icon ui-icon-plus" style="display:inline-block;" title="Eine neue Seite erstellen."></span></a>');
 		$sitecontent->add_site_content('<input type="text" class="search" onkeydown="if(event.keyCode == 13){ search(); }" ><button onclick="search();" title="Nach Seitenamen suchen ( genauer Seitenname nötig ).">Suchen</button></span><hr />');
 		$sitecontent->add_site_content('<table width="100%"><tr><th width="40px;" >ID</th><th>Name</th><th width="20px;">Status</th><th width="20px;">Löschen</th></tr>');
 	
+		//IDfile lesen
 		$idfile = new KIMBdbf('menue/allids.kimb');
 	
+		//alle Seiten durchgehen
 		foreach ( $sites as $site ){
+			//nicht die Sprachdatei?
 			if( $site != 'langfile.kimb'){
+				//Seitendatei lesen
 				$sitef = new KIMBdbf('site/'.$site);
+				//SeitenID herausfinden
 				$id = preg_replace("/[^0-9]/","", $site);
+				//Seitentitel
 				$title = $sitef->read_kimb_one('title');
+				//Link zum Seite bearbeiten
 				$name = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=edit&amp;id='.$id.'" title="Seite bearbeiten.">'.$title.'</a>';
+				//Seiten Status anzeigen -> Link zum ändern
 				if ( strpos( $site , 'deak' ) !== false ){
 					$status = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=deakch&amp;id='.$id.'"><span class="ui-icon ui-icon-close" title="Diese Seite ist zu Zeit deaktiviert, also nicht auffindbar. ( click -> ändern )"></span></a>';
 				}
 				else{
 					$status = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=deakch&amp;id='.$id.'"><span class="ui-icon ui-icon-check" title="Diese Seite ist zu Zeit aktiviert, also sichtbar. ( click -> ändern )"></span></a>';
 				}
+				//
 				$del = '<span onclick="var delet = del( '.$id.' ); delet();"><span class="ui-icon ui-icon-trash" title="Diese Seite löschen."></span></span>';
 				$zugeor = $idfile->search_kimb_xxxid( $id , 'siteid' );
 				if( $zugeor == false ){
