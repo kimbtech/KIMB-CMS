@@ -102,7 +102,7 @@ class BEaddinst{
 			//die API will eine mit Komma getrennt Liste aller NameIDs der Add-ons und gibt einen JSON-String zurück	
 			$querypar = implode( ',' , $addons );
 			//Abfrage und JSON -> Array
-			$addwert = json_decode( file_get_contents( 'http://api.kimb-technologies.eu/cms/addon/getcurrentversion.php?addon='.$querypar ) , true );
+			$addwert = json_decode( file_get_contents( 'https://api.kimb-technologies.eu/cms/addon/getcurrentversion.php?addon='.$querypar ) , true );
 	
 			//JSON-Array duchgehen
 			foreach( $addwert as $ver ){

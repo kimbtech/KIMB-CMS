@@ -430,6 +430,7 @@ class BEsites{
 		$sitecontent->add_site_content('<textarea name="footer" id="footer" style="width:99%; height:75px;">'.$seite['footer'].'</textarea> <i>Footer &uarr;</i> <button onclick="tinychange( \'footer\' ); return false;">Editor I/O</button> <br />');
 		$sitecontent->add_site_content('<input type="text" readonly="readonly" value="'.$seite['time'].'" name="time" style="width:74%;"> <i>Zuletzt geändert</i><br />');
 		$sitecontent->add_site_content('<input type="submit" value="Ändern"></form>');
+		$sitecontent->echo_message('<p>Wenn Sie auf eine Seite verweisen und dabei auf Nummer sicher gehen wollen, dass die Links auch bei einer Veränderung der Menüpfade noch gültig sind, können Sie für den Link den Platzhalter "<b>&lt;!--URLoutofID=123--&gt;</b>" verwenden. Setzen Sie für "123" einfach die RequestID<b title="Die RequestIDs finden Sie in der Tabelle unter Menue -> Auflisten">*</b> der Seite/ des Menüpunktes ein und der Rest erfolgt automatisch.</p>', 'Tipp');
 		
 	}
 	

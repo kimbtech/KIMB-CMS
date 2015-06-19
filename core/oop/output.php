@@ -224,6 +224,12 @@ class system_output{
 		foreach( $this->allglangs as $key => $value ){
 			$this->allglangs[$key]['flag'] = str_replace( '<!--SYS-SITEURL-->', $this->allgsysconf['siteurl'], $value['flag'] );
 		}
+		
+		//URL aus Platzhalter für URL machen (<!--URLoutofID=1-->)
+		$this->sitecontent = replace_urloutofid( $this->sitecontent );
+		$this->footer = replace_urloutofid( $this->footer );
+		$this->addon = replace_urloutofid( $this->addon );
+		$this->header = replace_urloutofid( $this->header );
 
 		//alles dem Theme übergeben
 		//	wenn Theme nicht gefunden Fallback auf Standard

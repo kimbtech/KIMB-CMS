@@ -1231,6 +1231,58 @@ function list_sites_array( $dir = 'site/' ){
 	return $allsites;
 }
 
+function replace_urloutofid( $content ){
+	//Es ist möglich eine RequestID als Verweis zu definieren, welche bei der Ausgabe automatisch in die aktuelle URL umgesetzt wird
+	//	<!--URLoutofID=1--> wird zu http://cms.de/index.php?id=1 oder http://cms.de/home
+	//Diese Funktion führt die Ersetzungen durch.
+	//	$content => String in dem ersetzt werden soll.
+	//	Rückgabe => String mit Ersetzungen (wenn keine Platzhalter gefunden unverändert)
+	global $allgsysconf;
+	
+	//wurde der PLatzhalter verwendet
+	if( strpos($content, '<!--URLoutofID=' ) !== false || strpos($content, '&lt;!--URLoutofID=' ) !== false ){
+	
+		//TinyMCE codiert < und > mit &lt; und &gt; --- dies wieder Rückgängig machen		
+		$content = str_replace( '&lt;!--URLoutofID=',  '<!--URLoutofID=' , $content );
+		$content = str_replace( '--&gt;',  '-->' , $content );
+		
+		//die erste Stelle für die Ersetzung suchen
+		$stelle = strpos($content, '<!--URLoutofID=' );
+		//solange Stellen gefunden Ersetzungen durchführen
+		while( $stelle !== false ){
+
+			//Ende des Platzhalters finden
+			//Anfang schon in $stelle
+			$end = strpos($content, '-->', $stelle );
+			
+			//Die ID im Platzhalter extrahieren
+			
+			//Stellen der ID Feststellen
+			//	Ende des Platzhalters - Anfang des Platzhalters + 15 (Länge des ersten Teils des Platzhalters) = Länge der ID
+			$idlen = $end - ( $stelle + 15 );
+			//ID in $id speichern
+			$id = substr($content, $stelle + 15 , $idlen );
+			
+			//aus der ID die URL machen
+			$link = $allgsysconf['siteurl'].make_path_outof_reqid( $id );
+			
+			//den String am Platzhalter teilen
+			$teile = explode( '<!--URLoutofID='.$id.'-->', $content, 2 );
+			
+			//und neu zusammensetzen
+			$content = $teile[0].$link.$teile[1];
+			
+			//nach einem neuen Platzhalter suchen (für den nächsten Durchgang)
+			$off = strlen($teile[0].$link);
+			$stelle = strpos($content, '<!--URLoutofID=', $off );				
+		}
+			
+	}
+	
+	//fertigen String zurückgeben
+	return $content;
+}
+
 // Funktionen von Add-ons hinzufügen
 require_once( __DIR__.'/../addons/addons_funcclass.php' );
 ?>

@@ -154,7 +154,12 @@ class KIMBdbf {
 	public function read_kimb_one($teil){  //bei mehreren teilen, oberster treffer
 		$teiltext = '<['.$this->umbruch_weg($teil, 'tag').']>';
 		$teile = explode($teiltext, $this->dateicont);
-		return $this->inhalt_return( $teile[1] );
+		if( isset( $teile[1] ) ){
+			return $this->inhalt_return( $teile[1] );	
+		}
+		else{
+			return $this->inhalt_return( '' );
+		}
 	}
 	
 	public function read_kimb_all($teil){
