@@ -23,14 +23,16 @@
 //http://www.gnu.org/licenses/gpl-3.0.txt
 /*************************************************/
 
-
-
 defined('KIMB_CMS') or die('No clean Request');
+
+//Diese Klasse ist für den Punkt Konfiguration im Backend zuständig. 
 
 class BEsyseinst{
 	
+	//Klasse init.
 	protected $allgsysconf, $sitecontent, $sonder,$conffile;
 	
+	//Array mit Erklärungen für alle Werte der Systemkonfiguration
 	public $info = array(
 		'sitename' => 'Name der Seite' ,
 		'sitefavi' => 'URL zum favicon' ,
@@ -64,43 +66,60 @@ class BEsyseinst{
 		$this->sonder = new KIMBdbf('sonder.kimb');
 	}
 	
+	//Seitencache löschen
 	public function make_syseinst_cachedel(){
 		$sitecontent = $this->sitecontent;
-				
+		
+		//alle Dateien im Cache Ordner auslesen		
 		$caches = scan_kimb_dir('cache/');
 		foreach( $caches as $cache ){
+			//Datei für Datei löschen
 			delete_kimb_datei( 'cache/'.$cache );
 		}
+		//Meldung
 		$sitecontent->echo_message( 'Der Cache wurde gelöscht!' );
 		
 		return;
 	}
 	
+	//Konfiguration zum Anpassen zeigen
 	public function make_syseinst_einst(){
 		$sitecontent = $this->sitecontent;
 		$allgsysconf = $this->allgsysconf;
 		$info = $this->info;
 		$conffile = $this->conffile;
 		
+		//Teil löschen?
 		if ( $_GET['todo'] == 'del' && isset( $_GET['teil'] ) ){
 		
+			//Löschen des Teils duchführen, Meldung wenn okay
 			if( $conffile->write_kimb_id( '001' , 'del' , $_GET['teil'] ) ){
 				$sitecontent->echo_message( 'Der Parameter "'.$_GET['teil'].'" wurde aus der Konfiguration entfernt!' );
 			}
 		}
 		
+		//Teile verändern?
 		if ( isset( $_POST['1'] ) ){
+			//Daten nacheinader durchgehen 
+				//	Post Werte beginned ab 1 nummeriert
+				//		[Nummer] => Name des Konfigurationswertes
+				//		[Nummer-wert] => Inhalt des Konfigurationswertes
 			
+			//alle durchgehen
 			$i = 1;
 			while( isset( $_POST[$i] ) ){
+				//Wert verändert?
 				if( $_POST[$i.'-wert'] != $allgsysconf[$_POST[$i]] ){
+					//Wert anpassen
 					if( $conffile->write_kimb_id( '001' , 'add' , $_POST[$i] , $_POST[$i.'-wert'] ) ){
+						//Meldung, wenn Änderung erfolgreich
 						$sitecontent->echo_message( 'Der Parameter "'.$_POST[$i].'" wurde in der Konfiguration geändert!' );
 					}
 				}
 			$i++;
 			}
 		
+			//Konfiguration neu laden
 			$allgsysconf = $conffile->read_kimb_id('001');
 		
 		}
@@ -108,50 +127,69 @@ class BEsyseinst{
 		
 		$sitecontent->add_site_content('<h2>Systemkonfiguration</h2>');
 		
+		//JavaScript
 		$this->jsobject->for_syseinst_all();
 		
+		//alle Namen der Konfigurationswerte lesen
 		$confteile = $conffile->read_kimb_all_xxxid('001');
 		
+		//Eingabeformular beginnen
 		$sitecontent->add_site_content('<form method="post" action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/syseinst.php?konf">');
 		$sitecontent->add_site_content('<table width="100%" ><tr><th>Name</th><th>Wert</th><th width="20px;">Löschen</th><th width="20px;">Info</th></tr>');
 		
+		//für Nummerierung zählen
 		$i = 1;
+		//alle Teile durchgehen
 		foreach( $confteile as $confteil ){
 		
+			//Gibt es eine Erklärung zum Teil?
 			if( isset( $info[$confteil] ) ){
+				//Erklärung anzeigen
 				$infotab = '<span class="ui-icon ui-icon-info" title="'.$info[$confteil].'"></span>';
 			}
 			else{
 				$infotab = '';
 			}
 		
+			//Werte anzeigen
+			
 			if( $confteil == 'systemversion' || $confteil == 'build' ){
+				//Bei Version und Build keine Änderung zulassen
 				$sitecontent->add_site_content('<tr><td><input type="text" readonly="readonly" value="'.$confteil.'" name="'.$i.'"></td><td><input type="text" readonly="readonly" value="'.$allgsysconf[$confteil].'" name="'.$i.'-wert"></td><td><span><span class="ui-icon ui-icon-trash" title="Löschen nicht erlaubt!"></span></span></td><td>'.$infotab.'</td></tr>');
 			}
 			else{
+				//alle anderen normal als input
 				$sitecontent->add_site_content('<tr><td><input type="text" value="'.$confteil.'" name="'.$i.'"></td><td><input type="text" value="'.$allgsysconf[$confteil].'" name="'.$i.'-wert"></td><td><span onclick="var delet = del( \''.$confteil.'\' ); delet(); " style="display:inline-block;" ><span class="ui-icon ui-icon-trash" title="Diesen Wert löschen."></span></span></td><td>'.$infotab.'</td></tr>');
 			}
 			$i++;
 		
 		}
+		//neuen Wert hinzufügen input
 		$sitecontent->add_site_content('<tr><td><input type="text" placeholder="hinzufügen" name="'.$i.'"></td><td><input type="text" placeholder="hinzufügen" name="'.$i.'-wert"></td><td></td><td><span class="ui-icon ui-icon-info" title="Fügen Sie einen eigenen Wert in die allgemeine Konfiguration ein."></span></td></tr>');
+		//Button
 		$sitecontent->add_site_content('</table><input type="submit" value="Ändern"></form>');
 	}
 
+	//Footer-, Errortexte ändern
 	public function make_syseinst_sonder_dbf( $POST ){
 		$sitecontent = $this->sitecontent;
 		$allgsysconf = $this->allgsysconf;
 		$sonder = $this->sonder;
 		
+		//Übergabenamen den dbf Namen zuordnen
 		$dos = array( 'footer' => 'footer', 'error-404' => 'err404', 'error-403' => 'err403' );
 		
+		//alles durchgehen
 		foreach( $dos as $key => $val ){
 			
 			//den URL-Placeholder einsetzen
 			$POST[$val] = str_replace( $allgsysconf['siteurl'],  '<!--SYS-SITEURL-->', $POST[$val] );
 			
+			//Text geändert?
 			if( $sonder->read_kimb_one( $key ) != $POST[$val] ){
+				//Änderung speichern
 				if( $sonder->write_kimb_replace( $key , $POST[$val] ) ){
+					//Meldung
 					$sitecontent->echo_message( 'Der "'.$key.'" wurde geändert!' );
 				}
 			}
@@ -161,15 +199,19 @@ class BEsyseinst{
 		
 	}
 	
+	//Footer-, Errortexte ändern Eingabefelder
 	public function make_syseinst_sonder(){
 		$sitecontent = $this->sitecontent;
 		$allgsysconf = $this->allgsysconf;
 		$sonder = $this->sonder;
 		
+		//Daten übergeben?
 		if( !empty( $_POST['footer'] ) &&!empty( $_POST['err404'] ) && !empty($_POST['err403'] ) ){
+			//eintragen
 			$this->make_syseinst_sonder_dbf( $_POST );
 		}
 
+		//TinyMCE alle Textfelder
 		$arr['small'] = '#footer';
 		add_tiny( false, true, $arr );
 		$arr['small'] = '#err404';
@@ -177,6 +219,7 @@ class BEsyseinst{
 		$arr['small'] = '#err403';
 		add_tiny( false, true, $arr );
 		
+		//Eingabefelder
 		$sitecontent->add_site_content('<h2>Error- und Footertexte</h2>');
 		$sitecontent->add_site_content('<form method="post" action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/syseinst.php?text">');
 		$sitecontent->add_site_content('<textarea name="footer" id="footer" style="width:99%;">'.$sonder->read_kimb_one( 'footer' ).'</textarea> <i>Footer &uarr;</i> <button onclick="tinychange( \'footer\' ); return false;">Editor I/O</button> <br />');

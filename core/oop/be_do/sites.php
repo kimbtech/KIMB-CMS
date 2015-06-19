@@ -282,12 +282,15 @@ class BEsites{
 				else{
 					$status = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=deakch&amp;id='.$id.'"><span class="ui-icon ui-icon-check" title="Diese Seite ist zu Zeit aktiviert, also sichtbar. ( click -> ändern )"></span></a>';
 				}
-				//
+				//Löschen Button anzeigen
 				$del = '<span onclick="var delet = del( '.$id.' ); delet();"><span class="ui-icon ui-icon-trash" title="Diese Seite löschen."></span></span>';
+				//Ist die Seite einem Menü zugeordned?
 				$zugeor = $idfile->search_kimb_xxxid( $id , 'siteid' );
 				if( $zugeor == false ){
+					//nein, dann Hinweis ausgeben					
 					$status .= '<span class="ui-icon ui-icon-alert" title="Achtung, diese Seite ist noch keinem Menü zugeordnet, daher ist sie im Frontend nicht auffindbar!"></span>';
 				}
+				//Tabellenzeile anzeigen
 				$sitecontent->add_site_content('<tr><td>'.$id.'</td><td id="'.$title.'">'.$name.'</td><td>'.$status.'</td><td>'.$del.'</td></tr>');
 		
 				$liste = 'yes';
@@ -295,24 +298,30 @@ class BEsites{
 		}
 		$sitecontent->add_site_content('</table>');
 	
+		//Hinweis, wenn keine Seiten vorhanden
 		if( $liste != 'yes' ){
 			$sitecontent->echo_error( 'Es wurden keine Seiten gefunden!' );
 		}
 	}
 	
+	//Seiten bearbeiten
 	public function make_site_edit(){
 		$allgsysconf = $this->allgsysconf;
 		$sitecontent = $this->sitecontent;
 		
 		$sitecontent->add_site_content('<h2>Seite bearbeiten</h2>');
 		
+		//Wenn Seitendatei nicht geladen, laden dieser
 		if( !is_object( $sitef ) ){
+			//Seite aktiviert?
 			if( check_for_kimb_file( '/site/site_'.$_GET['id'].'.kimb' ) ){
 				$sitef = new KIMBdbf( '/site/site_'.$_GET['id'].'.kimb' );
 			}
+			//Seite deaktiviert?
 			elseif( check_for_kimb_file( '/site/site_'.$_GET['id'].'_deak.kimb' ) ){
 				$sitef = new KIMBdbf( '/site/site_'.$_GET['id'].'_deak.kimb' );
 			}
+			//Seite nicht vorhanden -> Fehler
 			else{
 				$sitecontent->echo_error('Die Seite wurde nicht gefunden' , '404');
 				$sitecontent->output_complete_site();
@@ -320,14 +329,18 @@ class BEsites{
 			}
 		}
 		
+		//Sprache
 		if( $allgsysconf['lang'] == 'on' && $_GET['langid'] != 0 && is_numeric( $_GET['langid'] ) ){
+			//andere Tags wenn nicht Standardsprache
 			$dbftag['title'] = 'title-'.$_GET['langid'];
 			$dbftag['keywords'] = 'keywords-'.$_GET['langid'];
 			$dbftag['description'] = 'description-'.$_GET['langid'];
 			$dbftag['inhalt'] = 'inhalt-'.$_GET['langid'];
 			$dbftag['footer'] = 'footer-'.$_GET['langid'];
 			
+			//wurde diese Sprache schon geladen?
 			if( empty( $sitef->read_kimb_one( $dbftag['title'] ) ) && empty( $sitef->read_kimb_one( $dbftag['inhalt'] ) ) ){
+				//wenn nicht die Sprachdatei vorbereiten
 				$sitef->write_kimb_one( $dbftag['title'] , 'Title' );
 				$sitef->write_kimb_one( $dbftag['keywords'] , '' );
 				$sitef->write_kimb_one( $dbftag['description'] , '' );
@@ -336,6 +349,7 @@ class BEsites{
 			}
 		}
 		else{
+			//Standardtags
 			$dbftag['title'] = 'title';
 			$dbftag['keywords'] = 'keywords';
 			$dbftag['description'] = 'description';
@@ -345,13 +359,17 @@ class BEsites{
 			$_GET['langid'] = 0;				
 		}
 		
+		//wenn Sprache aktiviert, Dropdown für Sprachwahl
 		if( $allgsysconf['lang'] == 'on'){
 			make_lang_dropdown( '"'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=edit&id='.$_GET['id'].'&langid=" + val', $_GET['langid'] );
 		}
 	
+		//JavaScript
 		$this->jsobject->for_site_edit();
+		//TinyMCE
 		add_tiny( true, true);
 	
+		//wurden Daten übermittelt?
 		if( isset( $_POST['title'] ) || isset( $_POST['inhalt'] ) ){
 			
 			//den URL-Placeholder einsetzen
@@ -359,6 +377,7 @@ class BEsites{
 			$_POST['footer'] = str_replace( $allgsysconf['siteurl'],  '<!--SYS-SITEURL-->', $_POST['footer'] );
 			$_POST['header'] = str_replace( $allgsysconf['siteurl'],  '<!--SYS-SITEURL-->', $_POST['header'] );
 	
+			//Daten in die dbf schreiben
 			$sitef->write_kimb_replace( $dbftag['title'] , $_POST['title'] );
 			$sitef->write_kimb_replace( 'header' , $_POST['header'] );
 			$sitef->write_kimb_replace( $dbftag['keywords'] , $_POST['keywords'] );
@@ -370,6 +389,7 @@ class BEsites{
 	
 		}
 		
+		//alle Daten lesen
 		$seite['title'] = $sitef->read_kimb_one( $dbftag['title'] );
 		$seite['header'] = $sitef->read_kimb_one( 'header' );
 		$seite['keywords'] = $sitef->read_kimb_one( $dbftag['keywords'] );
@@ -379,6 +399,7 @@ class BEsites{
 		$seite['time'] = $sitef->read_kimb_one( 'time' );
 		$seite['time'] = date( "d.m.Y \u\m H:i" , $seite['time'] );
 	
+		//Überprüfung ob Seite einen Menüpunkt hat, wenn nicht Hinweis
 		$idfile = new KIMBdbf('menue/allids.kimb');
 		$id = $idfile->search_kimb_xxxid( $_GET['id'] , 'siteid' );
 	
@@ -386,12 +407,15 @@ class BEsites{
 			$sitecontent->echo_message( 'Achtung, diese Seite ist noch keinem Menü zugeordnet, daher ist sie im Frontend nicht auffindbar!' );
 		}
 	
+		//Löschen und Seite ansehen Buttons
 		$sitecontent->add_site_content('<span onclick="var delet = del( '.$_GET['id'].' ); delet();"><span class="ui-icon ui-icon-trash" style="display:inline-block;" title="Diese Seite löschen."></span></span>');
 		$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/index.php?id='.$id.'" target="_blank"><span class="ui-icon ui-icon-newwin" style="display:inline-block;" title="Diese Seite anschauen."></span></a>');
 		
+		//Eingabefelder
 		$sitecontent->add_site_content('<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=edit&amp;id='.$_GET['id'].'&amp;langid='.$_GET['langid'].'" method="post"><br />');
 		$sitecontent->add_site_content('<input type="text" value="'.$seite['title'].'" name="title" style="width:74%;"> <i>Seitentitel</i><br />');
 		$sitecontent->add_site_content('<div style="position:relative;" ><textarea name="header" style="width:74%; height:50px;">'.htmlentities( $seite['header'] ).'</textarea><span style="position:absolute; top:0; left:75.5%;"> <i>HTML Header</i>');
+			//JavaScript Bibilotheken einfach wählen für den Header
 			$sitecontent->add_site_content('<br /> <select id="libs">');
 			$sitecontent->add_site_content('<option value=""></option>');
 			$sitecontent->add_site_content('<option value="&lt;!-- jQuery --&gt;">jQuery</option>');
@@ -409,11 +433,16 @@ class BEsites{
 		
 	}
 	
+	//Seite Status ändern
 	public function make_site_deakch( $id ){
+		//Seite aktiviert?
 		if( check_for_kimb_file( '/site/site_'.$id.'.kimb' ) ){
+			//deaktivieren
 			rename_kimbdbf( '/site/site_'.$id.'.kimb' , '/site/site_'.$id.'_deak.kimb' );
 		}
+		//Seite deaktiviert?
 		elseif( !check_for_kimb_file('/site/site_'.$id.'.kimb') && check_for_kimb_file( '/site/site_'.$id.'_deak.kimb' )  ){
+			//aktivieren
 			rename_kimbdbf( '/site/site_'.$id.'_deak.kimb' , '/site/site_'.$id.'.kimb' );
 		}
 		else{
@@ -423,7 +452,9 @@ class BEsites{
 		return true;
 	}
 	
+	//Seite löschen
 	public function make_site_del( $id ){
+		//wenn vorhanden, dann löschen
 		if( check_for_kimb_file( '/site/site_'.$id.'.kimb' ) ){
 			return delete_kimb_datei( '/site/site_'.$id.'.kimb' );				
 		}
