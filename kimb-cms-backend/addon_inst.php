@@ -23,49 +23,59 @@
 //http://www.gnu.org/licenses/gpl-3.0.txt
 /*************************************************/
 
-
 define("KIMB_CMS", "Clean Request");
 
-//Konfiguration laden
+//Diese Datei ist Teil des Backends, sie wird direkt aufgerufen.
+
+//Konfiguration & Klassen & Funktionen laden
 require_once(__DIR__.'/../core/conf/conf_backend.php');
 
+//Diese Datei stellt den Teil "Add-ons installieren und löschen" bereit
+
+//Hier sind für alle Aufgaben die gleichen Rechte erforderlich, hat der User diese?
 check_backend_login( 'fiveteen' , 'more');
 
+//Die entsprechende Backendklasse laden
+//	Die Parameter sind schon vom CMS geladen
 $beaddinst = new BEaddinst( $allgsysconf, $sitecontent, $addoninclude );
 
-//Add-ons installieren und löschen
-
-$allinclpar = $beaddinst->allinclpar;
-
+//Den Request Paramter reinigen
 $_GET['addon'] = preg_replace( "/[^a-z_]/" , "" , $_GET['addon'] );
 
+//Herausfinden was der User will und dann die entsprechenden Methoden aufrufen
 if( isset( $_GET['del'] ) && !empty( $_GET['addon'] ) ){
 
+	//Add-on löschen
 	$beaddinst->del_addon( $_GET['addon'] );
 	
 }
 elseif( !empty( $_FILES['userfile']['name'] ) ){
 
+	//Add-on installieren
 	$beaddinst->install_addon( $_FILES["userfile"]["tmp_name"] );
 
 }
 elseif( $_GET['todo'] == 'chdeak' && !empty( $_GET['addon'] ) ){
 
+	//Add-on Status ändern
 	$beaddinst->change_stat( $_GET['addon'] );
 	
 }
 elseif( $_GET['todo'] == 'addonnews' && !empty( $_GET['addon'] ) ){
 
+	//Hinweise über das Add-on zeigen
 	$beaddinst->show_addon_news( $_GET['addon'] );
 	
 	$showlist = 'no';
 }
 elseif( $_GET['todo'] == 'checkall' ){
 
+	//nach Updates suchen
 	$beaddinst->check_addon_upd();
 		
 }
 
+//Meistens wird die Liste mit allen Add-ons und deren Status angezeigt, hier auch der Fall?
 if( !isset( $showlist ) ){
 	
 	$beaddinst->show_list();

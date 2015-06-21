@@ -49,4 +49,10 @@ require_once(__DIR__.'/core/addons/addons_fe_second.php');
 
 //Seite ausgeben
 $sitecontent->output_complete_site();
+
+//Die Rechtschreibfehler in den Kommentaren sind nicht beabsichtigt,
+//ich bin nunmal mit der Syntax von Computersprachen vertrauter als 
+//mit der Syntax der deutsch Sprache.
+//Über Hinweise zu Fehlern, besonders in den Ausgaben des CMS, freue ich mich.
+//	http://www.kimb-technologies.eu/kontakt
 ?>

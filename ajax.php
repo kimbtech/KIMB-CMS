@@ -69,7 +69,8 @@ if( $_GET['file'] == 'index.php' ){
 	$user = preg_replace( "/[^a-z]/" , "" , strtolower( $user ) );
 
 	//Username darf nicht leer sein
-	if( !empty( $user ) ){
+	//Nur wenn die Loginseite vorher aufgerufen wurde hat man eine Grund die Salts zu lesen
+	if( !empty( $user ) && !empty($_SESSION["loginsalt"]) ){
 
 		//BE Userdatei öffnen
 		$userfile = new KIMBdbf('/backend/users/list.kimb');
@@ -89,17 +90,38 @@ if( $_GET['file'] == 'index.php' ){
 			}
 			else{
 				//sonst irgendwas ausgeben (User soll nicht merken, dass Username falsch)
-				echo makepassw( 10, '', 'numaz' );
+				$randsalt = true;
 			}
 		}
 		else{
-			//irgendwas ausgeben (User soll nicht merken, dass Username falsch)
-			echo makepassw( 10, '', 'numaz' );
+			//sonst irgendwas ausgeben (User soll nicht merken, dass Username falsch)
+			$randsalt = true;
 		}
 	}
 	else{
 		//leer => Fehler (not okay)
 		echo 'nok';
+	}
+	
+	//soll irgendwas ausgegeben werden?
+	if( $randsalt){
+		//sonst irgendwas ausgeben (User soll nicht merken, dass Username falsch)
+		//wenn zweimal der gleiche User abgefragt wird, dann muss immer das gleiche Salt angegeben werden
+				
+		//wurde dieser User schonmal ausgegeben?
+		if( empty($_SESSION['allsalts'][$_GET['user']])){
+			//nein -> neues Salt erstellen
+			$randsalt = makepassw( 10, '', 'numaz' );
+			//in der Session ablegen
+			$_SESSION['allsalts'][$_GET['user']] = $randsalt;
+			//und ausgeben
+			echo $randsalt;
+		}
+		else{
+			//User wurde schon mal abgefragt
+			//Salt aus Session ausgeben
+			echo $_SESSION['allsalts'][$_GET['user']];
+		}
 	}
 
 	//beenden

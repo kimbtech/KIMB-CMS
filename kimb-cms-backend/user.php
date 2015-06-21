@@ -25,40 +25,64 @@
 
 define("KIMB_CMS", "Clean Request");
 
-//Konfiguration laden
+//Diese Datei ist Teil des Backends, sie wird direkt aufgerufen.
+
+//Konfiguration & Klassen & Funktionen laden
 require_once(__DIR__.'/../core/conf/conf_backend.php');
 
+//Diese Datei stellt den Teil "Menüs" bereit
+
+//Auch wenn einem User die Rechte zum Bearbeiten von Usern fehlen, soll er sich selbst bearbeiten können
+//	dazu muss er nur "eight" haben
+
+//erstmal müssen die Rechte nochmal geprüft werden
 $checkerneut = 'yes';
+//will der User sich selbst bearbeiten
 if( $_GET['user'] == $_SESSION['user'] && $_GET['todo'] == 'edit' ){
+	//hat er die Rechte für "eight"?
 	check_backend_login( 'eight' );
+	//jetzt muss nicht nochmal geprüft werden 
 	$checkerneut = 'no';
 }
 
+//Die entsprechende Backendklasse laden
 $beuser = new BEuser( $allgsysconf, $sitecontent );
 
 //BE-User erstellen, bearbeiten
 $userfile = new KIMBdbf('backend/users/list.kimb');
 
+//Herausfinden, was der User will
+//	Rechte prüfen und Methode aufrufen
 if( $_GET['todo'] == 'new' ){
 	check_backend_login( 'nine' , 'more' );
 	
+	//neuen User erstellen
 	$beuser->make_user_new();
 
 }
 elseif( $_GET['todo'] == 'edit' && isset( $_GET['user'] ) ){
+	
+	//User bearbeiten
+	
+	//nochmal teste?
 	if( $checkerneut != 'no' ){
 		check_backend_login( 'ten' , 'more' );
 	}
 
+	//Methode
 	$beuser->make_user_edit();
 }
 elseif( $_GET['todo'] == 'list'){
 	check_backend_login( 'ten' , 'more' );
-
+	
+	//User auflisten
 	$beuser->make_user_list();
 }
 else{
 	check_backend_login( 'eight' , 'more' );
+	
+	//User will nichts bestimmtes
+	//	alles was möglich ist anzeigen
 
 	$sitecontent->add_site_content('<h2>User</h2>');
 

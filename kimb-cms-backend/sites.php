@@ -23,60 +23,83 @@
 //http://www.gnu.org/licenses/gpl-3.0.txt
 /*************************************************/
 
-
-
 define("KIMB_CMS", "Clean Request");
 
-//Konfiguration laden
+//Diese Datei ist Teil des Backends, sie wird direkt aufgerufen.
+
+//Konfiguration & Klassen & Funktionen laden
 require_once(__DIR__.'/../core/conf/conf_backend.php');
 
-//Seite erstellen, zuordnen
+//Diese Datei stellt den Teil "Seiten" bereit
 
+//Die entsprechende Backendklasse laden
 $besites = new BEsites( $allgsysconf, $sitecontent );
 
+//Herausfinden, was der User machen will
+//	Überprüfung der Rechte und Aufruf der passenden Methode
 if( $_GET['todo'] == 'new' ){
 	check_backend_login('two');
 
+	//neue Seite erstellen
 	$besites->make_site_new();
 }
 elseif( $_GET['todo'] == 'list' ){
 	check_backend_login('three');
 
+	//Seiten auflisten
 	$besites->make_site_list();
 
 }
 elseif( $_GET['todo'] == 'edit' && is_numeric( $_GET['id'] ) ){
 	check_backend_login('three');
 
+	//Seiten editieren
 	$besites->make_site_edit();
 
 }
 elseif( $_GET['todo'] == 'del' && is_numeric( $_GET['id'] ) ){
 	check_backend_login('three');
 
+	//Seiten löschen
+
+	//Methode ausführen
 	if( $besites->make_site_del( $_GET['id'] ) ){
+		//wenn erfolgreich auf Liste weiterleiten
 		open_url('/kimb-cms-backend/sites.php?todo=list');
 	}
 	else{
+		//sonst Fehler
 		$sitecontent->echo_error('Fehler beim Löschen!');
+		//ausgeben
 		$sitecontent->output_complete_site();
 	}
+	//alles beenden
 	die;
 }
 elseif( $_GET['todo'] == 'deakch' && is_numeric( $_GET['id'] ) ){
 	check_backend_login('three');
 
+	//Status einer Seite ändern
+
+	//Methode ausführen
 	if( $besites->make_site_deakch( $_GET['id'] ) ){
+		//wenn erfolgreich auf Liste weiterleiten
 		open_url('/kimb-cms-backend/sites.php?todo=list');
 	}
 	else{
+		//sonst Fehler
 		$sitecontent->echo_error('Fehler beim Ändern des Status!');
+		//ausgeben
 		$sitecontent->output_complete_site();
 	}
+	//alles beenden
 	die;
 }
 else{
 	check_backend_login('one');
+
+	//User will nichts bestimmtes
+	//	alles was möglich ist anzeigen
 
 	$sitecontent->add_site_content('<h2>Seiten</h2>');
 	

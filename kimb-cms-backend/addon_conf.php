@@ -25,34 +25,45 @@
 
 define("KIMB_CMS", "Clean Request");
 
-//Konfiguration laden
+//Diese Datei ist Teil des Backends, sie wird direkt aufgerufen.
+
+//Konfiguration & Klassen & Funktionen laden
 require_once(__DIR__.'/../core/conf/conf_backend.php');
 
-//Add-on Konfiguration
+//Diese Datei stellt den Teil "Add-on Konfiguration" bereit
 
+//Kein Chaos im Dateisystem erlauben (./../ -> ein Ordner tiefer)
 if(strpos( $_GET['addon'] , "..") !== false){
 	echo ('Do not hack me!!');
 	die;
 }
 
+//Die entsprechende Backendklasse laden
 $beaddconf = new BEaddconf( $allgsysconf, $sitecontent );
 
+//Was will der User?
 if( $_GET['todo'] == 'more' ){
+	//Hat er die nötigen Rechte?
 	check_backend_login( 'fourteen' , 'more');
 	
+	//Aufgabe von Methode erledigen lassen
 	$beaddconf->make_more();
 
 }
 elseif( $_GET['todo'] == 'less' ){
-
+	//Hat er die nötigen Rechte?	
 	check_backend_login( 'thirteen' );
 
+	//Aufgabe von Methode erledigen lassen
 	$beaddconf->make_less();
 
 }
 else{
+	//User weiß nicht was er will
+	
+	//Eingeloggt?
 	check_backend_login( 'twelve' );
-
+	//Hinweis
 	$sitecontent->echo_error( 'Ihre Anfrage war fehlerhaft!' , 'unknown');
 }
 
