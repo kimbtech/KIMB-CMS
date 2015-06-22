@@ -25,8 +25,12 @@
 
 define("KIMB_CMS", "Clean Request");
 
-//Konfiguration laden
+//Diese Datei ist Teil des Backends, sie wird direkt aufgerufen.
+
+//Konfiguration & Klassen & Funktionen laden
 require_once(__DIR__.'/../core/conf/conf_backend.php');
+
+//Diese Datei stellt unter Other den Teil "Backend Userlevel" bereit
 
 check_backend_login( 'nineteen' , 'more');
 $sitecontent->add_html_header('<style>td { border:1px solid #000000; padding:2px;} td a { text-decoration:none; }</style>');

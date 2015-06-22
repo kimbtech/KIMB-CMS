@@ -23,12 +23,14 @@
 //http://www.gnu.org/licenses/gpl-3.0.txt
 /*************************************************/
 
-
-
 define("KIMB_CMS", "Clean Request");
 
-//Konfiguration laden
+//Diese Datei ist Teil des Backends, sie wird direkt aufgerufen.
+
+//Konfiguration & Klassen & Funktionen laden
 require_once(__DIR__.'/../core/conf/conf_backend.php');
+
+//Diese Datei stellt unter Other den Teil "Themes" bereit
 
 check_backend_login( 'eightteen' , 'more' );
 
