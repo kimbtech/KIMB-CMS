@@ -77,7 +77,7 @@ class ADDonAPI{
 		// $site => XXX.php
 		// $rechte => more,less,one,six
 
-		//Parammeter überprüfen
+		//Parameter überprüfen
 		if( $reihen != 'vorn' && $reihen != 'hinten' ){
 			return false;
 		}
@@ -106,7 +106,7 @@ class ADDonAPI{
 		// $id => r/s/a + ( ID )
 		// $error => no/ all/ (nur) 404/ 403
 
-		//Parammeter überprüfen
+		//Parameter überprüfen
 		if( $reihen != 'vorn' && $reihen != 'hinten' ){
 			return false;
 		}
@@ -133,7 +133,7 @@ class ADDonAPI{
 
 		// $reihen => vorn oder hinten
 
-		//Parammeter überprüfen
+		//Parameter überprüfen
 		if( $reihen != 'vorn' && $reihen != 'hinten' ){
 			return false;
 		}
@@ -156,7 +156,7 @@ class ADDonAPI{
 
 		// $minage => Sekunden zu warten zwischen Abrufen 
 
-		//Parammeter überprüfen
+		//Parameter überprüfen
 		if( is_numeric( $minage ) ){
 			//ID herausfinden
 			$id = $this->get_addon_id( 'cron' );

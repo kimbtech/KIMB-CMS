@@ -4,9 +4,9 @@
 <[1-permiss]>more<[1-permiss]>
 <[1-user]>admin<[1-user]>
 <[1-passw]>e0f4e9d13302f035f0e3709e78c2a3df402946eb<[1-passw]>
-<[1-name]>Max Heiner<[1-name]>
+<[1-name]>Max Muster<[1-name]>
 <[1-salt]>OKQA2HBXTW<[1-salt]>
-<[1-mail]>mail@maxheiner.org<[1-mail]>
+<[1-mail]>max.muster@example.com<[1-mail]>
 <[userids2]>2<[userids2]>
 <[2-passw]>d249cd752adc09ed800d9f5f9bc69b63f247dbe5<[2-passw]>
 <[2]>passw==permiss==name==mail==user==salt<[2]>
@@ -15,7 +15,6 @@
 <[2-mail]>editor@editor.edi<[2-mail]>
 <[2-user]>editor<[2-user]>
 <[2-salt]>BAxpmgTSh6<[2-salt]>
-
 <[userids3]>3<[userids3]>
 <[allidslist1]>3<[allidslist1]>
 <[3-passw]>bbc06c25ae2fc5b9c26a47cd5fb726f807349fed<[3-passw]>

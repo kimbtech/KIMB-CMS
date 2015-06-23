@@ -30,7 +30,7 @@ header('Content-Type: text/html; charset=utf-8');
 //Nur mit conf-enable Datei den Konfigurator erlauben, sonst unerlaubte Konfiguration möglich
 if(file_exists ('conf-enable') != 'true'){
 	//User bitten den Konfigurator zu aktivieren
-	echo('<title>KIMB CMS - Installation</title><link rel="shortcut icon" href="load/system/KIMB.ico" type="image/x-icon; charset=binary"><h1>Error - 404</h1>Bitte schalten Sie den Configurator frei, erstellen Sie eine leere "conf-enable" Datei im CMS-Root-Verzeichnis.<br /> Please activate the configurator, create an empty "conf-enable" file in the CMS root folder.'); die;
+	echo('<title>KIMB CMS - Installation</title><link rel="shortcut icon" href="load/system/KIMB.ico" type="image/x-icon; charset=binary"><h1>Error - 403</h1>Bitte schalten Sie den Configurator frei, erstellen Sie eine leere "conf-enable" Datei im CMS-Root-Verzeichnis.<br /> Please activate the configurator, create an empty "conf-enable" file in the CMS root folder.'); die;
 }
 
 //HTML des Konfigurators 
@@ -126,14 +126,14 @@ if($_GET['step'] == '2'){
 	echo '<form method="post" action="configurator.php?step=3" onsubmit=" if( document.getElementById(\'passw\').value != \'\' ){ document.getElementById(\'passw\').value = SHA1( \''.$output.'\' + document.getElementById(\'passw\').value );} else{ alert( \'Bitte geben Sie ein Passwort für den Administrator an!\' ); return false; } " >';
 	echo '<input type="text" name="sitename" value="KIMB CMS" size="60"><br />(Name der Seite)<br /><br />';
 	echo '<input type="text" name="metades" value="CMS von KIMB-technologies" size="60"><br />(Meta Seitenbeschreibung)<br /><br />';
-	echo '<input type="text" name="sysadminmail" value="serveradmin@server.com" size="60"><br />(E-Mail Adresse des Systemadministrators)<br /><br />';
+	echo '<input type="text" name="sysadminmail" value="cmsadmin@example.com" size="60"><br />(E-Mail Adresse des Systemadministrators)<br /><br />';
 	echo '<input type="radio" name="urlrew" value="off">OFF <input type="radio" name="urlrew" value="on" checked="checked">ON (Aktivieren Sie URL-Rewriting f&uuml;r das System (Dazu muss Ihr Server die .htaccess im Rootverzeichnis verwenden k&ouml;nnen oder die Variable $SERVER[REQUEST_URI] setzen.))<br /><br />';
 
 	echo '<h2>Ersten Administrator einrichten</h2>';
 	echo '<input type="text" name="user" value="admin" readonly="readonly" size="60"><br />(Username des Administrators)<br /><br />';
 	echo '<input type="password" name="passhash" placeholder="123456" id="passw" size="60"><input type="hidden" name="salt" value="'.$output.'"><br />(Passwort des Administrators)<br /><br />';
-	echo '<input type="text" name="name" value="Max Heiner" size="60"><br />(Name des Administrators)<br /><br />';
-	echo '<input type="text" name="usermail" value="mail@maxheiner.org" size="60"><br />(E-Mail Adresse des Administrators)<br /><hr /><hr />';
+	echo '<input type="text" name="name" value="Max Muster" size="60"><br />(Name des Administrators)<br /><br />';
+	echo '<input type="text" name="usermail" value="max.muster@example.com" size="60"><br />(E-Mail Adresse des Administrators)<br /><hr /><hr />';
 
 	echo '<input type="submit" value="Weiter"> <b>Alle Felder m&uuml;ssen gef&uuml;llt sein !!</b><br />';
 	echo '</form>';
@@ -186,6 +186,11 @@ elseif($_GET['step'] == '3'){
 	$handle = fopen(__DIR__.'/core/oop/kimb-data/config.kimb', 'a+');
 	fwrite($handle, $addconf);
 	fclose($handle);
+
+	//.htaccess für URL-Rewriting umbenennen
+	if( $_POST['urlrew'] == 'on' ){
+		rename( __DIR__.'/_.htaccess', __DIR__.'/.htaccess' );
+	}
 
 	//zweiter
 	$adduser = '<[1-passw]>'.$_POST['passhash'].'<[1-passw]>

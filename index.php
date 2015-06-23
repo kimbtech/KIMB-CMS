@@ -54,5 +54,5 @@ $sitecontent->output_complete_site();
 //ich bin nunmal mit der Syntax von Computersprachen vertrauter als 
 //mit der Syntax der deutschen Sprache.
 //Über Hinweise zu Fehlern, besonders in den Ausgaben des CMS, freue ich mich.
-//	http://www.kimb-technologies.eu/kontakt
+//	https://www.kimb-technologies.eu/kontakt
 ?>

@@ -1,5 +1,10 @@
 <[about:doc]>KIMB Datei V.0.1 KIMB CMS<[about:doc]>
 <[folder]>addon<[folder]>
 <[folder]>backend<[folder]>
+<[folder]>cache<[folder]>
 <[folder]>menue<[folder]>
 <[folder]>site<[folder]>
+<[folder]>url<[folder]>
+<[file]>config.kimb<[file]>
+<[file]>index.kimb<[file]>
+<[file]>sonder.kimb<[file]>

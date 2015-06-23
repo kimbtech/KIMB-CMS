@@ -359,20 +359,33 @@ elseif( isset($_GET['id']) ){
 	//erstmal merken (findet hier nicht über URL-Rewriting)
 	$idreq = true;
 
-	// RequestID ist ja schon gegeben, nichts zu tun
+	//RequestID ist ja schon gegeben, nicht viel zu tun
+
+	//wird eine Fehlerseite gefordert?
+	if( $_GET['id'] == 'err404' ){
+		//nicht gefunden
+		$sitecontent->echo_error( 'Die angeforderte Seite ist nicht verfügbar!', '404' );
+		$allgerr = '404';
+		$_GET['id'] = '1';
+	}
+	elseif( $_GET['id'] == 'err403' ){
+		//keine Rechte
+		$allgerr = '403';
+		$_GET['id'] = '1';
+	}
 	
 	//einmal testen ist angebracht, eine ID muss aus Zahlen bestehen!
 	if( !is_numeric($_GET['id']) ){
 		//eine ID aus etwas anderem als Zahlen -> Fehler
 		
 		//Fehlermedlung und $allgerr für z.B. Add-ons und RequestID = 0 (nicht vergeben!)
-		$sitecontent->echo_error( 'Fehlerhafte RequestID !' );
+		$sitecontent->echo_error( 'Fehlerhafte RequestID !', '404' );
 		$allgerr = '404';
 		$_GET['id'] = '0';
 	}
 }
 else{
-	//keine ID gegeben und URL-Rewriting auch nicht, dann am besten auf die Startseite!
+	//keine ID gegeben und URL-Rewriting auch nicht, dann am Besten auf die Startseite!
 	$_GET['id'] = '1'; // Startseite
 	
 	//der Aufruf findet hier nicht über URL-Rewriting statt! (wäre sonst /)

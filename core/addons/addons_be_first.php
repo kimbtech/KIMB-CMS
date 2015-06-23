@@ -126,7 +126,7 @@ foreach( $all as $add ){
 
 }
 
-//alles aus den Include Array ausführen
+//alles aus dem Include Array ausführen
 foreach( $includes as $name ){
 
 	require_once(__DIR__.'/'.$name.'/include_be_first.php');

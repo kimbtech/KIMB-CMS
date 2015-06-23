@@ -12,9 +12,9 @@ Das KIMB CMS ist ein einfaches CMS mit vielen wichtigen Features.
 Bei der Entwicklung wurde auf Relevanz und Einfachheit geachtet.
 Es unterstützt Add-ons und Themes zur verbesserten Personalisierung.
 
-http://www.kimb-technologies.eu/software/cms
-http://cms.wiki.kimb-technologies.eu/
-http://download.kimb-technologies.eu/explorer.php?action=rein&path=%2FCMS
+https://www.kimb-technologies.eu/software/cms
+https://cmswiki.kimb-technologies.eu/
+https://download.kimb-technologies.eu/explorer.php?action=rein&path=%2FCMS
 
  _  _____ __  __ ____        _            _                 _             _           
 | |/ /_ _|  \/  | __ )      | |_ ___  ___| |__  _ __   ___ | | ___   __ _(_) ___  ___ 
@@ -26,8 +26,8 @@ http://download.kimb-technologies.eu/explorer.php?action=rein&path=%2FCMS
 KIMB-technologies entwickelt Software in PHP und anderen Sprachen und bietet diese unter
 freien Lizenzen an.
 
-http://www.kimb-technologies.eu/
-http://download.kimb-technologies.eu/
+https://www.kimb-technologies.eu/
+https://download.kimb-technologies.eu/
 https://bitbucket.org/kimbtech/
 
  _     _                   
@@ -46,6 +46,6 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-/LICENSE.txt
+./LICENSE.txt
 http://www.gnu.org/licenses/gpl-3.0
 http://www.gnu.org/licenses/gpl-3.0.txt

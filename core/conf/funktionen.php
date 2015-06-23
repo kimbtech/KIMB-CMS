@@ -769,6 +769,10 @@ function add_tiny( $big = false, $small = false, $ids = array( 'big' => '#inhalt
 				tiny[id] = false;
 			}
 		}
+		
+		function disabletooltips(){ 
+			$( "iframe" ).tooltip({ disabled: true });
+		}
 		');
 		$tinyoo = true;
 	}
@@ -804,7 +808,8 @@ function add_tiny( $big = false, $small = false, $ids = array( 'big' => '#inhalt
 			autosave_restore_when_empty: true,
 			autosave_retention: "60m",
 			menubar: "file edit insert view format table",
-			convert_urls: false
+			convert_urls: false,
+			init_instance_callback : "disabletooltips"
 		});
 		tiny[\''.substr( $ids['big'], 1 ).'\'] = true;
 		');
@@ -841,7 +846,8 @@ function add_tiny( $big = false, $small = false, $ids = array( 'big' => '#inhalt
 			image_list: function( success ) {
 				success( [ '.listdirrec( __DIR__.'/../../load/userdata', '/load/userdata' ).' ] );
 			},
-			convert_urls: false
+			convert_urls: false,
+			init_instance_callback : "disabletooltips"
 		});
 		tiny[\''.substr( $ids['small'], 1 ).'\'] = true;
 		');

@@ -26,10 +26,12 @@
 
 defined('KIMB_CMS') or die('No clean Request');
 
-//Die KIMBdbf ist die zentrale Klasse für alles Datenbankaufgaben.
+//Die KIMBdbf ist die zentrale Klasse für alle Datenbankaufgaben.
 //Alle Daten werden hiermit gespeichert.
 //==> Weitere Infos zu KIMBdbf
 //	https://download.kimb-technologies.eu/explorer.php?action=rein&path=%2FKIMBdbf
+
+//Die Möglichkeit der Verschlüsselung der Dateien wird vom KIMB-CMS nicht verwendet!
 
 //objektorientiert
 //objektorientiert

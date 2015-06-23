@@ -36,7 +36,7 @@ require_once(__DIR__.'/../core/conf/conf_backend.php');
 //	Die Parameter sind schon vom CMS geladen
 $besyseinst = new BEsyseinst($allgsysconf, $sitecontent, $conffile);
 
-//wenn der User eingeloggt ist (Recht hier egal),
+//wenn der User eingeloggt ist (Rechte hier egal),
 //ihm erlauben den Cache löschen
 if( $_SESSION['loginokay'] == $allgsysconf['loginokay'] && $_SESSION["ip"] == $_SERVER['REMOTE_ADDR'] && $_SESSION["useragent"] == $_SERVER['HTTP_USER_AGENT'] ){
 	//will er den Cache löschen
@@ -46,7 +46,7 @@ if( $_SESSION['loginokay'] == $allgsysconf['loginokay'] && $_SESSION["ip"] == $_
 	}
 }
 
-//Rechte jetzt richitig prüfen
+//Rechte jetzt richtig prüfen
 check_backend_login( 'eleven' , 'more');
 
 //Überschrift

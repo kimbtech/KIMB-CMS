@@ -37,7 +37,7 @@ if( $allgerr != '404' ){
 	}
 }
 
-//bei Fehler 403 keine Seite anzeigen (Fehler wird von Add-ons erzeugt)
+//bei Fehler 403 keine Seite anzeigen (Fehler wird von Add-ons oder per Aufruf von index.php?id=err403 erzeugt)
 if( $allgerr == '403' ){
 	$sitecontent->echo_error( 'Sie haben keinen Zugriff auf diese Seite!' , '403' );
 }

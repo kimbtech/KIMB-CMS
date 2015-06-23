@@ -36,7 +36,7 @@ if( !isset( $addoninclude ) ){
 	$addoninclude = new KIMBdbf('addon/includes.kimb');
 }
 
-//Add-on Wunschdate lesen
+//Add-on Wunschdaten lesen
 //	Stellen, Rechte des Users und Reihenfolge vom Add-on gewünscht
 $cronfile = new KIMBdbf('addon/wish/cron_age.kimb');
 

@@ -69,7 +69,7 @@ if( $_GET['file'] == 'index.php' ){
 	$user = preg_replace( "/[^a-z]/" , "" , strtolower( $user ) );
 
 	//Username darf nicht leer sein
-	//Nur wenn die Loginseite vorher aufgerufen wurde hat man eine Grund die Salts zu lesen
+	//Nur wenn die Loginseite vorher aufgerufen wurde hat man einen Grund die Salts zu lesen
 	if( !empty( $user ) && !empty($_SESSION["loginsalt"]) ){
 
 		//BE Userdatei öffnen
@@ -99,7 +99,7 @@ if( $_GET['file'] == 'index.php' ){
 		}
 	}
 	else{
-		//leer => Fehler (not okay)
+		//leer => Fehler (nicht okay)
 		echo 'nok';
 	}
 	
@@ -205,16 +205,16 @@ elseif( $_GET['file'] == 'user.php' && isset( $_GET['user'] ) ){
 	//beenden
 	die;
 }
-//Filemanager secure Bilderzugriff
+//Filemanager secure Dateizugriff
 elseif( $_GET['file'] == 'other_filemanager.php' && isset( $_GET['key'] ) ){
 
 	//Key Datei öffnen
 	$keyfile = new KIMBdbf( 'backend/filemanager.kimb' );
 
-	//nach key suchen
+	//nach Key suchen
 	$id = $keyfile->search_kimb_xxxid( $_GET['key'] , 'key' );
 	
-	//key vorhanden?
+	//Key vorhanden?
 	if( $id != false ){
 		//Datei zum Key gefunden
 		
@@ -229,7 +229,7 @@ elseif( $_GET['file'] == 'other_filemanager.php' && isset( $_GET['key'] ) ){
 		echo ( file_get_contents($datei) );
 	}
 	else{
-		//kein Datei zum Key da -> Fehler!
+		//keine Datei zum Key da -> Fehler!
 		echo('Fehlerhafter Key!!');
 	}
 	//beenden

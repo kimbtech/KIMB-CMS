@@ -53,21 +53,21 @@ if( $allgsysconf['cache'] == 'on' ){
 	}
 }
 
-//Sprache an und nicht Standardsprache?
-if( $allgsysconf['lang'] == 'on' && $requestlang['id'] != 0 ){
-	//Die Menünamen der Standardaprache und der gewähletn Sprache laden
-	//	wenn nicht übersetzt auf Standardsprache zurückfallen
-	$menuenames = new KIMBdbf('menue/menue_names_lang_'.$requestlang['id'].'.kimb');
-	$menuenameslangst = new KIMBdbf('menue/menue_names.kimb');
-}
-else{
-	//Standardsprache reicht für beides!
-	$menuenames = new KIMBdbf('menue/menue_names.kimb');
-	$menuenameslangst = $menuenames;
-}
-
 //Menü erstellen, wenn nicht schon mit Cache geschehen
 if( $menuecache != 'loaded'){
+
+	//Sprache an und nicht Standardsprache?
+	if( $allgsysconf['lang'] == 'on' && $requestlang['id'] != 0 ){
+		//Die Menünamen der Standardsprache und der gewählten Sprache laden
+		//	wenn nicht übersetzt auf Standardsprache zurückfallen
+		$menuenames = new KIMBdbf('menue/menue_names_lang_'.$requestlang['id'].'.kimb');
+		$menuenameslangst = new KIMBdbf('menue/menue_names.kimb');
+	}
+	else{
+		//Standardsprache reicht für beides!
+		$menuenames = new KIMBdbf('menue/menue_names.kimb');
+		$menuenameslangst = $menuenames;
+	}
 
 	//Breadcumb Array noch nicht fertig
 	$breadarrfertig = 'nok';
@@ -95,7 +95,7 @@ if( $menuecache != 'loaded'){
 
 	//wenn Cache geladen
 	if( is_object($sitecache) ){
-		//breadcrumb im Cache speichern
+		//Breadcrumb im Cache speichern
 		if( $allgsysconf['lang'] == 'on' && $requestlang['id'] != 0 ){
 			//Sprachen mit SprachID ablegen
 			$sitecache->cache_addon( $allgmenueid , $breadcrumblinks , 'breadcrumb-'.$requestlang['id'] );
@@ -109,7 +109,7 @@ if( $menuecache != 'loaded'){
 }
 else{
 	//MenueCache geladen, Menü ist also fertig, nur Breadcrumb nicht
-	//	Breadcrumb auch Cache laden
+	//	Breadcrumb aus Cache laden
 	if( $allgsysconf['lang'] == 'on' && $requestlang['id'] != 0 ){
 		//Sprachen mit SprachID lesen
 		$breadcrumblinks = $sitecache->get_cached_addon( $allgmenueid , 'breadcrumb-'.$requestlang['id'] );
@@ -118,7 +118,7 @@ else{
 		//Standardsprache ohne ID lesen
 		$breadcrumblinks = $sitecache->get_cached_addon( $allgmenueid , 'breadcrumb' );
 	}
-	//Ausgabe des Caches als Array, nur ersten Teil verweden (Tag nur einmal vorhaden)
+	//Ausgabe des Caches als Array, nur ersten Teil verweden (Tag nur einmal vorhanden)
 	$breadcrumblinks = $breadcrumblinks[0];
 }
 
