@@ -32,40 +32,64 @@ require_once(__DIR__.'/../core/conf/conf_backend.php');
 
 //Diese Datei stellt unter Other den Teil "Backend Userlevel" bereit
 
+//Rechte prüfen
 check_backend_login( 'nineteen' , 'more');
+
+//CSS Tabelle
 $sitecontent->add_html_header('<style>td { border:1px solid #000000; padding:2px;} td a { text-decoration:none; }</style>');
+
+//Level schon geladen, sonst tun
 if( !is_object( $levellist ) ){
 	$levellist = new KIMBdbf( 'backend/users/level.kimb' );
 }
 
+//Erstellung eines neuen Levels gewünscht?
 if( $_GET['todo'] == 'new' ){
 	$sitecontent->add_site_content('<h2>Neues Userlevel Backend erstellen</h2>');
+	//Link zur Liste aller Level
+	$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/other_level.php">&larr; Alle Level</a><br /><br />');
 
+	//schon Daten gesendet?
 	if( isset( $_POST['name'] ) ){
+		//Namen säubern
 		$_POST['name'] = preg_replace( "/[^a-z]/" , "" , strtolower( $_POST['name'] ) );
-		if( $_POST['name'] != '' && $_POST['name'] != 'more' && $_POST['name'] != 'less' && $_POST['name'] != 'all' && $_POST['name'] != 'levellist' ){
-			if( $levellist->read_kimb_one( $_POST['name'] ) == '' ){
+		//den Namen prüfen, sollte nicht leer sein
+		//außerdem auch nicht more, less, all, levellist
+		if( !empty($_POST['name'] ) && $_POST['name'] != 'more' && $_POST['name'] != 'less' && $_POST['name'] != 'all' && $_POST['name'] != 'levellist' ){
+			//Name darf noch nicht vergeben sein
+			if( empty( $levellist->read_kimb_one( $_POST['name'] ) ) ){
+				//neues Level speichern (erstmal mit den Rechten für one,two,three)
 				$levellist->write_kimb_new( $_POST['name'] , 'one,two,three' );
+				//neues Level der Liste aller Level anfügen
+				
+				//aktuelle Liste lesen 
 				$alllev = $levellist->read_kimb_one( 'levellist' );
-				if( $alllev == '' ){
+				//gibt überhaupt schon Level?
+				if( empty( $alllev ) ){
+					//neues Level als erstes Level hinzufügen
 					$levellist->write_kimb_new( 'levellist' , $_POST['name'] );
 				}
 				else{
+					//neues Level den anderen hinzufügen
 					$levellist->write_kimb_replace( 'levellist' , $alllev.','.$_POST['name'] );
 				}
 
+				//Levelbearbeitung öffnen
 				open_url( '/kimb-cms-backend/other_level.php?todo=edit&level='.$_POST['name']  );
 				die;
 			}
 			else{
+				//Fehler wenn Levelname schon vergeben
 				$sitecontent->echo_error( 'Der Levelname ist schon vergeben!' , 'unknown');
 			}
 		}
 		else{
+			//Eingabe nicht passend
 			$sitecontent->echo_error( 'Ihre Eingabe war leer oder ein verbotener Wert ( more, less, all, levellist )!' , 'unknown');
 		}
 	}
 
+	//oder erstmal das Formular
 	$sitecontent->add_site_content('<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/other_level.php?todo=new" method="post" >');
 	$sitecontent->add_site_content('<input type="text" name="name"> <i title="Pflichtfeld , a-z">( Levelname * )</i><br />');
 	$sitecontent->add_site_content('<input type="submit" value="Erstellen" >');
@@ -73,54 +97,77 @@ if( $_GET['todo'] == 'new' ){
 
 
 }
+//Levelbearbeitung
 elseif( $_GET['todo'] == 'edit' && isset( $_GET['level'] ) ){
 	$sitecontent->add_site_content('<h2>Userlevel Backend bearbeiten</h2>');
+	//Link zur Liste aller Level
+	$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/other_level.php">&larr; Alle Level</a><br /><br />');
 
+	//Namen säubern
 	$_GET['level'] = preg_replace( "/[^a-z]/" , "" , strtolower( $_GET['level'] ) );
+	
+	//alle Level lesen
 	$alllev = $levellist->read_kimb_one( 'levellist' );
+	//Array mit allen Leveln erstellen
 	$alllev = explode( ',' , $alllev );
 
+	//wenn Level vorhanden
 	if( in_array( $_GET['level'] , $alllev ) ){
 
+		//Checkboxen per JavaScript aktivierbar machen
 		$sitecontent->add_html_header('<script>
 		function set_on( val ){
 			$( "input[value=" + val + "]" ).prop( "checked" , true);
 		}
 		</script>');
 
+		//wurden Daten zum abspeichern übergeben?
 		if( is_array( $_POST['numbers'] ) ){
 
-			foreach( $_POST['numbers'] as $num ){
-				$ges .= ','.$num;
-			}
-			$ges = substr( $ges , '1' );
+			//das Array zu einem String machen
+			$ges = implode( ',', $_POST['numbers'] );
 
+			//String schreiben
 			$levellist->write_kimb_replace( $_GET['level'] , $ges );
 
+			//Meldung
 			$sitecontent->echo_message( 'Das Level wurde angepasst!' );
 			$sitecontent->add_site_content('<br />');
 		}
 
+		//Rechte des Levels auslesen
+
+		//Sting des Levels lesen
 		$numbers = $levellist->read_kimb_one( $_GET['level'] );
+		//Array erstellen
 		$numbers = explode( ',' , $numbers );
 
+		//Array $checks erstellen und für jedes gegebene Recht Value checked=checked setzen
 		foreach( $numbers as $number ){
 			$checks[$number] = ' checked="checked" ';
 		}
 
+		//alle möglichen Rechte lesen
 		$numbers = $levellist->read_kimb_one( 'all' );
+		//Array erstellen
 		$numbers = explode( ',' , $numbers );
 
+		//das Array $checkd ergänzen, für alle nicht gegebenen Rechte das Value '' setzen
 		foreach( $numbers as $number ){
 			if( !isset( $checks[$number] ) ){
 				$checks[$number] = ' ';
 			}
 		}
 		
+		//Levelauswahlformular
 		$sitecontent->add_site_content('<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/other_level.php?todo=edit&amp;level='.$_GET['level'].'" method="post" >');
 		$sitecontent->add_site_content('<input type="text" name="name" readonly="readonly" value="'.$_GET['level'].'"> <i title="Nicht zu ändern.">( Levelname * )</i><br />');
 		$sitecontent->add_site_content('<span class="ui-icon ui-icon-info" title="Klicken Sie alle Menuepunkte an, auf die ein User der Gruppe Zugriff haben soll! ( Es dürfen nicht alle Felder deaktiviert sein! )"></span><br />');
 
+		//Checkbox für jedes mögliche Recht
+		//	neuen Backendseiten müssen hier hinzugefügt werden
+		//	außerdem auch in die 'level.kimb'' unter 'all''
+		//	und als Menüpunkt in die 'output_backend.php''
 		$sitecontent->add_site_content('<input type="checkbox" name="numbers[]" value="one"'.$checks['one'].'> Seiten ( one )<br />');
 		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'one\' );" value="two"'.$checks['two'].'> Neue Seite ( two )<br />');
 		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'one\' );" value="three"'.$checks['three'].'> Seite bearbeiten ( three )<br />');
@@ -148,20 +195,33 @@ elseif( $_GET['todo'] == 'edit' && isset( $_GET['level'] ) ){
 		$sitecontent->add_site_content('</form>');
 	}
 	else{
+		//wenn Level nicht gefunden -> Fehler
 		$sitecontent->echo_error( 'Ihre Anfrage war fehlerhaft!' , 'unknown');
 	}
 
 }
+//Level löschen?
 elseif( $_GET['todo'] == 'del' && isset( $_GET['level'] ) ){
 	
+	//Link zur Liste aller Level
+	$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/other_level.php">&larr; Alle Level</a><br /><br />');
+	
+	//Namen säubern
 	$_GET['level'] = preg_replace( "/[^a-z]/" , "" , strtolower( $_GET['level'] ) );
+	//alle Level lesen
 	$alllev = $levellist->read_kimb_one( 'levellist' );
+	//Array mit allen Leveln machen
 	$alllev = explode( ',' , $alllev );
 
+	//existiert des Level?
 	if( in_array( $_GET['level'] , $alllev ) ){
 		
+		//Level löschen
 		$levellist->write_kimb_delete( $_GET['level'] );
 
+		//Liste mit allen Leveln anpassen
+		
+		//neuen Sting erstellen (ohne gelöschtes Level)
 		foreach( $alllev as $lev ){
 			if( $lev != $_GET['level'] ){
 				$newlev .= ','.$lev;
@@ -169,27 +229,36 @@ elseif( $_GET['todo'] == 'del' && isset( $_GET['level'] ) ){
 		}
 		$newlev = substr( $newlev , '1' );
 
-		if( $newlev != '' ){
+		//sind jetzt überhaupt noch Level vorhanden?
+		if( !empty( $newlev ) ){
+			//Sting mit allen Leveln neu schreiben
 			$levellist->write_kimb_replace( 'levellist' , $newlev );
 		}
 		else{
+			//keine Level mehr
+			//Sting mit allen Leveln komplett löschen
 			$levellist->write_kimb_delete( 'levellist' );
 		}
 
+		//Übersicht aufrufen
 		open_url( '/kimb-cms-backend/other_level.php' );
 		die;
 	}
 	else{
+		//Fehlermeldung
 		$sitecontent->echo_error( 'Ihre Anfrage war fehlerhaft!' , 'unknown');
 	}
 }
+//nichts besonderes gewünscht
 else{
+	//Übersicht über alle Level
 	$sitecontent->add_site_content('<h2>Userlevel Backend Liste</h2>');
 
+	//JavaScript für Löschen Dialog
 	$sitecontent->add_html_header('<script>
 	var del = function( level ) {
-		$( "#del-confirm" ).show( "fast" );
-		$( "#del-confirm" ).dialog({
+		$( "#del-level" ).show( "fast" );
+		$( "#del-level" ).dialog({
 		resizable: false,
 		height:180,
 		modal: true,
@@ -208,30 +277,43 @@ else{
 	}
 	</script>');
 
+	//alle Level lesen
 	$levs = $levellist->read_kimb_one( 'levellist' );
+	//Array mit allen Leveln machen
 	$levs = explode( ',' , $levs );
 
+	//Tabelle beginnen
 	$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/other_level.php?todo=new"><span class="ui-icon ui-icon-plusthick" title="Eine neues Level erstellen." style="display:inline-block;" ></span></a>');
 	$sitecontent->add_site_content('<table width="100%"><tr> <th>Levelname</th> <th>Rechte <span class="ui-icon ui-icon-info" style="display:inline-block;" title="Die englischen Zahlen stehen für die erlaubten Menuepunkte!"></span></th> <th>Löschen</th> </tr>');
+	//feste Level (more&less)
 	$sitecontent->add_site_content('<tr> <td title="Voreingestellt, nicht zu verändern" >more</td> <td><i>Alle Rechte.</i></td> <td></td> </tr>');
 	$sitecontent->add_site_content('<tr> <td title="Voreingestellt, nicht zu verändern" >less</td> <td><i>Rechte die ein Editor benötigt.</i></td> <td></td> </tr>');
 
+	//alle anderen Level aus Array durchgehen
 	foreach( $levs as $lev ){
+		//Level lesen
 		$read = $levellist->read_kimb_one( $lev );
-		if( $read != '' ){
+		//wenn Level Rechte hat ausgeben
+		if( !empty( $read ) ){
+			//Button zum  löschen erstellen
 			$del = '<span onclick="var delet = del( \''.$lev.'\' ); delet();"><span class="ui-icon ui-icon-trash" title="Dieses Level löschen." style="display:inline-block;" ></span></span>';
+			//Tabellenzeile
 			$sitecontent->add_site_content('<tr> <td><a title="Ändern" href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/other_level.php?todo=edit&amp;level='.$lev.'">'.$lev.'</a></td> <td>'.substr( $read , '0' , '50' ).' ( ... )</td> <td>'.$del.'</td> </tr>');
 		}
 	}
 	$sitecontent->add_site_content('</table>');
 
-	$sitecontent->add_site_content('<div style="display:none;"><div id="del-confirm" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 25px 0;"></span>Möchten Sie das Userlevel wirklich löschen?</p></div></div>');
+	//HTML-Code für löschen Dialog
+	$sitecontent->add_site_content('<div style="display:none;"><div id="del-level" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 25px 0;"></span>Möchten Sie das Userlevel wirklich löschen?</p></div></div>');
 }
 
+//Hinweis wie man User einem Level zuordnet
 $sitecontent->add_site_content('<br /><br /><span class="ui-icon ui-icon-info" title="Die User können Sie unter &apos;User&apos; -> &apos;Auflisten&apos; -> &apos;Name ( User bearbeiten )&apos; den Gruppen zuordnen! Das Zuordnen ist nur für User der Gruppe Admin ( &apos;more&apos; ) möglich!"></span><br />');
 //Add-ons Ende 
 require_once(__DIR__.'/../core/addons/addons_be_second.php');
 
 //Ausgabe
 $sitecontent->output_complete_site();
+
+//Commands done :D
 ?>
