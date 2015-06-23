@@ -201,6 +201,12 @@ elseif($_GET['step'] == '3'){
 	//fertig anzeigen
 	echo('Installation erfolgreich!<br /><br /> <a href="'.$url.'/" target="_blank"><button>Zur Seite</button></a><br />');
 	echo('<a href="'.$url.'/kimb-cms-backend/" target="_blank"><button>Zum Backend</button></a><br />');
+	
+	echo( '<hr />' );
+	echo( '<h2>KIMB-technologies Register</h2>' );
+	echo( 'Registrieren Sie sich im KIMB-technologies Register und bleiben Sie auf dem Laufenden.<br />' );
+	echo( '<a href="https://register.kimb-technologies.eu/" target="_blank">Zum Register</a>' );
+	echo( '<hr />' );
 
 	//Konfigurator sperren
 	unlink('conf-enable');
