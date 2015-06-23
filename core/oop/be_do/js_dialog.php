@@ -109,8 +109,8 @@ class JSforBE{
 		//verschieben des Menüs nach oben oder unten per AJAX und reload oder Fehlerdialog
 		$sitecontent->add_html_header('<script>
 		var del = function( fileid , requid , fileidbefore) {
-			$( "#del-confirm" ).show( "fast" );
-			$( "#del-confirm" ).dialog({
+			$( "#del-menue" ).show( "fast" );
+			$( "#del-menue" ).dialog({
 			resizable: false,
 			height:200,
 			modal: true,
@@ -165,7 +165,7 @@ class JSforBE{
 		</script>');
 		
 		//Inhalte der Dialoge
-		$sitecontent->add_site_content('<div style="display:none;"><div id="del-confirm" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Möchten Sie das Menue wirklich löschen?</p></div></div>');
+		$sitecontent->add_site_content('<div style="display:none;"><div id="del-menue" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Möchten Sie das Menue wirklich löschen?</p></div></div>');
 		$sitecontent->add_site_content('<div style="display:none;"><div id="del-untermenue" title="Löschen nicht möglich!"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Das Menue kann erst gelöscht werden, wenn es keine Untermenues mehr hat!</p></div></div>');
 		$sitecontent->add_site_content('<div style="display:none;"><div id="updown" title="Fehler beim Verschieben!"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 100px 0;"></span>Achtung, Menues können nur innerhalb ihres Niveaus verschoben werden!<br /><br />Auch ein Verschieben auf einen höheren Platz als den Ersten oder einen tieferen als den Letzten ist nicht möglich!</p></div></div>');
 	
@@ -277,8 +277,8 @@ class JSforBE{
 		//'Suche'
 		$sitecontent->add_html_header('<script>
 		var del = function( id ) {
-			$( "#del-confirm" ).show( "fast" );
-			$( "#del-confirm" ).dialog({
+			$( "#del-site" ).show( "fast" );
+			$( "#del-site" ).dialog({
 			resizable: false,
 			height:200,
 			modal: true,
@@ -302,7 +302,7 @@ class JSforBE{
 		</script>');
 
 		//Dialoginhalt
-		$sitecontent->add_site_content('<div style="display:none;"><div id="del-confirm" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Möchten Sie die Seite wirklich löschen?</p></div></div>');
+		$sitecontent->add_site_content('<div style="display:none;"><div id="del-site" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Möchten Sie die Seite wirklich löschen?</p></div></div>');
 	}
 	
 	//Seite berabeiten
@@ -314,8 +314,8 @@ class JSforBE{
 		//Hinzufügen von JavaScript Header Platzhaltern
 		$sitecontent->add_html_header('<script>
 		var del = function( id ) {
-			$( "#del-confirm" ).show( "fast" );
-			$( "#del-confirm" ).dialog({
+			$( "#del-site" ).show( "fast" );
+			$( "#del-site" ).dialog({
 			resizable: false,
 			height:200,
 			modal: true,
@@ -350,7 +350,7 @@ class JSforBE{
 		</script>');
 		
 		//Dialoginhalt
-		$sitecontent->add_site_content('<div style="display:none;"><div id="del-confirm" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Möchten Sie die Seite wirklich löschen?</p></div></div>');
+		$sitecontent->add_site_content('<div style="display:none;"><div id="del-site" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Möchten Sie die Seite wirklich löschen?</p></div></div>');
 	}
 	
 	//User erstellen Passwortindikator (Stärkebalken)
@@ -598,8 +598,8 @@ class JSforBE{
 		//Alles vorm Submit prüfen, Passwort Hash
 		$sitecontent->add_html_header('<script>
 			function deluser() {
-				$( "#del-confirm" ).show( "fast" );
-				$( "#del-confirm" ).dialog({
+				$( "#del-user" ).show( "fast" );
+				$( "#del-user" ).dialog({
 				resizable: false,
 				height:220,
 				modal: true,
@@ -659,7 +659,7 @@ class JSforBE{
 			</script>');
 			
 			//Dialoginhalt
-			$sitecontent->add_site_content('<div style="display:none;"><div id="del-confirm" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 40px 0;"></span>Möchten Sie den User "'.$user.'" wirklich löschen?<br /><b>Sollten Sie alle User löschen verlieren Sie den Systemzugriff!</b></p></div></div>');
+			$sitecontent->add_site_content('<div style="display:none;"><div id="del-user" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 40px 0;"></span>Möchten Sie den User "'.$user.'" wirklich löschen?<br /><b>Sollten Sie alle User löschen verlieren Sie den Systemzugriff!</b></p></div></div>');
 	}
 	
 	//Konfiguration
@@ -670,8 +670,8 @@ class JSforBE{
 		//Dialog zum löschen von Inhalten
 		$sitecontent->add_html_header('<script>
 		var del = function( teil ) {
-			$( "#del-confirm" ).show( "fast" );
-			$( "#del-confirm" ).dialog({
+			$( "#del-conf" ).show( "fast" );
+			$( "#del-conf" ).dialog({
 			resizable: false,
 			height: 250,
 			modal: true,
@@ -691,7 +691,7 @@ class JSforBE{
 		</script>');
 		
 		//Dialoginhalt
-		$sitecontent->add_site_content('<div style="display:none;"><div id="del-confirm" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 50px 0;"></span>Möchten Sie den Wert wirklich löschen?<br />Tun Sie dies nur wenn Sie genau wissen was Sie tun!!</p></div></div>');
+		$sitecontent->add_site_content('<div style="display:none;"><div id="del-conf" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 50px 0;"></span>Möchten Sie den Wert wirklich löschen?<br />Tun Sie dies nur wenn Sie genau wissen was Sie tun!!</p></div></div>');
 	}
 	
 	//Add-ons Installieren
@@ -702,8 +702,8 @@ class JSforBE{
 		//Dialog zum Löschen
 		$sitecontent->add_html_header('<script>
 		var del = function( addon ) {
-			$( "#del-confirm" ).show( "fast" );
-			$( "#del-confirm" ).dialog({
+			$( "#del-addon" ).show( "fast" );
+			$( "#del-addon" ).dialog({
 			resizable: false,
 			height:200,
 			modal: true,
@@ -723,7 +723,7 @@ class JSforBE{
 		</script>');
 		
 		//Dialoginhalt
-		$sitecontent->add_site_content('<div style="display:none;"><div id="del-confirm" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Möchten Sie dieses Addon wirklich löschen?</p></div></div>');	
+		$sitecontent->add_site_content('<div style="display:none;"><div id="del-addon" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Möchten Sie dieses Addon wirklich löschen?</p></div></div>');	
 	}
 }
 ?>
