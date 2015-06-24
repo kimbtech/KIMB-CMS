@@ -23,8 +23,6 @@
 //http://www.gnu.org/licenses/gpl-3.0.txt
 /*************************************************/
 
-
-
 defined('KIMB_CMS') or die('No clean Request');
 
 //Diese Klasse ist die zentrale Ausgabeklasse des CMS Frontends.
@@ -71,7 +69,8 @@ class system_output{
 	}
 
 	//Seiteninahlt hinzufügen
-	public function add_site($content){
+	//	Übersetzung für Siteinfos
+	public function add_site($content, $trans){
 		//Title setzen
 		$this->set_title($content['title']);
 		
@@ -93,8 +92,8 @@ class system_output{
 		//wenn siteinfos aktiviert hinzufügen
 		if( $this->allgsysconf['show_siteinfos'] == 'on' ){
 			$time = date( "d.m.Y" , $content['time'] );
-			$schlusszeile .= '<div id="usertime">Erstellt von '.$content['made_user'].' am '.$time.'</div>';
-			$schlusszeile .= '<div id="permalink">Permalink: <a href="'.$this->allgsysconf['siteurl'].'/index.php?id='.$content['req_id'].'">'.$this->allgsysconf['siteurl'].'/index.php?id='.$content['req_id'].'</a></div>';
+			$schlusszeile .= '<div id="usertime">'.$trans['estv'].' '.$content['made_user'].' '.$trans['am'].' '.$time.'</div>';
+			$schlusszeile .= '<div id="permalink">'.$trans['perma'].': <a href="'.$this->allgsysconf['siteurl'].'/index.php?id='.$content['req_id'].'">'.$this->allgsysconf['siteurl'].'/index.php?id='.$content['req_id'].'</a></div>';
 			$this->sitecontent .= $schlusszeile."\r\n";
 		}
 	}
@@ -131,7 +130,7 @@ class system_output{
 	}
 
 	//Fehlermeldung ausgeben
-	public function echo_error($message = '', $art = 'unknown', $heading =  'Error - Fehler' ){
+	public function echo_error($message = '', $art = 'unknown', $heading =  'Error' ){
 		//Fehler 404 mit Vorgabetext und eigenem und HTTP Header
 		if( $art == '404' ){
 			$errmsg = $this->sonderfile->read_kimb_one('error-404');
@@ -172,7 +171,7 @@ class system_output{
 	}
 
 	//abschließende Ausgabe der Seite
-	public function output_complete_site(){
+	public function output_complete_site( $allgsys_trans ){
 
 		//einfügen von JavaScript Code für Platzhalter
 		$jsapicodes = array(

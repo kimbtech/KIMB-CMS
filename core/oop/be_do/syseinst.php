@@ -44,7 +44,7 @@ class BEsyseinst{
 		'robots' => 'Meta-Robots-Tag für Homepage' ,
 		'mailvon' => 'E-Mail Absender des Systems' ,
 		'cache' => 'on / off des Caches (on ist empfehlenswert)' ,
-		'sitespr' => 'Sprache der Seitenelemente (z.Z. kein Nutzen)' ,
+		'sitespr' => 'Sprache des Frontends (auto [an Userwahl orientieren] oder Vorgabe nach ISO 639; [nicht alle Sprachen sind verfügbar, das CMS bietet de,en,fr])' ,
 		'systemversion' => 'Version des CMS' ,
 		'build' => 'Genaue Version des Systems, wichtig für Updates,... (Beispiele: V1.0F-p0 -> Version 1.0 Final Patch 0 // V0.7B-p4,5 -> Version 0.7 Beta Patch 4 und 5) (entspricht GIT Tags)' ,
 		'urlrewrite' => 'on / off des URL-Rewritings (on ist empfehlenswert)' ,

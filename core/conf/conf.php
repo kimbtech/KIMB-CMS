@@ -52,7 +52,7 @@ if($allgsysconf['cache'] == 'on'){
 $kimbcmsinfo = '<!--
 
 	This site is made with KIMB-CMS!
-	http://www.KIMB-technologies.eu
+	https://www.KIMB-technologies.eu
 	https://bitbucket.org/kimbtech/kimb-cms/
 
 	GNU General Public License v3

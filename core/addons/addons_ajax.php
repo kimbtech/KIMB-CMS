@@ -23,7 +23,6 @@
 //http://www.gnu.org/licenses/gpl-3.0.txt
 /*************************************************/
 
-
 defined('KIMB_CMS') or die('No clean Request');
 
 //Add-on Ajax Einbindung
