@@ -30,7 +30,7 @@ header('Content-Type: text/html; charset=utf-8');
 //Nur mit conf-enable Datei den Konfigurator erlauben, sonst unerlaubte Konfiguration möglich
 if(file_exists ('conf-enable') != 'true'){
 	//User bitten den Konfigurator zu aktivieren
-	echo('<title>KIMB CMS - Installation</title><link rel="shortcut icon" href="load/system/KIMB.ico" type="image/x-icon; charset=binary"><h1>Error - 403</h1>Bitte schalten Sie den Configurator frei, erstellen Sie eine leere "conf-enable" Datei im CMS-Root-Verzeichnis.<br /> Please activate the configurator, create an empty "conf-enable" file in the CMS root folder.'); die;
+	echo('<!DOCTYPE html><html><head><title>KIMB CMS - Installation</title><link rel="shortcut icon" href="load/system/KIMB.ico" type="image/x-icon; charset=binary"></head><body><h1>Error - 403</h1>Bitte schalten Sie den Configurator frei, erstellen Sie eine leere "conf-enable" Datei im CMS-Root-Verzeichnis.<br /> Please activate the configurator, create an empty "conf-enable" file in the CMS root folder.</body></html>'); die;
 }
 
 //HTML des Konfigurators 
@@ -171,6 +171,18 @@ elseif($_GET['step'] == '3'){
 		$i++;
 	}
 
+	//Zufallsgenerator Cronkey
+	$alles = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+	$laenge = '30';
+	$anzahl = strlen($alles);
+	$i = '1';
+	$cronkey = '';
+	while($i <= $laenge){
+		$stelle = mt_rand('0', $anzahl); 
+		$cronkey .= $alles{$stelle};
+		$i++;
+	}
+
 	//Konfigurationsteile
 	//erster
 	$addconf = '<[001-sitename]>'.$_POST['sitename'].'<[001-sitename]>
@@ -180,7 +192,8 @@ elseif($_GET['step'] == '3'){
 <[001-description]>'.$_POST['metades'].'<[001-description]>
 <[001-adminmail]>'.$_POST['sysadminmail'].'<[001-adminmail]>
 <[001-mailvon]>cms@'.$_SERVER['HTTP_HOST'].'<[001-mailvon]>
-<[001-urlrewrite]>'.$_POST['urlrew'].'<[001-urlrewrite]>';
+<[001-urlrewrite]>'.$_POST['urlrew'].'<[001-urlrewrite]>
+<[001-cronkey]>'.$cronkey.'<[001-cronkey]>';
 
 	//Schreibe in Konfigurationsdatei
 	$handle = fopen(__DIR__.'/core/oop/kimb-data/config.kimb', 'a+');
@@ -245,7 +258,7 @@ else{
 	//cURL
 	if( function_exists('curl_version') ){
 		$okay[] = 'okay';
-		echo '<li class="okay">Ihr Server hat cURL !</li>';
+		echo '<li class="okay">Ihr Server hat cURL!</li>';
 	}
 	else{
 		$okay[] = 'war';
@@ -255,7 +268,7 @@ else{
 	//PHP GD
 	if (defined('GD_VERSION')) {   
 		$okay[] = 'okay';
-		echo '<li class="okay">Ihr Server hat PHP_GD !</li>';
+		echo '<li class="okay">Ihr Server hat PHP_GD!</li>';
 	}
 	else{
 		$okay[] = 'war';

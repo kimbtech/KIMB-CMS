@@ -32,7 +32,7 @@ require_once(__DIR__.'/core/conf/conf.php');
 //System initialisiert!
 
 //Konfigurator laufengelassen?
-if( !isset( $allgsysconf['siteurl'] ) ){
+if( empty( $allgsysconf['siteurl'] ) ){
 	open_url( 'configurator.php' );
 }
 
