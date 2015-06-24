@@ -32,22 +32,22 @@ defined('KIMB_CMS') or die('No clean Request');
 //	Stand: 24.06.2015
 /**********************************************/
 
-$allgsys_trans['get_ids']['err01'] = 'Diese URL zeigt auf keine Seite!';
-$allgsys_trans['get_ids']['err02'] = 'Fehlerhafte RequestURL!';
-$allgsys_trans['get_ids']['err03'] = 'Die angeforderte Seite ist nicht verfügbar!';
-$allgsys_trans['get_ids']['err04'] = 'Fehlerhafte RequestID!';
-$allgsys_trans['get_ids']['err05'] = 'Fehlerhafte RequestID Zuordnung!';
+$allgsys_trans['get_ids']['err01'] = 'The requested URL does not point to a page!';
+$allgsys_trans['get_ids']['err02'] = 'The requested URL is incorrect!';
+$allgsys_trans['get_ids']['err03'] = 'The requested page is not available!';
+$allgsys_trans['get_ids']['err04'] = 'The requested ID is incorrect!';
+$allgsys_trans['get_ids']['err05'] = 'The allocation of the request is incorrect!';
 
-$allgsys_trans['make_content']['err01'] = 'Diese Seite existiert nicht!';
-$allgsys_trans['make_content']['err02'] = 'Sie haben keinen Zugriff auf diese Seite!';
-$allgsys_trans['make_content']['err03'] = 'Diese Seite ist nicht in der von Ihnen gewünschten Sprache verfügbar!';
-$allgsys_trans['make_content']['err04'] = 'Hinweis';
-$allgsys_trans['make_content']['err05'] = 'Fehler beim Erstellen des Seiteninhalts!';
+$allgsys_trans['make_content']['err01'] = 'The page was not found!';
+$allgsys_trans['make_content']['err02'] = 'Your are not allowed to view this page!';
+$allgsys_trans['make_content']['err03'] = 'This page is not available in your language!';
+$allgsys_trans['make_content']['err04'] = 'Information';
+$allgsys_trans['make_content']['err05'] = 'Error while preparing the content of the page!';
 
 $allgsys_trans['output']['perma'] = 'Permalink';
-$allgsys_trans['output']['estv'] = 'Erstellt von';
-$allgsys_trans['output']['am'] = 'am';
+$allgsys_trans['output']['estv'] = 'Last modified by';
+$allgsys_trans['output']['am'] = 'on';
 
-$allgsys_trans['themesite']['such'] = 'Suchbegriff';
+$allgsys_trans['themesite']['such'] = 'Search';
 
 ?>

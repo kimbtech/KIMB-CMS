@@ -20,6 +20,8 @@
 
 defined('KIMB_CMS') or die('No clean Request');
 
-echo 'fe_second'
+echo 'fe_second';
+
+echo $allgsys_trans['addons']['bspadd']['test'];
 
 ?>

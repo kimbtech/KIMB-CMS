@@ -32,22 +32,22 @@ defined('KIMB_CMS') or die('No clean Request');
 //	Stand: 24.06.2015
 /**********************************************/
 
-$allgsys_trans['get_ids']['err01'] = 'Diese URL zeigt auf keine Seite!';
-$allgsys_trans['get_ids']['err02'] = 'Fehlerhafte RequestURL!';
-$allgsys_trans['get_ids']['err03'] = 'Die angeforderte Seite ist nicht verfügbar!';
-$allgsys_trans['get_ids']['err04'] = 'Fehlerhafte RequestID!';
-$allgsys_trans['get_ids']['err05'] = 'Fehlerhafte RequestID Zuordnung!';
+$allgsys_trans['get_ids']['err01'] = 'L\'URL ne montre pas de page!';
+$allgsys_trans['get_ids']['err02'] = 'L\'URL est défectueux!';
+$allgsys_trans['get_ids']['err03'] = 'Le page demandé n\'est pas disponible!';
+$allgsys_trans['get_ids']['err04'] = 'L\'ID demandée est défectueuse!';
+$allgsys_trans['get_ids']['err05'] = 'L\'ID demandée est attribuée défectueusement!';
 
-$allgsys_trans['make_content']['err01'] = 'Diese Seite existiert nicht!';
-$allgsys_trans['make_content']['err02'] = 'Sie haben keinen Zugriff auf diese Seite!';
-$allgsys_trans['make_content']['err03'] = 'Diese Seite ist nicht in der von Ihnen gewünschten Sprache verfügbar!';
-$allgsys_trans['make_content']['err04'] = 'Hinweis';
-$allgsys_trans['make_content']['err05'] = 'Fehler beim Erstellen des Seiteninhalts!';
+$allgsys_trans['make_content']['err01'] = 'La page n\'existe pas!';
+$allgsys_trans['make_content']['err02'] = 'Vous n\'avez pas d\'accès à la page! ';
+$allgsys_trans['make_content']['err03'] = 'Ce page n\'est pas disponible dans la langue souhaitée par vous!';
+$allgsys_trans['make_content']['err04'] = 'Indication';
+$allgsys_trans['make_content']['err05'] = 'Faute à faire le contenu de page!';
 
-$allgsys_trans['output']['perma'] = 'Permalink';
-$allgsys_trans['output']['estv'] = 'Erstellt von';
-$allgsys_trans['output']['am'] = 'am';
+$allgsys_trans['output']['perma'] = 'Permalien';
+$allgsys_trans['output']['estv'] = 'Dernière modification par';
+$allgsys_trans['output']['am'] = 'le';
 
-$allgsys_trans['themesite']['such'] = 'Suchbegriff';
+$allgsys_trans['themesite']['such'] = 'Mot-clé';
 
 ?>
