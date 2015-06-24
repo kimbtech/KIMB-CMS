@@ -25,7 +25,6 @@
 
 define("KIMB_CMS", "Clean Request");
 
-
 //Klassen Autoload
 require_once( __DIR__.'/core/oop/all_oop.php' );
 

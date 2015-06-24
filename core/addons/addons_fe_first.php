@@ -125,6 +125,17 @@ foreach( $all as $add ){
 //alles im Include Array einbinden
 foreach( $includes as $name ){
 
+	//Übersetzung des Add-ons laden
+	//	nicht jedes Add-on hat Übersetzungen
+	if( is_file( __DIR__.'/'.$name.'/lang_'.$allgsys_sitespr.'.ini' ) ){
+		//als INI Datei mit richtiger Sprache laden
+		$allgsys_trans['addons'][$name] = parse_ini_file( __DIR__.'/'.$name.'/lang_'.$allgsys_sitespr.'.ini', true );	
+	}
+	elseif( is_file( __DIR__.'/'.$name.'/lang_en.ini' ) ){
+		//im Notfall Fallback EN
+		$allgsys_trans['addons'][$name] = parse_ini_file( __DIR__.'/'.$name.'/lang_en.ini', true );	
+	}
+	
 	require_once(__DIR__.'/'.$name.'/include_fe_first.php');
 
 }

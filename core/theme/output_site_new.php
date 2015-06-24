@@ -81,7 +81,7 @@ echo('<div id="page">'."\r\n");
 
 				echo('<li>'."\r\n");
 				echo('<form method="post"  action="'.$this->allgsysconf['siteurl'].'/index.php?id='.$search_sitemap['searchsiteid'].'">'."\r\n");
-				echo('<input id="searchform" type="text" name="search" placeholder="Suchbegriff" value="'.htmlentities( $_REQUEST['search'] ).'">'."\r\n");
+				echo('<input id="searchform" type="text" name="search" placeholder="'.$allgsys_trans['themesite']['such'].'" value="'.htmlentities( $_REQUEST['search'] ).'">'."\r\n");
 				echo('</form>'."\r\n");	
 				echo('</li>'."\r\n");
 			}

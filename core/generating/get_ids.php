@@ -23,8 +23,6 @@
 //http://www.gnu.org/licenses/gpl-3.0.txt
 /*************************************************/
 
-
-
 defined('KIMB_CMS') or die('No clean Request');
 
 //Hier werden die IDs aus dem Request erstellt.
@@ -287,7 +285,7 @@ if( isset($_GET['url']) && $allgsysconf['urlrewrite'] == 'on' && !isset($_GET['i
 							//das darf nicht sein -> 404
 							
 							//Fehlermedlung und $allgerr für z.B. Add-ons und RequestID = 0 (nicht vergeben!)
-							$sitecontent->echo_error( 'Diese URL zeigt auf keine Seite!' , '404' );
+							$sitecontent->echo_error( $allgsys_trans['get_ids']['err01'] , '404' );
 							$allgerr = '404';
 							$_GET['id'] = '0';
 						}
@@ -296,7 +294,7 @@ if( isset($_GET['url']) && $allgsysconf['urlrewrite'] == 'on' && !isset($_GET['i
 							//wohl nicht
 							
 							//Fehlermedlung und $allgerr für z.B. Add-ons und RequestID = 0 (nicht vergeben!)
-							$sitecontent->echo_error( 'Fehlerhafte RequestURL !', '404' );
+							$sitecontent->echo_error( $allgsys_trans['get_ids']['err02'], '404' );
 							$allgerr = '404';
 							$_GET['id'] = '0';
 						}
@@ -308,7 +306,7 @@ if( isset($_GET['url']) && $allgsysconf['urlrewrite'] == 'on' && !isset($_GET['i
 					//es existiert eine NextID, aber in der Datei fehlt das Verzeichnis
 					
 					//Fehlermedlung und $allgerr für z.B. Add-ons und RequestID = 0 (nicht vergeben!)
-					$sitecontent->echo_error( 'Diese URL zeigt auf keine Seite!' , '404' );
+					$sitecontent->echo_error( $allgsys_trans['get_ids']['err01'] , '404' );
 					$allgerr = '404';
 					$_GET['id'] = '0';
 					//Schleife verlassen
@@ -324,7 +322,7 @@ if( isset($_GET['url']) && $allgsysconf['urlrewrite'] == 'on' && !isset($_GET['i
 			//noch ein weiteres URL-Verzeichnis?
 			if( !empty( $urlteile[$i] ) ){
 				//Fehlermedlung und $allgerr für z.B. Add-ons und RequestID = 0 (nicht vergeben!)
-				$sitecontent->echo_error( 'Diese URL zeigt auf keine Seite!' , '404' );
+				$sitecontent->echo_error( $allgsys_trans['get_ids']['err01'] , '404' );
 				$allgerr = '404';
 				$_GET['id'] = '0';
 			}
@@ -347,7 +345,7 @@ if( isset($_GET['url']) && $allgsysconf['urlrewrite'] == 'on' && !isset($_GET['i
 		//nichts passendes gefunden, also keine richtige URL
 		
 		//Fehlermedlung und $allgerr für z.B. Add-ons und RequestID = 0 (nicht vergeben!)
-		$sitecontent->echo_error( 'Diese URL zeigt auf keine Seite!' , '404' );
+		$sitecontent->echo_error( $allgsys_trans['get_ids']['err01'] , '404' );
 		$allgerr = '404';
 		$_GET['id'] = '0';
 	}
@@ -364,7 +362,7 @@ elseif( isset($_GET['id']) ){
 	//wird eine Fehlerseite gefordert?
 	if( $_GET['id'] == 'err404' ){
 		//nicht gefunden
-		$sitecontent->echo_error( 'Die angeforderte Seite ist nicht verfügbar!', '404' );
+		$sitecontent->echo_error( $allgsys_trans['get_ids']['err03'] , '404' );
 		$allgerr = '404';
 		$_GET['id'] = '1';
 	}
@@ -379,7 +377,7 @@ elseif( isset($_GET['id']) ){
 		//eine ID aus etwas anderem als Zahlen -> Fehler
 		
 		//Fehlermedlung und $allgerr für z.B. Add-ons und RequestID = 0 (nicht vergeben!)
-		$sitecontent->echo_error( 'Fehlerhafte RequestID !', '404' );
+		$sitecontent->echo_error( $allgsys_trans['get_ids']['err04'], '404' );
 		$allgerr = '404';
 		$_GET['id'] = '0';
 	}
@@ -523,7 +521,7 @@ if( $allgerr != '404' ){
 	//alles okay bei der Bestimmung der IDs
 	if( empty( $allgsiteid )  || empty( $allgmenueid ) || !$allgsiteid || !$allgmenueid ){
 		//wenn nicht dann Fehler ausgeben
-		$sitecontent->echo_error( 'Fehlerhafte RequestID Zuordnung!' , '404' );
+		$sitecontent->echo_error($allgsys_trans['get_ids']['err05'] , '404' );
 		$allgerr = '404';
 	}
 	

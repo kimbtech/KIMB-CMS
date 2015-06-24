@@ -36,6 +36,8 @@ if( !isset( $allgsysconf['siteurl'] ) ){
 	open_url( 'configurator.php' );
 }
 
+//FE Translation
+require_once(__DIR__.'/core/trans/trans_do.php');
 //Menue und Site IDs aus Request 
 require_once(__DIR__.'/core/generating/get_ids.php');
 //Addons ermoeglichen einzugreifen
@@ -48,7 +50,7 @@ require_once(__DIR__.'/core/generating/make_content.php');
 require_once(__DIR__.'/core/addons/addons_fe_second.php');
 
 //Seite ausgeben
-$sitecontent->output_complete_site();
+$sitecontent->output_complete_site( $allgsys_trans );
 
 //Die Rechtschreibfehler in den Kommentaren sind nicht beabsichtigt,
 //ich bin nunmal mit der Syntax von Computersprachen vertrauter als 

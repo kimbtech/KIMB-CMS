@@ -32,14 +32,14 @@ if( $allgerr != '404' ){
 	}
 	else{
 		//keine Seitendatei -> Fehler
-		$sitecontent->echo_error( 'Diese Seite existiert nicht!' , '404' );
+		$sitecontent->echo_error( $allgsys_trans['make_content']['err01'] , '404' );
 		$allgerr = '404';
 	}
 }
 
 //bei Fehler 403 keine Seite anzeigen (Fehler wird von Add-ons oder per Aufruf von index.php?id=err403 erzeugt)
 if( $allgerr == '403' ){
-	$sitecontent->echo_error( 'Sie haben keinen Zugriff auf diese Seite!' , '403' );
+	$sitecontent->echo_error( $allgsys_trans['make_content']['err02'] , '403' );
 }
 //es sollten keine Fehler gesetzt sein und natülich muss die Seitendatei geladen sein
 elseif( is_object( $sitefile ) && !isset( $allgerr ) ){
@@ -59,7 +59,7 @@ elseif( is_object( $sitefile ) && !isset( $allgerr ) ){
 		//Nicht jede Seite ist in alle Sprachen übersetzt, sollte dies nicht der Fall sein, wird eine Meldung angezeit und die Seite in der Standardsprache geladen 
 		if( empty($sitefile->read_kimb_one( $dbftag['title'] )) && empty($sitefile->read_kimb_one( $dbftag['inhalt'] )) ){
 			//Meldung
-			$sitecontent->echo_error( 'Diese Seite ist nicht in der von Ihnen gewünschten Sprache verfügbar!', 'unknown', 'Hinweis' );
+			$sitecontent->echo_error( $allgsys_trans['make_content']['err03'], 'unknown', $allgsys_trans['make_content']['err04'] );
 			//normale Tags nutzen
 			$normtags = true;
 		}
@@ -91,13 +91,13 @@ elseif( is_object( $sitefile ) && !isset( $allgerr ) ){
 	$seite['req_id'] = $_GET['id'];
 
 	//das Array mit den Seiteninhalten zur Ausgabe geben
-	$sitecontent->add_site($seite);
+	$sitecontent->add_site($seite, $allgsys_trans['output']);
 
 }
 //wenn noch kein Fehler vorhanden ist und man hier landet, ist irgendwas beim laden der Seiteninhalt falsch gelaufen
 //	User informieren
 elseif( !isset( $allgerr ) ){
-	$sitecontent->echo_error( 'Fehler beim Erstellen des Seiteninhalts !' );
+	$sitecontent->echo_error( $allgsys_trans['make_content']['err05'] );
 	$allgerr = 'unknown';
 }
 ?>
