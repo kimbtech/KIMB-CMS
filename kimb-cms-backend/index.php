@@ -125,6 +125,13 @@ if( !empty( $_POST['user'] ) && !empty( $_POST['pass'] ) ){
 			$_SESSION["useragent"] = $_SERVER['HTTP_USER_AGENT'];
 			//Der Zufallscode für den Hash des Passworts ist nicht mehr nötig -> weg damit
 			unset($_SESSION["loginsalt"]);
+			
+			//wenn Loginsite mit Link zur Weiterleiung nach erfolgreichem Login aufgerufen
+			if( !empty( $_GET['goto'] ) ){
+				//Weiterleiten
+				open_url( '/kimb-cms-backend/'.$_GET['goto'] );
+				die;
+			}
 		}
 		else{
 			//Das Passwort ist falsch
@@ -218,7 +225,14 @@ if( $_SESSION['loginokay'] != $allgsysconf['loginokay'] ){
 	//Das Grunfgerüst des Loginformulars ausgeben
 	//	Ohne JavaScript erscheint nur ein Hinweis auf die Notwendigkeit JavaScript zu aktivieren
 	$sitecontent->add_site_content( '<h2>Login</h2>' );
-	$sitecontent->add_site_content( '<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/index.php" method="post" onsubmit="return submitsys();" >' );
+	//wenn Loginsite mit Link zur Weiterleiung nach erfolgreichem Login aufgerufen
+	if( !empty( $_GET['goto'] ) ){
+		//Link ins Form
+		$sitecontent->add_site_content( '<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/index.php?goto='.$_GET['goto'].'" method="post" onsubmit="return submitsys();" >' );	
+	}
+	else{
+		$sitecontent->add_site_content( '<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/index.php" method="post" onsubmit="return submitsys();" >' );
+	}
 	$sitecontent->add_site_content( '<div id="login"> <div class="ui-widget" style="position: relative;"><div class="ui-state-highlight ui-corner-all" style="padding:10px;">');
 	$sitecontent->add_site_content( '<span class="ui-icon ui-icon-info" style="position:absolute; left:20px; top:7px;"></span>');
 	$sitecontent->add_site_content( '<h1>Diese Seite benötigt JavaScript!!</h1>');
