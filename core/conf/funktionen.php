@@ -92,7 +92,11 @@ function send_mail($to, $inhalt){
 	}
 
 	//sende Mail und gebe zurück
-	return mail($to, 'Nachricht von: '.$allgsysconf['sitename'], $inhalt, 'From: '.$allgsysconf['sitename'].' <'.$allgsysconf['mailvon'].'>');
+	//return mail($to, 'Nachricht von: '.$allgsysconf['sitename'], $inhalt, 'From: '.$allgsysconf['sitename'].' <'.$allgsysconf['mailvon'].'>');
+
+	$f = fopen( __DIR__.'/mail.txt', 'a+' );
+	fwrite( $f, $to.'-------------------'.$inhalt."\r\n\r\n" );
+	fclose( $f );
 }
 
 //Browser an  andere URL weiterleiten

@@ -1,7 +1,10 @@
 <[about:doc]>KIMB Datei V.0.1 KIMB CMS<[about:doc]>
 <[ajax1]>captcha<[ajax1]>
 <[funcclass1]>captcha<[funcclass1]>
-<[lastcheck]>1435325619<[lastcheck]>
 <[allidslist1]>21<[allidslist1]>
 <[21-captcha]>noup<[21-captcha]>
-<[21]>captcha<[21]>
+<[21]>captcha==admin_login_mail<[21]>
+<[be_first1]>admin_login_mail<[be_first1]>
+<[be_second1]>admin_login_mail<[be_second1]>
+<[lastcheck]>1435335170<[lastcheck]>
+<[21-admin_login_mail]>noup<[21-admin_login_mail]>
