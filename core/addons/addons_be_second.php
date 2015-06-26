@@ -33,8 +33,12 @@ if( is_array( $besecondincludesaddons ) ){
 	//alles ausführen
 	foreach( $besecondincludesaddons as $name ){
 	
-		require_once(__DIR__.'/'.$name.'/include_be_second.php');
-	
+		//prüfen ob Datei vorhanden
+		if( is_file( __DIR__.'/'.$name.'/include_be_second.php' ) ){
+
+			require_once(__DIR__.'/'.$name.'/include_be_second.php');
+
+		}
 	}
 }
 
