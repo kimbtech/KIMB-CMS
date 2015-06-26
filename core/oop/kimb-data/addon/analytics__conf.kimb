@@ -1,0 +1,13 @@
+<[about:doc]>KIMB dbf V3.50 - KIMB-technologies<[about:doc]>
+<[anatool]>p<[anatool]>
+<[infobann]>on<[infobann]>
+<[ibcss]>div#analysehinweis{position:fixed; left:0; top:0; width:100%; background-color:orange; text-align:center;}<[ibcss]>
+<[ibtext]><p>Diese Seite nutzt Cookies und einen Webanalysedienst. Mit der Nutzung dieser Seite erklären Sie sich damit einverstanden.</p><p><i>Weitere Informationen: <a href="http://www.example.com/" target="_blank" style="color:#ffffff; text-decoration:underline;">Impressum & Datenschutz</a>!</i></p><[ibtext]>
+<[allidslist1]>1<[allidslist1]>
+<[1-url]>http://example.com/piwik<[1-url]>
+<[1]>url==id==pimg<[1]>
+<[1-id]>2<[1-id]>
+<[1-pimg]>on<[1-pimg]>
+<[allidslist2]>2<[allidslist2]>
+<[2-id]>UA-123456-1<[2-id]>
+<[2]>id<[2]>

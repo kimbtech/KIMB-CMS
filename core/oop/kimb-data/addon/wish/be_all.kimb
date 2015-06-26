@@ -5,3 +5,9 @@
 <[1-stelle]>hinten<[1-stelle]>
 <[1-recht]>no<[1-recht]>
 <[1-site]>index<[1-site]>
+<[allidslist2]>2<[allidslist2]>
+<[2-addon]>analytics<[2-addon]>
+<[2]>addon==stelle==recht==site<[2]>
+<[2-stelle]>vorn<[2-stelle]>
+<[2-recht]>no<[2-recht]>
+<[2-site]>all<[2-site]>

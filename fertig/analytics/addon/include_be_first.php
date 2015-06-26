@@ -1,9 +1,9 @@
 <?php
 
 /*************************************************/
-//KIMB CMS
-//KIMB ContentManagementSystem
-//Copyright (c) 2014 by KIMB-technologies
+//KIMB CMS Add-on
+//KIMB ContentManagementSystem Add-on
+//Copyright (c) 2015 by KIMB-technologies
 /*************************************************/
 //This program is free software: you can redistribute it and/or modify
 //it under the terms of the GNU General Public License version 3
@@ -25,17 +25,16 @@
 
 defined('KIMB_CMS') or die('No clean Request');
 
-//gesichertes Include Array von first vorhanden?
-//	(kann teilweise durch /core/conf/conf_backend.php fehlen)
-if( is_array( $besecondincludesaddons ) ){
-	
-	//gesichertes Include Array von first verwenden
-	//alles ausführen
-	foreach( $besecondincludesaddons as $name ){
-		if( is_file( __DIR__.'/'.$name.'/include_be_second.php' ) ){
-			require_once(__DIR__.'/'.$name.'/include_be_second.php');
-		}
-	}
+//alles laden
+require_once( __DIR__.'/tracking_codes.php' );
+
+//Piwik per Bild in den Seitenquelltext
+if( $analytics['conf']['anatool'] == 'pimg' ){
+	$sitecontent->add_site_content( $analytics['codes'] );
+}
+//sonst alles in den Header
+else{
+	$sitecontent->add_html_header( $analytics['codes'] );
 }
 
 ?>
