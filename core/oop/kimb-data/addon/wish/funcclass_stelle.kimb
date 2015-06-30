@@ -3,3 +3,7 @@
 <[1-addon]>captcha<[1-addon]>
 <[1]>addon==stelle<[1]>
 <[1-stelle]>vorn<[1-stelle]>
+<[allidslist2]>2<[allidslist2]>
+<[2-addon]>galerie<[2-addon]>
+<[2]>addon==stelle<[2]>
+<[2-stelle]>hinten<[2-stelle]>
