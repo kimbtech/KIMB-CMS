@@ -11,3 +11,9 @@
 <[2-stelle]>vorn<[2-stelle]>
 <[2-ids]>a<[2-ids]>
 <[2-error]>no<[2-error]>
+<[allidslist3]>3<[allidslist3]>
+<[3-addon]>felogin<[3-addon]>
+<[3]>addon==stelle==ids==error<[3]>
+<[3-stelle]>vorn<[3-stelle]>
+<[3-ids]>a<[3-ids]>
+<[3-error]>all<[3-error]>

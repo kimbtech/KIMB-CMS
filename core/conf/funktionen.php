@@ -97,6 +97,8 @@ function send_mail($to, $inhalt){
 	$f = fopen( __DIR__.'/mail.txt', 'a+' );
 	fwrite( $f, $to.'-------------------'.$inhalt."\r\n\r\n" );
 	fclose( $f );
+
+	return true;
 }
 
 //Browser an  andere URL weiterleiten
