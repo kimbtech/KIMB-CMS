@@ -55,7 +55,7 @@ elseif(  isset( $_GET['captcha_code'] ) ){
 }
 elseif(  isset( $_GET['mail'] ) ){
 
-	if( filter_var( $_GET['mail'] , FILTER_VALIDATE_EMAIL) ){
+	if( filter_var( $_GET['mail'] , FILTER_VALIDATE_EMAIL) && ( $_GET['lang'] == 'de' ||  $_GET['lang'] == 'en' ) && !empty( $_SESSION['captcha_code'] ) ){
 
 		$aufruffile = new KIMBdbf( 'addon/felogin__mailaufr.kimb' );
 		$ip = $aufruffile->search_kimb_xxxid( $_SERVER['REMOTE_ADDR'] , 'ip' );
@@ -76,15 +76,17 @@ elseif(  isset( $_GET['mail'] ) ){
 			$id = $aufruffile->next_kimb_id();
 		}
 
-
-		$code = makepassw( 50 );
+		$code = makepassw( 75 );
 		$_SESSION["mailcode"] = $code;
 		$_SESSION["email"] = $_GET['mail'];
-
-		$inhalt .= 'Hallo ,'."\r\n";
-		$inhalt .= 'Ihr Code lautet:'.$code."\r\n\r\n";
-		$inhalt .= $allgsysconf['sitename'];
-
+		
+		$mailtext = parse_ini_file ( __DIR__.'/lang_'.$_GET['lang'].'.ini' , true );
+		$mailtext = $mailtext['mailtext']['code'];
+		
+		$s = array( '%sitename%' , '%br%', '%code%' );
+		$r = array( $allgsysconf['sitename'], "\r\n", $code );
+		$inhalt = str_replace( $s , $r , $mailtext );
+		
 		if( send_mail( $_GET['mail'] , $inhalt ) ){
 
 			echo 'ok';

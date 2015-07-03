@@ -25,117 +25,174 @@
 
 defined('KIMB_CMS') or die('No clean Request');
 
+//Konfiguration laden und Handhabung vereinfachen
 $addonurl = $allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=more&addon=felogin';
 $feconf = new KIMBdbf( 'addon/felogin__conf.kimb'  );
 $feuser = new KIMBdbf( 'addon/felogin__user.kimb'  );
 
-$sitecontent->add_site_content('<hr /><h2>Userlogin Gruppen</h2>');
+//Überschrift
+$sitecontent->add_site_content('<h2>Userlogin Gruppen</h2>');
 
+//alle Gruppen lesen
 $gruppen = explode( ',' , $feconf->read_kimb_one( 'grlist' ) );
 
+//neue Gruppe und erste RequestID dafür gesetzt?
 if( !empty( $_POST['newgr'] ) && !empty( $_POST['firstrequid'] ) ){
-
+	
+	//Gruppennamen säubern
 	$_POST['newgr'] = preg_replace( "/[^a-zA-Z0-9]/" , "" , $_POST['newgr'] );
 
+	//neue Gruppe schon vorhanden?
 	if( !in_array( $_POST['newgr'] , $gruppen ) ){
+		//wenn nicht dann aufschreiben
 		$feconf->write_kimb_new( $_POST['newgr'] , $_POST['firstrequid'] );
 
+		//Gruppenliste schon da?
 		if( empty( $feconf->read_kimb_one( 'grlist' ) ) ){
+			//erste Gruppe hinzufügen
 			$feconf->write_kimb_new( 'grlist' , $_POST['newgr'] );
 		}
 		else{
+			//neue Gruppe der Liste anfügen
 			$new = $feconf->read_kimb_one( 'grlist' );
 			$new .= ','.$_POST['newgr'];
 			$feconf->write_kimb_replace( 'grlist' , $new );
 		}
+		//Medlung
 		$sitecontent->echo_message( 'Die Gruppe "'.$_POST['newgr'].'" wurde hinzugefügt!' );
-
+		//Gruppen neu laden
 		$gruppen = explode( ',' , $feconf->read_kimb_one( 'grlist' ) );
 	}
 	else{
+		//Fehler wenn Gruppe schon da
 		$sitecontent->echo_error( 'Die Gruppe existiert bereits!' , 'unknown' );
 	}
 }
+//Gruppe löschen?
 elseif( isset( $_GET['gruppe'] ) && isset( $_GET['del'] )  ){
+	//Gruppe vorhaden
 	$read = $feconf->read_kimb_one( $_GET['gruppe'] );
 	if( !empty( $read ) ){
-
+		//wenn Gruppe gefunden -> Löschen beginnen
+		
+		//Gruppe aus der Gruppenliste entfernen
 		foreach( $gruppen as $gr ){
 			if( $gr != $_GET['gruppe'] ){
 				$newgrlist .= ','.$gr;
 			}
 		}
-
+		//vorne ist in der Liste immer ein Komma zu viel, weg damit
 		$newgrlist = substr( $newgrlist , 1 );
 
+		//Gruppendaten löschen
 		$feconf->write_kimb_delete( $_GET['gruppe'] );
 
 		if( empty( $newgrlist ) ){
+			//wenn neue Gruppenliste leer, Gruppenliste löschen
 			$feconf->write_kimb_delete( 'grlist' );
 		}
 		else{
+			//sonst überschreiben
 			$feconf->write_kimb_replace( 'grlist' , $newgrlist );
 		}		
 
+		//Medlung
 		$sitecontent->echo_message( 'Die Gruppe "'.$_GET['gruppe'].'" wurde gelöscht!' );
-
+		//Gruppen neu laden
 		$gruppen = explode( ',' , $feconf->read_kimb_one( 'grlist' ) );
 	}
 }
 
+//Gruppe bearbeiten?
 if( isset( $_GET['gruppe'] ) && !isset( $_GET['del'] ) ){
+	
+	//per JavaScript den unteren Teil "Userlogin Einstellungen" ausbelden (User kann diesen per Button wieder einblenden)
+	$sitecontent->add_html_header('<script>$( function () { change_userlogineinst(); });</script>');
 
+	//Link zur Übersichr über alle Gruppen
+	$sitecontent->add_site_content('<a href="'.$addonurl.'" >&larr; Zur Übersicht</a><br /><br />');
+	
+	//Überschrift
 	$sitecontent->add_site_content('<b>Gruppe "'.$_GET['gruppe'].'"</b>');
 
+	//Gruppeninfos lesen
 	$read = $feconf->read_kimb_one( $_GET['gruppe'] );
 
+	//Gruppe gefunden?
 	if( !empty( $read ) ){
 
+		//Änderungen übertragen?
 		if( isset( $_POST['change'] ) ){
 			
+			//alle Werte durchgehen
 			$i = 1;
 			while( 5 == 5 ){
-				if( isset( $_POST['siteids'.$i] ) ){
+				//SiteID gesetzt und nummerisch?
+				if( isset( $_POST['siteids'.$i] ) && is_numeric( $_POST['siteids'.$i] ) ){
+					//der Liste anfügen
 					$sitelist .= ','.$_POST['siteids'.$i];
 				}
+				//SiteID nicht nummerisch (none) und auch nicht leer (->löschen)
+				if(  !is_numeric( $_POST['siteids'.$i] ) && !empty( $_POST['siteids'.$i] ) ){
+					//Medlung, dass none nicht erlaubt
+					$sitecontent->echo_error( 'Sie können keine Seite mit "none" wählen!', 'unknown', 'Achtung' );
+				}
+				//wenn alle Übergaben durchgearbeitet
 				if( $i >= $_POST['change'] ){
 					break;
 				}
 				$i++;
 			}
+			//die Seitenliste hat immer ein Komma vorne -> weg damit
 			$sitelist = substr( $sitelist , 1 );
 
+			//Seitelist der Gruppe neu schreiben
 			$feconf->write_kimb_replace( $_GET['gruppe'] , $sitelist );
 
+			//Medlung
 			$sitecontent->echo_message( 'Die Seiten wurden verändert!' );	
 		}
 
+		//Seitenliste der Gruppe lesen
 		$read = $feconf->read_kimb_one( $_GET['gruppe'] );
+		//Array mit Seiten erstellen
 		$sites = explode( ',' , $read );
 
+		//Formular beginnen
 		$sitecontent->add_site_content('<form method="post" action="'.$addonurl.'&amp;gruppe='.$_GET['gruppe'].'">');
 
+		//für jede Seite ein Dropdown anziegen
+		//	Anzahl mitzählen
 		$i = '1';
 		foreach( $sites as $site ){
+			//per JS aktuelle Seite wählen
 			$bef .= '$( "[name=siteids'.$i.']" ).val( '.$site.' );';
+			//Dropdown mit SiteIDs erstellen
 			$sitecontent->add_site_content( id_dropdown( 'siteids'.$i, 'siteid' ) );
-			$sitecontent->add_site_content( '<span class="ui-icon ui-icon-trash" style="display:inline-block;" onclick="$( \'[name=siteids'.$i.']\' ).val( \'none\' );" title="Diese Seite entfernen."></span><br />' );
+			//Mülleimer zum löschen der Seite anzeigen
+			$sitecontent->add_site_content( '<span class="ui-icon ui-icon-trash" style="display:inline-block;" onclick="$( \'[name=siteids'.$i.']\' ).val( \'---none---\' );" title="Diese Seite entfernen."></span><br />' );
 			$i++;
 		}
 
-		$bef .= '$( "[name=siteids'.$i.']" ).val( "none" );';
+		//weitere Seite hinzufügen
+		//	Wert -> leer
+		$bef .= '$( "[name=siteids'.$i.']" ).val( "---none---" );';
+		//	Dropdown
 		$sitecontent->add_site_content( id_dropdown( 'siteids'.$i, 'siteid' ) .' <b title="Eine Seite hinzufügen!">*</b><br />' );
+		//Button und Anzahl der Dropdowns (durchläufe der while-Schleife oben)
 		$sitecontent->add_site_content('<input type="hidden" name="change" value="'.$i.'" ><input type="submit" value="Ändern"></form>');
 
+		//JS Code dem Header hinzufügen
 		$sitecontent->add_html_header('<script>$(function(){ '.$bef.' }); </script>');
 	}
 	else{
+		//Fehler wenn Gruppe nicht vorhanden
 		$sitecontent->echo_error( 'Die Gruppe existiert nicht!' , 'unknown' );
 	}
 
-	$sitecontent->add_site_content('<br /><br /><a href="'.$addonurl.'" ><button>Zurück</button></a>');
 }
 else{
+	//JavaScript für Löschen Dialog der Gruppen
 	$sitecontent->add_html_header('<script>
 	var del = function( gruppe ) {
 		$( "#del-felogingruppe" ).show( "fast" );
@@ -173,7 +230,24 @@ else{
 	$sitecontent->add_site_content('<div style="display:none;"><div id="del-felogingruppe" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 25px 0;"></span>Möchten Sie die Usergruppe wirklich löschen?</p></div></div>');
 }
 
-$sitecontent->add_site_content('<hr /><h2>Userlogin Einstellungen</h2>');
+$sitecontent->add_html_header('<script>
+function change_userlogineinst() {
+	if( $( "div#userlogineinst" ).css( "display") == "none" ){
+		$( "div#userlogineinst" ).css( "display", "block" );
+		$( "div#userlogineinstanbutton" ).css( "display", "none" );
+		$( "div#userlogineinstausbutton" ).css( "display", "block" );		
+	}
+	else{
+		$( "div#userlogineinst" ).css( "display", "none" );
+		$( "div#userlogineinstanbutton" ).css( "display", "block" );
+		$( "div#userlogineinstausbutton" ).css( "display", "none" );
+	}
+}
+</script>');
+
+$sitecontent->add_site_content('<div id="userlogineinst"><hr />');
+
+$sitecontent->add_site_content('<h2>Userlogin Einstellungen</h2>');
 
 if( empty( $feconf->read_kimb_one( 'loginokay' ) ) ){
 	$loginokay = makepassw( '75' , '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz' );
@@ -276,5 +350,14 @@ $sitecontent->add_html_header('<script>$(function(){ $( "[name=requid]" ).val( '
 $sitecontent->add_site_content( id_dropdown( 'requid', 'requid' ).' <span style="display:inline-block;" title="Bitte wählen Sie hier eine Seite, auf welcher alles rund um das Login angezeigt werden soll." class="ui-icon ui-icon-info"></span><br />');
 
 $sitecontent->add_site_content('<input type="submit" value="Ändern"><span style="display:inline-block;" title="Sie müssen alle Felder füllen!" class="ui-icon ui-icon-info"></span></form>');
+
+$sitecontent->add_site_content('</div>');
+
+$sitecontent->add_site_content('<hr /><div id="userlogineinstanbutton" style="display:none;">');
+$sitecontent->add_site_content('<button onclick="change_userlogineinst(); return false;">Userlogin Einstellungen anzeigen</button>');
+$sitecontent->add_site_content('</div>');
+$sitecontent->add_site_content('<div id="userlogineinstausbutton">');
+$sitecontent->add_site_content('<button onclick="change_userlogineinst(); return false;">Userlogin Einstellungen ausblenden</button>');
+$sitecontent->add_site_content('</div>');
 
 ?>
