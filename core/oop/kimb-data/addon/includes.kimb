@@ -11,8 +11,6 @@
 <[21-auto_update]>noup<[21-auto_update]>
 <[21-be_passw]>noup<[21-be_passw]>
 <[21-galerie]>noup<[21-galerie]>
-<[ajax2]>felogin<[ajax2]>
-<[funcclass3]>felogin<[funcclass3]>
 <[be_first1]>admin_login_mail<[be_first1]>
 <[be_first2]>be_passw<[be_first2]>
 <[be_first3]>auto_update<[be_first3]>
@@ -22,6 +20,8 @@
 <[be_second3]>auto_update<[be_second3]>
 <[be_second4]>galerie<[be_second4]>
 <[fe_first1]>galerie<[fe_first1]>
-<[fe_first2]>felogin<[fe_first2]>
 <[fe_second1]>galerie<[fe_second1]>
+<[ajax2]>felogin<[ajax2]>
+<[funcclass3]>felogin<[funcclass3]>
+<[fe_first2]>felogin<[fe_first2]>
 <[fe_second2]>felogin<[fe_second2]>
