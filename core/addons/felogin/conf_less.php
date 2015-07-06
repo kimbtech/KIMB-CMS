@@ -124,7 +124,7 @@ var del = function( id ) {
 }
 </script>');
 
-//Formualr mit allen Usern
+//Formular mit allen Usern
 $sitecontent->add_site_content('<form method="post" action="'.$addonurl.'" >');
 
 //Tabelle beginnen

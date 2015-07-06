@@ -146,9 +146,16 @@ if( isset( $_GET['gruppe'] ) && !isset( $_GET['del'] ) ){
 			//die Seitenliste hat immer ein Komma vorne -> weg damit
 			$sitelist = substr( $sitelist , 1 );
 
-			//Seitelist der Gruppe neu schreiben
-			$feconf->write_kimb_replace( $_GET['gruppe'] , $sitelist );
-
+			//Gruppe dann leer?
+			if( !empty( $sitelist ) ){ 
+				//Seitelist der Gruppe neu schreiben
+				$feconf->write_kimb_replace( $_GET['gruppe'] , $sitelist );
+			}
+			else{
+				//Medlung
+				$sitecontent->echo_error( 'Eine Gruppe ohne Seite geht nicht, bitte löschen Sie Gruppen in der Übersicht!', 'unknown', 'Achtung' );
+			}
+			
 			//Medlung
 			$sitecontent->echo_message( 'Die Seiten wurden verändert!' );	
 		}
@@ -215,21 +222,31 @@ else{
 	}
 	</script>');
 
+	//Tabelle aller Gruppen beginnen
 	$sitecontent->add_site_content('<table width="100%"><tr> <th width="75px;">Gruppenname</th> <th>Seiten <span class="ui-icon ui-icon-info" title="Entsprechen der SiteID ( Seiten -> Auflisten )!"></span></th> <th width="20px;">Löschen</th> </tr>');
 
+	//Gruppen nacheinander durchgehen
 	foreach( $gruppen as $gr ){
+		//Gruppeninfos lesen
 		$read = $feconf->read_kimb_one( $gr );
-		if( $read != '' ){
+		//Gruppe auch vergeben?
+		if( !empty($read ) ){
+			//Löschen Button
 			$del = '<span onclick="var delet = del( \''.$gr.'\' ); delet();"><span class="ui-icon ui-icon-trash" title="Diese Gruppe löschen."></span></span>';
+			//Tabellenzeile
 			$sitecontent->add_site_content('<tr> <td><a title="Seiten ändern" href="'.$addonurl.'&amp;gruppe='.$gr.'">'.$gr.'</a></td> <td>'.$read.'</td> <td>'.$del.'</td> </tr>');
 		}
 	}
+	//Tabellenzeile für neue Gruppe
+	//	Name eingeben, Dropdown für Seiten
 	$sitecontent->add_site_content('<tr> <td><form method="post" action="'.$addonurl.'"><input type="text" name="newgr" placeholder="hinzufügen" ></td> <td>'.id_dropdown( 'firstrequid', 'siteid' ).'</td> <td><input type="submit" value="Los" title="Eine neue Gruppe erstellen!" ></form></td> </tr>');
 	$sitecontent->add_site_content('</table>');
 
+	//HTML für Löschen Dialog
 	$sitecontent->add_site_content('<div style="display:none;"><div id="del-felogingruppe" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 25px 0;"></span>Möchten Sie die Usergruppe wirklich löschen?</p></div></div>');
 }
 
+//Funktion um Userlogin Einstellungen ein- und auszublenden 
 $sitecontent->add_html_header('<script>
 function change_userlogineinst() {
 	if( $( "div#userlogineinst" ).css( "display") == "none" ){
@@ -245,66 +262,88 @@ function change_userlogineinst() {
 }
 </script>');
 
+//Div mit Userlogin Einstellungen (ausblendbar)
 $sitecontent->add_site_content('<div id="userlogineinst"><hr />');
 
 $sitecontent->add_site_content('<h2>Userlogin Einstellungen</h2>');
 
+//Loginokay für felogin setzen, wenn leer
 if( empty( $feconf->read_kimb_one( 'loginokay' ) ) ){
 	$loginokay = makepassw( '75' , '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz' );
 	$feconf->write_kimb_new( 'loginokay' , $loginokay );
 }
 
+//sind Übergarben erfolgt?
 if( !empty( $_POST['selfoo'] ) && !empty( $_POST['areaoo'] ) && !empty( $_POST['infomailoo'] ) && !empty( $_POST['selfgr'] ) && !empty( $_POST['akzep'] ) && !empty( $_POST['requid'] ) ){
 
+	//Zuordnungen, was alles zu tun ist (on/off)
 	$arrays[] = array( 'teil' => 'selfoo' , 'trenner' => 'selfreg' );
 	$arrays[] = array( 'teil' => 'areaoo' , 'trenner' => 'addonarea' );
 	$arrays[] = array( 'teil' => 'infomailoo' , 'trenner' => 'infomail' );
 
+	//alles durchgehen
 	foreach( $arrays as $array ){
 		$teil = $array['teil'];
 		$trenner = $array['trenner'];
 
+		//on oder off?
 		if( $_POST[$teil] == 'on' || $_POST[$teil] == 'off' ){
+			//aktuellen Wert lesen
 			$wert = $feconf->read_kimb_one( $trenner );
+			//Wert verändert?
 			if( $wert != $_POST[$teil] ){
+				//leer, also neu
 				if( empty( $wert ) ){
 					$feconf->write_kimb_new( $trenner , $_POST[$teil] );
 				}
+				//alt, also ersetzen
 				else{
 					$feconf->write_kimb_replace( $trenner , $_POST[$teil] );
 				}
+				//Medlung an den User
 				$sitecontent->echo_message( '"'.$trenner.'" wurde auf "'.$_POST[$teil].'" gesetzt!' );
 			}
 		}
 	}
 
+	//Zuordnungen, was alles zu tun ist (Text)
 	$arrays[] = array( 'teil' => 'selfgr' , 'trenner' => 'selfreggruppe' );
 	$arrays[] = array( 'teil' => 'akzep' , 'trenner' => 'akzepttext' );
 	$arrays[] = array( 'teil' => 'requid' , 'trenner' => 'requid' );
 
+	//alles durchgehen
 	foreach( $arrays as $array ){
 		$teil = $array['teil'];
 		$trenner = $array['trenner'];
 
+		//aktuellen Wert lesen
 		$wert = $feconf->read_kimb_one( $trenner );
-		if( $wert != $_POST[$teil] ){
+		//aktuellen Wert mit Übergabe vergeleichen
+		//Übergabe nicht leer?
+		if( $wert != $_POST[$teil] && !empty( $_POST[$teil] ) ){
+			//leer, also neu
 			if( empty( $wert ) ){
 				$feconf->write_kimb_new( $trenner , $_POST[$teil] );
 			}
+			//alt, also ersetzen
 			else{
 				$feconf->write_kimb_replace( $trenner , $_POST[$teil] );
 			}
-			$sitecontent->echo_message( '"'.$trenner.'" wurde auf verändert!' );
+			//Meldung
+			$sitecontent->echo_message( '"'.$trenner.'" wurde verändert!' );
 		}
 	}
 
 }
-if( !empty( $_POST['selfoo'] ) && !empty( $_POST['areaoo'] ) && empty( $_POST['selfgr'] ) ){
-	$sitecontent->echo_error( 'Bitte erstellen Sie zuerst eine Gruppe und/oder füllen Sie alle Felder' );
+//Hinweis wenn eine Eingabe leer
+if( ( empty( $_POST['akzep'] ) || empty( $_POST['requid'] ) || empty( $_POST['selfgr'] ) ) && ( isset( $_POST['akzep'] ) && isset( $_POST['requid'] ) && isset( $_POST['selfgr'] ) ) ){
+	$sitecontent->echo_error( 'Bitte erstellen Sie zuerst eine Gruppe und füllen Sie alle Felder' );
 }
 
+//Werte für Formular laden
+//	erstmal nichts "checked=checked"
 $oo = array( ' ' , ' ' , ' ' , ' ' , ' ' , ' ' , ' ' );
-
+//	aktuelle Werte lesen und "checked=checked" entsprechend setzen
 if( $feconf->read_kimb_one( 'selfreg' ) == 'off' ){
 	$oo[1] = ' checked="checked" ';
 }
@@ -324,18 +363,23 @@ else{
 	$oo[6] = ' checked="checked" ';
 }
 
-$sitecontent->add_site_content('<form action="'.$addonurl.'" method="post" >');
+//Formuar beginnen
+$sitecontent->add_site_content('<form action="'.$addonurl.'" method="post" ><h3>An &amp; Aus</h3><table>');
 
-$sitecontent->add_site_content('<input name="selfoo" type="radio" value="off" '.$oo[1].'><span style="display:inline-block;" title="Keine Möglichkeit zum selbstständigen Registrieren anzeigen." class="ui-icon ui-icon-closethick"></span>');
-$sitecontent->add_site_content('<input name="selfoo" value="on" type="radio" '.$oo[2].'><span style="display:inline-block;" title="Selbstständiges Registrieren ermöglichen." class="ui-icon ui-icon-check"></span><br />');
+//Werte on/off wählbar
+$sitecontent->add_site_content('<tr><td>Selbstständige Registrierung:</td><td><input name="selfoo" type="radio" value="off" '.$oo[1].'><span style="display:inline-block;" title="Keine Möglichkeit zum selbstständigen Registrieren anzeigen." class="ui-icon ui-icon-closethick"></span>');
+$sitecontent->add_site_content('<input name="selfoo" value="on" type="radio" '.$oo[2].'><span style="display:inline-block;" title="Selbstständiges Registrieren ermöglichen." class="ui-icon ui-icon-check"></span></td></tr>');
 
-$sitecontent->add_site_content('<input name="areaoo" type="radio" value="off" '.$oo[3].'><span style="display:inline-block;" title="Das Loginformular nur auf einer Seite zeigen." class="ui-icon ui-icon-closethick"></span>');
-$sitecontent->add_site_content('<input name="areaoo" value="on" type="radio" '.$oo[4].'><span style="display:inline-block;" title="Das Loginformular überall in einer Addonarea anzeigen." class="ui-icon ui-icon-check"></span><br />');
+$sitecontent->add_site_content('<tr><td>Loginformular Addonarea:</td><td><input name="areaoo" type="radio" value="off" '.$oo[3].'><span style="display:inline-block;" title="Das Loginformular nur auf einer Seite zeigen." class="ui-icon ui-icon-closethick"></span>');
+$sitecontent->add_site_content('<input name="areaoo" value="on" type="radio" '.$oo[4].'><span style="display:inline-block;" title="Das Loginformular überall in einer Addonarea anzeigen." class="ui-icon ui-icon-check"></span></td></tr>');
 
-$sitecontent->add_site_content('<input name="infomailoo" type="radio" value="off" '.$oo[5].'><span style="display:inline-block;" title="Es wird keine E-Mail versendet, wenn sich ein neuer User registriert." class="ui-icon ui-icon-closethick"></span>');
-$sitecontent->add_site_content('<input name="infomailoo" value="on" type="radio" '.$oo[6].'><span style="display:inline-block;" title="Wenn sich ein neuer User registriert, wird eine E-Mail an die Adresse des Administrators in der Konfiguration gesendet" class="ui-icon ui-icon-check"></span><br />');
+$sitecontent->add_site_content('<tr><td>Neue User Infomail:</td><td><input name="infomailoo" type="radio" value="off" '.$oo[5].'><span style="display:inline-block;" title="Es wird keine E-Mail versendet, wenn sich ein neuer User registriert." class="ui-icon ui-icon-closethick"></span>');
+$sitecontent->add_site_content('<input name="infomailoo" value="on" type="radio" '.$oo[6].'><span style="display:inline-block;" title="Wenn sich ein neuer User registriert, wird eine E-Mail an die Adresse des Administrators in der Konfiguration gesendet" class="ui-icon ui-icon-check"></span></td></tr></table>');
 
+//Gruppenliste "Dropdown"
+//	alle Gruppen durchgehen
 foreach( $gruppen as $gr ){
+	//aktuelle Gruppe als "selected=selected"
 	if( $gr == $feconf->read_kimb_one( 'selfreggruppe' ) ){
 		$grdown .= '<option value="'.$gr.'" selected="selected" >'.$gr.'</option>';
 	}
@@ -344,15 +388,22 @@ foreach( $gruppen as $gr ){
 	}
 }
 
-$sitecontent->add_site_content('<select name="selfgr">'.$grdown.'</select><span style="display:inline-block;" title="Bitte geben Sie an, zu welcher Gruppe selbstständig registrierte User hinzugefügt werden sollen." class="ui-icon ui-icon-info"></span><br />');
-$sitecontent->add_site_content('<textarea name="akzep" style="width:200px; height:75px;">'.$feconf->read_kimb_one( 'akzepttext' ).'</textarea><span style="display:inline-block;" title="Dieser Text muss beim selbstständigen Registrieren eines Accounts angeklickt werden." class="ui-icon ui-icon-info"></span><br />');
+//Gruppenwahl für selbstständig registrierte User
+$sitecontent->add_site_content('<h3>Werte</h3><select name="selfgr">'.$grdown.'</select><span style="display:inline-block;" title="Bitte geben Sie an, zu welcher Gruppe selbstständig registrierte User hinzugefügt werden sollen." class="ui-icon ui-icon-info"></span><br />');
+//Text der akzeptiert werden muss, um Account zu erhalten
+$sitecontent->add_site_content('<textarea name="akzep" style="width:200px; height:75px;">'.htmlentities( $feconf->read_kimb_one( 'akzepttext' ) ).'</textarea><span style="display:inline-block;" title="Dieser Text muss beim selbstständigen Registrieren eines Accounts angeklickt werden." class="ui-icon ui-icon-info"></span><br />');
+//Wahl einer Seite/ eines Menüpunktes für das Login
+//	per JS richigen Punkt wählen
 $sitecontent->add_html_header('<script>$(function(){ $( "[name=requid]" ).val( '.$feconf->read_kimb_one( 'requid' ).' ); }); </script>');
+//	Dropdown mit allen Seiten
 $sitecontent->add_site_content( id_dropdown( 'requid', 'requid' ).' <span style="display:inline-block;" title="Bitte wählen Sie hier eine Seite, auf welcher alles rund um das Login angezeigt werden soll." class="ui-icon ui-icon-info"></span><br />');
 
-$sitecontent->add_site_content('<input type="submit" value="Ändern"><span style="display:inline-block;" title="Sie müssen alle Felder füllen!" class="ui-icon ui-icon-info"></span></form>');
+//Submit Button
+$sitecontent->add_site_content('<br /><input type="submit" value="Ändern"><span style="display:inline-block;" title="Sie müssen alle Felder füllen!" class="ui-icon ui-icon-info"></span></form>');
 
 $sitecontent->add_site_content('</div>');
 
+//Buttons um Userlogin Einstellungen mit JS aus- und einzublenden
 $sitecontent->add_site_content('<hr /><div id="userlogineinstanbutton" style="display:none;">');
 $sitecontent->add_site_content('<button onclick="change_userlogineinst(); return false;">Userlogin Einstellungen anzeigen</button>');
 $sitecontent->add_site_content('</div>');

@@ -25,8 +25,10 @@
 
 defined('KIMB_CMS') or die('No clean Request');
 
+//jQuery und Hash werden benötigt
 $sitecontent->add_html_header('<!-- Hash --><!-- jQuery -->');
 
+//Daten von funcclass laden
 $felogin = $addon_felogin_array;
 
 if( isset( $_POST['logout'] ) ){
@@ -40,9 +42,10 @@ if( isset( $_POST['logout'] ) ){
 	session_start();
 	$_SESSION["loginfehler"] = $loginfehler;
 
-	$sitecontent->add_site_content( '<center><hr />'.$allgsys_trans['addons']['felogin']['logout'].'<hr /></center>' );
+	$sitecontent->add_site_content( '<center><hr />'.$allgsys_trans['addons']['felogin']['logouttext'].'<hr /></center>' );
 }
 
+//Loginversuch?
 if( !empty($_POST['feloginuser']) && !empty($_POST['feloginpassw']) ){
 	
 	//Prüfung der Daten
@@ -57,26 +60,43 @@ if( !empty($_POST['feloginuser']) && !empty($_POST['feloginpassw']) ){
 		$_SESSION["loginfehler"] = 0; 
 	}
 
+	//Userliste laden
 	$userfile = new KIMBdbf( 'addon/felogin__user.kimb'  );
-		
+	
+	//Übergabe Usernamen
 	$user = $_POST['feloginuser'];
+	//Nach dem User suchen
 	$userda = $userfile->search_kimb_xxxid( $user , 'user' );
 
+	//Ist der User vorhaden und hat er nicht zu viele Fehleversuche
 	if($userda != false && $_SESSION["loginfehler"] <= 6 ){
+		//Übergabe Hash
  		$passhash = $_POST['feloginpassw'];
+		 //Hash zum Vergleich aus dbf
 		$passpruef = sha1($userfile->read_kimb_id( $userda , 'passw' ).$_SESSION["loginsalt"]);
 	
+		//Hashes geich und User aktiviert?
 		if( $passhash == $passpruef && $userfile->read_kimb_id( $userda , 'status' ) == 'on' ){
 			//eingeloggt
+			//Session füttern
+			//	Loginokay
 			$_SESSION['felogin']['loginokay'] = $felogin['loginokay'];
+			//	Name
 			$_SESSION['felogin']['name'] = $userfile->read_kimb_id( $userda , 'name' );
+			//	Gruppe
 			$_SESSION['felogin']['gruppe'] = $userfile->read_kimb_id( $userda , 'gruppe' );
+			//	Username
 			$_SESSION['felogin']['user'] = $user;
+			//	an IP binden
 			$_SESSION["ip"] = $_SERVER['REMOTE_ADDR'];
+			//	an Useragent binden
 			$_SESSION["useragent"] = $_SERVER['HTTP_USER_AGENT'];
+			//	Salt nicht mehr nötig
 			unset($_SESSION["loginsalt"]);
 		}
-		elseif( $userfile->read_kimb_id( $userda , 'status' ) == 'off' ){
+		//Hashes gleich und User deaktiviert?
+		elseif( $passhash == $passpruef && $userfile->read_kimb_id( $userda , 'status' ) == 'off' ){
+			//Medlung an der richtigen Stelle 
 			if( $felogin['conf']->read_kimb_one( 'addonarea' ) == 'on' ){
 				$felogin['area'] .= '<div style="color:red;">'.$allgsys_trans['addons']['felogin']['accoff'].'</div><br />';
 			}
@@ -84,8 +104,12 @@ if( !empty($_POST['feloginuser']) && !empty($_POST['feloginpassw']) ){
 				$sitecontent->add_site_content( '<div style="color:red;">'.$allgsys_trans['addons']['felogin']['accoff'].'</div><br />' );
 			}
 		}
+		//Passwort falsch?
 		else{
+			//Loginfehler +1
 			$_SESSION["loginfehler"]++;
+			//Medlung an richtiger Stelle
+			
 			if( $felogin['conf']->read_kimb_one( 'addonarea' ) == 'on' ){
 				$felogin['area'] .= $accinfo.'<div style="color:red;">'.$allgsys_trans['addons']['felogin']['loginfehler1'].' '.$_SESSION["loginfehler"].'. '.$allgsys_trans['addons']['felogin']['loginfehler2'].'</div><br />';
 			}
@@ -95,8 +119,12 @@ if( !empty($_POST['feloginuser']) && !empty($_POST['feloginpassw']) ){
 		}
 		
 	}
+	//Username falsch
 	else{
+		//Loginfehler +1
 		$_SESSION["loginfehler"]++;
+		//Medlung an richtiger Stelle
+		//	Fehlermedlung immer gleich (User soll nicht wissen ob Username oder Passwort falsch)
 		if( $felogin['conf']->read_kimb_one( 'addonarea' ) == 'on' ){
 			$felogin['area'] .= '<div style="color:red;">'.$allgsys_trans['addons']['felogin']['loginfehler1'].' '.$_SESSION["loginfehler"].'. '.$allgsys_trans['addons']['felogin']['loginfehler2'].'</div><br />';		
 		}
@@ -106,43 +134,62 @@ if( !empty($_POST['feloginuser']) && !empty($_POST['feloginpassw']) ){
 	}
 }
 
-if( !isset( $_SESSION['felogin']['user'] ) ){
-	$loginsalt = makepassw( 40 , '_0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz' );
-	$_SESSION["loginsalt"] = $loginsalt;
-}
+//Loginsalt machen
+$loginsalt = makepassw( 40 , '_0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz' );
+$_SESSION["loginsalt"] = $loginsalt;
 
-//addonarea form
+//Addonarea anzeigen?
 if( $felogin['conf']->read_kimb_one( 'addonarea' ) == 'on' ){
+	//eingeloggt?
 	if( !isset( $_SESSION['felogin']['user'] ) ){
+		//nein
+		
+		//Loginformular anzeigen
 		$felogin['addonarea'] .= '<form action="" method="post" onsubmit="hash();" >';
 		$felogin['addonarea'] .= '<input type="text" name="feloginuser" placeholder="'.$allgsys_trans['addons']['felogin']['username'].'" ><!--[if lt IE 10]> ('.$allgsys_trans['addons']['felogin']['username'].') <![endif]--><br />';
 		$felogin['addonarea'] .= '<input type="password" name="feloginpassw" placeholder="'.$allgsys_trans['addons']['felogin']['passwort'].'" id="pass" ><!--[if lt IE 10]> ('.$allgsys_trans['addons']['felogin']['passwort'].') <![endif]--><br />';
 		$felogin['addonarea'] .= '<input type="submit" value="'.$allgsys_trans['addons']['felogin']['login'].'"><br />';
 		$felogin['addonarea'] .= '</form><br />';
+		//Passwort vergessen Link
 		$felogin['addonarea'] .= '<a href="'.$allgsysconf['siteurl'].'/index.php?id='.$felogin['requid'].'&amp;pwforg#goto">'.$allgsys_trans['addons']['felogin']['pwforg'].'</a><br />';
 		if( $felogin['selfreg'] == 'on' ){
+			//wenn aktiviert -> Account erstellen
 			$felogin['addonarea'] .= '<a href="'.$allgsysconf['siteurl'].'/index.php?id='.$felogin['requid'].'&amp;register#goto">'.$allgsys_trans['addons']['felogin']['register'].'</a><br />';
 		}
 	}
 	else{
+		//ja
+		
+		//Willkommensnachricht
 		$felogin['addonarea'] .= $allgsys_trans['addons']['felogin']['hallo'].' '.$_SESSION['felogin']['name'].',<br />'.$allgsys_trans['addons']['felogin']['eingeloggt'].'<br /><br />';
+		//Logout Button
 		$felogin['addonarea'] .= '<form action="" method="post"><input type="hidden" name="logout" value="yes"><input type="submit" value="'.$allgsys_trans['addons']['felogin']['logout'].'" ></form><br /><br />';
+		//Link zu Usereinstellungen
 		$felogin['addonarea'] .= '<a href="'.$allgsysconf['siteurl'].'/index.php?id='.$felogin['requid'].'&amp;settings#goto">'.$allgsys_trans['addons']['felogin']['einst'].'</a><br />';
 	}
 
+	//Gerüst der Addonarea
 	$felogin['area'] .= '<h2>'.$allgsys_trans['addons']['felogin']['login'].'</h2>';
+	//Div für Form usw.
 	$felogin['area'] .= '<div id="felogin">'.$allgsys_trans['addons']['felogin']['jsinfo'].'</div>';
 
+	//Addonarea hinzufügen
 	$sitecontent->add_addon_area( $felogin['area'] );
 
+	//das Geüst wird per JavaScript gefüllt
+	//Funktion um Passwort mit salt zu hashen
 	$sitecontent->add_html_header('<script>
-	$(function() { $("div#felogin").html( \''.$felogin['addonarea'].'\' ); });
+	$(function() { $("div#felogin").html( '.json_encode( $felogin['addonarea'] ).' ); });
 	function hash() { document.getElementById(\'pass\').value = SHA1(SHA1(document.getElementById(\'pass\').value)+\''.$loginsalt.'\'); }
 </script>');
 }
+
+//wird aktuell die Seite für alle Loginaufgaben angefragt?
 if( $_GET['id'] == $felogin['requid'] ){
 
+	//keine Addonarea?
 	if( $felogin['conf']->read_kimb_one( 'addonarea' ) == 'off' ){
+		//das geiche wie bei der Addonarea nur hier direkt auf die Seite
 		if( !isset( $_SESSION['felogin']['user'] ) ){
 			$felogin['formareal'] .= '<form action="" method="post" onsubmit="hash();" >';
 			$felogin['formareal'] .= '<input type="text" name="feloginuser" placeholder="'.$allgsys_trans['addons']['felogin']['username'].'" > <!--[if lt IE 10]> ('.$allgsys_trans['addons']['felogin']['username'].') <![endif]-->';
@@ -163,11 +210,14 @@ if( $_GET['id'] == $felogin['requid'] ){
 		$sitecontent->add_site_content( '<hr /><center><h1>'.$allgsys_trans['addons']['felogin']['login'].'</h1><div id="felogin">'.$allgsys_trans['addons']['felogin']['jsinfo'].'</div></center><hr />' );
 
 		$sitecontent->add_html_header('<script>
-		$(function() { $("div#felogin").html( \''.$felogin['formareal'].'\' ); });
+		$(function() { $("div#felogin").html( '.json_encode( $felogin['formareal'] ).' ); });
 		function hash() { document.getElementById(\'pass\').value = SHA1(SHA1(document.getElementById(\'pass\').value)+\''.$loginsalt.'\'); }
 </script>');
 	}
+	//nicht eingeloggt und eine Addonarea
 	elseif( !isset( $_SESSION['felogin']['user'] ) ){
+		//Hinweis wo man sich einloggen kann
+		//Link zu Passwort vergessen und Account erstellen
 		$sitecontent->add_site_content( '<center><hr /><h1>'.$allgsys_trans['addons']['felogin']['kasten'].'</h1><b><a href="'.$allgsysconf['siteurl'].'/index.php?id='.$felogin['requid'].'&amp;pwforg#goto">'.$allgsys_trans['addons']['felogin']['pwforg'].'</a>&nbsp;');
 		if( $felogin['selfreg'] == 'on' ){
 			$sitecontent->add_site_content( '<a href="'.$allgsysconf['siteurl'].'/index.php?id='.$felogin['requid'].'&amp;register#goto">'.$allgsys_trans['addons']['felogin']['register'].'</a>' );
@@ -177,36 +227,54 @@ if( $_GET['id'] == $felogin['requid'] ){
 
 }
 
-//disable menue
+//Menüpunkte für welche ein User keine Rechte hat ausblenden
+
+//IDfile laden
 $idfile = new KIMBdbf('menue/allids.kimb');
 
+//alle Seiten die von felogin geschützt werden
 $dissites = $felogin['allsites'];
 
+//wenn User in einer Gruppe
 if( !empty( $_SESSION['felogin']['gruppe'] ) ){
+	//IDs lesen, die User sehen darf
 	$nodis =  $felogin['teilesite'][ $_SESSION['felogin']['gruppe']];
+	//zu verbietende Seiten (wenn User eingeloggt, nicht alle Seiten)
 	$dissites = array();
+	//alle Seiten von felogin durchgehen
 	foreach( $felogin['allsites'] as $val ){
+		//ist die Seite nicht für diese Gruppe erlaubt zu "diallowsites" hinzufügen 
 		if( !in_array( $val, $nodis) ){
 			$dissites[] = $val;	
 		}
 	}
 }
 
+//felogin arbeitet mit SiteIDs, hide_menue() aber mit RequestIDs
+//	alle umrechnen 
 foreach( $dissites as $val ){
+	//ID in IDfile suchen 
 	$id = $idfile->search_kimb_xxxid( $val, 'siteid' );
 	if( $id != false ){
+		//Array mit allen zu versteckenden ReqeuestIDs erstellen 
 		$disarray[] = $id;	
 	}
 }
 
+//verstecken
 $sitecontent->hide_menu( $disarray );
 
+//darf der User die aktuell geforderte Seite sehen?
 if( !check_felogin_login() ){
+	//Error 403 setzen 
+	//	CMS gibt dann automatisch eine Fehler aus
 	$allgerr = '403';
 
+	//Titel der Seite verstecken
 	$sitecontent->set_title( 'Error - 403' );
 }
 
+//Die Daten von felogin für FE second sichern
 $addon_felogin_array = $felogin;
 unset ( $felogin );
 ?>
