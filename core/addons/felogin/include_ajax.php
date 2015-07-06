@@ -76,7 +76,7 @@ elseif(  isset( $_GET['mail'] ) ){
 			$id = $aufruffile->next_kimb_id();
 		}
 
-		$code = makepassw( 75 );
+		$code = makepassw( 75, '', 'numaz' );
 		$_SESSION["mailcode"] = $code;
 		$_SESSION["email"] = $_GET['mail'];
 		
@@ -111,6 +111,28 @@ elseif(  isset( $_GET['mail'] ) ){
 
 	die;
 }
+elseif( is_numeric( $_GET['newpassak'] ) && !empty($_GET['code']) ){
+	
+	$id = $_GET['newpassak'];
+	$code = $_GET['code'];
+	
+	$userfile = new KIMBdbf('addon/felogin__user.kimb');
+	
+	if( $userfile->read_kimb_id( $id , 'setnewcode' ) == $code ){
+
+		$newpass = $userfile->read_kimb_id( $id , 'newpassw' );
+		$userfile->write_kimb_id( $id , 'add' , 'passw' , $newpass );
+
+		$userfile->write_kimb_id( $id , 'del', 'newpassw' );
+		$userfile->write_kimb_id( $id , 'del', 'setnewcode' );
+
+		open_url( '' );
+	}
+	else{
+		echo 'Fehlerhafter Code oder User';		
+	}
+	die;	
+}
 elseif(  isset( $_GET['code'] ) ){
 		
 	if( $_GET['code'] == $_SESSION['mailcode'] ){
@@ -130,7 +152,7 @@ elseif( isset( $_GET['newuser'] ) ){
 
 	$_SESSION['registerokay'] = 'yes';
 
-	open_url( '/index.php?id='.$felogin['requid'].'&register' );
+	open_url( '/index.php?id='.$felogin['requid'].'&langid=0&register' );
 	die;
 
 }
@@ -145,7 +167,7 @@ elseif( isset( $_GET['settings'] ) ){
 
 	$_SESSION['felogin']['name'] = 'BE-Admin';
 
-	open_url( '/index.php?id='.$felogin['requid'].'&settings' );
+	open_url( '/index.php?id='.$felogin['requid'].'&langid=0&settings' );
 	die;
 
 }

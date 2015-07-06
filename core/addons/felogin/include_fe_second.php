@@ -45,7 +45,7 @@ if( $_GET['id'] == $felogin['requid'] && ( isset( $_GET['pwforg'] ) || isset( $_
 
 			if( !empty( $_POST['name'] ) && !empty( $_POST['mail'] ) ){
 				if( $_POST['mail'] != $felogin['userfile']->read_kimb_id( $id , 'mail' ) ){
-					if( filter_var( $_POST['mail'] , FILTER_VALIDATE_EMAIL) ){
+					if( filter_var( $_POST['mail'] , FILTER_VALIDATE_EMAIL) && $_POST['mailcode'] == $_SESSION['mailcode'] ){
 						if( $felogin['userfile']->write_kimb_id( $id , 'add' , 'mail' , $_POST['mail'] ) ){
 							$sitecontent->add_site_content( '<h3>'.$allgsys_trans['addons']['felogin']['mailch'].'</h3>');
 						}
@@ -69,6 +69,14 @@ if( $_GET['id'] == $felogin['requid'] && ( isset( $_GET['pwforg'] ) || isset( $_
 				$sitecontent->add_site_content( '<h3>'.$allgsys_trans['addons']['felogin']['fillnamail'].'</h3>');
 			}
 		}
+		
+		$header = '<script>var siteurl = "'.$allgsysconf['siteurl'].'";';
+			foreach( $allgsys_trans['addons']['felogin']['regjs'] as $key => $val ){
+				$header .= 'var '.$key.' = "'.$val.'"; ';
+			}
+			$header .= '</script>';
+		
+			$sitecontent->add_html_header( $header );
 		
 		$sitecontent->add_html_header('<script>
 		function checkpw() {
@@ -94,10 +102,12 @@ if( $_GET['id'] == $felogin['requid'] && ( isset( $_GET['pwforg'] ) || isset( $_
 			var mailmatch = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
 
 			if( mailmatch.test( valmail ) ){
-				$("i#mailadr").text( "'.$allgsys_trans['addons']['felogin']['userjs']['mailadr1'].'" );
-				$("i#mailadr").css( "background-color", "green" );
+				$("i#mailadr").text( "'.$allgsys_trans['addons']['felogin']['regjs']['mailprue'].'" );
+				$("i#mailadr").css( "background-color", "orange" );
 				$("i#mailadr").css( "color", "white" );
 				$("i#mailadr").css( "padding", "5px" );
+				
+				$( "div#mailcheck" ).css( "display", "block" );
 			
 			}
 			else{
@@ -106,6 +116,40 @@ if( $_GET['id'] == $felogin['requid'] && ( isset( $_GET['pwforg'] ) || isset( $_
 				$("i#mailadr").css( "color", "white" );
 				$("i#mailadr").css( "padding", "5px" );
 			}
+		}
+		
+		function sendcode(){
+			var valmail = $( "input#mail" ).val();
+			$.get( siteurl + "/ajax.php?addon=felogin&mail=" + valmail + "&lang=" + langfile, function( data ) {
+				if( data == "ok" ){
+					$("i#mailadr").html( codese );
+				}
+				else{
+					$("i#mailadr").text( codeanzb );
+					$("i#mailadr").css( "background-color", "red" );
+				}
+			});
+		}
+
+		function checkcode(){
+			var valcode =  encodeURIComponent( $( "input#mailcode" ).val() );
+			$.get( siteurl + "/ajax.php?addon=felogin&code=" + valcode , function( data ) {
+				if( data == "ok" ){
+					$("i#mailadr").text( mailok );
+					$("i#mailadr").css( "background-color", "green" );
+					$( "input#checkm" ).val( "ok" );
+					
+					$("span#codeokay" ).text( codeok );
+					$("span#codeokay").css( "background-color", "green" );
+					$("span#codeokay").css( "color", "white" );
+					$("span#codeokay").css( "padding", "5px" );
+
+				}
+				else{
+					$("i#mailadr").text( codeerr );
+					$("i#mailadr").css( "background-color", "red" );
+				}
+			});
 		}
 
 		function checksumbit(){
@@ -142,6 +186,11 @@ if( $_GET['id'] == $felogin['requid'] && ( isset( $_GET['pwforg'] ) || isset( $_
 			$sitecontent->add_site_content('<input type="text" name="user" readonly="readonly" value="'.$user['user'].'" > <i>'.$allgsys_trans['addons']['felogin']['username'].'</i><br />');
 			$sitecontent->add_site_content('<input type="text" name="name" value="'.$user['name'].'"> <i>'.$allgsys_trans['addons']['felogin']['name'].'</i><br />');
 			$sitecontent->add_site_content('<input type="text" name="mail" id="mail" onchange=" checkmail(); " value="'.$user['mail'].'" > <i id="mailadr">'.$allgsys_trans['addons']['felogin']['mailunverae'].'</i><br />');
+			
+			$sitecontent->add_site_content('<div id="mailcheck" style="display:none;">
+			<input type="text" name="mailcode" id="mailcode" placeholder="'.$allgsys_trans['addons']['felogin']['mailcode'].'" onchange="checkcode();" >
+			<span id="codeokay"><button onclick="sendcode(); return false;">'.$allgsys_trans['addons']['felogin']['mailcodesenden'].'</button></span></div>'."\r\n");
+			
 			$sitecontent->add_site_content('<input type="text" name="gruppr" readonly="readonly" value="'.$user['gruppe'].'"><i>'.$allgsys_trans['addons']['felogin']['gruppe'].'</i><br />');
 			$sitecontent->add_site_content('<input type="password" name="passwort1" id="passwort1" onchange=" checkpw(); "> <i id="pwtext">'.$allgsys_trans['addons']['felogin']['passunverae'].'</i> <br />');
 			$sitecontent->add_site_content('<input type="password" name="passwort2" id="passwort2" onchange=" checkpw(); "> <i id="pwtext">'.$allgsys_trans['addons']['felogin']['passunverae'].'</i> <br />');
@@ -178,9 +227,10 @@ if( $_GET['id'] == $felogin['requid'] && ( isset( $_GET['pwforg'] ) || isset( $_
 			if( $ok == 'ok' ){
 				if( $id != false ){
 					$newpass = makepassw( 10 );
-					if( $felogin['userfile']->write_kimb_id( $id , 'add' , 'passw' , sha1( $newpass ) ) ){
+					$setnewcode = makepassw( 30, '', 'numaz' );
+					if( $felogin['userfile']->write_kimb_id( $id , 'add' , 'newpassw' , sha1( $newpass ) ) && $felogin['userfile']->write_kimb_id( $id , 'add' , 'setnewcode' , $setnewcode ) ){
 
-						$inhalt = str_replace( array( '%name%', '%pass%', '%url%', '%sitename%' , '%br%' ) , array( $felogin['userfile']->read_kimb_id( $id , 'name' ), $newpass, $allgsysconf['siteurl'].'/index.php?id='.$felogin['requid'], $allgsysconf['sitename'], "\r\n" ) , $allgsys_trans['addons']['felogin']['mailtext']['newpass'] );
+						$inhalt = str_replace( array( '%name%', '%pass%', '%url%', '%sitename%' , '%br%' ) , array( $felogin['userfile']->read_kimb_id( $id , 'name' ), $newpass, $allgsysconf['siteurl'].'/ajax.php?addon=felogin&newpassak='.$id.'&code='.$setnewcode , $allgsysconf['sitename'], "\r\n" ) , $allgsys_trans['addons']['felogin']['mailtext']['newpass'] );
 
 						send_mail( $felogin['userfile']->read_kimb_id( $id , 'mail' ) , $inhalt );
 					}
@@ -190,14 +240,12 @@ if( $_GET['id'] == $felogin['requid'] && ( isset( $_GET['pwforg'] ) || isset( $_
 			}
 		}
 
-		$sitecontent->add_site_content($allgsys_trans['addons']['felogin']['textpwforg1'].'<br />');
+		$sitecontent->add_site_content($allgsys_trans['addons']['felogin']['textpwforg'].'<br />');
 		$sitecontent->add_site_content('<form action="" method="post" >');
 		$sitecontent->add_site_content('<input type="text" name="mail" placeholder="'.$allgsys_trans['addons']['felogin']['mail'].'" ><!--[if lt IE 10]> ('.$allgsys_trans['addons']['felogin']['mail'].') <![endif]-->');
 		$sitecontent->add_site_content('<input type="text" name="user" placeholder="'.$allgsys_trans['addons']['felogin']['username'].'" ><!--[if lt IE 10]> ('.$allgsys_trans['addons']['felogin']['username'].') <![endif]--><br />');
 		$sitecontent->add_site_content('<input type="submit" value="'.$allgsys_trans['addons']['felogin']['sendnewpass'].'" ><br />');
 		$sitecontent->add_site_content('</form>');
-
-		$sitecontent->add_site_content('<br /><br /><i>'.$allgsys_trans['addons']['felogin']['textpwforg2'].'</i>');
 
 	}
 	elseif( isset( $_GET['register'] ) && ( $felogin['selfreg'] == 'on' || $_SESSION['registerokay'] == 'yes' ) ){

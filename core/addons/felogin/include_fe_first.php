@@ -76,13 +76,21 @@ if( !empty($_POST['feloginuser']) && !empty($_POST['feloginpassw']) ){
 			$_SESSION["useragent"] = $_SERVER['HTTP_USER_AGENT'];
 			unset($_SESSION["loginsalt"]);
 		}
+		elseif( $userfile->read_kimb_id( $userda , 'status' ) == 'off' ){
+			if( $felogin['conf']->read_kimb_one( 'addonarea' ) == 'on' ){
+				$felogin['area'] .= '<div style="color:red;">'.$allgsys_trans['addons']['felogin']['accoff'].'</div><br />';
+			}
+			else{
+				$sitecontent->add_site_content( '<div style="color:red;">'.$allgsys_trans['addons']['felogin']['accoff'].'</div><br />' );
+			}
+		}
 		else{
 			$_SESSION["loginfehler"]++;
 			if( $felogin['conf']->read_kimb_one( 'addonarea' ) == 'on' ){
-				$felogin['area'] .= '<div style="color:red;">'.$allgsys_trans['addons']['felogin']['loginfehler1'].' '.$_SESSION["loginfehler"].'. '.$allgsys_trans['addons']['felogin']['loginfehler2'].'</div><br />';
+				$felogin['area'] .= $accinfo.'<div style="color:red;">'.$allgsys_trans['addons']['felogin']['loginfehler1'].' '.$_SESSION["loginfehler"].'. '.$allgsys_trans['addons']['felogin']['loginfehler2'].'</div><br />';
 			}
 			else{
-				$sitecontent->add_site_content( '<div style="color:red;">'.$allgsys_trans['addons']['felogin']['loginfehler1'].' '.$_SESSION["loginfehler"].'. '.$allgsys_trans['addons']['felogin']['loginfehler2'].'</div><br />' );
+				$sitecontent->add_site_content( $accinfo.'<div style="color:red;">'.$allgsys_trans['addons']['felogin']['loginfehler1'].' '.$_SESSION["loginfehler"].'. '.$allgsys_trans['addons']['felogin']['loginfehler2'].'</div><br />' );
 			}
 		}
 		
