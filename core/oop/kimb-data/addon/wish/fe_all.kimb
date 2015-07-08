@@ -17,3 +17,9 @@
 <[3-stelle]>vorn<[3-stelle]>
 <[3-ids]>a<[3-ids]>
 <[3-error]>all<[3-error]>
+<[allidslist4]>4<[allidslist4]>
+<[4-addon]>guestbook<[4-addon]>
+<[4]>addon==stelle==ids==error<[4]>
+<[4-stelle]>hinten<[4-stelle]>
+<[4-ids]>a<[4-ids]>
+<[4-error]>no<[4-error]>
