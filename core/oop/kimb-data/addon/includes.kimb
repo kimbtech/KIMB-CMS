@@ -1,9 +1,8 @@
 <[about:doc]>KIMB Datei V.0.1 KIMB CMS<[about:doc]>
 <[allidslist1]>21<[allidslist1]>
 <[21-captcha]>noup<[21-captcha]>
-<[21]>captcha==admin_login_mail==analytics==auto_update==be_passw==galerie<[21]>
+<[21]>captcha==admin_login_mail==analytics==auto_update==be_passw==galerie==api_login==felogin==guestbook<[21]>
 <[21-admin_login_mail]>noup<[21-admin_login_mail]>
-<[lastcheck]>1435687974<[lastcheck]>
 <[21-analytics]>noup<[21-analytics]>
 <[21-auto_update]>noup<[21-auto_update]>
 <[21-be_passw]>noup<[21-be_passw]>
@@ -26,3 +25,7 @@
 <[funcclass3]>guestbook<[funcclass3]>
 <[fe_first2]>guestbook<[fe_first2]>
 <[fe_second2]>guestbook<[fe_second2]>
+<[21-api_login]>noup<[21-api_login]>
+<[21-felogin]>noup<[21-felogin]>
+<[21-guestbook]>noup<[21-guestbook]>
+<[lastcheck]>1436460304<[lastcheck]>

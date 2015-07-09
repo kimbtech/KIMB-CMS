@@ -40,9 +40,35 @@ if( !empty( $_POST['vorschau_name'] ) && !empty( $_POST['vorschau_cont'] ) ){
 	die;
 }
 elseif( isset( $_GET['loadadd'] ) ){
-	//AJAX
+	
+	$guestbook['file'] = new KIMBdbf( 'addon/guestbook__conf.kimb' );
+	
+	echo ('<form action="#guestbooktop" method="post" onsubmit = "return savesubmit();" >');
+
+	if( !function_exists( 'check_felogin_login' ) || !check_felogin_login() ){
+		echo ('<input name="name" type="text" id = "name" placeholder="Name" > <!--[if lt IE 10]> (Name) <![endif]--> <br />'."\r\n");
+		echo ('<input name="mail" type="text" id = "mail" placeholder="E-Mail-Adresse" > (E-Mail-Adresse - wird nicht veröffentlicht) <br />'."\r\n");
+	}
+	echo ('<textarea name="cont" id="cont" placeholder="Ihre Mitteilung" style="width:75%; height:100px;" ></textarea> <!--[if lt IE 10]> (Ihre Mitteilung) <![endif]--> <br />'."\r\n");
+	echo ('(Erlaubtes HTML: &lt;b&gt; &lt;/b&gt; &lt;u&gt; &lt;/u&gt; &lt;i&gt; &lt;/i&gt; &lt;center&gt; &lt;/center&gt; )<br />URLs (http://example.com/) werden automatisch zu Links umgewandelt.<br />'."\r\n");
+	echo ('<div style="display:none;" id="prewarea" ><div style="background-color:orange; padding:10px; margin:10px;" id="prew" ></div>(Vorschau)<br /></div>'."\r\n");
+
+	if( !function_exists( 'check_felogin_login' ) || !check_felogin_login() ){
+		echo ( make_captcha_html() );
+		echo ('<br />(Bitte geben Sie den Code oben ein, um zu beweisen, dass Sie kein Roboter sind!)<br />'."\r\n");
+	}
+
+	if( $guestbook['file']->read_kimb_one( 'ipsave' ) == 'on' ){
+		echo ('(Ihre IP wird gespeichert, aber nicht veröffentlicht!)<br />'."\r\n");
+	}
+	echo ('<input type="hidden" value="'.htmlspecialchars( $_GET['place'] ).'" name="place">');
+	echo ( '<input type="submit" value="Absenden"><button onclick="return preview(); " >Vorschau</button></form><br /><br /><hr />'."\r\n" );
 
 	die;	
+}
+elseif( isset( $_GET['answer'] ) ){
+	
+	die;
 }
 
 echo 'Falscher Zugriff auf Guestbook AJAX';

@@ -63,13 +63,7 @@ if( $guestbook['file']->read_kimb_search_teilpl( 'siteid' , $allgsiteid ) ){
 					if( filter_var( $_POST['mail'] , FILTER_VALIDATE_EMAIL) ){
 
 						$mail = $_POST['mail'];
-						$sitecontent->add_html_header('<script>
-$( function(){
-	localStorage.removeItem( \'name\' );
-	localStorage.removeItem( \'mail\' );
-	localStorage.removeItem( \'cont\' );
-});
-</script>');
+						$sitecontent->add_html_header('<script>delsubmit();</script>');
 
 						$array = make_guestbook_html( $_POST['cont'], $_POST['name'] );
 						$name = $array['name'];
@@ -110,13 +104,13 @@ $( function(){
 					}
 					else{
 						$sitecontent->echo_error( 'Die E-Mail-Adresse ist falsch!<br /><a href="#guestadd"><button>Verändern</button></a>' , 'unknown' );
-						$guestbook['showadd'] = '$( function(){ add(); });';
+						$guestbook['showadd'] = 'add();';
 					}
 
 				}
 				else{
 					$sitecontent->echo_error( 'Das Captcha wurde falsch gelöst oder eines der Felder war leer!<br /><a href="#guestadd"><button>Verbessern</button></a>' , 'unknown' );
-					$guestbook['showadd'] = '$( function(){ add(); });';
+					$guestbook['showadd'] = 'add();';
 				}
 			}
 	}
@@ -126,6 +120,7 @@ $( function(){
 		$guestbook['alles'][] = $guestbook['sitefile']->read_kimb_id( $guestbook['id'] );
 	}
 
+	$i = 1;
 	foreach( $guestbook['alles'] as $guestbook['einer'] ){
 		if( $guestbook['einer']['status'] == 'on' ){
 
@@ -134,10 +129,18 @@ $( function(){
 			$guestbook['output'] .= '<span id="guestdate">'.date( 'd-m-Y H:i:s' , $guestbook['einer']['time'] ).'</span>'."\r\n";
 			$guestbook['output'] .= '</div>'."\r\n";
 			$guestbook['output'] .= $guestbook['einer']['cont']."\r\n";
-			$guestbook['output'] .= '</div>'."\r\n\r\n";
+			if( !empty( $guestbook['einer']['antwo'] ) ){
+				$guestbook['output'] .= '<hr /><button onclick="answer( '.$i.', '.$guestbook['einer']['antwo'].');">Antworten lesen und hinzufügen</button>'."\r\n";
+			}
+			else{
+				$guestbook['output'] .= '<hr /><button onclick="answer( '.$i.' );">Antwort hinzufügen</button>'."\r\n";
+			}
+			$guestbook['output'] .= '</div>'."\r\n";
+			$guestbook['output'] .= '</div style="display:none;" id="answer_'.$i.'" class="answer"></div>'."\r\n\r\n";
 
 			$guestbook['eintr'] = 'yes';
 
+			$i++;
 		}
 	}
 
@@ -152,80 +155,18 @@ $( function(){
 //später per AJAX
 	if( $guestbook['add'] == 'allowed' ){
 
-		$sitecontent->add_html_header('<script>
-function add(){
-	$( "div#guestadd" ).css( "display" , "block" );
-	$( "button#guestbuttdis" ).css( "display" , "block" );
-	$( "button#guestbuttadd" ).css( "display" , "none" );
-}
-function dis(){
-	$( "div#guestadd" ).css( "display" , "none" );
-	$( "button#guestbuttdis" ).css( "display" , "none" );
-	$( "button#guestbuttadd" ).css( "display" , "block" );
-}
-function preview(){
-	var cont = $( "textarea#cont" ).val();
-	var name = $( "input#name" ).val();
-	
-	$.post( "'.$allgsysconf['siteurl'].'/ajax.php?addon=guestbook", { "vorschau_name": name, "vorschau_cont": cont } )
- 		.done(function( data ) {
-			$( "div#prew" ).html( data );
-  		})
-		.fail(function() {
-			$( "div#prew" ).html( "Fehlerafte AJAX Abfrage" );
-		});
-		
-	$( "div#prewarea" ).css( "display" , "block" );
+		$sitecontent->add_html_header('<script>$( function(){ '.$guestbook['showadd'].' }); var siteurl = "'.$allgsysconf['siteurl'].'"; </script>');
 
-	return false;
-}
-$( function(){
-	$( "input#name" ).val( localStorage.getItem( \'name\' ) );
-	$( "input#mail" ).val( localStorage.getItem( \'mail\' ) );
-	$( "textarea#cont" ).val( localStorage.getItem( \'cont\' ) );
-});
-'.$guestbook['showadd'].'
-</script>');
+		$sitecontent->add_html_header('<script src="'.$allgsysconf['siteurl'].'/load/addondata/guestbook/guestbook.min.js" type="text/javascript" ></script>');
 
 		$sitecontent->add_site_content( '<div id="guest" >'."\r\n" );
-		$sitecontent->add_site_content(	'<button onclick=" add(); " id="guestbuttadd">Hinzufügen</button>'."\r\n" );
-		$sitecontent->add_site_content(	'<div style="display:none;" id="guestadd" >'."\r\n" );
-
-		$sitecontent->add_site_content('<form action="#guestbooktop" method="post" onsubmit = "
-localStorage.setItem( \'name\' , document.getElementById( \'name\' ).value );
-localStorage.setItem( \'mail\' , document.getElementById( \'mail\' ).value );
-localStorage.setItem( \'cont\' , document.getElementById( \'cont\' ).value );
-" >');
-
-		if( !function_exists( 'checklogin' ) || !isset( $_SESSION['felogin']['user'] ) ){
-			$sitecontent->add_site_content('<input name="name" type="text" id = "name" placeholder="Name" > <!--[if lt IE 10]> ( Name ) <![endif]--> <br />'."\r\n");
-			$sitecontent->add_site_content('<input name="mail" type="text" id = "mail" placeholder="E-Mail-Adresse" > ( E-Mail-Adresse - wird nicht veröffentlicht ) <br />'."\r\n");
-		}
-		$sitecontent->add_site_content('<textarea name="cont" id="cont" placeholder="Ihre Mitteilung" style="width:75%; height:100px;" ></textarea> <!--[if lt IE 10]> ( Ihre Mitteilung ) <![endif]--> <br />'."\r\n");
-		$sitecontent->add_site_content('(Erlaubtes HTML: &lt;b&gt; &lt;/b&gt; &lt;u&gt; &lt;/u&gt; &lt;i&gt; &lt;/i&gt; &lt;center&gt; &lt;/center&gt; )<br />URLs beginnend mit http:// und https:// werden automatisch zu Links umgewandelt.'."\r\n");
-		$sitecontent->add_site_content('<div style="display:none;" id="prewarea" ><div style="background-color:orange; padding:10px; margin:10px;" id="prew" ></div>( Vorschau )<br /></div>'."\r\n");
-
-		if( function_exists( 'checklogin' ) && isset( $_SESSION['felogin']['user'] ) ){
-			$sitecontent->add_site_content('<div style="display:none;">');
-			$sitecontent->add_site_content('<img id="captcha" src="'.$allgsysconf['siteurl'].'/ajax.php?addon=captcha" style="border:none;" /><br />'."\r\n");
-			$sitecontent->add_site_content('<a href="#" onclick=" document.getElementById( \'captcha\' ).src = \''.$allgsysconf['siteurl'].'/ajax.php?addon=captcha&\' + Math.random(); return false;">Nicht lesbar?</a><br />'."\r\n");
-			$sitecontent->add_site_content('<input name="captcha" autocomplete="off" type="text" value="none" ><br /> ( Bitte geben Sie den Code oben ein, um zu beweisen, dass Sie kein Roboter sind! )<br />'."\r\n");
-			$sitecontent->add_site_content('</div>');
-		}
-		else{
-			$sitecontent->add_site_content('<img id="captcha" src="'.$allgsysconf['siteurl'].'/ajax.php?addon=captcha" style="border:none;" /><br />'."\r\n");
-			$sitecontent->add_site_content('<a href="#" onclick=" document.getElementById( \'captcha\' ).src = \''.$allgsysconf['siteurl'].'/ajax.php?addon=captcha&\' + Math.random(); return false;">Nicht lesbar?</a><br />'."\r\n");
-			$sitecontent->add_site_content('<input name="captcha" autocomplete="off" type="text" ><br /> ( Bitte geben Sie den Code oben ein, um zu beweisen, dass Sie kein Roboter sind! )<br />'."\r\n");
-		}
-
-		if( $guestbook['file']->read_kimb_one( 'ipsave' ) == 'on' ){
-			$sitecontent->add_site_content('( Ihre IP wird gespeichert, aber nicht veröffentlicht! )<br />'."\r\n");
-		}
-		$sitecontent->add_site_content( '<input type="submit" value="Absenden"><button onclick="return preview(); " >Vorschau</button></form><br /><br /><hr />'."\r\n" );
-		$sitecontent->add_site_content(	'</div><button onclick=" dis(); " style="display:none;" id="guestbuttdis" >Ausblenden</button></div>'."\r\n" );
+		$sitecontent->add_site_content('<button onclick="add( \'new\' ); " id="guestbuttadd">Hinzufügen</button>'."\r\n" );
+		$sitecontent->add_site_content('<div style="display:none;" id="guestadd" >'."\r\n" );
+		//per AJAX laden
+		$sitecontent->add_site_content('</div><button onclick="dis(); " style="display:none;" id="guestbuttdis" >Ausblenden</button></div>'."\r\n" );
 	}
 	else{
-		$sitecontent->add_site_content(	'<div id="guest"><button disabled="disabled">Hinzufügen</button> ( Bitte loggen Sie sich ein! ) </div>'."\r\n" );
+		$sitecontent->add_site_content('<div id="guest"><button disabled="disabled">Hinzufügen</button> (Bitte loggen Sie sich ein!) </div>'."\r\n" );
 	}	
 }
 

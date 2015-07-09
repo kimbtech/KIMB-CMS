@@ -27,7 +27,7 @@ defined('KIMB_CMS') or die('No clean Request');
 
 $addonurl = $allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=more&addon=guestbook';
 
-$cssallg = 'div#guestname{ position:relative; border-bottom:solid 1px #000000; font-weight:bold; } span#guestdate{ font-weight:normal; position:absolute; right:0px; } div#guest{ border:solid 1px #000000; border-radius:15px; background-color:#dddddd; padding:10px; margin:5px;}';
+$cssallg = 'div#guestname{ position:relative; border-bottom:solid 1px #000000; font-weight:bold; } span#guestdate{ font-weight:normal; position:absolute; right:0px; } div#guest{ border:solid 1px #000000; border-radius:15px; background-color:#dddddd; padding:10px; margin:5px;} div#answer{ margin-left:30px; }';
 
 $guestfile = new KIMBdbf( 'addon/guestbook__conf.kimb' );
 
@@ -217,7 +217,13 @@ $sitecontent->add_site_content('<input type="radio" name="nstatoo" value="on"'.$
 $sitecontent->add_site_content('<input type="radio" name="ipoo" value="off"'.$ch[7].'><span style="display:inline-block;" title="IP des Users nicht speichern" class="ui-icon ui-icon-closethick"></span>');
 $sitecontent->add_site_content('<input type="radio" name="ipoo" value="on"'.$ch[8].'> <span style="display:inline-block;" title="IP des Users speichern (Hinweis wird angezeigt)" class="ui-icon ui-icon-check"></span> (IP)<br />');
 
-$sitecontent->add_site_content('<input type="text" name="mail" value="'.$guestfile->read_kimb_one( 'mailinfoto' ).'" > (E-Mail-Adresse)<br />');
+$mailinfo = $guestfile->read_kimb_one( 'mailinfoto' );
+
+if( empty( $mailinfo )){
+	$mailinfo = $allgsysconf['adminmail'];
+}
+
+$sitecontent->add_site_content('<input type="text" name="mail" value="'.$mailinfo.'" > (E-Mail-Adresse)<br />');
 $sitecontent->add_site_content('<textarea name="css" style="width:99%; height:75px;">'.$css.'</textarea>(&uarr; CSS-Style  (leer == Zurücksetzen))<br />');
 
 $sitecontent->add_site_content('<input type="submit" value="Ändern"></form>');
