@@ -67,11 +67,12 @@ function make_captcha_html(){
 
 //Eingabe testen
 function check_captcha(){
-	if( $_SESSION['captcha_code'] == $_REQUEST['captcha_code'] ){
+               
+               if( empty($_SESSION['captcha_code']) || empty( $_REQUEST['captcha_code'] ) ){
+                              return NULL;
+               }
+	elseif( $_SESSION['captcha_code'] == $_REQUEST['captcha_code'] ){
 		return true;
-	}
-	elseif( !isset( $_REQUEST['captcha_code'] ) ){
-		return NULL;
 	}
 	else{
 		return false;
