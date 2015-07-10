@@ -1,8 +1,9 @@
 <[about:doc]>KIMB dbf V3.50 - KIMB-technologies<[about:doc]>
 <[siteid1]>2<[siteid1]>
-<[nurfeloginuser]>on<[nurfeloginuser]>
+<[siteid2]>3<[siteid2]>
+<[nurfeloginuser]>off<[nurfeloginuser]>
 <[mailinfo]>on<[mailinfo]>
-<[newstatus]>on<[newstatus]>
+<[newstatus]>off<[newstatus]>
 <[ipsave]>on<[ipsave]>
-<[css]>div#guestname{ position:relative; border-bottom:solid 1px #000000; font-weight:bold; } span#guestdate{ font-weight:normal; position:absolute; right:0px; } div#guest{ border:solid 1px #000000; border-radius:15px; background-color:#dddddd; padding:10px; margin:5px;} div#answer{ margin-left:30px; }<[css]>
 <[mailinfoto]>cmsadmin@example.com<[mailinfoto]>
+<[css]>div#guestname{ position:relative; border-bottom:solid 1px #000000; font-weight:bold; } span#guestdate{ font-weight:normal; position:absolute; right:0px; } div#guest, div.answer{ border:solid 1px #000000; border-radius:15px; background-color:#dddddd; padding:10px; margin:5px;} div.answer{ margin-left:80px; }<[css]>

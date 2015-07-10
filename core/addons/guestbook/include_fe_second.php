@@ -27,7 +27,7 @@ defined('KIMB_CMS') or die('No clean Request');
 
 $guestbook['file'] = new KIMBdbf( 'addon/guestbook__conf.kimb' );
 
-if( $guestbook['file']->read_kimb_search_teilpl( 'siteid' , $allgsiteid ) ){
+if( $guestbook['file']->read_kimb_search_teilpl( 'siteid' , $allgsiteid ) && $allgerr != '403' ){
 
 	$sitecontent->add_html_header( '<!-- jQuery -->' );
 	$sitecontent->add_html_header('<style>'.$guestbook['file']->read_kimb_one( 'css' ).'</style>');
@@ -35,9 +35,9 @@ if( $guestbook['file']->read_kimb_search_teilpl( 'siteid' , $allgsiteid ) ){
 	$guestbook['sitefile'] = new KIMBdbf( 'addon/guestbook__id_'.$allgsiteid.'.kimb' );
 
 	$sitecontent->add_site_content( "\r\n".'<hr id="guestbooktop" /><br />'."\r\n" );
-
-	if( function_exists( 'checklogin' ) && $guestbook['file']->read_kimb_one( 'nurfeloginuser' ) == 'on' ){
-		if( isset( $_SESSION['felogin']['user'] ) ){
+	
+	if( function_exists( 'check_felogin_login' ) && $guestbook['file']->read_kimb_one( 'nurfeloginuser' ) == 'on' ){
+		if( check_felogin_login( '---session---', '---allgsiteid---', true ) ){
 			$guestbook['add'] = 'allowed';
 		}
 		else{
@@ -47,80 +47,105 @@ if( $guestbook['file']->read_kimb_search_teilpl( 'siteid' , $allgsiteid ) ){
 	else{
 			$guestbook['add'] = 'allowed';
 	}
-
+	
 	if( $guestbook['add'] == 'allowed' ){
+	
+		if( isset( $_POST['place'] ) ){
 
-			if( isset( $_POST['captcha'] ) ){
-
-				if( function_exists( 'checklogin' ) && isset( $_SESSION['felogin']['user'] ) ){
-					$_POST['captcha'] = $_SESSION['captcha'];
+			if( function_exists( ' check_felogin_login' ) ){
+				if( check_felogin_login( '---session---', '---allgsiteid---', true ) ){
+					$_REQUEST['captcha_code'] = $_SESSION['captcha_code'];
 					$_POST['mail'] = $_SESSION['felogin']['user'].'@feloginuser.sys';
 					$_POST['name'] = $_SESSION['felogin']['name'];
 				}
+			}
+			
+			if( $_POST['place'] != 'new' && is_numeric( $_POST['place'] ) ){
+				$id = $_POST['place'];
+				$addjs = '$( function(){ answer( '.$id.', "yes" ); });';
+			}
+			else{
+				$addjs = '$( function(){ add( "new" ); });';
+			}
 
-				if( $_POST['captcha'] == $_SESSION['captcha'] && $_POST['name'] != '' && $_POST['mail'] != '' && $_POST['cont'] != ''){
+			if( check_captcha() && !empty( $_POST['name'] ) && !empty( $_POST['mail'] ) && !empty( $_POST['cont'] ) ){
 
-					if( filter_var( $_POST['mail'] , FILTER_VALIDATE_EMAIL) ){
-
-						$mail = $_POST['mail'];
-						$sitecontent->add_html_header('<script>delsubmit();</script>');
-
-						$array = make_guestbook_html( $_POST['cont'], $_POST['name'] );
-						$name = $array['name'];
-						$cont = $array['cont'];
-
-						$guestbook['newid'] = $guestbook['sitefile']->next_kimb_id();
-
-
-						$guestbook['idlist'] = $guestbook['sitefile']->read_kimb_one( 'idlist' );
-						if( $guestbook['idlist'] == '' ){
-							$guestbook['sitefile']->write_kimb_new( 'idlist' , $guestbook['newid'] );
-						}
-						else{
-							$guestbook['sitefile']->write_kimb_replace( 'idlist' , $guestbook['idlist'].','.$guestbook['newid'] );
-						}
-
-						$guestbook['sitefile']->write_kimb_id( $guestbook['newid'] , 'add' , 'name' , $name );
-						$guestbook['sitefile']->write_kimb_id( $guestbook['newid'] , 'add' , 'mail' , $mail );
-						$guestbook['sitefile']->write_kimb_id( $guestbook['newid'] , 'add' , 'cont' , $cont );
-						if( $guestbook['file']->read_kimb_one( 'ipsave' ) == 'on' ){
-							$guestbook['sitefile']->write_kimb_id( $guestbook['newid'] , 'add' , 'ip' , $_SERVER['REMOTE_ADDR'] );
-						}
-						else{
-							$guestbook['sitefile']->write_kimb_id( $guestbook['newid'] , 'add' , 'ip' , '0.0.0.0' );
-						}
-						$guestbook['sitefile']->write_kimb_id( $guestbook['newid'] , 'add' , 'time' , time() );
-						$guestbook['sitefile']->write_kimb_id( $guestbook['newid'] , 'add' , 'status' , $guestbook['file']->read_kimb_one( 'newstatus' ) );
-
-						if( $guestbook['file']->read_kimb_one( 'mailinfo' ) == 'on' ){
-							send_mail( $guestbook['file']->read_kimb_one( 'mailinfoto' ) , 'Neuer Gästebucheintrag von '.$name.' ('.$mail.') auf SiteID: '.$allgsiteid."\r\n\r\n".$cont );
-						}
-
-						$guestbook['showadd'] = ' ';
-
-						if( $guestbook['file']->read_kimb_one( 'newstatus' ) == 'off' ){
-							$sitecontent->add_site_content('<center><b><u>Ihre Mitteilung wird vor der Veröffentlichung geprüft!</u></b></center><br />'."\r\n");
-						}
+				if( filter_var( $_POST['mail'] , FILTER_VALIDATE_EMAIL) ){
+					
+					if( $_POST['place'] != 'new' && is_numeric( $_POST['place'] ) ){
+						$id = $_POST['place'];
+						$addfile = new KIMBdbf( 'addon/guestbook__id_'.$allgsiteid.'_answer_'.$id.'.kimb' );
+						$guestbook['sitefile']->write_kimb_id( $id , 'add' , 'antwo' , 'yes' );
+						$guestbook['showadd'] = 'delsubmit();'."\r\n".'$( function(){ answer( '.$id.', "yes" ); });';
 					}
 					else{
-						$sitecontent->echo_error( 'Die E-Mail-Adresse ist falsch!<br /><a href="#guestadd"><button>Verändern</button></a>' , 'unknown' );
-						$guestbook['showadd'] = 'add();';
+						$addfile = $guestbook['sitefile'];
+						$guestbook['showadd'] = 'delsubmit();';
 					}
 
+					$mail = $_POST['mail'];
+
+					$array = make_guestbook_html( $_POST['cont'], $_POST['name'] );
+					$name = $array[1];
+					$cont = $array[0];
+
+					$guestbook['newid'] = $addfile->next_kimb_id();
+
+					$guestbook['idlist'] = $addfile->read_kimb_one( 'idlist' );
+					if( empty( $guestbook['idlist'] ) ){
+						$addfile->write_kimb_new( 'idlist' , $guestbook['newid'] );
+					}
+					else{
+						$addfile->write_kimb_replace( 'idlist' , $guestbook['idlist'].','.$guestbook['newid'] );
+					}
+
+					$addfile->write_kimb_id( $guestbook['newid'] , 'add' , 'name' , $name );
+					$addfile->write_kimb_id( $guestbook['newid'] , 'add' , 'mail' , $mail );
+					$addfile->write_kimb_id( $guestbook['newid'] , 'add' , 'cont' , $cont );
+					if( $guestbook['file']->read_kimb_one( 'ipsave' ) == 'on' ){
+						$addfile->write_kimb_id( $guestbook['newid'] , 'add' , 'ip' , $_SERVER['REMOTE_ADDR'] );
+					}
+					else{
+						$addfile->write_kimb_id( $guestbook['newid'] , 'add' , 'ip' , '0.0.0.0' );
+					}
+					$addfile->write_kimb_id( $guestbook['newid'] , 'add' , 'time' , time() );
+					$addfile->write_kimb_id( $guestbook['newid'] , 'add' , 'status' , $guestbook['file']->read_kimb_one( 'newstatus' ) );
+					$addfile->write_kimb_id( $guestbook['newid'] , 'add' , 'antwo' , 'no' );
+
+					if( $guestbook['file']->read_kimb_one( 'mailinfo' ) == 'on' ){
+						send_mail( $guestbook['file']->read_kimb_one( 'mailinfoto' ) , 'Neuer Gaestebucheintrag von '.$name.' ('.$mail.') auf SiteID: '.$allgsiteid."\r\n\r\n".$cont );
+					}
+
+					if( $guestbook['file']->read_kimb_one( 'newstatus' ) == 'off' ){
+						$sitecontent->add_site_content('<h3>Ihre Mitteilung wird vor der Veröffentlichung geprüft!</h3>'."\r\n");
+					}
 				}
 				else{
-					$sitecontent->echo_error( 'Das Captcha wurde falsch gelöst oder eines der Felder war leer!<br /><a href="#guestadd"><button>Verbessern</button></a>' , 'unknown' );
-					$guestbook['showadd'] = 'add();';
+					$sitecontent->add_site_content( '<h3>Die E-Mail-Adresse ist falsch!</h3>' );
+					$guestbook['showadd'] = $addjs;
 				}
+
 			}
+			else{
+				$sitecontent->add_site_content( '<h3>Das Captcha wurde falsch gelöst oder eines der Felder war leer!</h3>' );
+				$guestbook['showadd'] = $addjs;
+			}
+		}
 	}
+
+	$sitecontent->add_html_header('<script>var siteurl = "'.$allgsysconf['siteurl'].'", siteid = "'.$allgsiteid.'"; </script>');
+
+	$sitecontent->add_html_header('<script src="'.$allgsysconf['siteurl'].'/load/addondata/guestbook/guestbook.min.js" type="text/javascript" ></script>');
+	
+	$sitecontent->add_html_header('<script>'.$guestbook['showadd'].'</script>');
 
 	$guestbook['ids'] = explode( ',' , $guestbook['sitefile']->read_kimb_one( 'idlist' ) );
 	foreach( $guestbook['ids'] as $guestbook['id'] ){
-		$guestbook['alles'][] = $guestbook['sitefile']->read_kimb_id( $guestbook['id'] );
+		$array = $guestbook['sitefile']->read_kimb_id( $guestbook['id'] );
+		$array['file_id'] = $guestbook['id'];
+		$guestbook['alles'][] = $array;
 	}
 
-	$i = 1;
 	foreach( $guestbook['alles'] as $guestbook['einer'] ){
 		if( $guestbook['einer']['status'] == 'on' ){
 
@@ -129,18 +154,19 @@ if( $guestbook['file']->read_kimb_search_teilpl( 'siteid' , $allgsiteid ) ){
 			$guestbook['output'] .= '<span id="guestdate">'.date( 'd-m-Y H:i:s' , $guestbook['einer']['time'] ).'</span>'."\r\n";
 			$guestbook['output'] .= '</div>'."\r\n";
 			$guestbook['output'] .= $guestbook['einer']['cont']."\r\n";
-			if( !empty( $guestbook['einer']['antwo'] ) ){
-				$guestbook['output'] .= '<hr /><button onclick="answer( '.$i.', '.$guestbook['einer']['antwo'].');">Antworten lesen und hinzufügen</button>'."\r\n";
+			
+			$i = $guestbook['einer']['file_id'];
+			if( $guestbook['einer']['antwo'] == 'yes' ){
+				$guestbook['output'] .= '<hr /><button onclick="answer( '.$i.', \'yes\' );">Antworten lesen und hinzufügen</button>'."\r\n";
 			}
 			else{
 				$guestbook['output'] .= '<hr /><button onclick="answer( '.$i.' );">Antwort hinzufügen</button>'."\r\n";
 			}
+			
 			$guestbook['output'] .= '</div>'."\r\n";
-			$guestbook['output'] .= '</div style="display:none;" id="answer_'.$i.'" class="answer"></div>'."\r\n\r\n";
+			$guestbook['output'] .= '<div class="answer_'.$i.' answer" style="display:none;" ><div id="answer_'.$i.'_dis" ></div><hr /><div id="answer_'.$i.'_add" ></div></div>'."\r\n\r\n";
 
 			$guestbook['eintr'] = 'yes';
-
-			$i++;
 		}
 	}
 
@@ -152,18 +178,13 @@ if( $guestbook['file']->read_kimb_search_teilpl( 'siteid' , $allgsiteid ) ){
 
 	$sitecontent->add_site_content($guestbook['output'] );
 
-//später per AJAX
 	if( $guestbook['add'] == 'allowed' ){
-
-		$sitecontent->add_html_header('<script>$( function(){ '.$guestbook['showadd'].' }); var siteurl = "'.$allgsysconf['siteurl'].'"; </script>');
-
-		$sitecontent->add_html_header('<script src="'.$allgsysconf['siteurl'].'/load/addondata/guestbook/guestbook.min.js" type="text/javascript" ></script>');
 
 		$sitecontent->add_site_content( '<div id="guest" >'."\r\n" );
 		$sitecontent->add_site_content('<button onclick="add( \'new\' ); " id="guestbuttadd">Hinzufügen</button>'."\r\n" );
 		$sitecontent->add_site_content('<div style="display:none;" id="guestadd" >'."\r\n" );
 		//per AJAX laden
-		$sitecontent->add_site_content('</div><button onclick="dis(); " style="display:none;" id="guestbuttdis" >Ausblenden</button></div>'."\r\n" );
+		$sitecontent->add_site_content('</div><hr /><button onclick="dis(); " style="display:none;" id="guestbuttdis" >Ausblenden</button></div>'."\r\n" );
 	}
 	else{
 		$sitecontent->add_site_content('<div id="guest"><button disabled="disabled">Hinzufügen</button> (Bitte loggen Sie sich ein!) </div>'."\r\n" );

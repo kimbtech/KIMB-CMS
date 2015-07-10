@@ -27,7 +27,7 @@ defined('KIMB_CMS') or die('No clean Request');
 
 $addonurl = $allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=more&addon=guestbook';
 
-$cssallg = 'div#guestname{ position:relative; border-bottom:solid 1px #000000; font-weight:bold; } span#guestdate{ font-weight:normal; position:absolute; right:0px; } div#guest{ border:solid 1px #000000; border-radius:15px; background-color:#dddddd; padding:10px; margin:5px;} div#answer{ margin-left:30px; }';
+$cssallg = 'div#guestname{ position:relative; border-bottom:solid 1px #000000; font-weight:bold; } span#guestdate{ font-weight:normal; position:absolute; right:0px; } div#guest, div.answer{ border:solid 1px #000000; border-radius:15px; background-color:#dddddd; padding:10px; margin:5px;} div.answer{ margin-left:80px; }';
 
 $guestfile = new KIMBdbf( 'addon/guestbook__conf.kimb' );
 
@@ -209,7 +209,7 @@ $sitecontent->add_site_content('<input type="radio" name="feloginoo" value="off"
 $sitecontent->add_site_content('<input type="radio" name="feloginoo" value="on"'.$ch[2].'> <span style="display:inline-block;" title="Nur eingeloggten Usern das Kommentieren erlauben (Add-on &apos;felogin&apos; nötig)" class="ui-icon ui-icon-check"></span>(Login)<br />');
 
 $sitecontent->add_site_content('<input type="radio" name="mailoo" value="off"'.$ch[3].'><span style="display:inline-block;" title="Keine E-Mail bei neuen Beiträgen senden" class="ui-icon ui-icon-closethick"></span>');
-$sitecontent->add_site_content('<input type="radio" name="mailoo" value="on"'.$ch[4].'> <span style="display:inline-block;" title="Eine E-Mail an die Adresse unten senden, wenn ein neur Beitrag vorhanden ist" class="ui-icon ui-icon-check"></span> (E-Mail)<br />');
+$sitecontent->add_site_content('<input type="radio" name="mailoo" value="on"'.$ch[4].'> <span style="display:inline-block;" title="Eine E-Mail an die Adresse unten senden, wenn ein neuer Beitrag vorhanden ist" class="ui-icon ui-icon-check"></span> (E-Mail)<br />');
 
 $sitecontent->add_site_content('<input type="radio" name="nstatoo" value="off"'.$ch[5].'><span style="display:inline-block;" title="Neue Beiträge vor Veröffentlichung prüfen" class="ui-icon ui-icon-closethick"></span>');
 $sitecontent->add_site_content('<input type="radio" name="nstatoo" value="on"'.$ch[6].'> <span style="display:inline-block;" title="Neue Beiträge gleich veröffentlichen" class="ui-icon ui-icon-check"></span> (Status)<br />');

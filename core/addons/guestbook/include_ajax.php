@@ -43,17 +43,23 @@ elseif( isset( $_GET['loadadd'] ) ){
 	
 	$guestbook['file'] = new KIMBdbf( 'addon/guestbook__conf.kimb' );
 	
+	$pl = htmlspecialchars( $_GET['pl'] );
+	
+	if( $pl == 'new' ){
+		$pl = 0;
+	}
+	
 	echo ('<form action="#guestbooktop" method="post" onsubmit = "return savesubmit();" >');
 
-	if( !function_exists( 'check_felogin_login' ) || !check_felogin_login() ){
-		echo ('<input name="name" type="text" id = "name" placeholder="Name" > <!--[if lt IE 10]> (Name) <![endif]--> <br />'."\r\n");
+	if( !function_exists( 'check_felogin_login' ) || !check_felogin_login( '---session---', '---allgsiteid---', true ) ){
+		echo ('<input name="name" type="text" id = "name" class="name_'.$pl.'" placeholder="Name" > <!--[if lt IE 10]> (Name) <![endif]--> <br />'."\r\n");
 		echo ('<input name="mail" type="text" id = "mail" placeholder="E-Mail-Adresse" > (E-Mail-Adresse - wird nicht veröffentlicht) <br />'."\r\n");
 	}
-	echo ('<textarea name="cont" id="cont" placeholder="Ihre Mitteilung" style="width:75%; height:100px;" ></textarea> <!--[if lt IE 10]> (Ihre Mitteilung) <![endif]--> <br />'."\r\n");
+	echo ('<textarea name="cont" id="cont" class="cont_'.$pl.'" placeholder="Ihre Mitteilung" style="width:75%; height:100px;" ></textarea> <!--[if lt IE 10]> (Ihre Mitteilung) <![endif]--> <br />'."\r\n");
 	echo ('(Erlaubtes HTML: &lt;b&gt; &lt;/b&gt; &lt;u&gt; &lt;/u&gt; &lt;i&gt; &lt;/i&gt; &lt;center&gt; &lt;/center&gt; )<br />URLs (http://example.com/) werden automatisch zu Links umgewandelt.<br />'."\r\n");
-	echo ('<div style="display:none;" id="prewarea" ><div style="background-color:orange; padding:10px; margin:10px;" id="prew" ></div>(Vorschau)<br /></div>'."\r\n");
+	echo ('<div style="display:none;" id="prewarea_'.$pl.'" ><div style="background-color:orange; padding:10px; margin:10px;" id="prew_'.$pl.'" ></div>(Vorschau)<br /></div>'."\r\n");
 
-	if( !function_exists( 'check_felogin_login' ) || !check_felogin_login() ){
+	if( !function_exists( 'check_felogin_login' ) || !check_felogin_login( '---session---', '---allgsiteid---', true ) ){
 		echo ( make_captcha_html() );
 		echo ('<br />(Bitte geben Sie den Code oben ein, um zu beweisen, dass Sie kein Roboter sind!)<br />'."\r\n");
 	}
@@ -61,13 +67,50 @@ elseif( isset( $_GET['loadadd'] ) ){
 	if( $guestbook['file']->read_kimb_one( 'ipsave' ) == 'on' ){
 		echo ('(Ihre IP wird gespeichert, aber nicht veröffentlicht!)<br />'."\r\n");
 	}
-	echo ('<input type="hidden" value="'.htmlspecialchars( $_GET['place'] ).'" name="place">');
-	echo ( '<input type="submit" value="Absenden"><button onclick="return preview(); " >Vorschau</button></form><br /><br /><hr />'."\r\n" );
+	echo ('<input type="hidden" value="'.htmlspecialchars( $_GET['pl'] ).'" name="place">');
+	echo ( '<input type="submit" value="Absenden"><button onclick="return preview( '.$pl.' ); " >Vorschau</button></form>'."\r\n" );
 
 	die;	
 }
-elseif( isset( $_GET['answer'] ) ){
+elseif( isset( $_GET['answer'] ) && is_numeric( $_GET['id'] ) && is_numeric( $_GET['siteid'] ) ){
 	
+	$guestbook['file'] = new KIMBdbf( 'addon/guestbook__conf.kimb' );
+	
+	if( function_exists( 'check_felogin_login' ) && $guestbook['file']->read_kimb_one( 'nurfeloginuser' ) == 'on' ){
+		if( check_felogin_login( '---session---', $_GET['siteid'], true ) ){
+			$guestbook['add'] = 'allowed';
+		}
+		else{
+			$guestbook['add'] = 'disallowed';
+		}
+	}
+	else{
+			$guestbook['add'] = 'allowed';
+	}
+	
+	if( $guestbook['add'] == 'allowed' ){
+	
+		$readfile = new KIMBdbf( 'addon/guestbook__id_'.$_GET['siteid'].'_answer_'.$_GET['id'].'.kimb' );
+		
+		foreach( $readfile->read_kimb_all_teilpl('allidslist') as $id ){
+			
+			$eintr = $readfile->read_kimb_id( $id );
+			
+			if( $eintr['status'] == 'on' ){
+	
+				echo '<div id="guest" >'."\r\n";		
+				echo '<div id="guestname" >'.$eintr['name']."\r\n";
+				echo '<span id="guestdate">'.date( 'd-m-Y H:i:s' , $eintr['time'] ).'</span>'."\r\n";
+				echo '</div>'."\r\n";
+				echo $eintr['cont']."\r\n";
+				echo '</div>'."\r\n";
+				
+			}
+		}
+	}
+	else{
+		echo 'Keine Rechte!';
+	}
 	die;
 }
 

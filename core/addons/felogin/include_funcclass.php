@@ -65,7 +65,7 @@ foreach( $felogin['grs'] as $felogin['gr'] ){
 //	Rückgabe: true/false (Seite erlaubt/nicht erlaubt)
 //	$gruppe => Gruppe des zu prüfenden Users (---session--- -> aktueller User)
 //	$siteid => Seite welche geprüft werden soll (---allgsiteid-- -> aktuelle Seite)  
-function check_felogin_login( $gruppe = '---session---', $siteid = '---allgsiteid---'  ){
+function check_felogin_login( $gruppe = '---session---', $siteid = '---allgsiteid---', $allglogin = false  ){
 	global $felogin, $allgsiteid;
 
 	//Werte für Vorgabeparamter setzen
@@ -99,7 +99,15 @@ function check_felogin_login( $gruppe = '---session---', $siteid = '---allgsitei
 	}
 	else{
 		//nicht geschützt, also darf jeder User
-		return true;
+		if( $felogin['loginokay'] == $_SESSION['felogin']['loginokay'] && $_SESSION["ip"] == $_SERVER['REMOTE_ADDR'] && $_SESSION["useragent"] == $_SERVER['HTTP_USER_AGENT'] ){
+			return true;
+		}
+		elseif( !$allglogin ){
+			return true;
+		}
+		else{
+			return false;
+		}
 	}
 }
 

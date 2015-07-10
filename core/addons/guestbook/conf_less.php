@@ -36,16 +36,28 @@ if( isset( $_GET['edit'] ) && is_numeric( $_GET['id'] ) ){
 	if( check_for_kimb_file( 'addon/guestbook__id_'.$_GET['id'].'.kimb' ) ){
 		$sitecontent->add_site_content('<h2>Gästebuch der Seite "'.$_GET['id'].'"</h2>');
 		$sitecontent->add_site_content('<br /><a href="'.$addonurl.'"><button>Zurück zur Übersicht</button></a>');
-		$sitecontent->add_html_header('<style>div#guestname{ position:relative; border-bottom:solid 1px #000000; font-weight:bold; }
-span#guestdate{ font-weight:normal; position:absolute; right:0px; }
-div#guest{ border:solid 1px #000000; border-radius:15px; background-color:#dddddd; padding:10px; margin:5px;}
-div#guestinfo{ position:relative; border-top:solid 1px #000000; font-weight:bold; text-align:center; }
+		$sitecontent->add_html_header('<style>div#guestinfo{ position:relative; border-top:solid 1px #000000; font-weight:bold; text-align:center; }
 span#guestlinks{ font-weight:normal; position:absolute; left:0px;}
-span#guestrechts{ font-weight:normal; position:absolute; right:0px;}</style>');
+span#guestrechts{ font-weight:normal; position:absolute; right:0px;}
+div#guestname{ position:relative; border-bottom:solid 1px #000000; font-weight:bold; }
+span#guestdate{ font-weight:normal; position:absolute; right:0px; }
+div#guest, div.answer{ border:solid 1px #000000; border-radius:15px; background-color:#dddddd; padding:10px; margin:5px;}
+div.answer{ margin-left:80px; }
+</style>');
 
-		$gsitefile = new KIMBdbf( 'addon/guestbook__id_'.$_GET['id'].'.kimb' );
+		if( is_numeric( $_GET['answer'] ) && is_numeric( $_GET['bid'] ) ){
+			$gsitefile = new KIMBdbf( 'addon/guestbook__id_'.$_GET['id'].'_answer_'.$_GET['bid'].'.kimb' );
+			$gsitefile_parent = new KIMBdbf( 'addon/guestbook__id_'.$_GET['id'].'.kimb' );
+			
+			$bid_old = $_GET['bid'];
+			$_GET['bid'] = $_GET['answer'];
+		}
+		else{
+			$gsitefile = new KIMBdbf( 'addon/guestbook__id_'.$_GET['id'].'.kimb' );
+		}
 
 		if( isset( $_GET['deakch'] ) && is_numeric( $_GET['bid'] ) ){
+			
 			$status = $gsitefile->read_kimb_id( $_GET['bid'] , 'status' );
 
 			if( $status == 'on' ){
@@ -64,6 +76,20 @@ span#guestrechts{ font-weight:normal; position:absolute; right:0px;}</style>');
 			}
 
 		}
+		elseif( isset( $_GET['del'] )  && isset($_GET['answer']) ){
+			
+			$time = $gsitefile->read_kimb_id( $_GET['answer'], 'time' );
+			
+			if( !empty( $time ) ){
+				$gsitefile->write_kimb_id( $_GET['answer'] , 'del');
+				
+				if( empty( $gsitefile->read_kimb_one( 'allidslist1' ) ) ){
+					$gsitefile_parent->write_kimb_id( $bid_old , 'add' , 'antwo' , 'no' );
+				}
+				
+				unset( $gsitefile );
+			}
+		}
 		elseif( isset( $_GET['del'] ) && is_numeric( $_GET['bid'] ) ){
 
 			$time = $gsitefile->read_kimb_id( $_GET['bid'] , 'time' );
@@ -78,6 +104,10 @@ span#guestrechts{ font-weight:normal; position:absolute; right:0px;}</style>');
 				}
 				$newidlist = substr( $newidlist , 0 , -1 );
 
+				if( $gsitefile->read_kimb_id( $_GET['bid'] , 'antwo' ) == 'yes'){
+					delete_kimb_datei( 'addon/guestbook__id_'.$_GET['id'].'_answer_'.$_GET['bid'].'.kimb');
+				}
+
 				if( empty( $newidlist ) ){
 					if( $gsitefile->write_kimb_id( $_GET['bid'] , 'del') && $gsitefile->write_kimb_delete( 'idlist' ) ){
 						$sitecontent->echo_message( 'Letzter Beitrag gelöscht!' );
@@ -89,6 +119,10 @@ span#guestrechts{ font-weight:normal; position:absolute; right:0px;}</style>');
 			}
 
 
+		}
+		
+		if( is_object( $gsitefile_parent )){
+			$gsitefile = $gsitefile_parent;
 		}
 
 		$idlist = $gsitefile->read_kimb_one( 'idlist' );
@@ -103,14 +137,15 @@ span#guestrechts{ font-weight:normal; position:absolute; right:0px;}</style>');
 			}
 
 			foreach( $alles as $einer ){
+				
 				if ( $einer['status'] == 'off' ){
-					$status = '<a href="'.$addonurl.'&amp;id='.$_GET['id'].'&amp;bid='.$einer['id'].'&amp;edit&amp;deakch"><span style="display:inline-block;" class="ui-icon ui-icon-close" title="Dieser Beitrag ist zur Zeit nicht sichtbar. ( click -> ändern )"></span></a>';
+					$status = '<a href="'.$addonurl.'&amp;id='.$_GET['id'].'&amp;bid='.$einer['id'].'&amp;edit&amp;deakch"><span style="display:inline-block;" class="ui-icon ui-icon-close" title="Dieser Beitrag ist zur Zeit nicht sichtbar. (click -> ändern)"></span></a>';
 				}
 				else{
-					$status = '<a href="'.$addonurl.'&amp;id='.$_GET['id'].'&amp;bid='.$einer['id'].'&amp;edit&amp;deakch"><span style="display:inline-block;" class="ui-icon ui-icon-check" title="Dieser Beitrag ist zur Zeit sichtbar. ( click -> ändern )"></span></a>';
+					$status = '<a href="'.$addonurl.'&amp;id='.$_GET['id'].'&amp;bid='.$einer['id'].'&amp;edit&amp;deakch"><span style="display:inline-block;" class="ui-icon ui-icon-check" title="Dieser Beitrag ist zur Zeit sichtbar. (click -> ändern)"></span></a>';
 				}
-				$status .= '<span id="bid'.$einer['id'].'" style="display:none; margin-left:20px;" ><a href="'.$addonurl.'&amp;id='.$_GET['id'].'&amp;bid='.$einer['id'].'&amp;edit&amp;del"><span style="display:inline-block;" class="ui-icon ui-icon-trash" title="Diesen Beitrag löschen! ( erneut clicken )"></span></a></span>';
-				$status .= '<span onclick=" $(\'span#bid'.$einer['id'].'\').css( \'display\' , \'inline-block\' ); $( this ).css( \'display\' , \'none\' ); " style="display:inline-block;" class="ui-icon ui-icon-trash" title="Diesen Beitrag löschen! ( zweimal clicken )"></span>';
+				$status .= '<span id="bid'.$einer['id'].'" style="display:none; margin-left:20px;" ><a href="'.$addonurl.'&amp;id='.$_GET['id'].'&amp;bid='.$einer['id'].'&amp;edit&amp;del"><span style="display:inline-block;" class="ui-icon ui-icon-trash" title="Diesen Beitrag löschen! (erneut clicken)"></span></a></span>';
+				$status .= '<span onclick=" $(\'span#bid'.$einer['id'].'\').css( \'display\' , \'inline-block\' ); $( this ).css( \'display\' , \'none\' ); " style="display:inline-block;" class="ui-icon ui-icon-trash" title="Diesen Beitrag löschen! (zweimal clicken)"></span>';
 
 				$sitecontent->add_site_content( '<div id="guest" >' );		
 				$sitecontent->add_site_content( '<div id="guestname" ><span title="Name des User" >'.$einer['name'].'</span>' );
@@ -123,6 +158,44 @@ span#guestrechts{ font-weight:normal; position:absolute; right:0px;}</style>');
 				$sitecontent->add_site_content( '<span title="E-Mail Adresse des Users" id="guestrechts">'.$einer['mail'].'</span>' );
 				$sitecontent->add_site_content( '</div>' );
 				$sitecontent->add_site_content( '</div>' );
+				
+				if( $einer['antwo'] == 'yes' ){
+					
+					$sitecontent->add_site_content( '<div class="answer" >' );
+					
+					$readfile = new KIMBdbf( 'addon/guestbook__id_'.$_GET['id'].'_answer_'.$einer['id'].'.kimb' );
+					
+					foreach( $readfile->read_kimb_all_teilpl('allidslist') as $id ){
+						
+						$eintr = $readfile->read_kimb_id( $id );
+						
+					if ( $eintr['status'] == 'off' ){
+						$status = '<a href="'.$addonurl.'&amp;id='.$_GET['id'].'&amp;bid='.$einer['id'].'&amp;edit&amp;deakch&amp;answer='.$id.'"><span style="display:inline-block;" class="ui-icon ui-icon-close" title="Dieser Beitrag ist zur Zeit nicht sichtbar. (click -> ändern)"></span></a>';
+					}
+					else{
+						$status = '<a href="'.$addonurl.'&amp;id='.$_GET['id'].'&amp;bid='.$einer['id'].'&amp;edit&amp;deakch&amp;answer='.$id.'"><span style="display:inline-block;" class="ui-icon ui-icon-check" title="Dieser Beitrag ist zur Zeit sichtbar. (click -> ändern)"></span></a>';
+					}
+					
+						$status .= '<span id="bid'.$einer['id'].'_'.$id.'" style="display:none; margin-left:20px;" ><a href="'.$addonurl.'&amp;id='.$_GET['id'].'&amp;bid='.$einer['id'].'&amp;edit&amp;del&amp;answer='.$id.'"><span style="display:inline-block;" class="ui-icon ui-icon-trash" title="Diesen Beitrag löschen! (erneut clicken)"></span></a></span>';
+						$status .= '<span onclick=" $(\'span#bid'.$einer['id'].'_'.$id.'\').css( \'display\' , \'inline-block\' ); $( this ).css( \'display\' , \'none\' ); " style="display:inline-block;" class="ui-icon ui-icon-trash" title="Diesen Beitrag löschen! (zweimal clicken)"></span>';
+						
+						$sitecontent->add_site_content( '<div id="guest" >');		
+						$sitecontent->add_site_content( '<div id="guestname" title="Name des User" >'.$eintr['name'] );
+						$sitecontent->add_site_content( '<span id="guestdate" title="Tag und Zeit des Erstellens" >'.date( 'd-m-Y H:i:s' , $eintr['time'] ).'</span>' );
+						$sitecontent->add_site_content( '</div>' );
+						$sitecontent->add_site_content( $eintr['cont'] );
+						$sitecontent->add_site_content( '<div id="guestinfo" >');
+						$sitecontent->add_site_content( '<span title="IP des Users (0.0.0.0 wenn Speicherung aus)" id="guestlinks">'.$eintr['ip'].'</span>' );
+						$sitecontent->add_site_content( $status );
+						$sitecontent->add_site_content( '<span title="E-Mail Adresse des Users" id="guestrechts">'.$eintr['mail'].'</span>' );
+						$sitecontent->add_site_content( '</div>' );
+						$sitecontent->add_site_content( '</div>' );
+
+					}
+				
+					$sitecontent->add_site_content( '</div>' );
+
+				}
 			}
 
 			$list = 'no';
