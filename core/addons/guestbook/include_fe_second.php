@@ -36,27 +36,32 @@ if( $guestbook['file']->read_kimb_search_teilpl( 'siteid' , $allgsiteid ) && $al
 
 	$sitecontent->add_site_content( "\r\n".'<hr id="guestbooktop" /><br />'."\r\n" );
 	
-	if( function_exists( 'check_felogin_login' ) && $guestbook['file']->read_kimb_one( 'nurfeloginuser' ) == 'on' ){
+	if( function_exists( 'check_felogin_login' ) && $guestbook['file']->read_kimb_one( 'nurfeloginuser' ) == 'on' ){		
 		if( check_felogin_login( '---session---', '---allgsiteid---', true ) ){
-			$guestbook['add'] = 'allowed';
+			
+			
+			$guestbook['add'] = true;
 		}
 		else{
-			$guestbook['add'] = 'disallowed';
+			$guestbook['add'] = false;
 		}
 	}
 	else{
-			$guestbook['add'] = 'allowed';
+			$guestbook['add'] = true;
 	}
 	
-	if( $guestbook['add'] == 'allowed' ){
+	if( $guestbook['add'] ){
 	
 		if( isset( $_POST['place'] ) ){
 
-			if( function_exists( ' check_felogin_login' ) ){
+			if( function_exists( 'check_felogin_login' ) ){
 				if( check_felogin_login( '---session---', '---allgsiteid---', true ) ){
 					$_REQUEST['captcha_code'] = $_SESSION['captcha_code'];
 					$_POST['mail'] = $_SESSION['felogin']['user'].'@feloginuser.sys';
 					$_POST['name'] = $_SESSION['felogin']['name'];
+				}
+				elseif( substr( $_POST['mail'], -16 ) == '@feloginuser.sys' ){
+					$_POST['mail'] = 'error';
 				}
 			}
 			
@@ -160,7 +165,7 @@ if( $guestbook['file']->read_kimb_search_teilpl( 'siteid' , $allgsiteid ) && $al
 				$guestbook['output'] .= '<hr /><button onclick="answer( '.$i.', \'yes\' );">Antworten lesen und hinzufügen</button>'."\r\n";
 			}
 			else{
-				$guestbook['output'] .= '<hr /><button onclick="answer( '.$i.' );">Antwort hinzufügen</button>'."\r\n";
+				$guestbook['output'] .= '<hr /><button onclick="answer( '.$i.', \'none\' );">Antwort hinzufügen</button>'."\r\n";
 			}
 			
 			$guestbook['output'] .= '</div>'."\r\n";
@@ -178,7 +183,7 @@ if( $guestbook['file']->read_kimb_search_teilpl( 'siteid' , $allgsiteid ) && $al
 
 	$sitecontent->add_site_content($guestbook['output'] );
 
-	if( $guestbook['add'] == 'allowed' ){
+	if( $guestbook['add'] ){
 
 		$sitecontent->add_site_content( '<div id="guest" >'."\r\n" );
 		$sitecontent->add_site_content('<button onclick="add( \'new\' ); " id="guestbuttadd">Hinzufügen</button>'."\r\n" );

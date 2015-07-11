@@ -1,0 +1,20 @@
+<[about:doc]>KIMB dbf V3.50 - KIMB-technologies<[about:doc]>
+<[idlist]>1,2<[idlist]>
+<[allidslist1]>1<[allidslist1]>
+<[1-name]>Test1<[1-name]>
+<[1]>name==mail==cont==ip==time==status==antwo<[1]>
+<[1-mail]>test1@feloginuser.sys<[1-mail]>
+<[1-cont]>dfsdfsdfs <[1-cont]>
+<[1-ip]>127.0.0.1<[1-ip]>
+<[1-time]>1436603401<[1-time]>
+<[1-status]>on<[1-status]>
+<[1-antwo]>yes<[1-antwo]>
+<[allidslist2]>2<[allidslist2]>
+<[2-name]>sdfsdfs<[2-name]>
+<[2]>name==mail==cont==ip==time==status==antwo<[2]>
+<[2-mail]>dsfsd@test.de<[2-mail]>
+<[2-cont]>gdfgsd <br /><!--UMBRUCH-->dfgds <br /><!--UMBRUCH-->fgdfgsdfgdfgdsdf <br /><!--UMBRUCH-->gsdfasfds <br /><!--UMBRUCH--> <[2-cont]>
+<[2-ip]>127.0.0.1<[2-ip]>
+<[2-time]>1436604146<[2-time]>
+<[2-status]>on<[2-status]>
+<[2-antwo]>no<[2-antwo]>

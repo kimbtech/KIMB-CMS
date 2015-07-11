@@ -28,6 +28,13 @@ defined('KIMB_CMS') or die('No clean Request');
 if( !empty( $_POST['vorschau_name'] ) && !empty( $_POST['vorschau_cont'] ) ){
 	//Vorschau
 	
+	if( $_POST['vorschau_name'] == '---username---' && !empty($_SESSION['felogin']['user']) ){
+		$_POST['vorschau_name'] = $_SESSION['felogin']['user'];
+	}
+	elseif($_POST['vorschau_name'] == '---username---'){
+		$_POST['vorschau_name'] = 'Name';
+	}
+	
 	$arr = make_guestbook_html( $_POST['vorschau_cont'], $_POST['vorschau_name'] );
 	
 	echo '<div id="guest" >'."\r\n";		
@@ -78,17 +85,17 @@ elseif( isset( $_GET['answer'] ) && is_numeric( $_GET['id'] ) && is_numeric( $_G
 	
 	if( function_exists( 'check_felogin_login' ) && $guestbook['file']->read_kimb_one( 'nurfeloginuser' ) == 'on' ){
 		if( check_felogin_login( '---session---', $_GET['siteid'], true ) ){
-			$guestbook['add'] = 'allowed';
+			$guestbook['add'] = true;
 		}
 		else{
-			$guestbook['add'] = 'disallowed';
+			$guestbook['add'] = false;
 		}
 	}
 	else{
-			$guestbook['add'] = 'allowed';
+			$guestbook['add'] = true;
 	}
 	
-	if( $guestbook['add'] == 'allowed' ){
+	if( $guestbook['add'] ){
 	
 		$readfile = new KIMBdbf( 'addon/guestbook__id_'.$_GET['siteid'].'_answer_'.$_GET['id'].'.kimb' );
 		
