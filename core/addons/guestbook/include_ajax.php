@@ -25,6 +25,10 @@
 
 defined('KIMB_CMS') or die('No clean Request');
 
+if( !empty( $_GET['lang'] ) && $_GET['lang'] != 'de' && $_GET['lang'] != 'en'){
+	echo 'Error with Langfile - Fehler bei der Sprachdatei';
+	die;	
+}  
 if( !empty( $_POST['vorschau_name'] ) && !empty( $_POST['vorschau_cont'] ) ){
 	//Vorschau
 	
@@ -46,7 +50,11 @@ if( !empty( $_POST['vorschau_name'] ) && !empty( $_POST['vorschau_cont'] ) ){
 
 	die;
 }
-elseif( isset( $_GET['loadadd'] ) ){
+elseif( isset( $_GET['loadadd'] ) && !empty( $_GET['lang'] ) ){
+	
+	//Ini Datei für Text der Mail laden (de oder en)
+	$lang = parse_ini_file ( __DIR__.'/lang_'.$_GET['lang'].'.ini' , true );
+	$lang = $lang['ajax'];
 	
 	$guestbook['file'] = new KIMBdbf( 'addon/guestbook__conf.kimb' );
 	
@@ -59,23 +67,23 @@ elseif( isset( $_GET['loadadd'] ) ){
 	echo ('<form action="#guestbooktop" method="post" onsubmit = "return savesubmit();" >');
 
 	if( !function_exists( 'check_felogin_login' ) || !check_felogin_login( '---session---', '---allgsiteid---', true ) ){
-		echo ('<input name="name" type="text" id = "name" class="name_'.$pl.'" placeholder="Name" > <!--[if lt IE 10]> (Name) <![endif]--> <br />'."\r\n");
-		echo ('<input name="mail" type="text" id = "mail" placeholder="E-Mail-Adresse" > (E-Mail-Adresse - wird nicht veröffentlicht) <br />'."\r\n");
+		echo ('<input name="name" type="text" id = "name" class="name_'.$pl.'" placeholder="'.$lang['name'].'" > <!--[if lt IE 10]> ('.$lang['name'].') <![endif]--> <br />'."\r\n");
+		echo ('<input name="mail" type="text" id = "mail" placeholder="'.$lang['mail'].'" > ('.$lang['mail'].' - '.$lang['nopu'].') <br />'."\r\n");
 	}
-	echo ('<textarea name="cont" id="cont" class="cont_'.$pl.'" placeholder="Ihre Mitteilung" style="width:75%; height:100px;" ></textarea> <!--[if lt IE 10]> (Ihre Mitteilung) <![endif]--> <br />'."\r\n");
-	echo ('(Erlaubtes HTML: &lt;b&gt; &lt;/b&gt; &lt;u&gt; &lt;/u&gt; &lt;i&gt; &lt;/i&gt; &lt;center&gt; &lt;/center&gt; )<br />URLs (http://example.com/) werden automatisch zu Links umgewandelt.<br />'."\r\n");
-	echo ('<div style="display:none;" id="prewarea_'.$pl.'" ><div style="background-color:orange; padding:10px; margin:10px;" id="prew_'.$pl.'" ></div>(Vorschau)<br /></div>'."\r\n");
+	echo ('<textarea name="cont" id="cont" class="cont_'.$pl.'" placeholder="'.$lang['cont'].'" style="width:75%; height:100px;" ></textarea> <!--[if lt IE 10]> ('.$lang['mail'].') <![endif]--> <br />'."\r\n");
+	echo ('('.$lang['allhtml'].': &lt;b&gt; &lt;/b&gt; &lt;u&gt; &lt;/u&gt; &lt;i&gt; &lt;/i&gt; &lt;center&gt; &lt;/center&gt; )<br />'.$lang['url'].'<br />'."\r\n");
+	echo ('<div style="display:none;" id="prewarea_'.$pl.'" ><div style="background-color:orange; padding:10px; margin:10px;" id="prew_'.$pl.'" ></div>('.$lang['prev'].')<br /></div>'."\r\n");
 
 	if( !function_exists( 'check_felogin_login' ) || !check_felogin_login( '---session---', '---allgsiteid---', true ) ){
 		echo ( make_captcha_html() );
-		echo ('<br />(Bitte geben Sie den Code oben ein, um zu beweisen, dass Sie kein Roboter sind!)<br />'."\r\n");
+		echo ('<br />('.$lang['captext'].')<br />'."\r\n");
 	}
 
 	if( $guestbook['file']->read_kimb_one( 'ipsave' ) == 'on' ){
-		echo ('(Ihre IP wird gespeichert, aber nicht veröffentlicht!)<br />'."\r\n");
+		echo ('('.$lang['ipsave'].')<br />'."\r\n");
 	}
 	echo ('<input type="hidden" value="'.htmlspecialchars( $_GET['pl'] ).'" name="place">');
-	echo ( '<input type="submit" value="Absenden"><button onclick="return preview( '.$pl.' ); " >Vorschau</button></form>'."\r\n" );
+	echo ( '<input type="submit" value="'.$lang['sub'].'"><button onclick="return preview( '.$pl.' ); " >'.$lang['prev'].'</button></form>'."\r\n" );
 
 	die;	
 }
@@ -116,7 +124,7 @@ elseif( isset( $_GET['answer'] ) && is_numeric( $_GET['id'] ) && is_numeric( $_G
 		}
 	}
 	else{
-		echo 'Keine Rechte!';
+		echo 'Keine Rechte - Not allowed!';
 	}
 	die;
 }

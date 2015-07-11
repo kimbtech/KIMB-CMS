@@ -41,14 +41,14 @@ function add( place ){
 		var loadto = 'div#answer_' + place +'_add' ;
 	}
 		
-	$.get( siteurl + "/ajax.php?addon=guestbook&loadadd&pl=" + place )
+	$.get( siteurl + "/ajax.php?addon=guestbook&loadadd&pl=" + place + "&lang=" + langfile )
 	 	.done(function( data ) {
 			$( loadto ).html( data );
 			
 			loadsumbit();
 		})
 		.fail(function() {
-			$( loadto ).html( "Laden des Formulars nicht möglich!" );
+			$( loadto ).html( noload );
 		});
 		
 	if( place == 'new'){
@@ -72,7 +72,7 @@ function preview( id ){
 	}
 	
 	if( cont == '' || name == '' ){
-		$( "div#prew_" + id ).html( "Bitte geben Sie einen Namen und einen Inhalt an!" );
+		$( "div#prew_" + id ).html( nameinh );
 	}
 	else{	
 		$.post( siteurl + "/ajax.php?addon=guestbook", { "vorschau_name": name, "vorschau_cont": cont } )
@@ -80,7 +80,7 @@ function preview( id ){
 				$( "div#prew_" + id ).html( data );
 	  		})
 			.fail(function() {
-				$( "div#prew_" + id ).html( "Fehlerhafte AJAX Abfrage" );
+				$( "div#prew_" + id ).html( ajaxerr );
 			});
 	}
 		
@@ -103,7 +103,7 @@ function answer( id, file ){
 			loadsumbit();
 		})
 		.fail(function() {
-			$( loadto ).html( "Laden der Antworten nicht möglich!" );
+			$( loadto ).html( answerr );
 		});
 	}
 	

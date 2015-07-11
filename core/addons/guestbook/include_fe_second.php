@@ -117,28 +117,38 @@ if( $guestbook['file']->read_kimb_search_teilpl( 'siteid' , $allgsiteid ) && $al
 					$addfile->write_kimb_id( $guestbook['newid'] , 'add' , 'status' , $guestbook['file']->read_kimb_one( 'newstatus' ) );
 					$addfile->write_kimb_id( $guestbook['newid'] , 'add' , 'antwo' , 'no' );
 
-					if( $guestbook['file']->read_kimb_one( 'mailinfo' ) == 'on' ){
-						send_mail( $guestbook['file']->read_kimb_one( 'mailinfoto' ) , 'Neuer Gaestebucheintrag von '.$name.' ('.$mail.') auf SiteID: '.$allgsiteid."\r\n\r\n".$cont );
+					if( $guestbook['file']->read_kimb_one( 'mailinfo' ) == 'on' && !empty($guestbook['file']->read_kimb_one( 'mailinfoto' )) ){
+						
+						//Text laden und Platzhalter ersetzen
+						$text = str_replace( array( '%name%', '%mail%', '%siteid%', '%cont%', '%br%' ) , array( $name, $mail, $allgsiteid, $cont, "\r\n" ) , $allgsys_trans['addons']['guestbook']['mailtext']['infomail'] );
+						
+						send_mail( $guestbook['file']->read_kimb_one( 'mailinfoto' ) , $text );
 					}
 
 					if( $guestbook['file']->read_kimb_one( 'newstatus' ) == 'off' ){
-						$sitecontent->add_site_content('<h3>Ihre Mitteilung wird vor der Veröffentlichung geprüft!</h3>'."\r\n");
+						$sitecontent->add_site_content('<h3>'.$allgsys_trans['addons']['guestbook']['pruef'].'</h3>'."\r\n");
 					}
 				}
 				else{
-					$sitecontent->add_site_content( '<h3>Die E-Mail-Adresse ist falsch!</h3>' );
+					$sitecontent->add_site_content( '<h3>'.$allgsys_trans['addons']['guestbook']['mailerr'].'</h3>' );
 					$guestbook['showadd'] = $addjs;
 				}
 
 			}
 			else{
-				$sitecontent->add_site_content( '<h3>Das Captcha wurde falsch gelöst oder eines der Felder war leer!</h3>' );
+				$sitecontent->add_site_content( '<h3>'.$allgsys_trans['addons']['guestbook']['caerr'].'</h3>' );
 				$guestbook['showadd'] = $addjs;
 			}
 		}
 	}
 
-	$sitecontent->add_html_header('<script>var siteurl = "'.$allgsysconf['siteurl'].'", siteid = "'.$allgsiteid.'"; </script>');
+	$header = '<script>var siteurl = "'.$allgsysconf['siteurl'].'", siteid = "'.$allgsiteid.'"; ';
+	foreach( $allgsys_trans['addons']['guestbook']['externjs'] as $key => $val ){
+		$header .= 'var '.$key.' = "'.$val.'"; ';
+	}
+	$header .= '</script>';
+		
+	$sitecontent->add_html_header( $header );
 
 	$sitecontent->add_html_header('<script src="'.$allgsysconf['siteurl'].'/load/addondata/guestbook/guestbook.min.js" type="text/javascript" ></script>');
 	
@@ -162,10 +172,10 @@ if( $guestbook['file']->read_kimb_search_teilpl( 'siteid' , $allgsiteid ) && $al
 			
 			$i = $guestbook['einer']['file_id'];
 			if( $guestbook['einer']['antwo'] == 'yes' ){
-				$guestbook['output'] .= '<hr /><button onclick="answer( '.$i.', \'yes\' );">Antworten lesen und hinzufügen</button>'."\r\n";
+				$guestbook['output'] .= '<hr /><button onclick="answer( '.$i.', \'yes\' );">'.$allgsys_trans['addons']['guestbook']['awles'].'</button>'."\r\n";
 			}
 			else{
-				$guestbook['output'] .= '<hr /><button onclick="answer( '.$i.', \'none\' );">Antwort hinzufügen</button>'."\r\n";
+				$guestbook['output'] .= '<hr /><button onclick="answer( '.$i.', \'none\' );">'.$allgsys_trans['addons']['guestbook']['awadd'].'</button>'."\r\n";
 			}
 			
 			$guestbook['output'] .= '</div>'."\r\n";
@@ -177,7 +187,7 @@ if( $guestbook['file']->read_kimb_search_teilpl( 'siteid' , $allgsiteid ) && $al
 
 	if( !isset( $guestbook['eintr'] ) ){
 		$guestbook['output'] .= '<div id="guest" >'."\r\n";		
-		$guestbook['output'] .= 'Keine Mitteilungen';
+		$guestbook['output'] .= $allgsys_trans['addons']['guestbook']['nomitt'];
 		$guestbook['output'] .= '</div>'."\r\n\r\n";
 	}
 
@@ -186,13 +196,13 @@ if( $guestbook['file']->read_kimb_search_teilpl( 'siteid' , $allgsiteid ) && $al
 	if( $guestbook['add'] ){
 
 		$sitecontent->add_site_content( '<div id="guest" >'."\r\n" );
-		$sitecontent->add_site_content('<button onclick="add( \'new\' ); " id="guestbuttadd">Hinzufügen</button>'."\r\n" );
+		$sitecontent->add_site_content('<button onclick="add( \'new\' ); " id="guestbuttadd">'.$allgsys_trans['addons']['guestbook']['add'].'</button>'."\r\n" );
 		$sitecontent->add_site_content('<div style="display:none;" id="guestadd" >'."\r\n" );
 		//per AJAX laden
-		$sitecontent->add_site_content('</div><hr /><button onclick="dis(); " style="display:none;" id="guestbuttdis" >Ausblenden</button></div>'."\r\n" );
+		$sitecontent->add_site_content('</div><hr /><button onclick="dis(); " style="display:none;" id="guestbuttdis" >'.$allgsys_trans['addons']['guestbook']['dis'].'</button></div>'."\r\n" );
 	}
 	else{
-		$sitecontent->add_site_content('<div id="guest"><button disabled="disabled">Hinzufügen</button> (Bitte loggen Sie sich ein!) </div>'."\r\n" );
+		$sitecontent->add_site_content('<div id="guest"><button disabled="disabled">'.$allgsys_trans['addons']['guestbook']['add'].'</button> ('.$allgsys_trans['addons']['guestbook']['login'].') </div>'."\r\n" );
 	}	
 }
 
