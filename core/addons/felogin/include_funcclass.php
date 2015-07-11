@@ -30,6 +30,8 @@ defined('KIMB_CMS') or die('No clean Request');
 $felogin['conf'] = new KIMBdbf( 'addon/felogin__conf.kimb'  );
 //	Loginokay
 $felogin['loginokay'] = $felogin['conf']->read_kimb_one( 'loginokay' );
+//immer vorhanden für die checklogin Funktion
+$allgfeloginloginokay = $felogin['loginokay'];
 //	alle Gruppen
 $felogin['grlist'] = $felogin['conf']->read_kimb_one( 'grlist' );
 //	alle Gruppen Array
@@ -61,12 +63,17 @@ foreach( $felogin['grs'] as $felogin['gr'] ){
 	}
 }
 
+//immer vorhanden für die checklogin Funktion
+$allgfeloginallsites = $felogin['allsites'];
+$allgfeloginallgroups = $felogin['teilesite'];
+
 //Funktion um Rechte des eines eingeloggten Users zu prüfen
 //	Rückgabe: true/false (Seite erlaubt/nicht erlaubt)
 //	$gruppe => Gruppe des zu prüfenden Users (---session--- -> aktueller User)
 //	$siteid => Seite welche geprüft werden soll (---allgsiteid-- -> aktuelle Seite)  
+//	$allglogin => true/false (soll allgemein der Loginstatus geprüft werden, ohne auf freie Seite zu achten)
 function check_felogin_login( $gruppe = '---session---', $siteid = '---allgsiteid---', $allglogin = false  ){
-	global $felogin, $allgsiteid;
+	global $allgfeloginloginokay, $allgsiteid, $allgfeloginallsites,$allgfeloginallgroups;
 
 	//Werte für Vorgabeparamter setzen
 	if( $gruppe == '---session---'){
@@ -77,12 +84,11 @@ function check_felogin_login( $gruppe = '---session---', $siteid = '---allgsitei
 	}
 
 	//Seite von Felogin geschützt?
-	if( in_array( $allgsiteid , $felogin['allsites'] ) ){
+	if( in_array( $allgsiteid , $allgfeloginallsites ) ){
 		//User richtig eingeloggt?
-		if( $felogin['loginokay'] == $_SESSION['felogin']['loginokay'] && $_SESSION["ip"] == $_SERVER['REMOTE_ADDR'] && $_SESSION["useragent"] == $_SERVER['HTTP_USER_AGENT'] ){
-
+		if( $allgfeloginloginokay == $_SESSION['felogin']['loginokay'] && $_SESSION["ip"] == $_SERVER['REMOTE_ADDR'] && $_SESSION["useragent"] == $_SERVER['HTTP_USER_AGENT'] ){
 			//gewünscht Seite in der gewünscht Gruppe erlaubt?
-			if( in_array( $siteid , $felogin['teilesite'][$gruppe] ) ){
+			if( in_array( $siteid , $allgfeloginallgroups[$gruppe] ) ){
 				//Rechte da!
 				return true;
 			}
@@ -98,13 +104,15 @@ function check_felogin_login( $gruppe = '---session---', $siteid = '---allgsitei
 		}
 	}
 	else{
-		//nicht geschützt, also darf jeder User
-		if( $felogin['loginokay'] == $_SESSION['felogin']['loginokay'] && $_SESSION["ip"] == $_SERVER['REMOTE_ADDR'] && $_SESSION["useragent"] == $_SERVER['HTTP_USER_AGENT'] ){
+		//nicht geschützt, also darf jeder eingeloggte User
+		if( $allgfeloginloginokay == $_SESSION['felogin']['loginokay'] && $_SESSION["ip"] == $_SERVER['REMOTE_ADDR'] && $_SESSION["useragent"] == $_SERVER['HTTP_USER_AGENT'] ){
 			return true;
 		}
-		elseif( !$allglogin ){
+		//oder auch für alle Zugriffe erlauben, wenn gewünscht
+		elseif( $allglogin == false ){
 			return true;
 		}
+		//verboten
 		else{
 			return false;
 		}
