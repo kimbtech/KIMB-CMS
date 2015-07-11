@@ -25,8 +25,11 @@
 
 defined('KIMB_CMS') or die('No clean Request');
 
-//	$return -> Eingabe des Users
-//	Rückgabe: HTML-Code
+//Diese Funktion reinigt die Eingaben für das Gästebuch 
+//	$cont -> übergebene Mitteilung
+//		URLs werden zu Links, nur einige HTML-Tags erlaubt
+//	$name -> übergebener Name
+//	Rückgabe: array( $cont, $name )  [beide gesäubert]
 function make_guestbook_html( $cont, $name ){
 
 	//Name
@@ -35,32 +38,47 @@ function make_guestbook_html( $cont, $name ){
 	//Inhalt
 	$cont = nl2br( htmlentities ( $cont ) );
 	
+	//einige htmlentities wieder zurück
+	//	alle br erhalten ein Lesezeichen davor, nur so werden URLs am Zeilenende sicher erkannt
+	//	https:// wird zu http://
 	$codiert = array( '&lt;b&gt;' , '&lt;/b&gt;' , '&lt;u&gt;' , '&lt;/u&gt;' , '&lt;i&gt;' , '&lt;/i&gt;' , '&lt;center&gt;' , '&lt;/center&gt;', '<br />', 'https://' );
 	$unkodiert = array( '<b>' , '</b>' , '<u>' , '</u>' , '<i>' , '</i>' , '<center>' , '</center>', ' <br />', 'http://' );
 	
-	//alles doofe weg
+	//Ersetzungen durchführen
 	$cont = str_replace( $codiert , $unkodiert , $cont );
 	
+	//eine URL am Ende muss von einem Leerzeichen beendet werden, dieses kommt hier dran
 	$cont = $cont.' ';
 	
 	//URL zu Link
+	
+	//erstes http:// finden
 	$pos = strpos( $cont, 'http://');
+	//solange noch http://'s gefunden:
 	while(  $pos !== false ){
 		
+		//Leerzeichen am Ende der URL suchen
 		$leer = strpos( $cont, ' ', $pos );
 		
+		//Länge der URL herausfinden
 		$len = $leer - $pos;
+		//URL herausfinden
 		$url = substr( $cont , $pos , $len );
 		
+		//vor und nach der URL in einem Array aufteilen (maximal zwei Teile)
 		$array = explode( $url, $cont, 2);
 		
+		//Inhalt neu zusammensetzen
 		$cont = $array[0].'<a href="'.$url.'" target="_blank">'.$url.'</a>'.$array[1];
 			
-		//nächste
+		//nächste URL
+		//	nach der URL neu suchen
 		$off = strlen( $array[0].'<a href="'.$url.'" target="_blank">'.$url.'</a>' ) ;
+		//	suchen
 		$pos = strpos( $cont, 'http://', $off);
 	}
 
+	//als Array zurückgeben
 	return array( $cont, $name);
 }
 
