@@ -15,6 +15,10 @@
 <[be_second2]>be_passw<[be_second2]>
 <[be_second3]>auto_update<[be_second3]>
 <[be_second4]>galerie<[be_second4]>
+<[21-api_login]>noup<[21-api_login]>
+<[21-felogin]>noup<[21-felogin]>
+<[21-guestbook]>noup<[21-guestbook]>
+<[lastcheck]>1436460304<[lastcheck]>
 <[ajax1]>captcha<[ajax1]>
 <[ajax2]>api_login<[ajax2]>
 <[funcclass1]>captcha<[funcclass1]>
@@ -25,10 +29,6 @@
 <[funcclass3]>guestbook<[funcclass3]>
 <[fe_first2]>guestbook<[fe_first2]>
 <[fe_second2]>guestbook<[fe_second2]>
-<[21-api_login]>noup<[21-api_login]>
-<[21-felogin]>noup<[21-felogin]>
-<[21-guestbook]>noup<[21-guestbook]>
-<[lastcheck]>1436460304<[lastcheck]>
 <[ajax4]>felogin<[ajax4]>
 <[funcclass4]>felogin<[funcclass4]>
 <[fe_first3]>felogin<[fe_first3]>
