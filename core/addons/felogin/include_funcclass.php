@@ -52,6 +52,9 @@ foreach( $felogin['grs'] as $felogin['gr'] ){
 	//als Array bereitstellen (Seite der einzelnen Gruppen)
 	$felogin['teilesite'][$felogin['gr']] = explode( ',' , $felogin['grteile'] );
 
+	//das ist ein Array
+	 $felogin['allsites'] = array();
+
 	//das Array mit allen Seiten füttern
 	foreach($felogin['teilesite'][$felogin['gr']] as $felogin['teilsite'] ){
 
@@ -70,21 +73,29 @@ $allgfeloginallgroups = $felogin['teilesite'];
 //Funktion um Rechte des eines eingeloggten Users zu prüfen
 //	Rückgabe: true/false (Seite erlaubt/nicht erlaubt)
 //	$gruppe => Gruppe des zu prüfenden Users (---session--- -> aktueller User)
-//	$siteid => Seite welche geprüft werden soll (---allgsiteid-- -> aktuelle Seite)  
+//	$siteid => Seite welche geprüft werden soll (---allgsiteid-- -> aktuelle Seite, ---none--- -> einfach nur gucken ob eingeloggt)  
 //	$allglogin => true/false (soll allgemein der Loginstatus geprüft werden, ohne auf freie Seite zu achten)
 function check_felogin_login( $gruppe = '---session---', $siteid = '---allgsiteid---', $allglogin = false  ){
 	global $allgfeloginloginokay, $allgsiteid, $allgfeloginallsites,$allgfeloginallgroups;
 
 	//Werte für Vorgabeparamter setzen
 	if( $gruppe == '---session---'){
-			$gruppe = $_SESSION['felogin']['gruppe'];
+		$gruppe = $_SESSION['felogin']['gruppe'];
 	}
 	if( $siteid == '---allgsiteid---' ){
 		$siteid = $allgsiteid;
 	}
+	//keine Prüfung ob seite okay, nur ob User eingeloggt
+	if( $siteid == '---none---' ){
+		$checksite = false; 
+	}
+	else{
+		$checksite = true;
+	}
 
 	//Seite von Felogin geschützt?
-	if( in_array( $allgsiteid , $allgfeloginallsites ) ){
+	//nur prüfen wenn Seitenprüfung überhaupt gewünscht
+	if( $checksite &&  in_array( $siteid , $allgfeloginallsites ) ){
 		//User richtig eingeloggt?
 		if( $allgfeloginloginokay == $_SESSION['felogin']['loginokay'] && $_SESSION["ip"] == $_SERVER['REMOTE_ADDR'] && $_SESSION["useragent"] == $_SERVER['HTTP_USER_AGENT'] ){
 			//gewünscht Seite in der gewünscht Gruppe erlaubt?

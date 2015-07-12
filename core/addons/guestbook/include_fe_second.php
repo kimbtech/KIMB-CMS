@@ -222,7 +222,7 @@ if( $guestbook['file']->read_kimb_search_teilpl( 'siteid' , $allgsiteid ) && $al
 
 	//JS Variablen setzen
 	//	dynamische Werte für aktuelle Seite
-	$header = '<script>var siteurl = "'.$allgsysconf['siteurl'].'", siteid = "'.$allgsiteid.'"; ';
+	$header = '<script>var siteurl = "'.$allgsysconf['siteurl'].'", siteid = "'.$allgsiteid.'", addmitt = '.json_encode( $guestbook['add'] ).'; ';
 	//	Übersetzungen
 	foreach( $allgsys_trans['addons']['guestbook']['externjs'] as $key => $val ){
 		$header .= 'var '.$key.' = "'.$val.'"; ';

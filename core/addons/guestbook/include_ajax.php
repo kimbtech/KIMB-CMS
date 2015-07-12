@@ -91,7 +91,7 @@ elseif( isset( $_GET['loadadd'] ) && !empty( $_GET['lang'] ) ){
 	//Felogin Integration
 	//	Name und E-Mail müssen nicht angegeben werden
 	//Ist felogin verfügbar und ist der User für diese Seite eingeloggt oder überhaupt eingeloggt? 
-	if( !function_exists( 'check_felogin_login' ) || !check_felogin_login( '---session---', '---allgsiteid---', true ) ){
+	if( !function_exists( 'check_felogin_login' ) || !check_felogin_login( '---session---', '---none---', true ) ){
 		//nur wenn User nicht eingeloggt oder felogin nicht da nach Namen und E-Mail fragen
 		//	Input Name mit $pl ID
 		echo ('<input name="name" type="text" id = "name" class="name_'.$pl.'" placeholder="'.$lang['name'].'" > <!--[if lt IE 10]> ('.$lang['name'].') <![endif]--> <br />'."\r\n");
@@ -108,7 +108,7 @@ elseif( isset( $_GET['loadadd'] ) && !empty( $_GET['lang'] ) ){
 	//Felogin Integration
 	//	Captcha muss nicht angegeben werden
 	//Ist felogin verfügbar und ist der User für diese Seite eingeloggt oder überhaupt eingeloggt? 
-	if( !function_exists( 'check_felogin_login' ) || !check_felogin_login( '---session---', '---allgsiteid---', true ) ){
+	if( !function_exists( 'check_felogin_login' ) || !check_felogin_login( '---session---', '---none---', true ) ){
 		//nur wenn User nicht eingeloggt oder felogin nicht da nach Captcha fragen
 		echo ( make_captcha_html() );
 		//Infotext zu Captcha
@@ -138,7 +138,7 @@ elseif( isset( $_GET['answer'] ) && is_numeric( $_GET['id'] ) && is_numeric( $_G
 	$guestbook['file'] = new KIMBdbf( 'addon/guestbook__conf.kimb' );
 	
 	//Felogin vorhanden und "nur felogin User" aktiviert?
-	if( function_exists( 'check_felogin_login' ) && $guestbook['file']->read_kimb_one( 'nurfeloginuser' ) == 'on' ){
+	if( function_exists( 'check_felogin_login' ) ){
 		//Loginstatus prüfen
 		//	Gruppe und User aus Session, SiteID des Gästebuchs
 		//	(darf User Seite sehen?)
@@ -159,31 +159,38 @@ elseif( isset( $_GET['answer'] ) && is_numeric( $_GET['id'] ) && is_numeric( $_G
 	
 	//wenn Antworten laden erlaubt:
 	if( $guestbook['add'] ){
+
+		//Antworten vorhanden?		
+		if( check_for_kimb_file(  'addon/guestbook__id_'.$_GET['siteid'].'_answer_'.$_GET['id'].'.kimb' ) ){
 	
-		//Datei mit Antworten öffnen
-		$readfile = new KIMBdbf( 'addon/guestbook__id_'.$_GET['siteid'].'_answer_'.$_GET['id'].'.kimb' );
-		
-		//alle IDs durchgehen
-		foreach( $readfile->read_kimb_all_teilpl('allidslist') as $id ){
+			//Datei mit Antworten öffnen
+			$readfile = new KIMBdbf( 'addon/guestbook__id_'.$_GET['siteid'].'_answer_'.$_GET['id'].'.kimb' );
 			
-			//Daten der Antwort lesen
-			$eintr = $readfile->read_kimb_id( $id );
-			
-			//wenn aktiviert
-			if( $eintr['status'] == 'on' ){
-	
-				//Ausgabe wie normalen Beitrag
-				echo '<div id="guest" >'."\r\n";
-				//	Name		
-				echo '<div id="guestname" >'.$eintr['name']."\r\n";
-				//	Zeit
-				echo '<span id="guestdate">'.date( 'd-m-Y H:i:s' , $eintr['time'] ).'</span>'."\r\n";
-				echo '</div>'."\r\n";
-				//	Inhalt
-				echo $eintr['cont']."\r\n";
-				echo '</div>'."\r\n";
+			//alle IDs durchgehen
+			foreach( $readfile->read_kimb_all_teilpl('allidslist') as $id ){
 				
+				//Daten der Antwort lesen
+				$eintr = $readfile->read_kimb_id( $id );
+				
+				//wenn aktiviert
+				if( $eintr['status'] == 'on' ){
+		
+					//Ausgabe wie normalen Beitrag
+					echo '<div id="guest" >'."\r\n";
+					//	Name		
+					echo '<div id="guestname" >'.$eintr['name']."\r\n";
+					//	Zeit
+					echo '<span id="guestdate">'.date( 'd-m-Y H:i:s' , $eintr['time'] ).'</span>'."\r\n";
+					echo '</div>'."\r\n";
+					//	Inhalt
+					echo $eintr['cont']."\r\n";
+					echo '</div>'."\r\n";
+					
+				}
 			}
+		}
+		else{
+			echo 'Keine Antworten - No Answers';
 		}
 	}
 	else{

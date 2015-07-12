@@ -40,17 +40,24 @@ function add( place ){
 	else{
 		var loadto = 'div#answer_' + place +'_add' ;
 	}
+	
+	if( !addmitt ){	
+		$( loadto ).html( noaddrights );
+	}
+	else{
+		$( loadto ).html( '<img src="' + siteurl + '/load/system/spin_load.gif" title="Loading ..." title="Loading ...">' );
 		
-	$.get( siteurl + "/ajax.php?addon=guestbook&loadadd&pl=" + place + "&lang=" + langfile )
-	 	.done(function( data ) {
-			$( loadto ).html( data );
-			
-			loadsumbit();
-		})
-		.fail(function() {
-			$( loadto ).html( noload );
-		});
-		
+		$.get( siteurl + "/ajax.php?addon=guestbook&loadadd&pl=" + place + "&lang=" + langfile )
+		 	.done(function( data ) {
+				$( loadto ).html( data );
+				
+				loadsumbit();
+			})
+			.fail(function() {
+				$( loadto ).html( noload );
+			});
+	}
+	
 	if( place == 'new'){
 		$( loadto ).css( "display" , "block" );
 		
@@ -74,7 +81,9 @@ function preview( id ){
 	if( cont == '' || name == '' ){
 		$( "div#prew_" + id ).html( nameinh );
 	}
-	else{	
+	else{
+		$( "div#prew_" + id ).html( '<img src="' + siteurl + '/load/system/spin_load.gif" title="Loading ..." title="Loading ...">' );
+		
 		$.post( siteurl + "/ajax.php?addon=guestbook", { "vorschau_name": name, "vorschau_cont": cont } )
 	 		.done(function( data ) {
 				$( "div#prew_" + id ).html( data );
@@ -95,6 +104,8 @@ function answer( id, file ){
 	
 	if( file != 'none' ){
 		loadto =  'div#answer_' + id +'_dis' ;
+		
+		$( loadto ).html( '<img src="' + siteurl + '/load/system/spin_load.gif" title="Loading ..." title="Loading ...">' );
 		
 		$.get( siteurl + "/ajax.php?addon=guestbook&answer&id=" + id + "&siteid=" + siteid )
 	 	.done(function( data ) {
