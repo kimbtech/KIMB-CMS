@@ -23,24 +23,5 @@
 //http://www.gnu.org/licenses/gpl-3.0.txt
 /*************************************************/
 
-defined('KIMB_CMS') or die('No clean Request');
-
-//sicheren Text mit Code nachladen
-
-//Ist der Code des Request gleich dem des Session?
-//Ist der Code in der Session nicht leer?
-if( $_SESSION['kontakt_code'] == $_GET['code']  && !empty( $_SESSION['kontakt_code'] ) ){
-	//dbf laden
-	$file = new KIMBdbf( 'addon/kontakt__file.kimb' );
-	//sicheren Text lesen und ausgeben
-	echo $file->read_kimb_one( 'othercont' );
-}
-else{
-	//wenn Code nicht passt Fehlermedlung & Header
-	http_response_code(403);
-	echo( 'Code falsch - Code incorrect' );
-}
-
-die;
-
+//nur damit second aktiviert wird
 ?>
