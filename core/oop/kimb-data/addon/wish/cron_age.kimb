@@ -1,2 +1,6 @@
 <[about:doc]>KIMB dbf V3.50 - KIMB-technologies<[about:doc]>
-
+<[allidslist1]>1<[allidslist1]>
+<[1-addon]>im_export<[1-addon]>
+<[1]>addon==minage==lastaufruf<[1]>
+<[1-minage]>259200<[1-minage]>
+<[1-lastaufruf]>1000<[1-lastaufruf]>

@@ -28,7 +28,16 @@ defined('KIMB_CMS') or die('No clean Request');
 $sitecontent->echo_message( 'Erstellen Sie vor jedem Import ein Backup um einem Datenverlust vorzubeugen!!' );
 $sitecontent->add_site_content( '<br /><hr /><br />' );
 
-if( isset( $_POST['file'] ) && !empty( $_FILES['exportfile']['name'] ) ){
+if( isset( $_POST['file'] ) && ( !empty( $_FILES['exportfile']['name'] ) || !empty( $_POST['exportarchiv'] ) ) ){
+
+	if( !empty( $_POST['exportarchiv'] ) ){
+		if( strpos($_POST['exportarchiev'], '..') !== false ){
+			echo 'Do not hack me!';
+			die;
+		}
+		
+		$_FILES["exportfile"]["tmp_name"] = __DIR__.'/exporte/'.$_POST['exportarchiv'].'.zip';
+	}
 
 	$_SESSION['importfile'] = mt_rand();
 
@@ -40,7 +49,7 @@ if( isset( $_POST['file'] ) && !empty( $_FILES['exportfile']['name'] ) ){
 		$zip->close();
 	}
 	else{
-		$sitecontent->echo_error(' Konnte Exportdatei nicht verarbeiten! ');
+		$sitecontent->echo_error('Konnte Exportdatei nicht verarbeiten!');
 		$sitecontent->output_complete_site();
 		die;
 	}
@@ -113,10 +122,14 @@ elseif( $_GET['weiter'] == $_SESSION['importfile'] && !empty( $_GET['weiter'] ) 
 			rm_r( $dbfroot.'url/' );
 
 			rm_r( $dbfroot.'menue/' );
+			
+			unlink( $dbfroot.'backend/easy_menue.kimb' );
 
 			copy_r( $fileroot.'menue/url/', $dbfroot.'url/' );		
 
 			copy_r( $fileroot.'menue/menue/', $dbfroot.'menue/' );
+			
+			copy( $fileroot.'menue/easy_menue.kimb', $dbfroot.'backend/easy_menue.kimb');
 
 			$sitecontent->echo_message(' Menü importiert! ');
 			$sitecontent->add_site_content('<br />');
@@ -128,7 +141,7 @@ elseif( $_GET['weiter'] == $_SESSION['importfile'] && !empty( $_GET['weiter'] ) 
 
 			copy_r( $fileroot.'users/', $dbfroot.'backend/users/' );	
 
-			$sitecontent->echo_message(' User importiert! <br /> <b style="color:red;" >Achtung, bitte stellen Sie vor Ihrem Logout sicher, dass es einen gültigen Admin ( more ) Account gibt!</b>');
+			$sitecontent->echo_message(' User importiert! <br /> <b style="color:red;" >Achtung, bitte stellen Sie vor Ihrem Logout sicher, dass es einen gültigen Admin (more) Account gibt!</b>');
 			$sitecontent->add_site_content('<br />');
 		}
 		//Add-on
@@ -191,7 +204,27 @@ else{
 	$sitecontent->add_site_content('<form action="'.$addonurl.'" enctype="multipart/form-data" method="post">');
 
 	$sitecontent->add_site_content('<input name="exportfile" type="file" />');
-	$sitecontent->add_site_content('Exportdatei <span style="display:inline-block;" title="Bitte wählen Sie eine KIMB-CMS Export-Datei ( *.kimbex )" class="ui-icon ui-icon-info"></span>');
+	$sitecontent->add_site_content('Exportdatei hochladen <span style="display:inline-block;" title="Bitte wählen Sie eine KIMB-CMS Export-Datei (*.kimbex)" class="ui-icon ui-icon-info"></span><br />');
+	
+	$exps = scandir( __DIR__.'/exporte/', SCANDIR_SORT_DESCENDING );
+	$dropdown = '<option value=""></option>';
+	foreach( $exps as $exp ){
+				
+		if( $exp != '.' && $exp != '..'){
+					
+			$time = substr( $exp, 16, 10);
+					
+			$dropdown .= '<option value="'.substr($exp, 0, -4 ).'">'.date( 'd.m.Y - H:i', $time).'</option>';
+					
+			$liste = true;
+		}	
+	}
+	if( $liste ){
+		$sitecontent->add_site_content('oder aus der Liste wählen');
+		$sitecontent->add_site_content('<select name="exportarchiv">');
+		$sitecontent->add_site_content( $dropdown );
+		$sitecontent->add_site_content('</select>');
+	}
 	
 	$sitecontent->add_site_content('<br />');
 	$sitecontent->add_site_content('<input type="hidden" value="file" name="file">');

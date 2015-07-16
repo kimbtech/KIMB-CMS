@@ -25,10 +25,53 @@
 
 defined('KIMB_CMS') or die('No clean Request');
 
-//Exportdatei (alles bis auf filemanager)
+$imexfile = new KIMBdbf( 'addon/im_export__cron.kimb' );
 
-//Medlungen
+if( $imexfile->read_kimb_one( 'coo' ) == 'on' ){
 
-//auf ftp Server?
+	//Exportdatei (alles bis auf filemanager)
+	$teile = array( 'sites', 'menue', 'users', 'addon', 'confs' );
+	
+	$file = make_cms_export( $teile );
+	
+	if( $file == 'fileerror' ){
+		$infos[] = ('Die Exportdatei konnte nicht erstellt werden!');
+	}
+	else{
+		$infos[] = ('Export erfolgreich!');
+		
+		$dat = $imexfile->read_kimb_id( '21' );
+		$topath = $imexfile->read_kimb_one( 'topath' );
+		
+		$ftp = true;
+		if( empty( $topath ) ){
+			$ftp = false;
+		}
+		if( empty( $dat['server'] ) ){
+			$ftp = false;
+		}
+		if( empty( $dat['name'] ) ){
+			$ftp = false;
+		}
+		if( empty( $dat['pass'] ) ){
+			$ftp = false;
+		}
+		
+		if( $ftp ){
+			$infos[] = ('Upload begonnen!');
+			
+			if( ftp_push_export( $file, $topath , $dat ) ){
+				$infos[] = ('Upload erfolgreich!');
+			}
+			else{
+				$infos[] = ('Upload fehlerhaft!');
+			}
+		}
+		
+	}
+}
+else{
+	$infos[] = ('Export deaktivert!');
+}
 
 ?>
