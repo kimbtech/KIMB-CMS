@@ -44,6 +44,9 @@ $felogin['selfreg'] = $felogin['conf']->read_kimb_one( 'selfreg' );
 //Array mit allen von felogin geschützten Seiten erstellen
 //Arrays mit Seite der einzelnen Gruppen erstellen
 
+//das ist ein Array
+$felogin['allsites'] = array();
+
 //Gruppen durchgehen 
 foreach( $felogin['grs'] as $felogin['gr'] ){
 
@@ -51,9 +54,6 @@ foreach( $felogin['grs'] as $felogin['gr'] ){
 	$felogin['grteile'] = $felogin['conf']->read_kimb_one( $felogin['gr'] );
 	//als Array bereitstellen (Seite der einzelnen Gruppen)
 	$felogin['teilesite'][$felogin['gr']] = explode( ',' , $felogin['grteile'] );
-
-	//das ist ein Array
-	 $felogin['allsites'] = array();
 
 	//das Array mit allen Seiten füttern
 	foreach($felogin['teilesite'][$felogin['gr']] as $felogin['teilsite'] ){
