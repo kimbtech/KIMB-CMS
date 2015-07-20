@@ -9,5 +9,5 @@ Options -Indexes
 RewriteEngine on
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ index.php?url=$1
+RewriteRule ^(.*)$ index.php?url=%2F$1
 
