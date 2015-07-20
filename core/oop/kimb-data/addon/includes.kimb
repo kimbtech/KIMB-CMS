@@ -19,7 +19,6 @@
 <[21-felogin]>noup<[21-felogin]>
 <[21-guestbook]>noup<[21-guestbook]>
 <[lastcheck]>1436460304<[lastcheck]>
-<[cron1]>im_export<[cron1]>
 <[ajax1]>api_login<[ajax1]>
 <[ajax2]>guestbook<[ajax2]>
 <[ajax3]>kontakt<[ajax3]>
@@ -36,3 +35,5 @@
 <[fe_second3]>kontakt<[fe_second3]>
 <[fe_first4]>search_sitemap<[fe_first4]>
 <[fe_second4]>search_sitemap<[fe_second4]>
+<[cron1]>im_export<[cron1]>
+<[cron2]>sitemapxml<[cron2]>

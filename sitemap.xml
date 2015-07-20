@@ -1,0 +1,14 @@
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+	<url>
+		<loc>http://cms.dev:8000/home/</loc>
+		<lastmod>2015-06-24</lastmod>
+	</url>
+	<url>
+		<loc>http://cms.dev:8000/menue/</loc>
+		<lastmod>2015-07-13</lastmod>
+	</url>
+	<url>
+		<loc>http://cms.dev:8000/menue/untermenue/</loc>
+		<lastmod>2015-06-24</lastmod>
+	</url>
+</urlset> 

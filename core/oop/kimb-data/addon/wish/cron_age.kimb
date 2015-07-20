@@ -4,3 +4,8 @@
 <[1]>addon==minage==lastaufruf<[1]>
 <[1-minage]>259200<[1-minage]>
 <[1-lastaufruf]>1000<[1-lastaufruf]>
+<[allidslist2]>2<[allidslist2]>
+<[2-addon]>sitemapxml<[2-addon]>
+<[2]>addon==minage==lastaufruf<[2]>
+<[2-minage]>518400<[2-minage]>
+<[2-lastaufruf]>1000<[2-lastaufruf]>
