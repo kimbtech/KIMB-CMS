@@ -28,7 +28,7 @@ defined('KIMB_CMS') or die('No clean Request');
 //Suchformular
 $sitecontent->add_site_content( '<form method="post" action="">' );
 //Suchbegriff
-$sitecontent->add_site_content( '<input type="text" name="search" placeholder="'.$allgsys_trans['addons']['search_sitemap']['suchb'].'" value="'.htmlentities( $begriff ).'">' );
+$sitecontent->add_site_content( '<input type="text" name="search" placeholder="'.$allgsys_trans['addons']['search_sitemap']['suchb'].'" value="'.htmlentities( $begriff , ENT_COMPAT | ENT_HTML401,'UTF-8' ).'">' );
 //Button
 $sitecontent->add_site_content( '<input type="submit" value="'.$allgsys_trans['addons']['search_sitemap']['suchn'].'">' );
 $sitecontent->add_site_content( '</form>' );
@@ -221,10 +221,12 @@ if( !empty( $begriff ) ){
 						$vorne = substr( $inhalt, $von, $len );
 						//den hinteren Teil (nach der Fundstelle herausscheiden) [maximal 120 Zeichen]
 						$hinten = substr( $inhalt, $von + $len + $lenght, 120 );					
+						//den Begriff rausschneiden
+						$mitte = substr( $inhalt, $von + $len, $lenght );
 						
 						//die Ausgabe des Resultats zusammenbauen
 						//	(vor der Funstelle, fetter Suchbegriff, nach der Funstelle)
-						$inhalt = $vorne.'<b>'.$begriff.'</b>'.$hinten;
+						$inhalt = $vorne.'<b>'.$mitte.'</b>'.$hinten;
 					}
 					else{
 						//wenn nach Menünamen, dann ohne Fettes die ersten 150 Zeichen ausgeben

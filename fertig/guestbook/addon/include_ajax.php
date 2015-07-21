@@ -79,7 +79,7 @@ elseif( isset( $_GET['loadadd'] ) && !empty( $_GET['lang'] ) ){
 	//	$pl wird in der ID vieler Elemente verwendet, nur so wird die Vorschau in den richitgen div geladen
 	//	und auch die Inhalt stimmen (es können mehere Formulare gleichzeitig geladen sein
 	//	(User will erst antworten, dann aber doch einen neuen Beitrag verfassen))
-	$pl = htmlspecialchars( $_GET['pl'] );
+	$pl = htmlspecialchars( $_GET['pl'] , ENT_COMPAT | ENT_HTML401,'UTF-8');
 	//neuer Beitrag -> ID 0 (0 kommt in der dbf nicht vor)	
 	if( $pl == 'new' ){
 		$pl = 0;
@@ -121,7 +121,7 @@ elseif( isset( $_GET['loadadd'] ) && !empty( $_GET['lang'] ) ){
 		echo ('('.$lang['ipsave'].')<br />'."\r\n");
 	}
 	//Platz übertragen (ohne HTML-Code)
-	echo ('<input type="hidden" value="'.htmlspecialchars( $_GET['pl'] ).'" name="place">');
+	echo ('<input type="hidden" value="'.htmlspecialchars( $_GET['pl'] , ENT_COMPAT | ENT_HTML401,'UTF-8' ).'" name="place">');
 	//Buttons
 	//	Absenden und Vorschau
 	echo ( '<input type="submit" value="'.$lang['sub'].'"><button onclick="return preview( '.$pl.' ); " >'.$lang['prev'].'</button></form>'."\r\n" );

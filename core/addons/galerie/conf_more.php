@@ -157,7 +157,7 @@ if( is_numeric( $_GET['id'] ) ){
 		$sitecontent->add_site_content('<span onclick="del();"><span class="ui-icon ui-icon-trash" style="display: inline-block;" title="Diese Galerie löschen."></span></span>');
 	
 		//HTML-Code für manuelle Platzierung
-		$sitecontent->add_site_content( '<hr /><b>HTML Code für manuelle Platzierung:</b><br /><i>'.htmlspecialchars( '<div class="imggallerydisplayhere" style="background-color:#ddd; border-radius:15px;" >Bitte aktivieren Sie für die Bildergalerie JavaScript!</div>' ).'</i>' );
+		$sitecontent->add_site_content( '<hr /><b>HTML Code für manuelle Platzierung:</b><br /><i>'.htmlspecialchars( '<div class="imggallerydisplayhere" style="background-color:#ddd; border-radius:15px;" >Bitte aktivieren Sie für die Bildergalerie JavaScript!</div>', ENT_COMPAT | ENT_HTML401,'UTF-8' ).'</i>' );
 		//HTML-Code für Löschen Dialog
 		$sitecontent->add_site_content('<div style="display:none;"><div id="del_addon_galerie" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Möchten Sie die Galerie wirklich löschen?</p></div></div>');
 	}

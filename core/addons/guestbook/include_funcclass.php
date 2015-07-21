@@ -36,7 +36,7 @@ function make_guestbook_html( $cont, $name ){
 	$name = strip_tags ( $name );
 
 	//Inhalt
-	$cont = nl2br( htmlentities ( $cont ) );
+	$cont = nl2br( htmlentities ( $cont , ENT_COMPAT | ENT_HTML401,'UTF-8' ) );
 	
 	//einige htmlentities wieder zurück
 	//	alle br erhalten ein Lesezeichen davor, nur so werden URLs am Zeilenende sicher erkannt

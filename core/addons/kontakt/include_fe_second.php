@@ -97,9 +97,9 @@ if( $allgerr != '403'){
 				if( filter_var( $_POST['kontakt_mail'] , FILTER_VALIDATE_EMAIL) ){
 
 					//alle HTML-Tags weg, Umlaute usw. zu HTML-Code (HTML-Mail wird versendet)
-					$_POST['kontakt_name'] = htmlentities( strip_tags( $_POST['kontakt_name'] ) );
+					$_POST['kontakt_name'] = htmlentities( strip_tags( $_POST['kontakt_name'] ) , ENT_COMPAT | ENT_HTML401,'UTF-8');
 					//alle HTML-Zeichen codieren, ander Tags weg, Zeilenumbrüche zu br's'
-					$_POST['kontakt_cont'] = nl2br( strip_tags( htmlentities( $_POST['kontakt_cont'] ) ) );
+					$_POST['kontakt_cont'] = nl2br( strip_tags( htmlentities( $_POST['kontakt_cont'] , ENT_COMPAT | ENT_HTML401,'UTF-8') ) );
 		
 					//Text laden und Platzhalter ersetzen
 					$platzhalter = array( '%sitename%' , '%br%', '%name%', '%mail%', '%cont%', '%zeit%' );
@@ -107,7 +107,7 @@ if( $allgerr != '403'){
 					$inhalt = str_replace( $platzhalter, $ersetzungen, $allgsys_trans['addons']['kontakt']['mailtext']['infomail'] );
 	
 					//E-Mail senden
-					if( send_mail( $kontakt['file']->read_kimb_one( 'formaddr' ) , $inhalt) ){
+					if( send_mail( $kontakt['file']->read_kimb_one( 'formaddr' ) , $inhalt, 'html') ){
 						//wenn okay, Meldung
 						$sitecontent->add_site_content( '<h3>'.$allgsys_trans['addons']['kontakt']['dank'].'</h3>' );
 	

@@ -54,7 +54,7 @@ if( $search_sitemap['searchform'] == 'on' && $search_sitemap['searchsiteid'] != 
 	//Formular
 	$search_sitemap['searchform'] .= '<form method="post" action="'.$allgsysconf['siteurl'].'/index.php?id='.$search_sitemap['searchsiteid'].'">';
 	//Eingabefeld
-	$search_sitemap['searchform'] .= '<input type="text" name="search" placeholder="'.$allgsys_trans['addons']['search_sitemap']['suchb'].'" value="'.htmlentities( $_REQUEST['search'] ).'">';
+	$search_sitemap['searchform'] .= '<input type="text" name="search" placeholder="'.$allgsys_trans['addons']['search_sitemap']['suchb'].'" value="'.htmlentities( $_REQUEST['search'], ENT_COMPAT | ENT_HTML401,'UTF-8' ).'">';
 	//Button
 	$search_sitemap['searchform'] .= '<input type="submit" value="'.$allgsys_trans['addons']['search_sitemap']['suchn'].'">';
 	//beenden

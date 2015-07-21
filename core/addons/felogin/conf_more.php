@@ -391,7 +391,7 @@ foreach( $gruppen as $gr ){
 //Gruppenwahl für selbstständig registrierte User
 $sitecontent->add_site_content('<h3>Werte</h3><select name="selfgr">'.$grdown.'</select><span style="display:inline-block;" title="Bitte geben Sie an, zu welcher Gruppe selbstständig registrierte User hinzugefügt werden sollen." class="ui-icon ui-icon-info"></span><br />');
 //Text der akzeptiert werden muss, um Account zu erhalten
-$sitecontent->add_site_content('<textarea name="akzep" style="width:200px; height:75px;">'.htmlentities( $feconf->read_kimb_one( 'akzepttext' ) ).'</textarea><span style="display:inline-block;" title="Dieser Text muss beim selbstständigen Registrieren eines Accounts angeklickt werden." class="ui-icon ui-icon-info"></span><br />');
+$sitecontent->add_site_content('<textarea name="akzep" style="width:200px; height:75px;">'.htmlentities( $feconf->read_kimb_one( 'akzepttext' ), ENT_COMPAT | ENT_HTML401,'UTF-8' ).'</textarea><span style="display:inline-block;" title="Dieser Text muss beim selbstständigen Registrieren eines Accounts angeklickt werden." class="ui-icon ui-icon-info"></span><br />');
 //Wahl einer Seite/ eines Menüpunktes für das Login
 //	per JS richigen Punkt wählen
 $sitecontent->add_html_header('<script>$(function(){ $( "[name=requid]" ).val( '.$feconf->read_kimb_one( 'requid' ).' ); }); </script>');

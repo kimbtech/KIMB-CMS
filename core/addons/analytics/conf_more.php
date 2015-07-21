@@ -40,7 +40,7 @@ $addonurl = $allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=more&
 $sitecontent->add_site_content('<form action="'.$addonurl.'" method="post" >');
 
 //Texte Vorgaben
-$examples = array( 'sys' => 'p' , 'infob' => 'on' , 'css' => 'div#analysehinweis{position:fixed; left:0; top:0; width:100%; background-color:orange; text-align:center;}' , 'text' => '<p>Diese Seite nutzt Cookies und einen Webanalysedienst. Mit der Nutzung dieser Seite erklären Sie sich damit einverstanden.</p><p><i>Weitere Informationen: <a href="http://www.example.com/" target="_blank" style="color:#ffffff; text-decoration:underline;">Impressum &amp; Datenschutz</a>!</i></p>' , 'url' => 'http://example.com/piwik' , 'pid' => '2' , 'piwikno' => 'on' , 'gaid' => 'UA-123456-1' );
+$examples = array( 'sys' => 'p' , 'infob' => 'on' , 'css' => 'div#analysehinweis{position:fixed; left:0; top:0; width:100%; background-color:orange; text-align:center; z-index:2;}' , 'text' => '<p>Diese Seite nutzt Cookies und einen Webanalysedienst. Mit der Nutzung dieser Seite erklären Sie sich damit einverstanden.</p><p><i>Weitere Informationen: <a href="http://www.example.com/" target="_blank" style="color:#ffffff; text-decoration:underline;">Impressum &amp; Datenschutz</a>!</i></p>' , 'url' => 'http://example.com/piwik' , 'pid' => '2' , 'piwikno' => 'on' , 'gaid' => 'UA-123456-1' );
 
 //Daten zum Speichern da?
 if( isset( $_POST['send'] ) ){

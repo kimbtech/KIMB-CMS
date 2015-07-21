@@ -114,7 +114,7 @@ else{
 	else{
 		$sitecontent->echo_error( 'Es ist ein Fehler aufgetreten!' );
 		$sitecontent->echo_message( '<b>Fehlermedlung</b>: '.$updinf['userinfo'] );
-		$sitecontent->echo_message( '<b>Lösungsansatz</b>: '.htmlentities( $updinf['idea'] ) );
+		$sitecontent->echo_message( '<b>Lösungsansatz</b>: '.htmlentities( $updinf['idea'], ENT_COMPAT | ENT_HTML401,'UTF-8' ) );
 	}
 }
 ?>
