@@ -112,7 +112,7 @@ echo('</head><body>'."\r\n");
 				//als li das Suchfeld anfügen
 				echo('<li>'."\r\n");
 				echo('<form method="post"  action="'.$allgsysconf['siteurl'].'/index.php?id='.$search_sitemap['searchsiteid'].'">'."\r\n");
-				echo('<input style="background-color:#EEc900; color:#000; padding: 8px 20px; border:none;" type="text" name="search" placeholder="'.$allgsys_trans['themesite']['such'].'" value="'.htmlentities( $_REQUEST['search'] ).'">'."\r\n");
+				echo('<input style="background-color:#EEc900; color:#000; padding: 8px 20px; border:none;" type="text" name="search" placeholder="'.$allgsys_trans['themesite']['such'].'" value="'.htmlentities( $_REQUEST['search'], ENT_COMPAT | ENT_HTML401,'UTF-8' ).'">'."\r\n");
 				echo('</form>'."\r\n");	
 				echo('</li>'."\r\n");
 			}
