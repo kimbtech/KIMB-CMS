@@ -414,7 +414,7 @@ class BEsites{
 		//Eingabefelder
 		$sitecontent->add_site_content('<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=edit&amp;id='.$_GET['id'].'&amp;langid='.$_GET['langid'].'" method="post"><br />');
 		$sitecontent->add_site_content('<input type="text" value="'.$seite['title'].'" name="title" style="width:74%;"> <i>Seitentitel</i><br />');
-		$sitecontent->add_site_content('<div style="position:relative;" ><textarea name="header" style="width:74%; height:50px;">'.htmlentities( $seite['header'] ).'</textarea><span style="position:absolute; top:0; left:75.5%;"> <i>HTML Header</i>');
+		$sitecontent->add_site_content('<div style="position:relative;" ><textarea name="header" style="width:74%; height:50px;">'.htmlentities( $seite['header'], ENT_COMPAT | ENT_HTML401,'UTF-8' ).'</textarea><span style="position:absolute; top:0; left:75.5%;"> <i>HTML Header</i>');
 			//JavaScript Bibilotheken einfach wählen für den Header
 			$sitecontent->add_site_content('<br /> <select id="libs">');
 			$sitecontent->add_site_content('<option value=""></option>');

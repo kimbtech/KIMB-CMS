@@ -83,7 +83,8 @@ function SYS_INIT( $robots, $cont = 'text/html' ){
 //email versenden
 // $to => Empfänger
 // $inhalt => Inhalt
-function send_mail($to, $inhalt){
+//$mime => MIME Type (text oder html)
+function send_mail($to, $inhalt, $mime = 'plain'){
 	global $allgsysconf;
 	
 	//nicht leer ?
@@ -91,8 +92,15 @@ function send_mail($to, $inhalt){
 		return false;
 	}
 
+	//Header erstellen
+	//	Absender
+	$header = 'From: '.$allgsysconf['sitename'].' <'.$allgsysconf['mailvon'].'>'."\r\n";
+	//	MIME & Charset
+	$header .= 'MIME-Version: 1.0' ."\r\n";
+	$header .= 'Content-Type: text/'.$mime.'; charset=uft-8' . "\r\n";
+
 	//sende Mail und gebe zurück
-	return mail($to, 'Nachricht von: '.$allgsysconf['sitename'], $inhalt, 'From: '.$allgsysconf['sitename'].' <'.$allgsysconf['mailvon'].'>');
+	return mail($to, 'Nachricht von: '.$allgsysconf['sitename'], $inhalt, $header);
 }
 
 //Browser an  andere URL weiterleiten
