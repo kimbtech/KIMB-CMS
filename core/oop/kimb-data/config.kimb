@@ -4,8 +4,8 @@
 <[001-robots]>index, follow<[001-robots]>
 <[001-cache]>on<[001-cache]>
 <[001-sitespr]>auto<[001-sitespr]>
-<[001-systemversion]>2.00 Alpha - instable<[001-systemversion]>
-<[001-build]>V2.0A<[001-build]>
+<[001-systemversion]>2.00 Beta<[001-systemversion]>
+<[001-build]>V2.0B-p2<[001-build]>
 <[001-cachelifetime]>always<[001-cachelifetime]>
 <[001-use_request_url]>ok<[001-use_request_url]>
 <[001-show_siteinfos]>on<[001-show_siteinfos]>
