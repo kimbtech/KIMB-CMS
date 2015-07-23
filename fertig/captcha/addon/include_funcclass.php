@@ -57,6 +57,7 @@ if( !function_exists('hex2rgb') ) {
 
 //HTML Code für Bild und Eingabefeld machen
 function make_captcha_html(){
+	global $allgsysconf;
 
 	$ret = '<img src="'.$allgsysconf['siteurl'].'/ajax.php?addon=captcha" alt="Captcha Code" id="captcha_img"><br />';
 	$ret .= '<a href="#" onclick="document.getElementById( \'captcha_img\' ).src = \''.$allgsysconf['siteurl'].'/ajax.php?addon=captcha&n=\' + Math.random(); return false;">NEW?</a><br />';
@@ -68,9 +69,9 @@ function make_captcha_html(){
 //Eingabe testen
 function check_captcha(){
                
-               if( empty($_SESSION['captcha_code']) || empty( $_REQUEST['captcha_code'] ) ){
-                              return NULL;
-               }
+        if( empty($_SESSION['captcha_code']) || empty( $_REQUEST['captcha_code'] ) ){
+        	return NULL;
+        }
 	elseif( $_SESSION['captcha_code'] == $_REQUEST['captcha_code'] ){
 		return true;
 	}
