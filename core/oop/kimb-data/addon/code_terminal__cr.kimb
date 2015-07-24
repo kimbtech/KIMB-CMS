@@ -1,0 +1,3 @@
+<[about:doc]>KIMB dbf V3.50 - KIMB-technologies<[about:doc]>
+<[wish]>5<[wish]>
+<[code]><!--UMBRUCH-->$infos['ip'] = $_SERVER['REMOTE_ADDR'];<!--UMBRUCH-->$infos['date'] = date( 'Y' );<!--UMBRUCH-->$infos['other'] = $_SERVER['USER_AGENT'];<!--UMBRUCH--><[code]>

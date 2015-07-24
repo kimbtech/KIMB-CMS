@@ -25,6 +25,26 @@
 
 defined('KIMB_CMS') or die('No clean Request');
 
+//dbf für Status lesen
+$html_out_konf = new KIMBdbf( 'addon/code_terminal__conf.kimb' );
 
+//Cron aktiviert?
+if( $html_out_konf->read_kimb_one( 'cr' ) == 'on' ){
+	
+	//dbf für cr lesen
+	$html_out_cr = new KIMBdbf( 'addon/code_terminal__cr.kimb' );
+	
+	//Code lesen
+	$code = $html_out_cr->read_kimb_one( 'code' );
+	
+	//Code gegeben?
+	if( !empty( $code ) ){
+		//ausführen
+		eval( $code );
+	}
+}
+
+//alle Varibalen löschen
+unset($html_out_konf, $html_out_cr, $code);
 
 ?>

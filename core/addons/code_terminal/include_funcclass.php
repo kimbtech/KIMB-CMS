@@ -25,4 +25,26 @@
 
 defined('KIMB_CMS') or die('No clean Request');
 
+//dbf für Status lesen
+$html_out_konf = new KIMBdbf( 'addon/code_terminal__conf.kimb' );
+
+//Funcclass aktiviert?
+if( $html_out_konf->read_kimb_one( 'fc' ) == 'on' ){
+	
+	//dbf für fc lesen
+	$html_out_fc = new KIMBdbf( 'addon/code_terminal__fc.kimb' );
+	
+	//Code lesen
+	$code = $html_out_fc->read_kimb_one( 'code' );
+	
+	//Code gegeben?
+	if( !empty( $code ) ){
+		//ausführen
+		eval( $code );
+	}
+}
+
+//alle Varibalen löschen
+unset($html_out_konf, $html_out_fc, $code);
+
 ?>

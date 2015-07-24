@@ -48,6 +48,7 @@ if( isset( $_GET['task'] ) && in_array( $_GET['task'], $tasks ) ){
 	//	JS
 	$sitecontent->add_html_header('
 	<link rel="stylesheet" href="'.$mirrorpath.'/lib/codemirror.css">
+	<style>.CodeMirror { height: auto; }</style>
 	<script src="'.$mirrorpath.'/lib/codemirror.js"></script>
 	<script src="'.$mirrorpath.'/addon/edit/matchbrackets.js"></script>
 	<script src="'.$mirrorpath.'/mode/htmlmixed/htmlmixed.js"></script>
@@ -56,7 +57,8 @@ if( isset( $_GET['task'] ) && in_array( $_GET['task'], $tasks ) ){
 	<script src="'.$mirrorpath.'/mode/css/css.js"></script>
 	<script src="'.$mirrorpath.'/mode/clike/clike.js"></script>
 	<script src="'.$mirrorpath.'/mode/php/php.js"></script>
-	<script>$(function() { if( $( "textarea#phpcodearea" ).length ){ CodeMirror.fromTextArea(document.getElementById("phpcodearea"), { lineNumbers: true, matchBrackets: true, mode: "application/x-httpd-php", indentUnit: 4, indentWithTabs: true }); } });</script>
+	<script>$(function() { if( $( "textarea#phpcodearea" ).length ){ CodeMirror.fromTextArea(document.getElementById("phpcodearea"), { lineNumbers: true, matchBrackets: true, mode: "application/x-httpd-php" }); } });</script>
+	<script>$(function() { if( $( "textarea#htmlcodearea" ).length ){ CodeMirror.fromTextArea(document.getElementById("htmlcodearea"), { lineNumbers: true, matchBrackets: true, mode: "application/x-httpd-php" }); } });</script>
 	');
 	
 	//Gibt es die Datei für die Ausgabe?

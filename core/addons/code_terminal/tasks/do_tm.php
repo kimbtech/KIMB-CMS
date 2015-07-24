@@ -36,6 +36,11 @@ if( isset( $_POST['exec_code'] ) ){
 	ini_set( 'display_startup_errors', 1);
 	error_reporting( E_ALL & ~E_NOTICE );
 	
+	if( !isset( $_POST['htmlcont'] ) ){
+		//Ausgabe als Text
+		header( 'Content-Type: text/plain' );
+	}
+	
 	//CMS Root path
 	define("__CMSDIR__", __DIR__.'/../../../../');
 
@@ -54,12 +59,17 @@ else{
 	
 	//Trennung
 	$sitecontent->add_site_content( '<br /><hr /><br />' );
+	
+	$sitecontent->add_site_content( '<b>__CMSDIR__</b> zeigt auf das Root-Verzeichnis des CMS.<br /><br />');
 
 	//Codeeingabe
 	$sitecontent->add_site_content( '<form action="'.$addonurl.'" method="post" target="frame">');
 	//	Editor
 	$sitecontent->add_site_content( '<textarea id="phpcodearea" name="exec_code">&lt;?php'."\r\n\r\n\r\n".'?&gt;</textarea>');
 	$sitecontent->add_site_content( '<br />' );
+	//	HTML oder Text
+	$sitecontent->add_site_content( '<input type="checkbox" value="html" name="htmlcont"> Ausgabe als HTML rendern');
+	$sitecontent->add_site_content( '<br /><br />' );
 	//	Button
 	$sitecontent->add_site_content( '<input type="submit" value="Ausführen">');
 	$sitecontent->add_site_content( '</form>');

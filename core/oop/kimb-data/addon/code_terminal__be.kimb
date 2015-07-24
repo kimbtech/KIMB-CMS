@@ -1,0 +1,9 @@
+<[about:doc]>KIMB dbf V3.50 - KIMB-technologies<[about:doc]>
+<[sitecont]><p><strong>fsdfsd</strong></p><!--UMBRUCH--><h1>f</h1><!--UMBRUCH--><p>sdf</p><[sitecont]>
+<[mess_h]>Hallo<[mess_h]>
+<[mess_cont]><p>dsfsd<img src="http://cms.dev:8000/load/system/tinymce/plugins/emoticons/img/smiley-cool.gif" alt="cool" /><img src="http://cms.dev:8000/load/system/tinymce/plugins/emoticons/img/smiley-cry.gif" alt="cry" /></p><!--UMBRUCH--><p style="text-align: center;">dfdsfsdf</p><[mess_cont]>
+<[header]><script>alert( 'Hallo Max!' );</script><[header]>
+<[code]><!--UMBRUCH-->echo $_SERVER['REMOTE_ADDR'].'-IP';<!--UMBRUCH--><[code]>
+<[reihen]>hinten<[reihen]>
+<[site]>menue<[site]>
+<[rechte]>more<[rechte]>
