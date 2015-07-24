@@ -29,3 +29,9 @@
 <[5-stelle]>hinten<[5-stelle]>
 <[5-recht]>more,less,seventeen<[5-recht]>
 <[5-site]>other_filemanager<[5-site]>
+<[allidslist6]>6<[allidslist6]>
+<[6-addon]>code_terminal<[6-addon]>
+<[6]>addon==stelle==recht==site<[6]>
+<[6-stelle]>vorn<[6-stelle]>
+<[6-recht]>no<[6-recht]>
+<[6-site]>index<[6-site]>

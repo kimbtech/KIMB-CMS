@@ -49,6 +49,8 @@ $sitecontent->add_site_content('<form action="'.$addonurl.'" method="post" >');
 //Wish
 $sitecontent->add_site_content( '<h4>Einbindung</h4>' );
 $sitecontent->add_site_content( 'Bitte wählen Sie wo die Eingaben ausgegeben werden sollen:<br />' );
+
+//alle Teile
 $wishdo = array( 'reihen', 'site', 'rechte' );
 
 //Übergabe?
@@ -59,21 +61,37 @@ if( isset( $_POST['send'] ) ){
 	//alle Werte für wishes durchgehen
 	foreach( $wishdo as $wish ){
 		//Wert darf nicht leer sein!
-		if( !empty( $_POST[$wish] ) ){
-			//aktuellen Wert lesen
-			$dbfval = $html_out_be->read_kimb_one( $wish );
-			//aktueller Wert anders als Übergabe?
-			if( $_POST[$wish] != $dbfval){
-				
-				//API
-				
-				//dbf anpassen
-				$html_out_be->write_kimb_one( $wish, $_POST[$wish] );
-				
-				//etwas geändert
-				$do = true;
-			}
+		if( empty( $_POST[$wish] ) ){
+			$error[] = true;	
 		}
+		else{
+			$error[] = false;
+		}
+		
+		//aktuellen Wert lesen
+		$dbfval = $html_out_be->read_kimb_one( $wish );
+		//aktueller Wert anders als Übergabe?
+		if( $_POST[$wish] != $dbfval){
+			
+			//dbf anpassen
+			$html_out_be->write_kimb_one( $wish, $_POST[$wish] );
+				
+			//etwas geändert
+			$do = true;
+		}
+	}
+	
+	if( !$error[0] && !$error[1] && !$error[2] && $do ){
+		//Add-on API wish
+		$a = new ADDonAPI( 'code_terminal' );
+		$a->set_be( $_POST['reihen'], $_POST['site'], $_POST['rechte'] );
+		
+		//Medlung
+		$sitecontent->echo_message( 'Die BE Einbindung wurde im CMS registriert.', 'Einbindung' );
+	}
+	elseif( $do ){
+		//Medlung
+		$sitecontent->echo_message( '<b>Bitte füllen Sie alle Felder unter Einbindung!</b>', 'Einbindung' );
 	}
 	
 	//wenn Medlungen vorhanden
@@ -83,13 +101,21 @@ if( isset( $_POST['send'] ) ){
 	}
 }
 
+//aktelle Werte lesen
 foreach( $wishdo as $wish ){
 	$$wish = $html_out_be->read_kimb_one( $wish );
 }
 
-$sitecontent->add_html_header('<script>$(function(){ $( "[name=reihen]" ).val( "'.$reihen.'" ); }); </script>');
-$sitecontent->add_site_content( '<select name="reihen" title="Nur innerhalb der Add-ons."><option value="vorn">Vorne</option><option value="hinten">Hinten</option></select>' );
+//Tabell um Eingabe und Text abzustimmen
+$sitecontent->add_site_content('<table><tr><td>');
 
+//vorne oder hinten Dropdown
+$sitecontent->add_html_header('<script>$(function(){ $( "[name=reihen]" ).val( "'.$reihen.'" ); }); </script>');
+$sitecontent->add_site_content( '<select name="reihen" title="Stelle innerhalb der Add-ons."><option value="vorn">Vorne</option><option value="hinten">Hinten</option></select>' );
+
+$sitecontent->add_site_content('</td><td>');
+
+//Dropdown Seiten
 $sitesopt = '<option value="all">Überall</option>
 <option value="index">Home/Login</option>
 <option value="sites">Seiten</option>
@@ -104,10 +130,21 @@ $sitesopt = '<option value="all">Überall</option>
 <option value="other_umzug">Umzug</option>
 <option value="other_lang">Mehrsprachige Seite</option>
 <option value="other_easymenue">Easy Menue</option>';
+//Auswahl Seiten
 $sitecontent->add_html_header('<script>$(function(){ $( "[name=site]" ).val( "'.$site.'" ); }); </script>');
 $sitecontent->add_site_content( '<select name="site" title="Auf welcher Seite des Backends soll ausgegeben werden?">'.$sitesopt.'</select>' );
 
+$sitecontent->add_site_content('</td><td>');
+
+//Eingabe Rechte
 $sitecontent->add_site_content('<input type="text" size="20" name="rechte" value="'.$rechte.'"><br />');
+
+$sitecontent->add_site_content('</tr><tr><td></td><td></td><td>');
+
+//Text Rechte
+$sitecontent->add_site_content('&uarr; Bitte geben Sie hier per Komma getrennte Userlevel (nur User mit diesen Rechten sehen dann die Ausgaben) an. Die einzelnen Werte können "more" &amp; "less" sein. Außderm können Sie die englischen Zahlen der Userlevel nehmen ("Other &rarr; Userlevel Backend"). Wenn alle die Meldungen sehen sollen, geben Sie bitte "no" an!<br />Beispiele: "more,less,one,two" oder "more,twenty,ten"');
+
+$sitecontent->add_site_content('</td></tr></table>');
 
 //mögliche Felder in der dbf und Übertragungen
 $names = array( 'sitecont' => 'Seiteninhalt', 'mess_h' => 'Meldung Überschrift', 'mess_cont' => 'Inhalt der Meldung', 'header' => 'HTML-Header' );
@@ -116,19 +153,17 @@ $names = array( 'sitecont' => 'Seiteninhalt', 'mess_h' => 'Meldung Überschrift'
 if( isset( $_POST['send'] ) ){
 	//alle Möglichkeiten durchgehen
 	foreach( $names as $tag => $name ){
-		//Übergabe darf nicht leer sein
-		if( !empty( $_POST[$tag] ) ){
-			//aktuellen Wert lesen
-			$dbfval = $html_out_be->read_kimb_one( $tag );
-			//aktueller Wert anders als Übergabe?
-			if( $_POST[$tag] != $dbfval){
+		
+		//aktuellen Wert lesen
+		$dbfval = $html_out_be->read_kimb_one( $tag );
+		//aktueller Wert anders als Übergabe?
+		if( $_POST[$tag] != $dbfval){
 				
-				//dbf anpassen
-				$html_out_be->write_kimb_one( $tag, $_POST[$tag] );
+			//dbf anpassen
+			$html_out_be->write_kimb_one( $tag, $_POST[$tag] );
 				
-				//Medlung vorbereiten
-				$message .= '"'.$name.'" wurde angepasst!<br />';
-			}
+			//Medlung vorbereiten
+			$message .= '"'.$name.'" wurde angepasst!<br />';
 		}
 	}
 	
@@ -144,12 +179,18 @@ foreach( $names as $tag => $name ){
 	$$tag = $html_out_be->read_kimb_one( $tag );
 }
 
+//Hinweis
+$sitecontent->add_site_content( '<br /><br />' );
+$sitecontent->echo_message( 'Wenn Sie eine der Ausgabestellen nicht nutzen wollen, lassen Sie das Feld einfach leer!', 'Hinweis');
+$sitecontent->add_site_content( '<br /><br />' );
+
 //Sitecontent
 $sitecontent->add_site_content( '<h4>Normaler Seiteninhalt</h4>' );
 //TinyMCE
 $arr['small'] = '#sitecont';
 add_tiny( false, true, $arr );
-$sitecontent->add_site_content('<textarea name="sitecont" id="sitecont" >'.htmlspecialchars( $sitecont, ENT_COMPAT | ENT_HTML401,'UTF-8').'</textarea>');
+$sitecontent->add_site_content('<textarea name="sitecont" id="sitecont" style="width:99%; height:200px;">'.htmlspecialchars( $sitecont, ENT_COMPAT | ENT_HTML401,'UTF-8').'</textarea><br />');
+$sitecontent->add_site_content('<button onclick="tinychange( \'sitecont\' ); return false;">Editor I/O</button>');
 
 //Message
 $sitecontent->add_site_content( '<h4>Medlung</h4>' );
@@ -157,7 +198,8 @@ $sitecontent->add_site_content('Überschrift: <input type="text" name="mess_h" v
 //TinyMCE
 $arr['small'] = '#mess_cont';
 add_tiny( false, true, $arr );
-$sitecontent->add_site_content('<textarea name="mess_cont" id="mess_cont">'.htmlspecialchars( $mess_cont, ENT_COMPAT | ENT_HTML401,'UTF-8').'</textarea><br />&uarr; Inhalt');
+$sitecontent->add_site_content('<textarea name="mess_cont" id="mess_cont" style="width:99%; height:200px;">'.htmlspecialchars( $mess_cont, ENT_COMPAT | ENT_HTML401,'UTF-8').'</textarea><br />&uarr; Inhalt');
+$sitecontent->add_site_content('<button onclick="tinychange( \'mess_cont\' ); return false;">Editor I/O</button>');
 
 //Header
 $sitecontent->add_site_content( '<h4>HTML Header</h4>' );
@@ -176,15 +218,12 @@ $sitecontent->add_site_content('<textarea name="header" id="htmlcodearea">'.html
 			
 			//ist der übergebene Code anders als der in der dbf?
 			if( $html_out_be->read_kimb_one( 'code' ) !=  $_POST['exec_code'] ){
-				//Übergabe darf nicht leer sein!
-				if(  !empty( $_POST['exec_code'] ) ){
 				
-					//Code speichern
-					$html_out_be->write_kimb_one( 'code', $_POST['exec_code'] );
+				//Code speichern
+				$html_out_be->write_kimb_one( 'code', $_POST['exec_code'] );
 					
-					//Medlung
-					$sitecontent->echo_message( 'Der PHP-Code wurde angepasst');
-				}
+				//Medlung
+				$sitecontent->echo_message( 'Der PHP-Code wurde angepasst');
 			}
 		}
 		
@@ -192,18 +231,23 @@ $sitecontent->add_site_content('<textarea name="header" id="htmlcodearea">'.html
 		$code = $html_out_be->read_kimb_one( 'code' );
 		if(empty($code)){
 			//wenn leer, Beispiel
-			$code = '<?php'."\r\n\r\n".'echo $_SERVER[\'REMOTE_ADDR\'];'."\r\n\r\n".'?>';
+			$code = '<?php'."\r\n\r\n".'?>';
 		}
 		else{
 			$code = '<?php'.$code.'?>';
 		}
 		
 		//Eingabe
-		$sitecontent->add_site_content( '<textarea id="phpcodearea" name="exec_code">'.htmlspecialchars( $code, ENT_COMPAT | ENT_HTML401,'UTF-8').'</textarea>');		
+		$sitecontent->add_site_content( '<textarea id="phpcodearea" name="exec_code">'.htmlspecialchars( $code, ENT_COMPAT | ENT_HTML401,'UTF-8').'</textarea>');
+		
 	}
 
 //Button
 $sitecontent->add_site_content( '<input type="hidden" name="send" value="yes">');
 $sitecontent->add_site_content( '<input type="submit" value="Speichern">');
 $sitecontent->add_site_content( '</form>');
+
+//Hinweis
+$sitecontent->add_site_content( '<br /><br />' );
+$sitecontent->echo_message( 'Sofern Ihr Code fehlerhaft ist, kann das Backend des CMS unbrauchbar werden. Bitte testen Sie PHP-Code im Terminal und HTML-Code z.B. mit Firebug!', 'Wichtig');
 ?>

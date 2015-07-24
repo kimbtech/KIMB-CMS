@@ -5,5 +5,5 @@
 <[header]><script>alert( 'Hallo Max!' );</script><[header]>
 <[code]><!--UMBRUCH-->echo $_SERVER['REMOTE_ADDR'].'-IP';<!--UMBRUCH--><[code]>
 <[reihen]>hinten<[reihen]>
-<[site]>menue<[site]>
-<[rechte]>more<[rechte]>
+<[site]>sites<[site]>
+<[rechte]>more,one<[rechte]>
