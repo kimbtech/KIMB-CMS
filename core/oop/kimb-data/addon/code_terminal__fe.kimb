@@ -1,4 +1,11 @@
 <[about:doc]>KIMB dbf V3.50 - KIMB-technologies<[about:doc]>
 <[reihen]>vorn<[reihen]>
-<[ids]>2<[ids]>
-<[error]>404<[error]>
+<[ids]>1<[ids]>
+<[error]>all<[error]>
+<[first_sitecont]><p style="text-align: center;"><span style="text-decoration: underline;"><em><strong>Hallo</strong></em></span></p><[first_sitecont]>
+<[first_area_class]>dd<[first_area_class]>
+<[first_area_cont]><p>ddsdadasdas</p><[first_area_cont]>
+<[header]>asdasdasdas<[header]>
+<[first_code]><!--UMBRUCH-->print_r( $_SESSION );<!--UMBRUCH-->//die;<!--UMBRUCH--><[first_code]>
+<[second_sitecont]><p>unteb</p><[second_sitecont]>
+<[second_code]><!--UMBRUCH--><[second_code]>

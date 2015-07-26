@@ -25,61 +25,69 @@
 
 defined('KIMB_CMS') or die('No clean Request');
 
-//schon von first?
-if( !is_object( $html_out_konf ) ){
-	//dbf für Status lesen
-	$html_out_konf = new KIMBdbf( 'addon/code_terminal__conf.kimb' );
-}
+//dbf für Status lesen
+$html_out_konf = new KIMBdbf( 'addon/code_terminal__conf.kimb' );
 
-//FE aktiviert?
-if( $html_out_konf->read_kimb_one( 'fe' ) == 'on' ){
+//BE aktiviert?
+if( $html_out_konf->read_kimb_one( 'be' ) == 'on' ){
 	
-	//schon von first?
-	if( !is_object( $html_out_fe ) ){
-		//dbf für fe lesen
-		$html_out_fe = new KIMBdbf( 'addon/code_terminal__fe.kimb' );
-	}
+	//dbf für be lesen
+	$html_out_be = new KIMBdbf( 'addon/code_terminal__be.kimb' );
 	
 	//mögliche Felder in der dbf
-	//	hier nur first
-	$dos = array( 'second_area_class', 'second_area_cont', 'second_sitecont', 'second_code' );
+	$dos = array( 'mess_h', 'mess_cont', 'header', 'sitecont' );
 	
 	//alle durchgehen
 	foreach( $dos as $do ){
 		//Wert lesen
-		$val = $html_out_fe->read_kimb_one( $do );
+		$val = $html_out_be->read_kimb_one( $do );
 		//Wert darf nicht leer sein (leer => nicht ausgeben)
 		if( !empty( $val ) ){
 			//Seiteninhalt?
-			if( $do == 'second_sitecont' ){
+			if( $do == 'sitecont' ){
 				//ausgeben
 				$sitecontent->add_site_content( $val );
 			}
-			//Add-on Area Class?
-			elseif( $do == 'second_area_class' ){
+			//Message Überschrift?
+			elseif( $do == 'mess_h' ){
 				//für Message speichern
-				$area_class = $val;
+				$mess_h = $val;
 			}
-			//Add-on Area?
-			elseif( $do == 'second_area_cont' ){	
-				//Class leer?
-				if( empty( $area_class ) ){
-					//Area ohne Class
-					$sitecontent->add_addon_area($val);
+			//Message?
+			elseif( $do == 'mess_cont' ){
+				//Überschift leer?
+				if( empty( $mess_h ) ){
+					//mit Standardüberschrift ausgeben
+					$sitecontent->echo_message( $val );
 				}
 				else{
-					//Area mit Class
-					$sitecontent->add_addon_area($val,'', $area_class);
+					//mit Überschrift des Users ausgeben
+					$sitecontent->echo_message( $val, $mess_h );
 				}
 			}
-			//Code?
-			elseif( $do == 'second_code' ){
-				eval( $val );
+			//Header?
+			elseif( $do == 'header' ){
+				//Header ausgeben
+				$sitecontent->add_html_header( $val );
 			}
 		}
-	}	
+	}
+	
+	//PHP-Code
+	
+	//Code lesen
+	$code = $html_out_be->read_kimb_one( 'code' );
+	
+	//Code gegeben?
+	if( !empty( $code ) ){
+		//ausführen
+		eval( $code );
+	}
+	
+	
 }
 
 //alle Vars löschen
-unset( $html_out_konf, $html_out_fe, $dos, $do, $val, $area_class );
+unset( $html_out_konf, $html_out_be, $dos, $val, $do, $mess_h, $code );
+	
 ?>
