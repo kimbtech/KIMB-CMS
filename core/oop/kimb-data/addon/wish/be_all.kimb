@@ -35,3 +35,9 @@
 <[6-stelle]>vorn<[6-stelle]>
 <[6-recht]>more<[6-recht]>
 <[6-site]>all<[6-site]>
+<[allidslist7]>7<[allidslist7]>
+<[7-addon]>auto_update_addons<[7-addon]>
+<[7]>addon==stelle==recht==site<[7]>
+<[7-stelle]>hinten<[7-stelle]>
+<[7-recht]>more,fourteen<[7-recht]>
+<[7-site]>addon_inst<[7-site]>

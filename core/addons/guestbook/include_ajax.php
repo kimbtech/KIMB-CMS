@@ -121,7 +121,7 @@ elseif( isset( $_GET['loadadd'] ) && !empty( $_GET['lang'] ) ){
 		echo ('('.$lang['ipsave'].')<br />'."\r\n");
 	}
 	//Platz übertragen (ohne HTML-Code)
-	echo ('<input type="hidden" value="'.htmlspecialchars( $_GET['pl'] , ENT_COMPAT | ENT_HTML401,'UTF-8').'" name="place">');
+	echo ('<input type="hidden" value="'.htmlspecialchars( $_GET['pl'] , ENT_COMPAT | ENT_HTML401,'UTF-8' ).'" name="place">');
 	//Buttons
 	//	Absenden und Vorschau
 	echo ( '<input type="submit" value="'.$lang['sub'].'"><button onclick="return preview( '.$pl.' ); " >'.$lang['prev'].'</button></form>'."\r\n" );

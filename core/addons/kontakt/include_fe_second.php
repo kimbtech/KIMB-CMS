@@ -97,7 +97,7 @@ if( $allgerr != '403'){
 				if( filter_var( $_POST['kontakt_mail'] , FILTER_VALIDATE_EMAIL) ){
 
 					//alle HTML-Tags weg, Umlaute usw. zu HTML-Code (HTML-Mail wird versendet)
-					$_POST['kontakt_name'] = htmlentities( strip_tags( $_POST['kontakt_name'] ) , ENT_COMPAT | ENT_HTML401,'UTF-8');
+					$_POST['kontakt_name'] = htmlentities( strip_tags( $_POST['kontakt_name'] ) , ENT_COMPAT | ENT_HTML401,'UTF-8' );
 					//alle HTML-Zeichen codieren, ander Tags weg, Zeilenumbrüche zu br's'
 					$_POST['kontakt_cont'] = nl2br( strip_tags( htmlentities( $_POST['kontakt_cont'] , ENT_COMPAT | ENT_HTML401,'UTF-8') ) );
 		
