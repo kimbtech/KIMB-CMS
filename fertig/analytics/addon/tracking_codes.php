@@ -84,20 +84,23 @@ else{
 
 //Infobanner?
 if( $analyticsconffile->read_kimb_one( 'infobann' ) == 'on' ){
-	//jQuery für OK Button
-	$sitecontent->add_html_header( '<!-- jQuery -->' );
-	//CSS
-	$sitecontent->add_html_header( '<style>'.$analyticsconffile->read_kimb_one( 'ibcss' ).'</style>' );
-	//JS für OK Button
-	$sitecontent->add_html_header( '<script type="text/javascript">	$(function() { if (document.cookie.indexOf("analytics") >= 0){ $( "#analysehinweis" ).css( "display" , "none" ); } }); </script>');
-	
-	//Banner
-	$sitecontent->add_site_content( '<div id="analysehinweis">' );
-	//Text
-	$sitecontent->add_site_content( $analyticsconffile->read_kimb_one( 'ibtext' ) );	
-	//Button
-	$sitecontent->add_site_content( '<button onclick="$( \'#analysehinweis\' ).css( \'display\' , \'none\' ); document.cookie = \'analytics=ok; path=/;\';">OK</button>' );
-	$sitecontent->add_site_content( '</div> ' );
+		
+	//Banner nur anzeigen, wenn Cookie nicht vorhanden, also noch nicht okay
+	if( !isset( $_COOKIE['analytics'] ) || ( isset( $_COOKIE['analytics'] ) && $_COOKIE['analytics'] != 'ok' ) ){
+		
+		//jQuery für OK Button
+		$sitecontent->add_html_header( '<!-- jQuery -->' );
+		//CSS
+		$sitecontent->add_html_header( '<style>'.$analyticsconffile->read_kimb_one( 'ibcss' ).'</style>' );
+		
+		//Banner
+		$sitecontent->add_site_content( '<div id="analysehinweis">' );
+		//Text
+		$sitecontent->add_site_content( $analyticsconffile->read_kimb_one( 'ibtext' ) );	
+		//Button
+		$sitecontent->add_site_content( '<button onclick="$( \'#analysehinweis\' ).css( \'display\' , \'none\' ); document.cookie = \'analytics=ok; path=/;\';">OK</button>' );
+		$sitecontent->add_site_content( '</div> ' );
+	}
 }
 
 ?>
