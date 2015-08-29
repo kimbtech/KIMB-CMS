@@ -146,7 +146,15 @@ if( !empty( $begriff ) ){
 								//alles in Arrays (werden später durchsucht)
 								$inhalte[] = $inh;
 								$strings[] = strip_tags( $inh );
-								$sitenames[] = $menuenames_lang[$id]->read_kimb_one( $teil['requestid'] );
+								//Seitennamen lesen (nur wenn für gewählte Sprache leer, sonst oben Standardsprache wählen)
+								 $thissitename = $menuenames_lang[$id]->read_kimb_one( $teil['requestid'] );
+								 
+								 if( empty(  $thissitename ) ){
+									$sitenames[] = $teil['menuename'];
+								 }
+								 else{
+									$sitenames[] =  $thissitename;								 
+								 }
 							} 
 						}
 					}
