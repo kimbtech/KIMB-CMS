@@ -55,12 +55,12 @@ if( $galerie['id'] != false && !empty( $allgsiteid ) ){
 	//Galleryoverlay beginnen
 	$echo = '<div id="galleryover" style="display:none;">';
 		//Overlay vor dem Hintergrund
-		$echo .= '<div style="position: fixed; top:0; right:0; height:100%; width:100%; background-color:#000; opacity:0.4;">';
+		$echo .= '<div style="position: fixed; top:0; right:0; height:100%; width:100%; background-color:#000; opacity:0.6;">';
 		$echo .= '</div>';
 		//Div für alle Bilder
-		$echo .= '<div style="position: absolute; top:0; right:0; height:100%; width:100%; z-index:100;">';
+		$echo .= '<div style="position: fixed; top:0; right:0; height:100%; width:100%; z-index:100;">';
 			//Auswahlmenü des Overlays
-			$echo .= '<div style="background-color:#888; margin:10px; border-radius:15px; padding:10px; border: 2px solid #fff;">';
+			$echo .= '<div id="gallerysmallimg" style="background-color:#888; margin:10px; border-radius:15px; padding:10px; border: 2px solid #fff;">';
 				//Scheließen Button rechts
 				$echo .= '<span style="float:right; margin-right:5px; margin-top:5px;" >';
 					$echo .= '<button onclick="closeover();">'.$allgsys_trans['addons']['galerie']['schl'].'</button>';
@@ -191,7 +191,10 @@ if( $galerie['id'] != false && !empty( $allgsiteid ) ){
 			$echo .= '</center></div>';
 			$echo .= '<div>';
 				//großes Bild
-				$echo .= '<img style="display:block; margin:auto;" boder="0" id="gallerybigimg" src="" alt="" title="" >';
+				//mit Rahmen
+				$echo .= '<div style="background-color:#888; margin:10px; border-radius:15px; padding:10px; border: 2px solid #fff">';
+					$echo .= '<center><img style="max-width:100%;" boder="0" id="gallerybigimg" src="" alt="" title="" ></center>';
+				$echo .= '</div>';
 	//Overlay beenden
 			$echo .= '</div>';
 		$echo .= '</div>';
@@ -206,6 +209,8 @@ if( $galerie['id'] != false && !empty( $allgsiteid ) ){
 	$header .= "\t".'var openover = function( imgurl ) { 
 		$( "div#galleryover" ).css( "display", "block" );
 		$( "img#gallerybigimg" ).attr( "src" , imgurl );
+		var maxheight = $( window ).height() - $( "div#gallerysmallimg" ).height() - 88;
+		$( "img#gallerybigimg" ).css( "max-height", maxheight  + "px" );
 	}
 	function closeover(){
 		$( "div#galleryover" ).css( "display", "none" ); 
