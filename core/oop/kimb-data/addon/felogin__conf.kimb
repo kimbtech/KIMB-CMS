@@ -1,11 +1,10 @@
 <[about:doc]>KIMB dbf V3.50 - KIMB-technologies<[about:doc]>
 <[loginokay]>NIda7kdGalBKrEZ9rnw2Q684YsJHfZbJWZYbSzEImxupSptKo84dJhQwy9ikxyF4LEA6oD6zbb<[loginokay]>
-<[grlist]>test1,test2<[grlist]>
+<[grlist]>down<[grlist]>
 <[selfreg]>on<[selfreg]>
 <[addonarea]>on<[addonarea]>
 <[infomail]>on<[infomail]>
-<[selfreggruppe]>test1<[selfreggruppe]>
+<[selfreggruppe]>down<[selfreggruppe]>
 <[akzepttext]>Wichtig<[akzepttext]>
-<[requid]>1<[requid]>
-<[test1]>3<[test1]>
-<[test2]>2<[test2]>
+<[requid]>3<[requid]>
+<[down]>4<[down]>
