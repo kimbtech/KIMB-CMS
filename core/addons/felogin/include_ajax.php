@@ -242,5 +242,74 @@ elseif( isset( $_GET['settings'] ) ){
 	die;
 
 }
+elseif( isset( $_GET['usersalt'] ) ){
+	//var setzen
+	if( empty( $_SESSION["loginfehler"] ) ){
+		$_SESSION["loginfehler"] = 0; 
+	}
+
+	//Usernamen holen und Syntax prüfen
+	$user = $_GET['usersalt'];
+	$user = preg_replace( "/[^a-z]/" , "" , strtolower( $user ) );
+
+	//Username darf nicht leer sein
+	//Nur wenn die Loginseite vorher aufgerufen wurde hat man einen Grund die Salts zu lesen
+	if( !empty( $user ) && !empty($_SESSION["loginsalt"]) ){
+
+		//BE Userdatei öffnen
+		$userfile = new KIMBdbf('addon/felogin__user.kimb');
+		
+		//Nach User suchen
+		$userda = $userfile->search_kimb_xxxid( $user , 'user' );
+
+		//Wenn User da und weniger als 6 Loginfehler
+		if( $userda != false && $_SESSION["loginfehler"] <= 6 ){
+
+			//Salt auslesen
+			$salt = $userfile->read_kimb_id( $userda , 'salt' );
+			
+			//Wenn Salt nicht leer ausgeben
+			if( !empty( $salt ) ){
+				echo $salt;
+			}
+			else{
+				//sonst irgendwas ausgeben (User soll nicht merken, dass Username falsch)
+				$randsalt = true;
+			}
+		}
+		else{
+			//sonst irgendwas ausgeben (User soll nicht merken, dass Username falsch)
+			$randsalt = true;
+		}
+	}
+	else{
+		//leer => Fehler (nicht okay)
+		echo 'nok';
+	}
+	
+	//soll irgendwas ausgegeben werden?
+	if( $randsalt){
+		//sonst irgendwas ausgeben (User soll nicht merken, dass Username falsch)
+		//wenn zweimal der gleiche User abgefragt wird, dann muss immer das gleiche Salt angegeben werden
+				
+		//wurde dieser User schonmal ausgegeben?
+		if( empty($_SESSION['fe_allsalts'][$_GET['user']])){
+			//nein -> neues Salt erstellen
+			$randsalt = makepassw( 10, '', 'numaz' );
+			//in der Session ablegen
+			$_SESSION['fe_allsalts'][$_GET['user']] = $randsalt;
+			//und ausgeben
+			echo $randsalt;
+		}
+		else{
+			//User wurde schon mal abgefragt
+			//Salt aus Session ausgeben
+			echo $_SESSION['fe_allsalts'][$_GET['user']];
+		}
+	}
+
+	//beenden
+	die;
+}
 	
 ?>

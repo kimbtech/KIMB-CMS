@@ -138,6 +138,8 @@ if( !empty($_POST['feloginuser']) && !empty($_POST['feloginpassw']) ){
 $loginsalt = makepassw( 40 , '_0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz' );
 $_SESSION["loginsalt"] = $loginsalt;
 
+$loginjavascript = '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/felogin/logindata.dev.js"></script>';
+
 //Addonarea anzeigen?
 if( $felogin['conf']->read_kimb_one( 'addonarea' ) == 'on' ){
 	//eingeloggt?
@@ -145,11 +147,11 @@ if( $felogin['conf']->read_kimb_one( 'addonarea' ) == 'on' ){
 		//nein
 		
 		//Loginformular anzeigen
-		$felogin['addonarea'] .= '<form action="" method="post" onsubmit="hash();" >';
-		$felogin['addonarea'] .= '<input type="text" name="feloginuser" placeholder="'.$allgsys_trans['addons']['felogin']['username'].'" ><!--[if lt IE 10]> ('.$allgsys_trans['addons']['felogin']['username'].') <![endif]--><br />';
-		$felogin['addonarea'] .= '<input type="password" name="feloginpassw" placeholder="'.$allgsys_trans['addons']['felogin']['passwort'].'" id="pass" ><!--[if lt IE 10]> ('.$allgsys_trans['addons']['felogin']['passwort'].') <![endif]--><br />';
+		$felogin['addonarea'] .= '<form action="" method="post" onsubmit="return submitsys();" >';
+		$felogin['addonarea'] .= '<input type="text" name="feloginuser" placeholder="'.$allgsys_trans['addons']['felogin']['username'].'" onkeydown="if(event.keyCode == 13){ return false; }" onchange="getsalt();"> <img src="'.$allgsysconf['siteurl'].'/load/system/spin_load.gif" title="Loading Userdata" style="display:none;" id="loadergif" width="20px" title="spin_load.gif"> <!--[if lt IE 10]> ('.$allgsys_trans['addons']['felogin']['username'].') <![endif]--><br />';
+		$felogin['addonarea'] .= '<input type="password" name="feloginpassw" placeholder="'.$allgsys_trans['addons']['felogin']['passwort'].'" id="pass" onkeydown="if(event.keyCode == 13){ return true; }" ><!--[if lt IE 10]> ('.$allgsys_trans['addons']['felogin']['passwort'].') <![endif]--><br />';
 		$felogin['addonarea'] .= '<input type="submit" value="'.$allgsys_trans['addons']['felogin']['login'].'"><br />';
-		$felogin['addonarea'] .= '</form><br />';
+		$felogin['addonarea'] .= '</form><span id="passsalt" style="display:none;" >none</span><br />';
 		//Passwort vergessen Link
 		$felogin['addonarea'] .= '<a href="'.$allgsysconf['siteurl'].'/index.php?id='.$felogin['requid'].'&amp;pwforg#goto">'.$allgsys_trans['addons']['felogin']['pwforg'].'</a><br />';
 		if( $felogin['selfreg'] == 'on' ){
@@ -178,10 +180,8 @@ if( $felogin['conf']->read_kimb_one( 'addonarea' ) == 'on' ){
 
 	//das Geüst wird per JavaScript gefüllt
 	//Funktion um Passwort mit salt zu hashen
-	$sitecontent->add_html_header('<script>
-	$(function() { $("div#felogin").html( '.json_encode( $felogin['addonarea'] ).' ); });
-	function hash() { document.getElementById(\'pass\').value = SHA1(SHA1(document.getElementById(\'pass\').value)+\''.$loginsalt.'\'); }
-</script>');
+	$sitecontent->add_html_header( '<script> var htmlcodeform = '.json_encode( $felogin['addonarea'] ).'; var loginrandsalt = "'.$loginsalt.'"; var siteurl = "'.$allgsysconf['siteurl'].'";</script>');
+	$sitecontent->add_html_header( $loginjavascript );
 }
 
 //wird aktuell die Seite für alle Loginaufgaben angefragt?
@@ -191,11 +191,11 @@ if( $_GET['id'] == $felogin['requid'] ){
 	if( $felogin['conf']->read_kimb_one( 'addonarea' ) == 'off' ){
 		//das geiche wie bei der Addonarea nur hier direkt auf die Seite
 		if( !isset( $_SESSION['felogin']['user'] ) ){
-			$felogin['formareal'] .= '<form action="" method="post" onsubmit="hash();" >';
-			$felogin['formareal'] .= '<input type="text" name="feloginuser" placeholder="'.$allgsys_trans['addons']['felogin']['username'].'" > <!--[if lt IE 10]> ('.$allgsys_trans['addons']['felogin']['username'].') <![endif]-->';
+			$felogin['formareal'] .= '<form action="" method="post" onsubmit="return submitsys();" >';
+			$felogin['formareal'] .= '<input type="text" name="feloginuser" placeholder="'.$allgsys_trans['addons']['felogin']['username'].'" onkeydown="if(event.keyCode == 13){ return false; }" onchange="getsalt();" ><!--[if lt IE 10]> ('.$allgsys_trans['addons']['felogin']['username'].') <![endif]-->';
 			$felogin['formareal'] .= '<input type="password" name="feloginpassw" placeholder="'.$allgsys_trans['addons']['felogin']['passwort'].'" id="pass" > <!--[if lt IE 10]> ('.$allgsys_trans['addons']['felogin']['passwort'].') <![endif]-->';
-			$felogin['formareal'] .= '<input type="submit" value="'.$allgsys_trans['addons']['felogin']['login'].'"><br />';
-			$felogin['formareal'] .= '</form><br />';
+			$felogin['formareal'] .= '<input type="submit" value="'.$allgsys_trans['addons']['felogin']['login'].'"> <span style="width:20px; display:inline-block;"><img src="'.$allgsysconf['siteurl'].'/load/system/spin_load.gif" title="Loading Userdata" style="display:none;" id="loadergif" width="20px" title="spin_load.gif"></span><br />';
+			$felogin['formareal'] .= '</form><span id="passsalt" style="display:none;" >none</span><br />';
 			$felogin['formareal'] .= '<a href="'.$allgsysconf['siteurl'].'/index.php?id='.$felogin['requid'].'&amp;pwforg#goto">'.$allgsys_trans['addons']['felogin']['pwforg'].'</a>&nbsp;';
 			if( $felogin['selfreg'] == 'on' ){
 				$felogin['formareal'] .= '<a href="'.$allgsysconf['siteurl'].'/index.php?id='.$felogin['requid'].'&amp;register#goto">'.$allgsys_trans['addons']['felogin']['register'].'</a><br />';
@@ -209,10 +209,8 @@ if( $_GET['id'] == $felogin['requid'] ){
 
 		$sitecontent->add_site_content( '<hr /><center><h1>'.$allgsys_trans['addons']['felogin']['login'].'</h1><div id="felogin">'.$allgsys_trans['addons']['felogin']['jsinfo'].'</div></center><hr />' );
 
-		$sitecontent->add_html_header('<script>
-		$(function() { $("div#felogin").html( '.json_encode( $felogin['formareal'] ).' ); });
-		function hash() { document.getElementById(\'pass\').value = SHA1(SHA1(document.getElementById(\'pass\').value)+\''.$loginsalt.'\'); }
-</script>');
+		$sitecontent->add_html_header( '<script> var htmlcodeform = '.json_encode( $felogin['formareal'] ).'; var loginrandsalt = "'.$loginsalt.'"; var siteurl = "'.$allgsysconf['siteurl'].'";</script>');
+		$sitecontent->add_html_header( $loginjavascript );
 	}
 	//nicht eingeloggt und eine Addonarea
 	elseif( !isset( $_SESSION['felogin']['user'] ) ){
