@@ -59,8 +59,14 @@ if( $_POST['auth'] == $auth ){
 	//Die Daten sind JSON Strings
 	//	parsen
 	$arr = json_decode( $cont, true );
-	//	neue Daten anfügen
-	$arr[] = json_decode( $_REQUEST['jsondata'], true );
+	
+	//Übergaben vom CMS lesen
+	$addval = json_decode( $_REQUEST['jsondata'], true );
+	//Zeit hinzufügen 
+	$addval['time'] = time();
+	
+	//neue Daten anfügen
+	$arr[] = $addval; 
 
 	//Daten wieder speichern
 	file_put_contents( __DIR__.'/inhalte.php', '<?php die; ?>'.json_encode ( $arr ) );
@@ -87,7 +93,9 @@ elseif( isset( $_GET['id'] ) ){
 	//alle Daten durchgehen
 	foreach( $arr as $user ){
 		//passt die ID des Users zu der aktuellen Session?
-		if( $user['id'] == $_GET['id'] ){
+		//wurde die ID dem Server vor weniger als 2 Minuten mitgeteilt 
+		//	(der User wird direkt weitergeleitet, dies sollte weit unter 120sec dauern)
+		if( $user['id'] == $_GET['id'] && $user['time'] + 120 > time() ){
 			//wenn ja, alle Sessionwerte setzen
 			$_SESSION['felogin']['loginokay'] = $user['loginokay'];
 			$_SESSION["ip"] = $user['ip'];
@@ -96,9 +104,10 @@ elseif( isset( $_GET['id'] ) ){
 			$_SESSION['felogin']['user'] = $user['us'];
 			$_SESSION['felogin']['name'] = $user['na'];
 		}
-		else{
+		//nur die noch gueltigen Daten behalten (die alten fressen nur Speicher)
+		elseif( $user['time'] + 120 > time() ){
 			//wenn nicht, Daten für später aufheben
-			$newarr[] = $ar;
+			$newarr[] = $user;
 		}
 	}
 
