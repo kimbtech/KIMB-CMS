@@ -12,6 +12,8 @@ elseif( !$this->addoninclude->read_kimb_search_teilpl( 'ajax' , 'captcha' ) ){
 
 }
 
+$sitecontent->echo_message( '<b>Sofern Sie Felogin bereits nutzen, weisen Sie bitte alle Ihre Nutzer darauf hin, dass alle Passwörter neu vergeben werden müssen!</b><br /><i>Man kann ein neues Passwort über "Passwort vergessen?" erhalten.</i>', 'WICHTIG' );
+
 //Add-on API wish
 $a = new ADDonAPI( 'felogin' );
 $a->set_fe( 'vorn', 'a' , 'all' );

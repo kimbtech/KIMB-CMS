@@ -80,7 +80,8 @@ if( $_GET['id'] == $felogin['requid'] && ( isset( $_GET['pwforg'] ) || isset( $_
 				//Passwort übergeben?
 				if( !empty( $_POST['passwort1'] ) ){
 					//ändern
-					if( $felogin['userfile']->write_kimb_id( $id , 'add' , 'passw' , $_POST['passwort1'] ) ){
+					//Hash des Passworts und neues Salt
+					if( $felogin['userfile']->write_kimb_id( $id , 'add' , 'passw' , $_POST['passwort1'] ) && $felogin['userfile']->write_kimb_id( $id , 'add' , 'salt' , $_SESSION['newusersalt'] ) ){
 						//Medlung
 						$sitecontent->add_site_content( '<h3>'.$allgsys_trans['addons']['felogin']['passch'].'</h3>');
 					}
@@ -92,12 +93,16 @@ if( $_GET['id'] == $felogin['requid'] && ( isset( $_GET['pwforg'] ) || isset( $_
 			}
 		}
 		
+		//neues Salt für Passwort des Users erstellen 
+		$_SESSION['newusersalt'] = makepassw( 15, '', 'numaz' );
+		
 		//JavaScript Code 
 		//	Übersetzungen der Medlungen hinter den Eingabefeldern für JS Code laden
 		$header = '<script>var siteurl = "'.$allgsysconf['siteurl'].'";';
 		foreach( $allgsys_trans['addons']['felogin']['regjs'] as $key => $val ){
 			$header .= 'var '.$key.' = "'.$val.'"; ';
 		}
+		$header .= 'var newsalt = "'.$_SESSION['newusersalt'].'";';
 		$header .= '</script>';
 		
 		$sitecontent->add_html_header( $header );
@@ -108,105 +113,7 @@ if( $_GET['id'] == $felogin['requid'] && ( isset( $_GET['pwforg'] ) || isset( $_
 		//	Mailadresse Testmail senden
 		//	Mailadresse Code prüfen
 		//	Formular senden prüfen
-		$sitecontent->add_html_header('<script>
-		function checkpw() {
-			var valeins = $( "input#passwort1" ).val();
-			var valzwei = $( "input#passwort2" ).val();
-
-			if( valzwei != valeins ){
-				$("i#pwtext").text("'.$allgsys_trans['addons']['felogin']['userjs']['pwtext1'].'");
-				$("i#pwtext").css( "background-color", "red" );
-				$("i#pwtext").css( "color", "white" );
-				$("i#pwtext").css( "padding", "5px" );
-			}
-			else{
-				$("i#pwtext").text("'.$allgsys_trans['addons']['felogin']['userjs']['pwtext2'].'");
-				$("i#pwtext").css( "background-color", "green" );
-				$("i#pwtext").css( "color", "white" );
-				$("i#pwtext").css( "padding", "5px" );
-			}
-		}
-
-		function checkmail(){
-			var valmail = $( "input#mail" ).val();
-			var mailmatch = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
-
-			if( mailmatch.test( valmail ) ){
-				$("i#mailadr").text( "'.$allgsys_trans['addons']['felogin']['regjs']['mailprue'].'" );
-				$("i#mailadr").css( "background-color", "orange" );
-				$("i#mailadr").css( "color", "white" );
-				$("i#mailadr").css( "padding", "5px" );
-				
-				$( "div#mailcheck" ).css( "display", "block" );
-			
-			}
-			else{
-				$("i#mailadr").text( "'.$allgsys_trans['addons']['felogin']['userjs']['mailadr2'].'" );
-				$("i#mailadr").css( "background-color", "red" );
-				$("i#mailadr").css( "color", "white" );
-				$("i#mailadr").css( "padding", "5px" );
-			}
-		}
-		
-		function sendcode(){
-			var valmail = $( "input#mail" ).val();
-			$.get( siteurl + "/ajax.php?addon=felogin&mail=" + valmail + "&lang=" + langfile, function( data ) {
-				if( data == "ok" ){
-					$("i#mailadr").html( codese );
-				}
-				else{
-					$("i#mailadr").text( codeanzb );
-					$("i#mailadr").css( "background-color", "red" );
-				}
-			});
-		}
-
-		function checkcode(){
-			var valcode =  encodeURIComponent( $( "input#mailcode" ).val() );
-			$.get( siteurl + "/ajax.php?addon=felogin&code=" + valcode , function( data ) {
-				if( data == "ok" ){
-					$("i#mailadr").text( mailok );
-					$("i#mailadr").css( "background-color", "green" );
-					$( "input#checkm" ).val( "ok" );
-					
-					$("span#codeokay" ).text( codeok );
-					$("span#codeokay").css( "background-color", "green" );
-					$("span#codeokay").css( "color", "white" );
-					$("span#codeokay").css( "padding", "5px" );
-
-				}
-				else{
-					$("i#mailadr").text( codeerr );
-					$("i#mailadr").css( "background-color", "red" );
-				}
-			});
-		}
-
-		function checksumbit(){
-
-			var valeins = $( "input#passwort1" ).val();
-			var valzwei = $( "input#passwort2" ).val();
-			var valmail = $( "input#mail" ).val();
-
-			var mailmatch = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
-			if( mailmatch.test( valmail ) == false ){
-				return false;
-			}
-
-			if( valzwei != valeins ){ 
-				return false;
-			}
-			else if( valeins != "" ){
-				$( "input#passwort1" ).val( SHA1( valeins ) );
-				$( "input#passwort2" ).val( \'\' );
-				return true;
-			}
-			else{
-				return true;
-			}
-
-		}	
-		</script>');
+		$sitecontent->add_html_header('<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/felogin/settings.min.js"></script>');
 
 		//ID des Users herausfinden
 		$id = $felogin['userfile']->search_kimb_xxxid( $_SESSION['felogin']['user'] , 'user' );
@@ -283,11 +190,13 @@ if( $_GET['id'] == $felogin['requid'] && ( isset( $_GET['pwforg'] ) || isset( $_
 				if( $id != false ){
 					//neues Passwort machen
 					$newpass = makepassw( 10 );
+					//Salt für Passwort machen
+					$passsalt = makepassw( 15, '', 'numaz' );
 					//Code machen
 					$setnewcode = makepassw( 30, '', 'numaz' );
 					//neues Passwort und Code in der dbf sichern
 					//	das Passwort wird erst durch eine Link in einer E-Mail aktiviert, vorher ist das alte Passwort gültig
-					if( $felogin['userfile']->write_kimb_id( $id , 'add' , 'newpassw' , sha1( $newpass ) ) && $felogin['userfile']->write_kimb_id( $id , 'add' , 'setnewcode' , $setnewcode ) ){
+					if( $felogin['userfile']->write_kimb_id( $id , 'add' , 'newpassw' , sha1( $passsalt.$newpass ) ) && $felogin['userfile']->write_kimb_id( $id , 'add' , 'newsalt' , $passsalt ) && $felogin['userfile']->write_kimb_id( $id , 'add' , 'setnewcode' , $setnewcode ) && $felogin['userfile']->write_kimb_id( $id , 'add' , 'newpasswtime' , time() ) ){
 
 						//Im vorgefertigten Text der E-Mail Platzhalter ersetzen 
 						$inhalt = str_replace( array( '%name%', '%pass%', '%url%', '%sitename%' , '%br%' ) , array( $felogin['userfile']->read_kimb_id( $id , 'name' ), $newpass, $allgsysconf['siteurl'].'/ajax.php?addon=felogin&newpassak='.$id.'&code='.$setnewcode , $allgsysconf['sitename'], "\r\n" ) , $allgsys_trans['addons']['felogin']['mailtext']['newpass'] );
@@ -353,6 +262,8 @@ if( $_GET['id'] == $felogin['requid'] && ( isset( $_GET['pwforg'] ) || isset( $_
 					//Daten über den User in die dbf schreiben
 					//	Passwort (sha1)
 					$felogin['userfile']->write_kimb_id( $id , 'add' , 'passw' , $_POST['passwort1'] );
+					//	Salt für Passwort
+					$felogin['userfile']->write_kimb_id( $id , 'add' , 'salt' , $_SESSION['newusersalt'] );
 					//	Gruppe (wie oben gefunden)
 					$felogin['userfile']->write_kimb_id( $id , 'add' , 'gruppe' , $gruppe );
 					//	Namen
@@ -393,11 +304,15 @@ if( $_GET['id'] == $felogin['requid'] && ( isset( $_GET['pwforg'] ) || isset( $_
 		else{
 			//Das Formular testet alle Eingaben per JavaScript, damit kein User seine Eingaben verliert
 
+			//neues Salt für Passwort des Users erstellen 
+			$_SESSION['newusersalt'] = makepassw( 15, '', 'numaz' );
+
 			//Übersetzungen für die externe JavaScript Datei laden
 			$header = '<script>var siteurl = "'.$allgsysconf['siteurl'].'";';
 			foreach( $allgsys_trans['addons']['felogin']['regjs'] as $key => $val ){
 				$header .= 'var '.$key.' = "'.$val.'"; ';
 			}
+			$header .= 'var newsalt = "'.$_SESSION['newusersalt'].'";';
 			$header .= '</script>';
 		
 			$sitecontent->add_html_header( $header );

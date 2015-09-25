@@ -1,13 +1,0 @@
-max.muster@example.com-------------------Hallo Max Muster,
-Ihre Logindaten wurden gerade fuer ein Login im Backend verwendet!
-
-Zeit:23.09.2015 um 18:10:49
-IP:127.0.0.1
-Useragent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:41.0) Gecko/20100101 Firefox/41.0
-
-
-cmsadmin@example.com-------------------Hallo Admin,
-es hat sich ein neuer User 'user' registriert!
-
-KIMB CMS
-

@@ -205,7 +205,7 @@ function checksubmit(){
 		return false;
 	}
 	else{
-		$( "input#passwort1" ).val( SHA1( valeins ) );
+		$( "input#passwort1" ).val( SHA1( newsalt + valeins ) );
 		$( "input#passwort2" ).val( " " );
 		return true;
 	}

@@ -138,7 +138,7 @@ if( !empty($_POST['feloginuser']) && !empty($_POST['feloginpassw']) ){
 $loginsalt = makepassw( 40 , '_0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz' );
 $_SESSION["loginsalt"] = $loginsalt;
 
-$loginjavascript = '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/felogin/logindata.dev.js"></script>';
+$loginjavascript = '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/felogin/logindata.min.js"></script>';
 
 //Addonarea anzeigen?
 if( $felogin['conf']->read_kimb_one( 'addonarea' ) == 'on' ){

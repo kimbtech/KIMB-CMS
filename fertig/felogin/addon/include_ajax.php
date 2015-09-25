@@ -166,22 +166,47 @@ elseif( is_numeric( $_GET['newpassak'] ) && !empty($_GET['code']) ){
 	
 	//Ist der Code korrekt?
 	if( $userfile->read_kimb_id( $id , 'setnewcode' ) == $code ){
-
-		//neues Passwort lesen (hier schon sha1(); )
-		$newpass = $userfile->read_kimb_id( $id , 'newpassw' );
-		//neues Passwort zu Passwort machen
-		$userfile->write_kimb_id( $id , 'add' , 'passw' , $newpass );
-
+		
+		//Code darf nicht älter als 24h sein
+		if( $userfile->read_kimb_id( $id , 'newpasswtime' ) + 86400 > time() ){
+			//neues Passwort lesen (hier schon sha1(); )
+			$newpass = $userfile->read_kimb_id( $id , 'newpassw' );
+			//neues Passwort zu Passwort machen
+			$userfile->write_kimb_id( $id , 'add' , 'passw' , $newpass );
+			
+			//neues Salt lesen
+			$newsalt = $userfile->read_kimb_id( $id , 'newsalt' );
+			//neues Salt zu aktuellem machen
+			$userfile->write_kimb_id( $id , 'add' , 'salt' , $newsalt );
+			
+			$done = true;
+			
+		}
+		else{
+			$done = false;
+		}
+		
 		//Werte für neues Passowrt und Code aus dbf löschen
 		$userfile->write_kimb_id( $id , 'del', 'newpassw' );
+		$userfile->write_kimb_id( $id , 'del', 'newsalt' );
 		$userfile->write_kimb_id( $id , 'del', 'setnewcode' );
-
-		//normale Homepage aufrufen
-		open_url( '' );
+		$userfile->write_kimb_id( $id , 'del', 'newpasswtime' );
+	
+		if( $done ){
+			//normale Homepage aufrufen
+			open_url( '' );
+		}
+		else{
+			//Fehlermeldung
+			echo 'Ihr Link ist zu alt, bitte gehen Sie erneut auf "Passwort vergessen?"!<br />'."\r\n";
+			echo 'Your lonk is too old, please visit "Password lost?"!';
+		}
 	}
 	else{
 		//Fehlermeldung wenn Code falsch
-		echo 'Fehlerhafter Code oder User';		
+		echo 'Fehlerhafter Link!<br />'."\r\n";
+		echo 'Wrong link!';
+				
 	}
 	die;	
 }
@@ -241,6 +266,75 @@ elseif( isset( $_GET['settings'] ) ){
 	open_url( '/index.php?id='.$felogin['requid'].'&langid=0&settings' );
 	die;
 
+}
+elseif( isset( $_GET['usersalt'] ) ){
+	//var setzen
+	if( empty( $_SESSION["loginfehler"] ) ){
+		$_SESSION["loginfehler"] = 0; 
+	}
+
+	//Usernamen holen und Syntax prüfen
+	$user = $_GET['usersalt'];
+	$user = preg_replace( "/[^a-z0-9]/" , "" , strtolower( $user ) );
+
+	//Username darf nicht leer sein
+	//Nur wenn die Loginseite vorher aufgerufen wurde hat man einen Grund die Salts zu lesen
+	if( !empty( $user ) && !empty($_SESSION["loginsalt"]) ){
+
+		//BE Userdatei öffnen
+		$userfile = new KIMBdbf('addon/felogin__user.kimb');
+		
+		//Nach User suchen
+		$userda = $userfile->search_kimb_xxxid( $user , 'user' );
+
+		//Wenn User da und weniger als 6 Loginfehler
+		if( $userda != false && $_SESSION["loginfehler"] <= 6 ){
+
+			//Salt auslesen
+			$salt = $userfile->read_kimb_id( $userda , 'salt' );
+			
+			//Wenn Salt nicht leer ausgeben
+			if( !empty( $salt ) ){
+				echo $salt;
+			}
+			else{
+				//sonst irgendwas ausgeben (User soll nicht merken, dass Username falsch)
+				$randsalt = true;
+			}
+		}
+		else{
+			//sonst irgendwas ausgeben (User soll nicht merken, dass Username falsch)
+			$randsalt = true;
+		}
+	}
+	else{
+		//leer => Fehler (nicht okay)
+		echo 'nok';
+	}
+	
+	//soll irgendwas ausgegeben werden?
+	if( $randsalt){
+		//sonst irgendwas ausgeben (User soll nicht merken, dass Username falsch)
+		//wenn zweimal der gleiche User abgefragt wird, dann muss immer das gleiche Salt angegeben werden
+				
+		//wurde dieser User schonmal ausgegeben?
+		if( empty($_SESSION['fe_allsalts'][$_GET['usersalt']])){
+			//nein -> neues Salt erstellen
+			$randsalt = makepassw( 15, '', 'numaz' );
+			//in der Session ablegen
+			$_SESSION['fe_allsalts'][$_GET['usersalt']] = $randsalt;
+			//und ausgeben
+			echo $randsalt;
+		}
+		else{
+			//User wurde schon mal abgefragt
+			//Salt aus Session ausgeben
+			echo $_SESSION['fe_allsalts'][$_GET['usersalt']];
+		}
+	}
+
+	//beenden
+	die;
 }
 	
 ?>

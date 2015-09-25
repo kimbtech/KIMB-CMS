@@ -166,22 +166,47 @@ elseif( is_numeric( $_GET['newpassak'] ) && !empty($_GET['code']) ){
 	
 	//Ist der Code korrekt?
 	if( $userfile->read_kimb_id( $id , 'setnewcode' ) == $code ){
-
-		//neues Passwort lesen (hier schon sha1(); )
-		$newpass = $userfile->read_kimb_id( $id , 'newpassw' );
-		//neues Passwort zu Passwort machen
-		$userfile->write_kimb_id( $id , 'add' , 'passw' , $newpass );
-
+		
+		//Code darf nicht älter als 24h sein
+		if( $userfile->read_kimb_id( $id , 'newpasswtime' ) + 86400 > time() ){
+			//neues Passwort lesen (hier schon sha1(); )
+			$newpass = $userfile->read_kimb_id( $id , 'newpassw' );
+			//neues Passwort zu Passwort machen
+			$userfile->write_kimb_id( $id , 'add' , 'passw' , $newpass );
+			
+			//neues Salt lesen
+			$newsalt = $userfile->read_kimb_id( $id , 'newsalt' );
+			//neues Salt zu aktuellem machen
+			$userfile->write_kimb_id( $id , 'add' , 'salt' , $newsalt );
+			
+			$done = true;
+			
+		}
+		else{
+			$done = false;
+		}
+		
 		//Werte für neues Passowrt und Code aus dbf löschen
 		$userfile->write_kimb_id( $id , 'del', 'newpassw' );
+		$userfile->write_kimb_id( $id , 'del', 'newsalt' );
 		$userfile->write_kimb_id( $id , 'del', 'setnewcode' );
-
-		//normale Homepage aufrufen
-		open_url( '' );
+		$userfile->write_kimb_id( $id , 'del', 'newpasswtime' );
+	
+		if( $done ){
+			//normale Homepage aufrufen
+			open_url( '' );
+		}
+		else{
+			//Fehlermeldung
+			echo 'Ihr Link ist zu alt, bitte gehen Sie erneut auf "Passwort vergessen?"!<br />'."\r\n";
+			echo 'Your lonk is too old, please visit "Password lost?"!';
+		}
 	}
 	else{
 		//Fehlermeldung wenn Code falsch
-		echo 'Fehlerhafter Code oder User';		
+		echo 'Fehlerhafter Link!<br />'."\r\n";
+		echo 'Wrong link!';
+				
 	}
 	die;	
 }
@@ -250,7 +275,7 @@ elseif( isset( $_GET['usersalt'] ) ){
 
 	//Usernamen holen und Syntax prüfen
 	$user = $_GET['usersalt'];
-	$user = preg_replace( "/[^a-z]/" , "" , strtolower( $user ) );
+	$user = preg_replace( "/[^a-z0-9]/" , "" , strtolower( $user ) );
 
 	//Username darf nicht leer sein
 	//Nur wenn die Loginseite vorher aufgerufen wurde hat man einen Grund die Salts zu lesen
@@ -293,18 +318,18 @@ elseif( isset( $_GET['usersalt'] ) ){
 		//wenn zweimal der gleiche User abgefragt wird, dann muss immer das gleiche Salt angegeben werden
 				
 		//wurde dieser User schonmal ausgegeben?
-		if( empty($_SESSION['fe_allsalts'][$_GET['user']])){
+		if( empty($_SESSION['fe_allsalts'][$_GET['usersalt']])){
 			//nein -> neues Salt erstellen
-			$randsalt = makepassw( 10, '', 'numaz' );
+			$randsalt = makepassw( 15, '', 'numaz' );
 			//in der Session ablegen
-			$_SESSION['fe_allsalts'][$_GET['user']] = $randsalt;
+			$_SESSION['fe_allsalts'][$_GET['usersalt']] = $randsalt;
 			//und ausgeben
 			echo $randsalt;
 		}
 		else{
 			//User wurde schon mal abgefragt
 			//Salt aus Session ausgeben
-			echo $_SESSION['fe_allsalts'][$_GET['user']];
+			echo $_SESSION['fe_allsalts'][$_GET['usersalt']];
 		}
 	}
 
