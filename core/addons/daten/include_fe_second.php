@@ -25,6 +25,27 @@
 
 defined('KIMB_CMS') or die('No clean Request');
 
+//Rechte für diese Seite??
+if( check_felogin_login( '---session---', '---allgsiteid---', true ) ){
+	
+	//CSS für System
+	$sitecontent->add_html_header('<link rel="stylesheet" type="text/css" href="'.$allgsysconf['siteurl'].'/load/addondata/daten/explorer.dev.css" media="all">');
+	//jQuery und Hash werden benötigt
+	$sitecontent->add_html_header('<!-- jQuery UI -->');
+	//Verschlüsselung
+	$sitecontent->add_html_header('<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/daten/sjcl.min.js"></script>');
+	//JS für System
+	$sitecontent->add_html_header('<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/daten/explorer.dev.js"></script>');
+	
+	//HTML Gerüst für System
+	$sitecontent->add_site_content('<div id="addon_daten_main" class="addon_daten_main">Bitte aktivieren Sie JavaScript für die Datenverwaltung!</div>');
+	
+	
+}
+else{
+	//Fehler
+	$sitecontent->echo_error( 'Die Dateiverwaltung ist nur mit einem Login via Felogin erreichbar!', '403' );
+}
 
 /*
 Management der Userrechte (Speicherplatz, nur lesen)

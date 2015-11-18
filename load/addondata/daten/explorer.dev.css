@@ -1,0 +1,19 @@
+div.addon_daten_main{
+	margin:auto;
+	padding:10px;
+	border:1px solid #5d7;
+	border-radius:10px;
+	box-shadow: 5px 5px 5px gray;
+	text-align:center;
+}
+
+div.main_files{
+	margin:auto;
+	width:95%;
+	min-height: 150px;
+	border: 1px solid gray;
+	border-radius:10px;
+	padding:10px;
+	margin-top:15px;
+	text-align: left;
+}

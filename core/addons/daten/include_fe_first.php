@@ -25,21 +25,6 @@
 
 defined('KIMB_CMS') or die('No clean Request');
 
-//jQuery und Hash werden benötigt
-$sitecontent->add_html_header('<!-- jQuery UI -->');
-
-/*
-Management der Userrechte (Speicherplatz, nur lesen)
-JavaScript Verschlüsselung von Dateien und Tabellen möglich (https://bitwiseshiftleft.github.io/sjcl/)
-Verwendung von Felogin
-JSON für Tabellen
-AJAX gestützt
-
-Seite per Felogin geschützt, lädt per AJAX Liste der Gruppen
-Gruppen mit Tabellen und Dateien
-Gruppe für alle User
-Gruppe für bestimmte User
-*/
-
+//FE_second macht alles!!
 
 ?>
