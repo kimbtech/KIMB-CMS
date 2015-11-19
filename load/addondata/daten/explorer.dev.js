@@ -1,3 +1,9 @@
+function show_error( tit, mes, dom ){
+	$( dom ).html( '<div class="ui-widget"><div class="ui-state-error ui-corner-all" style="padding: 5px;"><span class="ui-icon ui-icon-alert" style="float: left; margin-right: 6px;"></span><strong>'+tit+'</strong>&nbsp;&nbsp;&nbsp;'+mes+'</div></div>' );
+	 return true;
+}
+
+
 $( function() {
 	load_daten();	
 });
@@ -23,18 +29,18 @@ function set_vars( ort  ){
 	
 	//Meine Dateien
 	if( ort == 'my' ){
-		allgvars['folder'] = 'user';
-		allgvars['path'] = '/';  
+		allgvars.folder = 'user';
+		allgvars.path = '/';  
 	}
 	//Meine Gruppen
 	else if ( ort == 'gr' ){
-		allgvars['folder'] = 'group';
-		allgvars['path'] = '/'; 
+		allgvars.folder = 'group';
+		allgvars.path = '/'; 
 	}
 	//Öffentlich
 	else if ( ort == 'pu' ){
-		allgvars['folder'] = 'public';
-		allgvars['path'] = '/'; 
+		allgvars.folder = 'public';
+		allgvars.path = '/'; 
 	}
 	else{
 		return false;
@@ -46,18 +52,241 @@ function set_vars( ort  ){
 
 function main_explorer(){
 	
-	$.post( siteurl+"/ajax.php?addon=daten", { "allgvars": allgvars, "todo": "filelist" } ).always( function( data ) {
-			var html = '<ul>';
+	$.post( add_daten.siteurl+"/ajax.php?addon=daten", { "allgvars": allgvars, "todo": "filelist" } ).always( function( data ) {
 			
-			data = JSON.parse(  data );
+			var html = '<div class="pathbar">'+allgvars.path+'</div>';
 			
-			$.each( data, function( k,v ){
-				html += '<li>'+v+'</li>';	
-			});
+			data = data.main;
 			
-			html += '</ul>';
-			
-			$( "div.main_files" ).html( html );
+			if( data != null ){
+				html += '<ul class="files">';
+				
+				var elements = 0;
+				
+				$.each( data, function( k,v ){
+					var icon;
+					
+					if( v.type == 'dir' ){
+						icon = 'folder-collapsed';	
+					}
+					else if( v.type == 'file' ){
+						icon = 'document';
+					}
+					else if( v.type == 'kt' ){
+						icon = 'calculator';
+					}
+					else{
+						icon = 'blank';
+					}
+					
+					html += '<li url="'+v.url+'" ftype="'+v.type+'" name="'+v.name+'"><span class="ui-icon ui-icon-'+icon+'" style="display:inline-block;"></span>'+v.name+'</li>';
+					
+					elements++;	
+				});
+				
+				html += '</ul>';
+				
+				if( elements > 0 ){
+					$( "div.main_files" ).html( html );
+					
+					$( 'ul.files li' ).unbind('click').click( function() {
+						var ftype = $( this ).attr( 'ftype' );
+						var url = $( this ).attr( 'url' );
+						var name = $( this ).attr( 'name' );
+						
+						if( ftype == 'dir' ){
+							allgvars.path = allgvars['path']+url+'/';
+							main_explorer();  
+						}
+						else if( ftype == 'file' ){
+							open_file( url );
+						}
+						else if( ftype == 'kt' ){
+							open_table( url, name );
+						}
+						
+					});
+				}
+				else{
+					show_error( '404', 'Ordner nicht gefunden!', "div.main_files"  );	
+				}
+			}
+			else{
+				show_error( '404', 'Ordner nicht gefunden!', "div.main_files"  );
+			}
 	});
 	
+}
+
+function open_table( url, name ){
+	
+	allgvars.file = url;
+	
+	$.post( add_daten.siteurl+"/ajax.php?addon=daten", { "allgvars": allgvars, "todo": "table" } ).always( function( data ) {
+		
+		data = data.main;
+			
+		if( data != null ){
+		
+			data = JSON.parse( data );
+			
+			make_table_html( data, 'div.for_file_kimbta' );
+		
+			$( 'div.for_file_kimbta' ).css( 'display', 'block' );
+			
+			$( 'div.for_file_kimbta' ).dialog({ width: 720, modal: true, title: name });
+			
+		}	
+	});
+}
+
+function open_file( url ){
+	
+	var link = add_daten.siteurl+"/ajax.php?addon=daten&folder="+ encodeURI( allgvars.folder ) +"&path="+ encodeURI( allgvars.path + url );
+	
+	window.open( link, "_blank", "width=900px,height=500px,top=20px,left=20px");
+}
+
+function make_table_html( data, domel ){
+	var html = '<table width="100%" border="border">';
+			
+	$.each( data, function( k,v ){
+				
+		html += '<tr>';
+				
+		if( k == 0){
+			$.each( v, function( sk, sv ){
+				if( sk == 0){
+					html += '<th k="'+k+'" sk="'+sk+'">'+sv+'</th>';
+				}
+				else{
+					html += '<th class="edit" k="'+k+'" sk="'+sk+'">'+sv+'</th>';
+				}
+			});
+		}
+		else{
+			$.each( v, function( sk, sv ){
+				if( sk == 0){
+					html += '<td k="'+k+'" sk="'+sk+'">'+sv+'</td>';
+				}	
+				else{
+					html += '<td class="edit" k="'+k+'" sk="'+sk+'">'+sv+'</td>';
+				}
+			});
+		}
+		
+		html += '</tr>';
+		
+	});
+			
+	html += '</table>';
+	html += '<button id="new_sp">Spalte hinzufügen</button><br />';
+	html += '<button id="new_ze">Zeile hinzufügen</button><br />';
+	html += '<small>Doppenklick zum Ändern; Enter zum Speichern; Ctrl zum Verwerfen</small><br />';
+	html += '<span class="add_daten_status" style="display:none;"></span>';
+	
+	$( domel ).html( html );
+	
+	$( "div.for_file_kimbta table td.edit, div.for_file_kimbta table th.edit").unbind('dblclick').dblclick( function() {
+		
+			var k = $( this ).attr( 'k' );
+			var sk = $( this ).attr( 'sk' );
+			var val = $( this ).html();
+			
+			if( val.indexOf( "<input" ) === -1 ){
+				
+				$( this ).html( '<input type="text" value="'+val+'">' );
+				
+				$( this ).children("input").keyup( function( event ) {
+					if(event.keyCode == 13){
+						var newval = $( this).val();
+						
+						newval = newval.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+						
+						$( this ).parent().html( newval );
+						data[k][sk] = newval;
+						
+						save_new_table( data );
+					}
+					else if( event.keyCode == 17 ){
+						$( this ).parent().html( val );
+					}
+				});
+			}
+	});
+	
+	$( "button#new_sp" ).unbind('click').click( function(){
+		
+		for( var i = 0; i < data.length; i++){
+			
+			data[i].push( 'Wert' );
+		}
+		
+		make_table_html( data, domel );
+		
+		save_new_table( data );
+	});
+	
+	$( "button#new_ze" ).unbind('click').click( function(){
+		
+		var array = new Array();
+		var elem;
+		
+		for( var i = 0; i < data[0].length; i++){
+			
+			if( i == 0 ){
+				elem = data.length;
+			}
+			else{
+				elem = 'Wert';
+			}
+			
+			array.push( elem );
+		}
+		
+		data.push( array );
+		
+		make_table_html( data, domel );
+		
+		save_new_table( data );
+	});
+	
+	return true;
+}
+
+//
+//	Tabelle Neu
+//	Tabelle Verschlüsselung
+//	Tabelle Spalte und Zeile löschen
+// 
+//	Datei Upload
+//	Datei Löschen
+//	Ordner Neu
+//	Ordner Löschen
+//
+
+function save_new_table( data ){
+	
+	$("span.add_daten_status").html( "Speicherung ..." );
+	$("span.add_daten_status").css( { "display":"inline","background-color":"orange", "padding": "5px", "border-radius":"2px", "color":"white", "float":"right"  } );
+		
+	$.post( add_daten.siteurl+"/ajax.php?addon=daten", { "allgvars": allgvars, "todo": "tablesave", "data": JSON.stringify( data ) } )
+		.done(function( data ) {
+			if( data.main.wr ){
+				$("span.add_daten_status").html( "Gespeichert" );
+				$("span.add_daten_status").css( { "background-color":"green"  } );
+				
+				setTimeout( function() {
+					$("span.add_daten_status").css( "display","none");
+				}, 5000);
+			}
+			else{
+				$("span.add_daten_status").html( "Fehler" );
+				$("span.add_daten_status").css( { "background-color":"red"  } );
+			}
+		})
+		.fail(function() {
+			$("span.add_daten_status").html( "Fehler" );
+			$("span.add_daten_status").css( { "background-color":"red"  } );
+		});
 }

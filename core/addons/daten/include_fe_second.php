@@ -36,9 +36,13 @@ if( check_felogin_login( '---session---', '---allgsiteid---', true ) ){
 	$sitecontent->add_html_header('<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/daten/sjcl.min.js"></script>');
 	//JS für System
 	$sitecontent->add_html_header('<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/daten/explorer.dev.js"></script>');
+	//Vars
+	$sitecontent->add_html_header('<script language="javascript">var add_daten = {siteurl:"'.$allgsysconf['siteurl'].'"};</script>');
 	
 	//HTML Gerüst für System
 	$sitecontent->add_site_content('<div id="addon_daten_main" class="addon_daten_main">Bitte aktivieren Sie JavaScript für die Datenverwaltung!</div>');
+	
+	$sitecontent->add_site_content('<div class="for_file_kimbta"></div>');
 	
 	
 }
