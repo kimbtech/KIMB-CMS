@@ -174,7 +174,7 @@ function make_table_html( data, domel ){
 				}
 			});
 		}
-		
+				
 		html += '</tr>';
 		
 	});
@@ -182,7 +182,7 @@ function make_table_html( data, domel ){
 	html += '</table>';
 	html += '<button id="new_sp">Spalte hinzufügen</button><br />';
 	html += '<button id="new_ze">Zeile hinzufügen</button><br />';
-	html += '<small>Doppenklick zum Ändern; Enter zum Speichern; Ctrl zum Verwerfen</small><br />';
+	html += '<small>Doppenklick zum Ändern; Enter zum Speichern; Ctrl zum Verwerfen; Rechtsklick zum Löschen/ Hinzufügen</small><br />';
 	html += '<span class="add_daten_status" style="display:none;"></span>';
 	
 	$( domel ).html( html );
@@ -215,55 +215,109 @@ function make_table_html( data, domel ){
 			}
 	});
 	
-	$( "button#new_sp" ).unbind('click').click( function(){
-		
-		for( var i = 0; i < data.length; i++){
-			
-			data[i].push( 'Wert' );
-		}
-		
-		make_table_html( data, domel );
-		
-		save_new_table( data );
+	$( "button#new_sp" ).unbind('click').click( function () {
+		new_spalte( 'end', data, domel );
 	});
 	
-	$( "button#new_ze" ).unbind('click').click( function(){
-		
-		var array = new Array();
-		var elem;
-		
-		for( var i = 0; i < data[0].length; i++){
-			
-			if( i == 0 ){
-				elem = data.length;
-			}
-			else{
-				elem = 'Wert';
-			}
-			
-			array.push( elem );
-		}
-		
-		data.push( array );
-		
-		make_table_html( data, domel );
-		
-		save_new_table( data );
+	$( "button#new_ze" ).unbind('click').click( function () {
+		new_reihe( 'end', data, domel );
 	});
+	
+	$(document).on("contextmenu", 'div.for_file_kimbta table td.edit', function(e){
+	
+		var k = $( this ).attr( 'k' );
+		var sk = $( this ).attr( 'sk' );
+		  			
+		var menue = '<div class="rightclick_menue" title="Tabelle hier anpassen">'
+		menue += '<button id="sp_add">Spalte hier hinzufügen</button><br />';
+		menue += '<button id="ro_add">Reihe hier hinzufügen</button><br />';
+		menue += '<button id="sp_del">Spalte hier löschen</button><br />';
+		menue += '<button id="ro_del">Reihe hier löschen</button><br />';
+		menue += '</div>';
+			   
+		 $( "body" ).prepend( menue );
+			 
+		$( "div.rightclick_menue" ).dialog({ 
+			modal:true,
+			beforeClose: function( event, ui ) {
+				$( "div.rightclick_menue" ).remove();
+			}
+		});
+		
+		//*****************************************************************************************************
+		//*****************************************************************************************************
+		//
+		//	Button Click Listener
+		//
+		//		4 Buttons
+		//
+		//*****************************************************************************************************
+		//*****************************************************************************************************
+		
+		return false;
+	});
+	
 	
 	return true;
 }
 
+function new_spalte( ort, data, domel ){
+
+	for( var i = 0; i < data.length; i++){
+			
+		data[i].push( 'Wert' );
+	}
+		
+	make_table_html( data, domel );
+		
+	save_new_table( data );
+	
+	return;
+}
+
+function new_reihe( ort, data, domel ){
+	
+	var array = new Array();
+	var elem;
+		
+	for( var i = 0; i < data[0].length; i++){
+			
+		if( i == 0 ){
+			elem = data.length;
+		}
+		else{
+			elem = 'Wert';
+		}
+			
+		array.push( elem );
+	}
+		
+	data.push( array );
+		
+	make_table_html( data, domel );
+		
+	save_new_table( data );
+	
+	return;
+}
+
+//*****************************************************************************************************
+//*****************************************************************************************************
 //
 //	Tabelle Neu
 //	Tabelle Verschlüsselung
-//	Tabelle Spalte und Zeile löschen
 // 
 //	Datei Upload
 //	Datei Löschen
 //	Ordner Neu
 //	Ordner Löschen
 //
+//	Datei Verschlüsselung
+//
+//	csv Im- und Export 
+//
+//*****************************************************************************************************
+//*****************************************************************************************************
 
 function save_new_table( data ){
 	
