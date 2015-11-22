@@ -183,6 +183,7 @@ function make_table_html( data, domel ){
 	html += '<button id="new_sp">Spalte hinzufügen</button><br />';
 	html += '<button id="new_ze">Zeile hinzufügen</button><br />';
 	html += '<small>Doppenklick zum Ändern; Enter zum Speichern; Ctrl zum Verwerfen; Rechtsklick zum Löschen/ Hinzufügen</small><br />';
+	html += '<button id="exp_json">JSON Export</button>';
 	html += '<span class="add_daten_status" style="display:none;"></span>';
 	
 	$( domel ).html( html );
@@ -223,36 +224,45 @@ function make_table_html( data, domel ){
 		new_reihe( 'end', data, domel );
 	});
 	
+	$( "button#exp_json ").unbind('click').click( function () {
+		make_json( data );	
+	});
+	
 	$(document).on("contextmenu", 'div.for_file_kimbta table td.edit', function(e){
 	
 		var k = $( this ).attr( 'k' );
 		var sk = $( this ).attr( 'sk' );
+		
+		if ($( "div.rightclick_menue" ).length){
+			$( "div.rightclick_menue" ).remove();
+		}
 		  			
 		var menue = '<div class="rightclick_menue" title="Tabelle hier anpassen">'
 		menue += '<button id="sp_add">Spalte hier hinzufügen</button><br />';
 		menue += '<button id="ro_add">Reihe hier hinzufügen</button><br />';
+		menue += '<small>Jeweils oberhalb bzw. links des angeklickten Kästchens</small><br/>';
 		menue += '<button id="sp_del">Spalte hier löschen</button><br />';
-		menue += '<button id="ro_del">Reihe hier löschen</button><br />';
+		menue += '<button id="ro_del">Reihe hier löschen</button>';
 		menue += '</div>';
 			   
 		 $( "body" ).prepend( menue );
 			 
 		$( "div.rightclick_menue" ).dialog({ 
-			modal:true,
-			beforeClose: function( event, ui ) {
-				$( "div.rightclick_menue" ).remove();
-			}
+			modal:true
 		});
 		
-		//*****************************************************************************************************
-		//*****************************************************************************************************
-		//
-		//	Button Click Listener
-		//
-		//		4 Buttons
-		//
-		//*****************************************************************************************************
-		//*****************************************************************************************************
+		$( "div.rightclick_menue button#sp_add" ).click( function () {
+			new_spalte(  sk, data, domel );
+		});
+		$( "div.rightclick_menue button#ro_add" ).click( function () {
+			new_reihe( k, data, domel );
+		});
+		$( "div.rightclick_menue button#sp_del" ).click( function () {
+			del_spalte( sk, data, domel );
+		});
+		$( "div.rightclick_menue button#ro_del" ).click( function () {
+			del_reihe(  k, data, domel );
+		});
 		
 		return false;
 	});
@@ -263,11 +273,20 @@ function make_table_html( data, domel ){
 
 function new_spalte( ort, data, domel ){
 
+	if( ort != 'end' ){
+		ort = parseInt( ort );
+	}
+	
 	for( var i = 0; i < data.length; i++){
 			
-		data[i].push( 'Wert' );
+		if( ort == 'end' ){
+			data[i].push( 'Wert' );
+		}
+		else{
+			data[i].splice( ort , 0, "Wert");
+		}
 	}
-		
+	
 	make_table_html( data, domel );
 		
 	save_new_table( data );
@@ -278,21 +297,25 @@ function new_spalte( ort, data, domel ){
 function new_reihe( ort, data, domel ){
 	
 	var array = new Array();
-	var elem;
+	
+	if( ort != 'end' ){
+		ort = parseInt( ort );
+	}
 		
 	for( var i = 0; i < data[0].length; i++){
 			
-		if( i == 0 ){
-			elem = data.length;
-		}
-		else{
-			elem = 'Wert';
-		}
-			
-		array.push( elem );
+		array.push( "Wert" );
 	}
 		
-	data.push( array );
+	array[0] = data[data.length - 1][0] + 1;
+	
+	
+	if( ort == 'end' ){
+		data.push( array );
+	}
+	else{
+		data.splice( ort , 0, array);
+	}
 		
 	make_table_html( data, domel );
 		
@@ -301,6 +324,44 @@ function new_reihe( ort, data, domel ){
 	return;
 }
 
+function del_spalte( ort, data, domel ){
+	
+	ort = parseInt( ort );
+	
+	for( var i = 0; i < data.length; i++){
+
+		data[i].splice( ort , 1);
+
+	}
+
+	make_table_html( data, domel );
+		
+	save_new_table( data );
+	
+	return;
+}
+
+function del_reihe( ort, data, domel ){
+	
+	ort = parseInt( ort );
+	
+	data.splice( ort , 1 );
+	
+	console.log( ort );
+
+	make_table_html( data, domel );
+		
+	save_new_table( data );
+	
+	return;
+}
+
+function make_json( data ){
+	
+	var file = JSON.stringify( data );
+	
+	window.open( "data:text/json;utf-8," + file ,"_blank", "width=900px,height=500px,top=20px,left=20px");
+}
 //*****************************************************************************************************
 //*****************************************************************************************************
 //
@@ -314,7 +375,7 @@ function new_reihe( ort, data, domel ){
 //
 //	Datei Verschlüsselung
 //
-//	csv Im- und Export 
+//	JSON Import 
 //
 //*****************************************************************************************************
 //*****************************************************************************************************
