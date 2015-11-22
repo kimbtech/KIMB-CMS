@@ -88,52 +88,63 @@ if( check_felogin_login( '---session---', $sysfile->read_kimb_one( 'siteid' ), t
 		
 		//Dateiliste gewünscht?		
 		if( $_POST["todo"] == "filelist" ){
-			//Dateien im Ordner lesen
-			$files = scandir( $filepath );
-			//Arrays für Ausgabe
-			$out_dirs = array();
-			$out_files = array();
-		
-			//alle Dateien durchgehen 
-			foreach( $files as $fi ){
+
+			//Ordner vorhanden?
+			if( is_dir( $filepath ) ){
 				
-				//keine .
-				if( $fi != '.' && $fi != '..' ){
-					
-					//url => Pfad
-					//fi => Name der Datei (bei Tabelle abweichend)
-					$url = $fi;
-					
-					//Datei?
-					if( is_file( $filepath.'/'.$fi ) ){
-						
-						//Tabelle?
-						if( substr( $fi, -11 ) == '.kimb_table' ){
-							//Typ und Namen anpassen
-							$type = 'kt';
-							$fi = substr( $fi, 0, -11 );
-						}
-						else{
-							//Typ Datei
-							$type = 'file';
-						}
-						
-						//für Ausgabe ablegen
-						$out_files[] = array( 'name' => $fi, 'url' => $url, 'type' => $type );
-					}
-					//Ordner
-					elseif( is_dir( $filepath.'/'.$fi ) ){
-						//Typ Ordner
-						$type = 'dir';
-						
-						//für Ausgabe ablegen
-						$out_dirs[] = array( 'name' => $fi, 'url' => $url, 'type' => $type );
-					}				
-				}
-			}
+				//Dateien im Ordner lesen
+				$files = scandir( $filepath );
+				//Arrays für Ausgabe
+				$out_dirs = array();
+				$out_files = array();
 			
-			//Ausgabe zusammenstellen (Ordner oben, dann Dateien)
-			$all_output = array_merge( $out_dirs, $out_files );
+				//alle Dateien durchgehen 
+				foreach( $files as $fi ){
+					
+					//keine . und ..
+					if( $fi != '.' && $fi != '..' ){
+						
+						//url => Pfad
+						//fi => Name der Datei (bei Tabelle abweichend)
+						$url = $fi;
+						
+						//Datei?
+						if( is_file( $filepath.'/'.$fi ) ){
+							
+							//Tabelle?
+							if( substr( $fi, -11 ) == '.kimb_table' ){
+								//Typ und Namen anpassen
+								$type = 'kt';
+								$fi = substr( $fi, 0, -11 );
+							}
+							else{
+								//Typ Datei
+								$type = 'file';
+							}
+							
+							//für Ausgabe ablegen
+							$out_files[] = array( 'name' => $fi, 'url' => $url, 'type' => $type );
+						}
+						//Ordner
+						elseif( is_dir( $filepath.'/'.$fi ) ){
+							//Typ Ordner
+							$type = 'dir';
+							
+							//für Ausgabe ablegen
+							$out_dirs[] = array( 'name' => $fi, 'url' => $url, 'type' => $type );
+						}				
+					}
+				}
+				
+				//Ausgabe zusammenstellen (Ordner oben, dann Dateien)
+				$all_output = array_merge( $out_dirs, $out_files );
+				
+				//Array erweitern
+				$all_output = array( 'filelist' => $all_output, 'folder_ex' => true);
+			}
+			else{
+				$all_output = array( 'filelist' => null, 'folder_ex' => false);
+			}
 		}
 		//Tabelle laden
 		elseif( $_POST['todo'] == 'table' ){
@@ -189,6 +200,22 @@ if( check_felogin_login( '---session---', $sysfile->read_kimb_one( 'siteid' ), t
 				//Pfad unsicher!
 				echo $errormsg;
 				die;
+			}
+		}
+		elseif( $_POST['todo'] == 'newfolder' ){
+			//keine .. im Pfad -  Dateisystemschutz
+			if( strpos( $_POST['allgvars']['file'], '..' ) === false ){
+				
+				//Pfad zum Ordner
+				$file = $filepath.'/'.$_POST['allgvars']['file'];
+				
+				//Ordner erstellen
+				if( mkdir( $file ) && chmod( $file , (fileperms( $filepath ) & 0777)) ){
+					$all_output['wr'] = true;
+				}
+				else{
+					$all_output['wr'] = false;
+				}
 			}
 		}
 		
