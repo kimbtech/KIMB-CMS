@@ -5,6 +5,43 @@ function show_error( tit, mes, dom ){
 	 return true;
 }
 
+//Dropzone.js
+Dropzone.autoDiscover = false;
+
+//Einfacher Dialog
+function j_alert( meld, dw ){
+	//wenn alter Dialog div noch im DOM diesen löschen
+	
+	//wenn Breite definiert
+	if( typeof dw === 'undefined' ){
+		dw = 300;
+	}
+	
+	//DIV von früher noch da?
+	if ($( "div.j_alert" ).length ){
+		$( "div.j_alert" ).remove();
+	}
+						
+	//HTML für neuen Dialog DIV		
+	var dial = '<div class="j_alert" title="Wichtig!!">'
+	dial += meld;
+	dial += '</div>';
+						
+	//HTML dem DOM anfügen   
+	$( "body" ).prepend( dial );
+				
+	//Dialog öffnen	 
+	$( "div.j_alert" ).dialog({ 
+		modal:true,
+		width: dw,
+		buttons:{
+			"OK":function(){
+				$( this ).dialog( 'close' );
+			}
+		}
+	});
+}
+
 //Dateiverwaltung laden
 $( function() {
 	load_daten();	
@@ -124,16 +161,56 @@ function main_explorer(){
 				
 				//Liste beenden
 				html += '</ul>';
+				//Hinweis
+				html += '<small>Doppelklick auf Pfad zum Bearbeiten; Rechtsklick auf Datei oder Ordner zum Löschen</small>';
 				
 				//Mehr als eine Element??
 				if( folder_ex ){
 					//Liste anzeigen
 					$( "div.main_files" ).html( html );
 					
+					//Pfad anpassen
+					$( 'div.pathbar' ).unbind('dblclick').dblclick( function() {
+						
+						//Inhalt
+						var val = $( this ).html();
+						
+						//Ist das Feld schon bearbeitbar gemacht (Input Element vorhanden)
+						if( val.indexOf( "<input" ) === -1 ){
+							//nein, also einblenden
+							
+							//Input Feld zeigen 
+							$( this ).html( '<input type="text" style="width:95%;" value="'+val+'">' );
+							
+							//Knopf gedrückt?
+							//	wenn Cursor in Input
+							$( this ).children("input").keyup( function( event ) {
+								//Enter?
+								if(event.keyCode == 13){
+									//neuen Wert lesen
+									var newval = $( this ).val();
+									
+									//Input Feld weg und neuen Wert wieder in Kästchen setzen
+									$( this ).parent().html( newval );
+									//Pfadwert anpassen
+									allgvars.path = newval;
+									//Explorer aktualisieren
+									main_explorer();
+								}
+								//STRG Taste (Ctrl)
+								else if( event.keyCode == 17 ){
+									//wieder den alten Wert setzen
+									//bearbeiten beenden
+									$( this ).parent().html( val );
+								}
+							});
+						}
+					});
+					
 					//auf Klicks auf Dateien hören
 					$( 'ul.files li' ).unbind('click').click( function() {
 						//Dateieigenschaften lesen
-						//	Ty
+						//	Typ
 						var ftype = $( this ).attr( 'ftype' );
 						//	URL (Dateiname)
 						var url = $( this ).attr( 'url' );
@@ -171,7 +248,7 @@ function main_explorer(){
 								
 						//Knopf gedrückt?
 						//	wenn Cursor in Input
-						$( "div.toolbar span input" ).keyup( function( event ) {
+						$( "div.toolbar span input" ).unbind( 'keyup' ).keyup( function( event ) {
 							//Enter?
 							if(event.keyCode == 13){
 								//neuen Wert lesen
@@ -194,6 +271,26 @@ function main_explorer(){
 					});
 					//neue Datei (Upload)
 					$( "button#add_file").unbind( 'click' ).click( function (){
+					
+						//HTML Formular
+						var html = '<h2>Dateien hochladen</h2>';
+						html += '<form action="' + add_daten.siteurl + '/ajax.php?addon=daten" class="dropzone" id="dropzone">';
+						html += '<input type="hidden" name="allgvars[folder]" value="' + allgvars.folder + '">';
+						html += '<input type="hidden" name="allgvars[path]" value="' + allgvars.path + '">';
+						html += '<input type="hidden" name="todo" value="uploadfile">';
+						html += '<img src="' + add_daten.siteurl + '/load/addondata/daten/upload.png" style="display: block; margin:auto;" title="Ziehen Sie zum Hochladen Dateien über dieses Feld oder klicken Sie!" class="dz-message">';
+						html += '</form>';
+						
+						//Dialog
+						j_alert( html, 600 );
+						
+						//Dropzone init
+						var ExplorerDropzone = new Dropzone("form#dropzone");
+						//wenn fertig
+						ExplorerDropzone.on( "queuecomplete", function( file ){
+							//Explorer aktualisieren
+							main_explorer();
+						});
 						
 					});
 					//neuer Ordner
@@ -202,7 +299,7 @@ function main_explorer(){
 								
 						//Knopf gedrückt?
 						//	wenn Cursor in Input
-						$( "div.toolbar span input" ).keyup( function( event ) {
+						$( "div.toolbar span input" ).unbind( 'keyup' ).keyup( function( event ) {
 							//Enter?
 							if(event.keyCode == 13){
 								//neuen Wert lesen
@@ -217,13 +314,13 @@ function main_explorer(){
 								$.post( add_daten.siteurl+"/ajax.php?addon=daten", { "allgvars": allgvars, "todo": "newfolder" } ).always( function( data ) {
 								
 									//Okay?
-									if( data.main.wr ){
+									if( data != null && data.main != null && data.main.wr ){
 									
 										//Explorer aktualisieren
 										main_explorer();	
 									}
 									else{
-										alert( "Das Erstellen der Ordners ist fehlgeschlagen!" );	
+										 j_alert( "Das Erstellen der Ordners ist fehlgeschlagen!" );	
 									} 	
 								});							
 								
@@ -237,6 +334,67 @@ function main_explorer(){
 							}
 						});
 						
+					});
+					
+					//Rechtsklick auf Datei => Löschen?
+					$(document).on("contextmenu", 'ul.files li', function(e){
+					
+						//k und sk Werte bestimmen
+						var name = $( this ).attr( 'name' );
+						var url = $( this ).attr( 'url' );
+						
+						//wenn alter Dialog div noch im DOM diesen löschen
+						if ($( "div.delfile_explorer" ).length ){
+							$( "div.delfile_explorer" ).remove();
+						}
+						
+						//HTML für neuen Dialog DIV		
+						var dial = '<div class="delfile_explorer" title="Löschen?">'
+						dial += 'Möchten Sie "'+ name +'" wirklich löschen?';
+						dial += '<div class="delfile_explorer_satus" style="display:none;">Fehler</div>';
+						dial += '</div>';
+						
+						//HTML dem DOM anfügen   
+						$( "body" ).prepend( dial );
+						
+						//Dialog öffnen	 
+						$( "div.delfile_explorer" ).dialog({ 
+							modal:true,
+							buttons:{
+								"Ja":function(){
+									
+									//URL der Datei
+									allgvars.file = url;
+									
+									$( "div.delfile_explorer_satus" ).css( { "display":"none" });								
+																		
+									//AJAX Anfrage Dateien löschen
+									$.post( add_daten.siteurl+"/ajax.php?addon=daten", { "allgvars": allgvars, "todo": "delfile" } ).always( function( data ) {
+									
+										//Okay?
+										if( data != null && data.main != null && data.main.wr ){
+										
+											//Explorer aktualisieren
+											main_explorer();
+											
+											//Dialog schließen
+											$( "div.delfile_explorer" ).dialog( 'close' );	
+										}
+										else{
+											//Fehlermeldung
+											$( "div.delfile_explorer_satus" ).css( { "display":"block","background-color":"red", "padding": "5px", "border-radius":"2px", "color":"white"  } );
+										} 	
+									});	
+									
+									
+								}, 
+								"Nein": function (){
+									$( this ).dialog( 'close' );
+								}
+							}
+						});
+						
+						return false;
 					});
 				}
 				else{
@@ -273,17 +431,55 @@ function open_table( url, name, adding ){
 	//URL zu Datei
 	allgvars.file = url;
 	
-	//Passwort abfragen
-	var pass = prompt("Bitte geben Sie das Passwort für die Tabelle an!\r\n(Lassen Sie das Feld für unverschlüsselte Tabellen leer.)");
-	//	Eingabe okay?
-	if ( pass != null ) {
-		//als Passwort nehmen
-		global_table_passw = pass;
+	
+	//wenn alter Dialog div noch im DOM diesen löschen
+	if ($( "div.j_promt" ).length ){
+		$( "div.j_promt" ).remove();
 	}
-	else{
-		//auch ohne Passwort verschlüsseln, aber immer mit dem Gleichen
-		global_table_passw = 'vqtxvpJJWiFJrNKcOQOjMgTHBxqGdiyuBhilfRktqfWLyHEw';
-	}	
+						
+	//HTML für neuen Dialog DIV		
+	var dial = '<div class="j_promt" title="Passwort benötigt!">'
+	dial += 'Bitte geben Sie das Passwort für die Tabelle an!<br />';
+	dial += '<input type="password" placeholder="Passwort" id="js_table_passw"><br />';
+	dial += '<small>Lassen Sie das Feld für unverschlüsselte Tabellen leer.</small>';
+	dial += '</div>';
+						
+	//HTML dem DOM anfügen   
+	$( "body" ).prepend( dial );
+			
+	//Dialog öffnen	 
+	$( "div.j_promt" ).dialog({ 
+		modal:true,
+		buttons:{
+			"OK":function(){
+				//Passwort lesen
+				var pass = $( "input#js_table_passw" ).val();
+				
+				if ( pass != '' ) {
+					//als Passwort nehmen
+					global_table_passw = pass;
+				}
+				else{
+					//auch ohne Passwort verschlüsseln, aber immer mit dem Gleichen
+					global_table_passw = 'vqtxvpJJWiFJrNKcOQOjMgTHBxqGdiyuBhilfRktqfWLyHEw';
+				}	
+				
+				//Dialog schließen
+				$( this ).dialog( 'close' );
+				
+				//Fortsetzen
+				open_table_get( name, adding, data_okay );
+			},
+			"Passwort zeigen": function(){
+				$( "input#js_table_passw" ).attr( "type", "text" );
+			}
+		}
+	});
+
+}
+
+//Tabellen Inhalte bekommen
+function open_table_get( name, adding, data_okay ){
 	
 	//neue Tabelle
 	if( adding ){
@@ -295,7 +491,7 @@ function open_table( url, name, adding ){
 		data_okay = true;
 		
 		//Tabelle anzeigen
-		open_table_dialog( data_okay, data, adding );
+		open_table_dialog( data_okay, data, adding, name );
 	}
 	else{
 		//Daten für Tabelle anfragen
@@ -319,7 +515,7 @@ function open_table( url, name, adding ){
 				}
 				//Bei Fehler Fehlermeldung ausgeben
 				catch (e){
-					alert( 'Die Tabelle konnte mit diesem Passwort nicht entschlüsselt werden!\r\n(Fehlermeldung:"' + e.message + '")' );
+					 j_alert( 'Die Tabelle konnte mit diesem Passwort nicht entschlüsselt werden!\r\n(Fehlermeldung:"' + e.message + '")' );
 					return;
 				}
 					
@@ -331,13 +527,13 @@ function open_table( url, name, adding ){
 			}
 			
 			//Tabelle öffnen
-			open_table_dialog( data_okay, data, adding );
+			open_table_dialog( data_okay, data, adding, name );
 		});
 	}
 }
 
 //Tabelle anzeigen
-function open_table_dialog( data_okay, data, adding ){
+function open_table_dialog( data_okay, data, adding, name ){
 	//Daten okay?
 	if( data_okay ){
 
@@ -366,7 +562,7 @@ function open_table_dialog( data_okay, data, adding ){
 		}
 	}
 	else{
-		alert( "Fehler beim Lesen der Tabelle" );
+		 j_alert( "Fehler beim Lesen der Tabelle" );
 	}
 }
 
@@ -786,11 +982,9 @@ function import_json(){
 //*****************************************************************************************************
 //*****************************************************************************************************
 //
-// 
-//	Datei Upload
-//	Datei Löschen
-//	Ordner Löschen
 //	Datei Verschlüsselung
+//
+//	Gruppen und Public
 //
 //*****************************************************************************************************
 //*****************************************************************************************************

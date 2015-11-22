@@ -202,6 +202,7 @@ if( check_felogin_login( '---session---', $sysfile->read_kimb_one( 'siteid' ), t
 				die;
 			}
 		}
+		//Neuer Ordner
 		elseif( $_POST['todo'] == 'newfolder' ){
 			//keine .. im Pfad -  Dateisystemschutz
 			if( strpos( $_POST['allgvars']['file'], '..' ) === false ){
@@ -217,6 +218,46 @@ if( check_felogin_login( '---session---', $sysfile->read_kimb_one( 'siteid' ), t
 					$all_output['wr'] = false;
 				}
 			}
+		}
+		//Datei löschen
+		elseif( $_POST['todo'] == 'delfile' ){
+			//keine .. im Pfad -  Dateisystemschutz
+			if( strpos( $_POST['allgvars']['file'], '..' ) === false ){
+				
+				//Pfad zum Ordner
+				$file = $filepath.'/'.$_POST['allgvars']['file'];
+				
+				//Datei und löschen okay
+				if( is_dir( $file ) && rm_r( $file ) ){
+					$all_output['wr'] = true;
+				}
+				//Ordner und löschen okay
+				elseif( is_file( $file ) && unlink( $file ) ){
+					$all_output['wr'] = true;
+				}
+				else{
+					$all_output['wr'] = false;
+				}
+			}
+		}
+		//Datei hochladen 
+		elseif( $_POST['todo'] == 'uploadfile' ) {
+			
+			//keine .. im Pfad -  Dateisystemschutz
+			if( strpos( $_FILES['name'], '..' ) === false ){
+				
+				//Pfad zum Ordner
+				$file = $filepath.$_FILES['file']['name'];
+				
+				//Datei und löschen okay
+				if( move_uploaded_file( $_FILES['file']['tmp_name'] , $file ) ){
+					$all_output['wr'] = true;					
+				}
+				else{
+					$all_output['wr'] = false;
+				}
+			}
+			
 		}
 		
 		
@@ -295,16 +336,11 @@ if( check_felogin_login( '---session---', $sysfile->read_kimb_one( 'siteid' ), t
 		}
 		die;
 	}
-	
-	/*
-	Verwendung von Felogin
-	AJAX gestützt
-	
-	Seite per Felogin geschützt, lädt per AJAX Liste der Gruppen
-	*/
-	
-	
-	
+	else{
+		echo $errormsg;
+		die;
+	}
+
 }
 else{
 	echo $errormsg;

@@ -25,15 +25,25 @@
 
 defined('KIMB_CMS') or die('No clean Request');
 
+//
+//
+//	Minifie JS und CSS Files!!!
+//
+//
+
 //Rechte für diese Seite??
 if( check_felogin_login( '---session---', '---allgsiteid---', true ) ){
 	
+	//CSS für Dropzone.js
+	$sitecontent->add_html_header('<link rel="stylesheet" type="text/css" href="'.$allgsysconf['siteurl'].'/load/addondata/daten/dropzone.min.css" media="all">');
 	//CSS für System
 	$sitecontent->add_html_header('<link rel="stylesheet" type="text/css" href="'.$allgsysconf['siteurl'].'/load/addondata/daten/explorer.dev.css" media="all">');
 	//jQuery und Hash werden benötigt
 	$sitecontent->add_html_header('<!-- jQuery UI -->');
 	//Verschlüsselung
 	$sitecontent->add_html_header('<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/daten/sjcl.min.js"></script>');
+	//Dropzone.js
+	$sitecontent->add_html_header('<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/daten/dropzone.min.js"></script>');
 	//JS für System
 	$sitecontent->add_html_header('<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/daten/explorer.dev.js"></script>');
 	//Vars
@@ -50,19 +60,5 @@ else{
 	//Fehler
 	$sitecontent->echo_error( 'Die Dateiverwaltung ist nur mit einem Login via Felogin erreichbar!', '403' );
 }
-
-/*
-Management der Userrechte (Speicherplatz, nur lesen)
-JavaScript Verschlüsselung von Dateien und Tabellen möglich (https://bitwiseshiftleft.github.io/sjcl/)
-Verwendung von Felogin
-JSON für Tabellen
-AJAX gestützt
-
-Seite per Felogin geschützt, lädt per AJAX Liste der Gruppen
-Gruppen mit Tabellen und Dateien
-Gruppe für alle User
-Gruppe für bestimmte User
-*/
-
 
 ?>

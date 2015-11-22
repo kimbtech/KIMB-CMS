@@ -28,20 +28,4 @@ defined('KIMB_CMS') or die('No clean Request');
 //Konfiguration laden und Handhabung vereinfachen
 $addonurl = $allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=less&addon=daten';
 
-
-//Addon-Wish!!
-
-/*
-Management der Userrechte (Speicherplatz, nur lesen)
-JavaScript Verschlüsselung von Dateien und Tabellen möglich (https://bitwiseshiftleft.github.io/sjcl/)
-Verwendung von Felogin
-JSON für Tabellen
-AJAX gestützt
-
-Seite per Felogin geschützt, lädt per AJAX Liste der Gruppen
-Gruppen mit Tabellen und Dateien
-Gruppe für alle User
-Gruppe für bestimmte User
-*/
-
 ?>

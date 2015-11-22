@@ -12,8 +12,4 @@ elseif( !$this->addoninclude->read_kimb_search_teilpl( 'ajax' , 'felogin' ) ){
 
 }
 
-//Add-on API wish
-$a = new ADDonAPI( 'daten' );
-$a->set_funcclass( 'hinten' );
-
 ?>
