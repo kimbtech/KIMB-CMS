@@ -54,7 +54,7 @@ var cssclass = "div.addon_daten_main ";
 function load_daten(){
 	
 	//Auswahlbuttons
-	$( cssclass ).html( '<h2>Dateiverwaltung</h2><div id="firstbutt"><input type="radio" name="firstbutt" id="my"><label for="my">Mein Verzeichnis</label><input type="radio" name="firstbutt" id="gr"><label for="gr">Gruppen</label><input type="radio" name="firstbutt" id="pu"><label for="pu">Öffentlich</label></div><div class="main_files">Bitte wählen Sie einen Ort &uarr;</div>' );
+	$( cssclass ).html( '<h2>Dateiverwaltung</h2><div id="firstbutt"><input type="radio" name="firstbutt" id="my" checked="checked"><label for="my">Mein Verzeichnis</label><input type="radio" name="firstbutt" id="pu"><label for="pu">Für alle User</label><input type="radio" name="firstbutt" id="frei"><label for="frei">Freigaben</label></div><div class="main_files">Bitte wählen Sie einen Ort &uarr;</div>' );
 	
 	//Buttons machen
 	$( "div#firstbutt" ).buttonset();
@@ -63,6 +63,9 @@ function load_daten(){
 	$( "#firstbutt input[type=radio]" ).click( function() {
 		set_vars( $( this ).attr( 'id' ) );
 	});
+	
+	//Immer meine Dateien anzeigen
+	set_vars( 'my' );
 	
 }
 
@@ -75,25 +78,29 @@ function set_vars( ort  ){
 	//Meine Dateien
 	if( ort == 'my' ){
 		allgvars.folder = 'user';
-		allgvars.path = '/';  
-	}
-	//Meine Gruppen
-	else if ( ort == 'gr' ){
-		allgvars.folder = 'group';
-		allgvars.path = '/'; 
+		allgvars.path = '/';
+		
+		//Explorer öffnen
+		main_explorer();  
 	}
 	//Öffentlich
 	else if ( ort == 'pu' ){
 		allgvars.folder = 'public';
-		allgvars.path = '/'; 
+		allgvars.path = '/';
+		
+		//Explorer öffnen
+		main_explorer(); 
+	}
+	//Freigaben
+	else if ( ort == 'frei' ){
+		
+		//Freigaben zeigen
+		show_freigaben();
+		
 	}
 	else{
 		return false;
 	}
-	
-	//Explorer öffnen
-	main_explorer();
-	
 }
 
 //Explorer
@@ -550,7 +557,7 @@ function open_table_dialog( data_okay, data, adding, name ){
 		$( 'div.for_file_kimbta' ).css( 'display', 'block' );
 			
 		//Dialog für Tabelle
-		$( 'div.for_file_kimbta' ).dialog({ width: 720, modal: true, title: name });
+		$( 'div.for_file_kimbta' ).dialog({ width: 720, modal: true, title: name, beforeClose: function( event, ui ) { global_table_passw = ''; } });
 		
 		//neue Tabelle
 		if( adding ){
@@ -895,7 +902,7 @@ function make_json( data ){
 	var file = JSON.stringify( { 'table': data, 'nextid': table_next_id } );
 	
 	//Popup mit Daten öffnen
-	window.open( "data:text/json;utf-8," + file ,"_blank", "width=900px,height=500px,top=20px,left=20px");
+	window.open( "data:text/json;utf-8," + file ,"_blank", "width=900px,height=500px,top=20px,left=20px,scrollbars=yes");
 }
 
 //JSON Import
@@ -979,15 +986,6 @@ function import_json(){
 	
 	return;
 }
-//*****************************************************************************************************
-//*****************************************************************************************************
-//
-//	Datei Verschlüsselung
-//
-//	Gruppen und Public
-//
-//*****************************************************************************************************
-//*****************************************************************************************************
 
 //Tabelle speichern
 //	data => Array mit Tabellendaten
@@ -1031,4 +1029,13 @@ function save_new_table( data ){
 			$("span.add_daten_status").html( "Fehler" );
 			$("span.add_daten_status").css( { "background-color":"red"  } );
 		});
+}
+
+//Freigaben Zeigen
+function show_freigaben(){
+	
+	//Liste anzeigen
+	$( "div.main_files" ).html( 'Noch nicht verfügbar!' );
+	
+	return;
 }

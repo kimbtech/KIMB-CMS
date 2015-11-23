@@ -9,3 +9,13 @@
 <[allidslist1]>3<[allidslist1]>
 <[userids1]>3<[userids1]>
 <[3-salt]>4PH1sDYLtHVk5tN<[3-salt]>
+<[userids2]>1<[userids2]>
+<[allidslist2]>1<[allidslist2]>
+<[1-passw]>e80a98ead73fee127dcbd4c808f10d39932e78fe<[1-passw]>
+<[1]>passw==salt==gruppe==name==mail==user==status<[1]>
+<[1-salt]>WGckM9WxdKAtFN<[1-salt]>
+<[1-gruppe]>daten<[1-gruppe]>
+<[1-name]>Test<[1-name]>
+<[1-mail]>test@test.test<[1-mail]>
+<[1-user]>test<[1-user]>
+<[1-status]>on<[1-status]>

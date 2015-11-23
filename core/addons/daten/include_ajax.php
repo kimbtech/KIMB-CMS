@@ -44,7 +44,7 @@ if( check_felogin_login( '---session---', $sysfile->read_kimb_one( 'siteid' ), t
 		//	Daten des Users
 		//	Daten einer Gruppe
 		//	Daten für alle User?
-		if( $_POST['allgvars']['folder'] == 'group' || $_POST['allgvars']['folder'] == 'public' || $_POST['allgvars']['folder'] == 'user'  ){
+		if( $_POST['allgvars']['folder'] == 'public' || $_POST['allgvars']['folder'] == 'user'  ){
 			//Ordner für Wahl öffnen
 			$filepath .= '/'.$_POST['allgvars']['folder'];
 		}
@@ -80,11 +80,22 @@ if( check_felogin_login( '---session---', $sysfile->read_kimb_one( 'siteid' ), t
 			}
 			
 		}
+		//Daten aller Users gewählt?
+		elseif( $_POST['allgvars']['folder'] == 'public' ){
 		
-		//andere Möglichkeiten
-		//	Public
+			//keine .. im Pfad -  Dateisystemschutz
+			if( strpos( $_POST['allgvars']['path'], '..') === false ){
+				//gewünschten Pfad ansetzen
+				$filepath .= $_POST['allgvars']['path'];
+	
+			}
+			else{
+				//Pfad unsicher!
+				echo $errormsg;
+				die;
+			}
 		
-		//	Gruppen
+		}
 		
 		//Dateiliste gewünscht?		
 		if( $_POST["todo"] == "filelist" ){
@@ -281,7 +292,7 @@ if( check_felogin_login( '---session---', $sysfile->read_kimb_one( 'siteid' ), t
 		//	Daten des Users
 		//	Daten einer Gruppe
 		//	Daten für alle User?
-		if( $_GET['folder'] == 'group' || $_GET['folder'] == 'public' || $_GET['folder'] == 'user'  ){
+		if( $_GET['folder'] == 'public' || $_GET['folder'] == 'user'  ){
 			//Ordner für Wahl öffnen
 			$d_file .= '/'.$_GET['folder'];
 		}
@@ -308,7 +319,23 @@ if( check_felogin_login( '---session---', $sysfile->read_kimb_one( 'siteid' ), t
 				echo $errormsg;
 				die;
 			}
-			
+
+		}
+		//Daten aller Users gewählt?
+		elseif( $_GET['folder'] == 'public' ){
+		
+			//keine .. im Pfad -  Dateisystemschutz
+			if( strpos( $_GET['path'], '..') === false ){
+				//gewünschten Pfad ansetzen
+				$d_file .= $_GET['path'];
+	
+			}
+			else{
+				//Pfad unsicher!
+				echo $errormsg;
+				die;
+			}
+		
 		}
 		
 		//Datei vorhanden

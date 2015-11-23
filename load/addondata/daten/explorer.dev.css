@@ -5,6 +5,7 @@ div.addon_daten_main{
 	border-radius:10px;
 	box-shadow: 5px 5px 5px gray;
 	text-align:center;
+	margin-bottom:20px;
 }
 
 div.main_files{

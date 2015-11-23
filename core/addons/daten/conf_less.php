@@ -25,7 +25,7 @@
 
 defined('KIMB_CMS') or die('No clean Request');
 
-//Konfiguration laden und Handhabung vereinfachen
-$addonurl = $allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=less&addon=daten';
+//Hinweis
+$sitecontent->add_site_content('Dieses Add-on können Sie mit erhöhten Rechten nutzen.');
 
 ?>

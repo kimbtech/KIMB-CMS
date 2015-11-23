@@ -28,11 +28,6 @@ defined('KIMB_CMS') or die('No clean Request');
 //Konfiguration laden und Handhabung vereinfachen
 $addonurl = $allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=more&addon=daten';
 
-/*
-Management der Userrechte (Speicherplatz, nur lesen)
-Gruppen
-*/
-
 //Verzeichnisrechte
 if( !is_dir( __DIR__.'/userdata/group/' ) || !is_writable( __DIR__.'/userdata/group/' )){
 	$sitecontent->echo_error( 'Das Verzeichnis /userdata/group/ existiert nicht oder PHP hat keine Schreibrechte!' );
