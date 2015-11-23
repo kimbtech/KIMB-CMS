@@ -349,6 +349,7 @@ function main_explorer(){
 						//k und sk Werte bestimmen
 						var name = $( this ).attr( 'name' );
 						var url = $( this ).attr( 'url' );
+						var ftype = $( this ).attr( 'ftype' );
 						
 						//wenn alter Dialog div noch im DOM diesen löschen
 						if ($( "div.delfile_explorer" ).length ){
@@ -356,10 +357,14 @@ function main_explorer(){
 						}
 						
 						//HTML für neuen Dialog DIV		
-						var dial = '<div class="delfile_explorer" title="Löschen?">'
-						dial += 'Möchten Sie "'+ name +'" wirklich löschen?';
+						var dial = '<div class="delfile_explorer" title="Dateieinstellungen">'
+						dial += 'Möchten Sie "'+ name +'" löschen?<br />';
+						dial += '<span id="ja">Ja</span>';
 						dial += '<div class="delfile_explorer_satus" style="display:none;">Fehler</div>';
-						dial += '</div>';
+						dial += '<div class="frei" style="display:none;"><hr />';
+						dial += 'Oder klicken Sie für eine Freigabe via Link auf "Freigeben"!<br />';
+						dial += '<span id="frei">Freigeben</span>';
+						dial += '</div></div>';
 						
 						//HTML dem DOM anfügen   
 						$( "body" ).prepend( dial );
@@ -368,37 +373,59 @@ function main_explorer(){
 						$( "div.delfile_explorer" ).dialog({ 
 							modal:true,
 							buttons:{
-								"Ja":function(){
-									
-									//URL der Datei
-									allgvars.file = url;
-									
-									$( "div.delfile_explorer_satus" ).css( { "display":"none" });								
-																		
-									//AJAX Anfrage Dateien löschen
-									$.post( add_daten.siteurl+"/ajax.php?addon=daten", { "allgvars": allgvars, "todo": "delfile" } ).always( function( data ) {
-									
-										//Okay?
-										if( data != null && data.main != null && data.main.wr ){
-										
-											//Explorer aktualisieren
-											main_explorer();
-											
-											//Dialog schließen
-											$( "div.delfile_explorer" ).dialog( 'close' );	
-										}
-										else{
-											//Fehlermeldung
-											$( "div.delfile_explorer_satus" ).css( { "display":"block","background-color":"red", "padding": "5px", "border-radius":"2px", "color":"white"  } );
-										} 	
-									});	
-									
-									
-								}, 
-								"Nein": function (){
+								"Abbrechen":function(){
 									$( this ).dialog( 'close' );
 								}
 							}
+						});
+						
+						if( ftype == 'file' ){
+							$( "div.delfile_explorer div.frei" ).css("display", "block");
+						}
+						
+						//Ja/Nein Buttons
+						$( "div.delfile_explorer span" ).button();
+
+						//Button Löschen Listener
+						$( "div.delfile_explorer span#ja" ).click( function () {
+									
+							//URL der Datei
+							allgvars.file = url;
+									
+							$( "div.delfile_explorer_satus" ).css( { "display":"none" });								
+																		
+							//AJAX Anfrage Dateien löschen
+							$.post( add_daten.siteurl+"/ajax.php?addon=daten", { "allgvars": allgvars, "todo": "delfile" } ).always( function( data ) {
+									
+								//Okay?
+								if( data != null && data.main != null && data.main.wr ){
+										
+									//Explorer aktualisieren
+									main_explorer();
+											
+									//Dialog schließen
+									$( "div.delfile_explorer" ).dialog( 'close' );	
+								}
+								else{
+									//Fehlermeldung
+									$( "div.delfile_explorer_satus" ).css( { "display":"block","background-color":"red", "padding": "5px", "border-radius":"2px", "color":"white"  } );
+								} 	
+							});
+						});	
+
+						//Buttons Freigabe Listener
+						$( "div.delfile_explorer div span#frei" ).click( function () {	
+									
+							j_alert( 'Die Datei wurde freigegeben.<br />Bitte werfen Sie einen Blick auf die Liste unter "Freigabe".' );
+							
+							//
+							//
+							//	FREIGABE
+							//
+							//
+							
+							//Dialog schließen
+							$( "div.delfile_explorer" ).dialog( 'close' );
 						});
 						
 						return false;
@@ -1036,6 +1063,12 @@ function show_freigaben(){
 	
 	//Liste anzeigen
 	$( "div.main_files" ).html( 'Noch nicht verfügbar!' );
+	
+	//
+	//
+	//	FREIGABE
+	//
+	//
 	
 	return;
 }
