@@ -379,7 +379,7 @@ function main_explorer(){
 							}
 						});
 						
-						if( ftype == 'file' ){
+						if( ftype == 'file' && allgvars.folder == 'user' ){
 							$( "div.delfile_explorer div.frei" ).css("display", "block");
 						}
 						
@@ -415,14 +415,12 @@ function main_explorer(){
 
 						//Buttons Freigabe Listener
 						$( "div.delfile_explorer div span#frei" ).click( function () {	
-									
-							j_alert( 'Die Datei wurde freigegeben.<br />Bitte werfen Sie einen Blick auf die Liste unter "Freigabe".' );
 							
-							//
-							//
-							//	FREIGABE
-							//
-							//
+							//URL der Datei
+							allgvars.file = url;
+							
+							//per AJAX freigeben
+							make_freigabe();
 							
 							//Dialog schließen
 							$( "div.delfile_explorer" ).dialog( 'close' );
@@ -1058,17 +1056,99 @@ function save_new_table( data ){
 		});
 }
 
+function make_freigabe(){
+	
+	//Freigabeanfrage an Server senden
+	//	User
+	//	Pfad
+	//	URL
+	$.post( add_daten.siteurl+"/ajax.php?addon=daten", { "allgvars": allgvars, "todo": "newfreigabe" } ).always( function( data ) {
+		
+		if( data.main.okay ){
+			j_alert( 'Die Datei wurde freigegeben.<br /><br /><input readonly="readonly" onclick="this.focus();this.select();" style="border:1px solid black; background-color:gray; text:white; width:100%;" value="'+ data.main.link +'"><br /><br />Unter "Freigabe" sehen Sie alle Freigaben und können diese löschen!' );		
+		}
+		else{
+			j_alert( 'Die Freigabe schlug fehl!' );
+		}
+		
+	});
+	
+	return;
+}
+
 //Freigaben Zeigen
 function show_freigaben(){
 	
-	//Liste anzeigen
-	$( "div.main_files" ).html( 'Noch nicht verfügbar!' );
-	
-	//
-	//
-	//	FREIGABE
-	//
-	//
+	$.post( add_daten.siteurl+"/ajax.php?addon=daten", { "todo": "freigabeliste" } ).always( function( data ) {
+		
+		if( data.main.okay && data.main.list != null ){
+			
+			 var liste = '<ul class="freigaben">';
+			
+			//Liste anzeigen
+			$.each( data.main.list, function ( k,v ){
+			
+				liste += '<li fid="'+v.id+'" path="'+v.path+'">';
+				liste += '<span class="ui-icon ui-icon-bullet" style="display:inline-block"></span>'
+				liste += '<span class="show_link" title="Link zur Datei anzeigen"><span class="ui-icon ui-icon-link" style="display:inline-block"></span></span>';
+				liste += '<a href="'+v.link+'" target="_blank" title="Datei über Freigabelink öffnen"><span class="ui-icon ui-icon-extlink" style="display:inline-block"></span></a>';
+				liste += '<span class="del_link" title="Freigabe löschen"><span class="ui-icon ui-icon-trash" style="display:inline-block"></span></span>';
+				liste += '<span class="open_folder" title="Ordner mit Datei anzeigen">'+v.name+'</span>';
+				liste += '</li>';	
+				
+			});
+			
+			liste += '</ul>';
+			
+			$( "div.main_files" ).html( liste );
+			
+			$( "ul.freigaben" ).tooltip();
+			
+			//Link zeigen
+			$( "ul.freigaben span.show_link" ).unbind('click').click( function (){
+				
+				//Werte bekommen
+				var link = $( this ).parent().children('a').attr( 'href' );
+				
+				//Dialog mit Link
+				j_alert( 'Die Datei wurde freigegeben.<br /><br /><input readonly="readonly" onclick="this.focus();this.select();" style="border:1px solid black; background-color:gray; text:white; width:100%;" value="'+ link +'"><br /><br />Unter "Freigabe" sehen Sie alle Freigaben und können diese löschen!' );	
+			});
+			
+			//Freigabe löschen
+			$( "ul.freigaben span.del_link" ).unbind('click').click( function (){
+				//
+				//
+				//
+				//
+				//
+				j_alert( 'Noch nicht verfügbar!!' );
+				//
+				//
+				//
+				//
+				//
+			});
+			
+			//Ordner öffne
+			$( "ul.freigaben span.open_folder" ).unbind('click').click( function (){
+				
+				//Werte bekommen
+				var path = $( this ).parent().attr( 'path' );
+
+				//Werte setzten
+				allgvars.folder = 'user';				
+				allgvars.path = path.replace(/\\/g, '/').replace(/\/[^\/]*\/?$/, '')+'/';
+		
+				//Explorer öffnen
+				main_explorer();
+				
+			});
+		}
+		else{
+			show_error( '404', 'Keine Freigaben gefunden!', "div.main_files" );
+		}
+		
+	});
 	
 	return;
 }

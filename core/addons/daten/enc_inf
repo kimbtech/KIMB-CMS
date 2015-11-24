@@ -1,9 +1,0 @@
-var bytes = new Uint8Array(reader.result);
-var bits = toBitArrayCodec(bytes);
-var base64bits = sjcl.codec.base64.fromBits(bits); // added
-var crypt = sjcl.encrypt("aaaaa", base64bits);
-
-var base64decrypt = sjcl.decrypt("aaaaa", crypt);
-var decrypt = sjcl.codec.base64.toBits(base64decrypt); // added
-var byteNumbers = fromBitArrayCodec(decrypt);
-var byteArray = new Uint8Array(byteNumbers);

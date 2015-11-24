@@ -25,6 +25,61 @@
 
 defined('KIMB_CMS') or die('No clean Request');
 
+//Freigegebene Dateien anzeigen
+function show_freig_file () {
+	
+	if( strpos( $_GET['user'], '..') === false ){
+	
+		//Datei für Keys öffnen
+		$freigfile = new KIMBdbf( 'addon/daten__user_'.$_GET['user'].'.kimb' );
+		
+		//Key suchen	
+		$key_id = $freigfile->search_kimb_xxxid( $_GET['key'] , 'key' );
+		//Key vorhanden?
+		if(  $key_id != false ){
+			
+			//Daten über Datei auslesen
+			//	Pfad zur Datei
+			$path = $freigfile->read_kimb_id( $key_id , 'path' );
+			//	und den Dateinamen (sonst würde Datei beim Download immer "ajax.php" heißen)
+			$name = $freigfile->read_kimb_id( $key_id , 'name' );
+			
+			//Pfad für Datei erstellen
+			$file = __DIR__.'/userdata/user/'.$_GET['user'].$path;
+			
+			//Datei vorhanden?
+			if( is_file( $file ) ){
+			
+				//Größe
+				$filesize = filesize( $file );
+				//MIME
+				$finfo = finfo_open(FILEINFO_MIME_TYPE);
+				$mimetype = finfo_file($finfo, $file);
+				finfo_close($finfo);
+		
+				//Header
+				header( 'Content-type: '.$mimetype.'; charset=utf-8' );
+				header( 'Content-Disposition: inline; filename="'.$name.'"' );
+				header( 'Content-Length: '.$filesize);
+				//Ausgabe
+				readfile( $file );
+				
+			}
+			else{
+				echo 'Diese Datei existiert nicht!';
+			}			
+		}
+		else{
+			echo 'Der Key für diese Datei ist nicht gültig!';
+		}
+	}
+	else{
+		echo 'Syntax des Usernamens inkorrekt!';
+	}
+	
+	die;
+}
+
 //Systemkonfigurationsdatei
 $sysfile = new KIMBdbf( 'addon/daten__conf.kimb' );
 
@@ -270,7 +325,86 @@ if( check_felogin_login( '---session---', $sysfile->read_kimb_one( 'siteid' ), t
 			}
 			
 		}
+		elseif( $_POST['todo'] = 'newfreigabe' ){
+			
+			//keine .. im Pfad -  Dateisystemschutz
+			if( strpos( $_POST['allgvars']['file'], '..' ) === false ){
+				
+				//Username (=Grundpfad)	
+				$user = $_SESSION['felogin']['user'];
+				//Dateipfad (bezogen auf Grundpfad)
+				$file = $_POST['allgvars']['path'].$_POST['allgvars']['file'];
+				//Dateiname
+				$filena = $_POST['allgvars']['file'];
+				
+				if( is_file( __DIR__.'/userdata/user/'.$user.'/'.$file ) ){
+					
+					//Datei für Keys öffnen
+					$freigfile = new KIMBdbf( 'addon/daten__user_'.$user.'.kimb' );
+					
+					do{
+						//Key erstellen
+						$key = makepassw( 50 , '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz' );
+						
+						//Key schon vergeben (so lange bis neuer gefunden, immer neuen machen)
+					} while ( $freigfile->search_kimb_xxxid( $key , 'key' ) != false );
+
+					//Datei schon freigegeben?
+					//	alte ID suchen
+					$old_id = $freigfile->search_kimb_xxxid( $file , 'path' );
+					//	alte ID vorhanden?
+					if(  $old_id != false ){
+						$id = $old_id;
+					}
+					else{
+						//neue ID in der Keyfile suchen
+						$id = $freigfile->next_kimb_id();
+					}
 		
+					//alles in die Keyfile schreiben
+					//	Key
+					$freigfile->write_kimb_id( $id , 'add' , 'key' , $key );
+					//	Pfad zur Datei
+					$freigfile->write_kimb_id( $id , 'add' , 'path' , $file );
+					//	und den Dateinamen (sonst würde Datei beim Download immer "ajax.php" heißen)
+					$freigfile->write_kimb_id( $id , 'add' , 'name' , $filena );
+					
+					//Ausgabe
+					$all_output = array( 'okay' => true, 'link' => htmlspecialchars( $allgsysconf['siteurl'].'/ajax.php?addon=daten&user='.$user.'&key='.$key ) );
+					
+				}
+				
+			}
+			
+		}
+		
+		
+		//JSON Ausgabe
+		header('Content-Type: application/json');
+		//richtige Daten nach main, unter dev debug Ausgaben möglich
+		echo json_encode( array( 'main' => $all_output, 'dev' => $output_dev ) );
+		//fertig
+		die;
+	}
+	//Freigabeliste?
+	elseif( $_POST['todo'] == 'freigabeliste' ){
+		
+		//Username
+		$user = $_SESSION['felogin']['user'];
+		
+		//Datei für Freigaben öffnen
+		$freigfile = new KIMBdbf( 'addon/daten__user_'.$user.'.kimb' );
+		
+		//alle Freigaben durchgehen
+		foreach( $freigfile->read_kimb_all_teilpl( 'allidslist') as $id ){
+			//Daten der Freigaben in Liste lesen
+			$data = $freigfile->read_kimb_id( $id );
+			
+			$list[] = array( 'id' => $id, 'name' => $data['name'], 'path' => $data['path'] ,'link' => htmlspecialchars( $allgsysconf['siteurl'].'/ajax.php?addon=daten&user='.$user.'&key='.$data['key'] ));
+		}
+		
+		//Ausgabe
+		$all_output = array( 'okay' => true, 'list' => $list );
 		
 		//JSON Ausgabe
 		header('Content-Type: application/json');
@@ -363,11 +497,25 @@ if( check_felogin_login( '---session---', $sysfile->read_kimb_one( 'siteid' ), t
 		}
 		die;
 	}
+	//Dateifreigabe?
+	elseif( !empty( $_GET['user'] ) && !empty( $_GET['key'] ) ){
+		
+		//Datei Ausgeben
+		show_freig_file();
+		
+	}
 	else{
 		echo $errormsg;
 		die;
 	}
 
+}
+//Dateifreigabe?
+elseif( !empty( $_GET['user'] ) && !empty( $_GET['key'] ) ){
+	
+	//Datei Ausgeben
+	show_freig_file();
+	
 }
 else{
 	echo $errormsg;
