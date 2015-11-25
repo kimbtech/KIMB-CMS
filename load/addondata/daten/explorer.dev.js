@@ -379,7 +379,7 @@ function main_explorer(){
 							}
 						});
 						
-						if( ftype == 'file' && allgvars.folder == 'user' ){
+						if( ( ftype == 'file' || ftype == 'kt'  ) && allgvars.folder == 'user' ){
 							$( "div.delfile_explorer div.frei" ).css("display", "block");
 						}
 						
@@ -664,7 +664,7 @@ function make_table_html( data, domel ){
 	html += '<button id="new_sp">Spalte hinzufügen</button><br />';
 	html += '<button id="new_ze">Zeile hinzufügen</button><br />';
 	//Hinweistexte
-	html += '<small>Doppenklick zum Ändern; Enter zum Speichern; Ctrl zum Verwerfen; Rechtsklick zum Löschen/ Hinzufügen</small><br />';
+	html += '<small>Doppenklick zum Ändern; Alt zum Speichern; Ctrl zum Verwerfen; Rechtsklick zum Löschen/ Hinzufügen</small><br />';
 	html += '<button id="exp_json">JSON Export</button>';
 	html += '<button id="imp_json">JSON Import</button>';
 	//Feld für Statusanzeigen (Fehler, Speicherung, Gespeichert)
@@ -685,22 +685,38 @@ function make_table_html( data, domel ){
 			var val = $( this ).html();
 			
 			//Ist das Feld schon bearbeitbar gemacht (Input Element vorhanden)
-			if( val.indexOf( "<input" ) === -1 ){
+			if( val.indexOf( '<textarea style="width:95%;">' ) === -1 ){
 				//nein, also einblenden
 				
+				//br zu Umbrüchen
+				val = val.replace(/<br \/>/g,"\r\n");
+				val = val.replace(/<br>/g,"\r\n");
+				
 				//Input Feld im Tabellenkästchen zeigen, Wert => Inhalt des Kästchen 
-				$( this ).html( '<input type="text" value="'+val+'">' );
+				//$( this ).html( '<input type="text" value="'+val+'">' );
+				$( this ).html( '<textarea style="width:95%;">'+val+'</textarea>' );
 				
 				//Knopf gedrückt?
 				//	wenn Cursor in Input
-				$( this ).children("input").keyup( function( event ) {
-					//Enter?
-					if(event.keyCode == 13){
+				$( this ).children("textarea").keyup( function( event ) {
+					//Alt?
+					if(event.keyCode == 18){
 						//neuen Wert lesen
 						var newval = $( this).val();
 						
 						//HTML Special Chars codieren
-						newval = newval.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+						//	& Zeichen
+						newval = newval.replace(/&/g, "&amp;");
+						//	spitze Klammer auf
+						newval = newval.replace(/</g, "&lt;");
+						//	spitze Klammer zu
+						newval = newval.replace(/>/g, "&gt;");
+						//	Umbruch eins
+						newval = newval.replace(/\n/g,'<br />');
+						//	Umbruch zwei
+						newval = newval.replace(/\r/g,'<br />');
+						//	Umbruch beide
+						newval = newval.replace(/\r\n/g,'<br />');
 						
 						//Input Feld weg und neuen Wert wieder in Kästchen setzen
 						$( this ).parent().html( newval );
@@ -1116,17 +1132,28 @@ function show_freigaben(){
 			
 			//Freigabe löschen
 			$( "ul.freigaben span.del_link" ).unbind('click').click( function (){
-				//
-				//
-				//
-				//
-				//
-				j_alert( 'Noch nicht verfügbar!!' );
-				//
-				//
-				//
-				//
-				//
+				
+				//Wert bekommen
+				var id = $( this ).parent().attr( 'fid' );
+				
+				//Freigabe löschen
+				$.post( add_daten.siteurl+"/ajax.php?addon=daten", { "todo": "freigabedel", "id": id } ).always( function( data ) {
+						
+						//Server sagt okay?
+						if( data != null && data.main != null && data.main.okay ){
+							
+							//OK-Medlung
+							j_alert( 'Die Freigabe wurde gelöscht!' );
+							
+							//Freigaben neu laden
+							show_freigaben();
+						}
+						else{
+							//Fehlermeldung
+							j_alert( 'Die Freigabe konnte nicht gelöscht werden!' );
+						}
+					
+				});
 			});
 			
 			//Ordner öffne

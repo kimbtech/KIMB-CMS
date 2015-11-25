@@ -27,6 +27,7 @@ defined('KIMB_CMS') or die('No clean Request');
 
 //Freigegebene Dateien anzeigen
 function show_freig_file () {
+	global $allgsysconf;
 	
 	if( strpos( $_GET['user'], '..') === false ){
 	
@@ -50,19 +51,57 @@ function show_freig_file () {
 			//Datei vorhanden?
 			if( is_file( $file ) ){
 			
-				//Größe
-				$filesize = filesize( $file );
-				//MIME
-				$finfo = finfo_open(FILEINFO_MIME_TYPE);
-				$mimetype = finfo_file($finfo, $file);
-				finfo_close($finfo);
-		
-				//Header
-				header( 'Content-type: '.$mimetype.'; charset=utf-8' );
-				header( 'Content-Disposition: inline; filename="'.$name.'"' );
-				header( 'Content-Length: '.$filesize);
-				//Ausgabe
-				readfile( $file );
+				//Tablle?
+				if( substr( $file, -11 ) != '.kimb_table' ){
+					//Größe
+					$filesize = filesize( $file );
+					//MIME
+					$finfo = finfo_open(FILEINFO_MIME_TYPE);
+					$mimetype = finfo_file($finfo, $file);
+					finfo_close($finfo);
+			
+					//Header
+					header( 'Content-type: '.$mimetype.'; charset=utf-8' );
+					header( 'Content-Disposition: inline; filename="'.$name.'"' );
+					header( 'Content-Length: '.$filesize);
+					//Ausgabe
+					readfile( $file );
+				}
+				else{
+					//Dateiinhalt
+					$filecont = file_get_contents( $file );
+					
+					//Name der Datei
+					$tabname = substr( $name,0,  -11 );
+					
+					//HTML und JS um freigegebene Tabellen zu entschlüsseln
+					$html = '<!DOCTYPE html>'."\r\n";
+					$html .= '<html>'."\r\n";
+					$html .= '<head>'."\r\n";
+					$html .= '<link rel="shortcut icon" href="'.$allgsysconf['sitefavi'].'" type="image/x-icon; charset=binary">'."\r\n";
+					$html .= '<link rel="icon" href="'.$allgsysconf['sitefavi'].'" type="image/x-icon; charset=binary">'."\r\n";
+					$html .= '<meta name="generator" content="KIMB-technologies CMS V. '.$allgsysconf['systemversion'].'" >'."\r\n";
+					$html .= '<meta name="robots" content="'.$allgsysconf['robots'].'">'."\r\n";
+					$html .= '<meta name="description" content="'.$allgsysconf['description'].'">'."\r\n";
+					$html .= '<meta charset="utf-8">'."\r\n";
+					$html .= '<script> var enctab = '. json_encode( $filecont ) .';</script>'."\r\n";
+					$html .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/daten/sjcl.min.js"></script>'."\r\n";
+					$html .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/system/jquery/jquery.min.js"></script>'."\r\n";
+					$html .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/daten/tabellen_freigabe.min.js"></script>'."\r\n";
+					$html .= '<title>Tabelle: '. $tabname .'</title>'."\r\n";					
+					$html .= '</head>'."\r\n";
+					$html .= '<body>'."\r\n";
+					$html .= '<h1>Tabelle: '. $tabname .'</h1>'."\r\n";
+					$html .= '<input type="password" id="pass" placeholder="Passwort"><button onclick="start_table();">Tabelle laden</button><br />'."\r\n";
+					$html .= '<hr /><div style="width:80%; margin-left:10%;" class="tabelle">Bitte geben Sie das Passwort oben ein!</div><hr />'."\r\n";
+					$html .= '<small><a href="'.$allgsysconf['siteurl'].'" target="_blank">Zur Seite</a></small>'."\r\n";
+					$html .= '</body>'."\r\n";
+					$html .= '</html>'."\r\n";
+					
+					//ausgeben
+					echo $html;
+					
+				}
 				
 			}
 			else{
@@ -387,7 +426,7 @@ if( check_felogin_login( '---session---', $sysfile->read_kimb_one( 'siteid' ), t
 		die;
 	}
 	//Freigabeliste?
-	elseif( $_POST['todo'] == 'freigabeliste' ){
+	elseif( $_POST['todo'] == 'freigabeliste' || $_POST['todo'] == 'freigabedel'  ){
 		
 		//Username
 		$user = $_SESSION['felogin']['user'];
@@ -395,16 +434,39 @@ if( check_felogin_login( '---session---', $sysfile->read_kimb_one( 'siteid' ), t
 		//Datei für Freigaben öffnen
 		$freigfile = new KIMBdbf( 'addon/daten__user_'.$user.'.kimb' );
 		
-		//alle Freigaben durchgehen
-		foreach( $freigfile->read_kimb_all_teilpl( 'allidslist') as $id ){
-			//Daten der Freigaben in Liste lesen
-			$data = $freigfile->read_kimb_id( $id );
+		//Liste ?
+		if( $_POST['todo'] == 'freigabeliste' ){
+			//alle Freigaben durchgehen
+			foreach( $freigfile->read_kimb_all_teilpl( 'allidslist') as $id ){
+				//Daten der Freigaben in Liste lesen
+				$data = $freigfile->read_kimb_id( $id );
+				
+				$list[] = array( 'id' => $id, 'name' => $data['name'], 'path' => $data['path'] ,'link' => htmlspecialchars( $allgsysconf['siteurl'].'/ajax.php?addon=daten&user='.$user.'&key='.$data['key'] ));
+			}
 			
-			$list[] = array( 'id' => $id, 'name' => $data['name'], 'path' => $data['path'] ,'link' => htmlspecialchars( $allgsysconf['siteurl'].'/ajax.php?addon=daten&user='.$user.'&key='.$data['key'] ));
+			//Ausgabe
+			$all_output = array( 'okay' => true, 'list' => $list );
 		}
-		
-		//Ausgabe
-		$all_output = array( 'okay' => true, 'list' => $list );
+		//löschen
+		else{
+			//ID okay??
+			if( !empty( $_POST['id'] ) &&  $_POST['id'] != 0 && is_numeric( $_POST['id'] ) ){
+				
+				//löschen
+				if( $freigfile->write_kimb_id( $_POST['id'], 'del' ) ){
+					//okay
+					$all_output = array( 'okay' => true );	
+				}
+				else{
+					//Fehler
+					$all_output = array( 'okay' => false );
+				}
+			}
+			else{
+				//Fehler
+				$all_output = array( 'okay' => false );
+			}
+		}
 		
 		//JSON Ausgabe
 		header('Content-Type: application/json');
