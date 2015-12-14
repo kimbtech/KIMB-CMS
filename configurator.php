@@ -116,7 +116,7 @@ if($_GET['step'] == '2'){
 	$i = '1';
 	$output = '';
 	while($i <= $laenge){
-		$stelle = mt_rand('0', $anzahl); 
+		$stelle = gen_zufallszahl('0', $anzahl); 
 		$output .= $alles{$stelle};
 		$i++;
 	}
@@ -166,7 +166,7 @@ elseif($_GET['step'] == '3'){
 	$i = '1';
 	$output = '';
 	while($i <= $laenge){
-		$stelle = mt_rand('0', $anzahl); 
+		$stelle = gen_zufallszahl('0', $anzahl); 
 		$output .= $alles{$stelle};
 		$i++;
 	}
@@ -178,7 +178,7 @@ elseif($_GET['step'] == '3'){
 	$i = '1';
 	$cronkey = '';
 	while($i <= $laenge){
-		$stelle = mt_rand('0', $anzahl); 
+		$stelle = gen_zufallszahl('0', $anzahl); 
 		$cronkey .= $alles{$stelle};
 		$i++;
 	}
