@@ -116,7 +116,7 @@ if($_GET['step'] == '2'){
 	$i = '1';
 	$output = '';
 	while($i <= $laenge){
-		$stelle = mt_rand('0', $anzahl); 
+		$stelle = gen_zufallszahl('0', $anzahl); 
 		$output .= $alles{$stelle};
 		$i++;
 	}
@@ -166,7 +166,7 @@ elseif($_GET['step'] == '3'){
 	$i = '1';
 	$output = '';
 	while($i <= $laenge){
-		$stelle = mt_rand('0', $anzahl); 
+		$stelle = gen_zufallszahl('0', $anzahl); 
 		$output .= $alles{$stelle};
 		$i++;
 	}
@@ -178,7 +178,7 @@ elseif($_GET['step'] == '3'){
 	$i = '1';
 	$cronkey = '';
 	while($i <= $laenge){
-		$stelle = mt_rand('0', $anzahl); 
+		$stelle = gen_zufallszahl('0', $anzahl); 
 		$cronkey .= $alles{$stelle};
 		$i++;
 	}
@@ -236,12 +236,12 @@ else{
 	echo '<ul>';
 	
 	//PHP - Version OK?
-	if (version_compare(PHP_VERSION, '5.3.0' ) >= 0 ) {
-    		echo '<li class="okay">Sie verwenden PHP 5.3.0 oder neuer!</li>';
+	if (version_compare(PHP_VERSION, '5.5.0' ) >= 0 ) {
+    		echo '<li class="okay">Sie verwenden PHP 5.5.0 oder neuer!</li>';
 		$okay[] = 'okay';
 	}
 	else{
-		echo '<li class="err">Dieses System wurde f&uuml;r PHP 5.3.0 und h&ouml;her entwickelt, bitte f&uuml;hren Sie ein PHP-Update durch!</li>';
+		echo '<li class="err">Dieses System wurde f&uuml;r PHP 5.5.0 und h&ouml;her entwickelt, bitte f&uuml;hren Sie ein PHP-Update durch!</li>';
 		$okay[] = 'err';
 	}
 	
