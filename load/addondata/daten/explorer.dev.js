@@ -5,6 +5,32 @@ function show_error( tit, mes, dom ){
 	 return true;
 }
 
+//Loading GIF bei AJAX Anfragen zeigen
+//	jQuery GET und POST Event listen
+$( function() {
+	//HTML für Loader
+	var loader = '<div id="daten_loading"  style="display:none;">';
+	loader += '<div style="position:fixed; top:0; left:0; z-index:50; background-color:gray; opacity:0.5; width:100%; height:100%;">';
+	loader += '</div>';
+	loader += '<div style="position:fixed; top:calc( 50% - 64px ); left:calc( 50% - 64px ); background-color:#5d7; border-radius:20px; padding:15px; z-index:51;">';
+	loader += '<img src="'+add_daten.siteurl+'/load/system/spin_load.gif" title="Lädt!!" alt="Lädt!!">';
+	loader += '</div>';
+	loader += '</div>';
+	
+	//HTML -> DOM
+	$( 'body' ).append( loader );
+	//geich ausblenden
+	$("#daten_loading").hide("highlight");
+	
+	//Listen on AJAX Events
+	$(document).bind("ajaxSend", function(){
+		$("#daten_loading").show("highlight");
+	}).bind("ajaxComplete", function(){
+		$("#daten_loading").hide("highlight");
+	});
+	
+});
+
 //Dropzone.js
 Dropzone.autoDiscover = false;
 
@@ -1179,3 +1205,63 @@ function show_freigaben(){
 	
 	return;
 }
+
+//Touch Buttons einblenden für Alt, Strg & Enter
+//Rechtsklick per Button
+
+//Event auslösen
+//	art => Art des Events ( 0 => Rechtsklick, 1 => Doppenclick, 2 => Taste)
+//	elem => DOM Element auf das das Event ausgeführt werden soll
+//	[ code => Code für Taste (bei Tastenvent)]
+function trigger_touchbedienung( art, elem, code ){
+	
+	if( art == 0 ){
+		//Rechtsklick auf Element
+		//	elem z.B. 'ul.files li[name=KIMB]'
+		$( elem ).trigger("contextmenu");
+	}
+	else if( art == 1 ){
+		//Doppelklick
+		//	elem z.B: 'td.edit[sk=1]'
+		$( elem ).trigger("dblclick");
+	}
+	else if( art == 2 ){
+		//Tasten
+		var touche = $.Event('keyup');
+		touche.keyCode= 13;
+		//	elem z.B.: 'input#new_name'
+		$( elem ).trigger(touche);
+	}
+	else{
+		return false;
+	}
+}
+
+//Eventbar bei Touchgeräten
+$( function(){
+	//Touchgerät??
+	//if( ("ontouchstart" in window) || (navigator.msMaxTouchPoints > 0)){
+	
+		var html = '<div style="position:fixed; bottom:0; right:30px; width:410px; height:30px; background-color:black; padding:10px; border-top-left-radius:5px; border-top-right-radius:5px;">';
+		html += '<span id="touchbed_butt">';
+		html += '<input type="radio" id="alt" name="butt">';
+		html += '<label for="alt">Alt</label>';
+		html += '<input type="radio" id="strg" name="butt">';
+		html += '<label for="strg">Strg</label>';
+		html += '<input type="radio" id="enter" name="butt">';
+		html += '<label for="enter">Enter</label>';
+		html += '<input type="radio" id="dopp" name="butt">';
+		html += '<label for="dopp">Doppelklick</label>';
+		html += '<input type="radio" id="rec" name="butt">';
+		html += '<label for="rec">Rechtsklick</label>';
+		html += '</span>'
+		html += '<span id="touchbed_clo">&darr;</span>'
+		html += '</div>';
+		
+		$( 'body' ).append( html );
+		$( "#touchbed_butt" ).buttonset();
+		$( "#touchbed_clo" ).button();
+		
+		
+	//}
+});

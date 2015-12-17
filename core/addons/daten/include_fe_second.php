@@ -45,7 +45,7 @@ if( check_felogin_login( '---session---', '---allgsiteid---', true ) ){
 	//Dropzone.js
 	$sitecontent->add_html_header('<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/daten/dropzone.min.js"></script>');
 	//JS für System
-	$sitecontent->add_html_header('<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/daten/explorer.min.js"></script>');
+	$sitecontent->add_html_header('<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/daten/explorer.dev.js"></script>');
 	//Vars
 	$sitecontent->add_html_header('<script language="javascript">var add_daten = {siteurl:"'.$allgsysconf['siteurl'].'"};</script>');
 	
