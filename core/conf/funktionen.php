@@ -897,7 +897,7 @@ function add_tiny( $big = false, $small = false, $ids = array( 'big' => '#inhalt
 //				"V" für Version
 //				Zahl für ganze Versionsnummer
 //				"." Punkt als Komma
-//				Zahl für Unterversionsnummer
+//				Zahl für Unterversionsnummer (max. 4 Stellen)
 //				"A" oder "B" oder "F" für Alpha, Beta, Final Version
 //				evtl.: 
 //					"-p" für Patch
@@ -943,6 +943,12 @@ function compare_cms_vers( $v1 , $v2 ) {
 		$lv = $lpos - $ppos;
 
 		$teil['komma'] = substr( $ver , $ppos + 1 , $lv - 1 );
+
+		//als Nachkommastelle behandeln (mal 1000 nehmen)
+		$teil['komma'] = (int) str_pad( $teil['komma'], 4, 0 );
+
+		//max 4 Stellen
+		$teil['komma'] = (int) substr( $teil['komma'], 0, 4 );
 
 		//Patch
 		$papos = stripos( $ver , '-p', $lpos );
