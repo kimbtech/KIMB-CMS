@@ -35,3 +35,13 @@ div.pathbar{
 div.for_file_kimbta{
 	display: none;
 }
+
+small{
+	font-size:0.7em;
+}
+
+@media (orientation: portrait), (max-width:750px){
+	.ui-widget{
+		font-size:90% !important;
+	}
+}

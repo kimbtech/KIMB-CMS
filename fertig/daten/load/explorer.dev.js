@@ -5,6 +5,32 @@ function show_error( tit, mes, dom ){
 	 return true;
 }
 
+//Loading GIF bei AJAX Anfragen zeigen
+//	jQuery GET und POST Event listen
+$( function() {
+	//HTML für Loader
+	var loader = '<div id="daten_loading"  style="display:none;">';
+	loader += '<div style="position:fixed; top:0; left:0; z-index:50; background-color:gray; opacity:0.5; width:100%; height:100%;">';
+	loader += '</div>';
+	loader += '<div style="position:fixed; top:calc( 50% - 64px ); left:calc( 50% - 64px ); background-color:#5d7; border-radius:20px; padding:15px; z-index:51;">';
+	loader += '<img src="'+add_daten.siteurl+'/load/system/spin_load.gif" title="Lädt!!" alt="Lädt!!">';
+	loader += '</div>';
+	loader += '</div>';
+	
+	//HTML -> DOM
+	$( 'body' ).append( loader );
+	//geich ausblenden
+	$("#daten_loading").hide("highlight");
+	
+	//Listen on AJAX Events
+	$(document).bind("ajaxSend", function(){
+		$("#daten_loading").show("highlight");
+	}).bind("ajaxComplete", function(){
+		$("#daten_loading").hide("highlight");
+	});
+	
+});
+
 //Dropzone.js
 Dropzone.autoDiscover = false;
 
@@ -34,6 +60,7 @@ function j_alert( meld, dw ){
 	$( "div.j_alert" ).dialog({ 
 		modal:true,
 		width: dw,
+		responsive: true,
 		buttons:{
 			"OK":function(){
 				$( this ).dialog( 'close' );
@@ -216,34 +243,37 @@ function main_explorer(){
 					
 					//auf Klicks auf Dateien hören
 					$( 'ul.files li' ).unbind('click').click( function() {
-						//Dateieigenschaften lesen
-						//	Typ
-						var ftype = $( this ).attr( 'ftype' );
-						//	URL (Dateiname)
-						var url = $( this ).attr( 'url' );
-						//	Name für Datei
-						var name = $( this ).attr( 'name' );
-						
-						//je nach Dateityp
-						if( ftype == 'dir' ){
-							//Ordner
+						//Datei laden? (evtl. für Buttonbar deaktivieren)
+						if( shall_do_fileload() ){
+							//Dateieigenschaften lesen
+							//	Typ
+							var ftype = $( this ).attr( 'ftype' );
+							//	URL (Dateiname)
+							var url = $( this ).attr( 'url' );
+							//	Name für Datei
+							var name = $( this ).attr( 'name' );
 							
-							//Pfad anpassen
-							allgvars.path = allgvars['path']+url+'/';
-							//Explorer neu laden
-							main_explorer();  
-						}
-						else if( ftype == 'file' ){
-							//datei
-							
-							//Datei öffnen
-							open_file( url );
-						}
-						else if( ftype == 'kt' ){
-							//KIMB Tabelle?
-							
-							//Tabelle anzeigen
-							open_table( url, name );
+							//je nach Dateityp
+							if( ftype == 'dir' ){
+								//Ordner
+								
+								//Pfad anpassen
+								allgvars.path = allgvars['path']+url+'/';
+								//Explorer neu laden
+								main_explorer();  
+							}
+							else if( ftype == 'file' ){
+								//datei
+								
+								//Datei öffnen
+								open_file( url );
+							}
+							else if( ftype == 'kt' ){
+								//KIMB Tabelle?
+								
+								//Tabelle anzeigen
+								open_table( url, name );
+							}
 						}
 						
 					});
@@ -372,6 +402,7 @@ function main_explorer(){
 						//Dialog öffnen	 
 						$( "div.delfile_explorer" ).dialog({ 
 							modal:true,
+							responsive: true,
 							buttons:{
 								"Abbrechen":function(){
 									$( this ).dialog( 'close' );
@@ -482,6 +513,7 @@ function open_table( url, name, adding ){
 	//Dialog öffnen	 
 	$( "div.j_promt" ).dialog({ 
 		modal:true,
+		responsive: true,
 		buttons:{
 			"OK":function(){
 				//Passwort lesen
@@ -582,7 +614,7 @@ function open_table_dialog( data_okay, data, adding, name ){
 		$( 'div.for_file_kimbta' ).css( 'display', 'block' );
 			
 		//Dialog für Tabelle
-		$( 'div.for_file_kimbta' ).dialog({ width: 720, modal: true, title: name, beforeClose: function( event, ui ) { global_table_passw = ''; } });
+		$( 'div.for_file_kimbta' ).dialog({ width: 720, modal: true, responsive: true, title: name, beforeClose: function( event, ui ) { global_table_passw = ''; } });
 		
 		//neue Tabelle
 		if( adding ){
@@ -789,7 +821,8 @@ function make_table_html( data, domel ){
 		
 		//Dialog öffnen	 
 		$( "div.rightclick_menue" ).dialog({ 
-			modal:true
+			modal:true,
+			responsive: true
 		});
 		
 		//Buttons listener
@@ -973,6 +1006,7 @@ function import_json(){
 	//Dialog	 
 	$( "div.import_json" ).dialog({ 
 		modal: true,
+		responsive: true,
 		//Buttons definieren
 		buttons: {
 			//Import
@@ -1179,3 +1213,180 @@ function show_freigaben(){
 	
 	return;
 }
+
+//Touch Buttons einblenden für Alt, Strg & Enter
+//Rechtsklick per Button
+
+//Anzahl der ausgeführen Events nach einer Auswahl eines Evens in der Bar
+var anzahl;
+//Bar nicht aktiviert ode doch?
+//	true -> normales bei Klick tun
+//	false -> nichts tun
+var touchbar_status = true;
+
+//wird vorm Laden eines Ordners, einer Datei aufgerufen, kann durch return false, dies unterbrechen
+function shall_do_fileload(){
+	return touchbar_status;
+};
+
+//Event auslösen
+//	art => Art des Events ( 0 => Rechtsklick, 1 => Doppenclick, 2 => Taste)
+//	elem => DOM Element auf das das Event ausgeführt werden soll
+//	[ code => Code für Taste (bei Tastenvent)]
+function trigger_touchbedienung( art, elem, code ){
+	//nur beim ersten Klick reagieren
+	if( anzahl ==  1){
+		
+		//nächster Klick
+		anzahl++;
+		
+		if( art == 0 ){
+			//Rechtsklick auf Element
+			//	elem z.B. 'ul.files li[name=KIMB]'
+			$( elem ).trigger("contextmenu");
+		}
+		else if( art == 1 ){
+			//Doppelklick
+			//	elem z.B: 'td.edit[sk=1]'
+			$( elem ).trigger("dblclick");
+		}
+		else if( art == 2 ){
+			//Tasten
+			var touche = $.Event('keyup');
+			touche.keyCode = code;
+			//	elem z.B.: 'input#new_name'
+			$( elem ).trigger(touche);
+		}
+		else{
+			return false;
+		}
+	}
+	else{
+		return false;
+	}
+}
+
+//Eventbar bei Touchgeräten
+$( function(){
+	//Touchgerät??
+	if( ("ontouchstart" in window) || (navigator.msMaxTouchPoints > 0)){
+	
+		//HTML für Bar
+		var html = '<div style="position:fixed; bottom:0; right:30px; z-index:999999; min-width:410px; max-width:100%; min-height:30px; background-color:black; padding:10px; border-top-left-radius:5px; border-top-right-radius:5px;">';
+		html += '<span id="touchbed_butt">';
+		html += '<input type="radio" id="alt" name="butt">';
+		html += '<label for="alt">Alt</label>';
+		html += '<input type="radio" id="strg" name="butt">';
+		html += '<label for="strg">Strg</label>';
+		html += '<input type="radio" id="enter" name="butt">';
+		html += '<label for="enter">Enter</label>';
+		html += '<input type="radio" id="dopp" name="butt">';
+		html += '<label for="dopp">Doppelklick</label>';
+		html += '<input type="radio" id="rec" name="butt">';
+		html += '<label for="rec">Rechtsklick</label>';
+		html += '</span>'
+		html += '<span id="touchbed_clo" title="Schließen">&darr;</span>'
+		html += '<br /><small style="color:white;">Button und dann Stelle für den Befehl anklicken</small>';
+		html += '</div>';
+		
+		//Bar ins DOM
+		$( 'body' ).append( html );
+		//Buttons
+		$( "#touchbed_butt" ).buttonset();
+		//Schließen
+		$( "#touchbed_clo" ).button();
+		//Hinweis für Schileßen Button
+		$( "#touchbed_clo" ).tooltip();
+		
+		//Klicks verarbeiten
+		$( "#touchbed_butt input[type=radio]" ).unbind('click').click( function() {
+			var id = $( this ).attr( 'id' );
+			
+			//neuer erster Klick
+			anzahl = 1;
+			
+			//Touchbar aktiviert
+			touchbar_status = false;
+		
+			//Buttons für Wahlen deaktivieren
+			$( "#touchbed_butt" ).buttonset('disable');
+		
+			//KIMB-Tabelle
+			$( "td.edit" ).unbind('click').click( function(){
+				
+				var elem;
+				
+				if( id == 'alt' ){
+					elem = $( this ).children('textarea');
+					trigger_touchbedienung( 2, elem, 18  );
+				}	
+				else if( id == 'strg' ){
+					elem = $( this ).children('textarea');
+					trigger_touchbedienung( 2, elem, 17  );
+				}
+				else if( id == 'dopp' ){
+					trigger_touchbedienung( 1, this );
+				}
+				else if( id == 'rec' ){
+					trigger_touchbedienung( 0, this );
+				}
+				
+				//Buttons wieder aktivieren
+				$( "#touchbed_butt" ).buttonset('enable');
+				//Touchbar deakiviert
+				touchbar_status = true;
+			});
+			
+			//Neue Datei und Ordner
+			$( "#new_name" ).unbind('click').click( function(){
+				
+				if( id == 'strg' ){
+					trigger_touchbedienung( 2, this, 17  );
+				}
+				else if( id == 'enter' ){
+					trigger_touchbedienung( 2,this, 13 );
+				}
+				
+				//Buttons wieder aktivieren
+				$( "#touchbed_butt" ).buttonset('enable');
+				//Touchbar deakiviert
+				touchbar_status = true;
+			});
+			
+			//Liste Dateien und Ordner
+			$( "ul.files li" ).click( function( e ){
+				
+				if( id == 'rec' ){
+					trigger_touchbedienung( 0, this );
+				}
+				
+				//Buttons wieder aktivieren
+				$( "#touchbed_butt" ).buttonset('enable');
+				//Touchbar deakiviert
+				touchbar_status = true;
+			});
+			
+			//Pathbar
+			$( ".pathbar" ).unbind('click').click( function(){
+				
+				if( id == 'enter' ){
+					var elem = $( this ).children('input');
+					trigger_touchbedienung( 2, elem, 13 );
+				}
+				else if( id == 'dopp' ){
+					trigger_touchbedienung( 1, this );
+				}
+				
+				//Buttons wieder aktivieren
+				$( "#touchbed_butt" ).buttonset('enable');
+				//Touchbar deakiviert
+				touchbar_status = true;
+			});
+
+		});
+		$( "#touchbed_clo" ).click( function() {
+			$( this ).parent().hide("blur");
+		});
+		
+	}
+});

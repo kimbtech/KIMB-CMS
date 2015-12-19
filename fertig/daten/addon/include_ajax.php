@@ -282,7 +282,14 @@ if( check_felogin_login( '---session---', $sysfile->read_kimb_one( 'siteid' ), t
 			//keine .. im Pfad -  Dateisystemschutz
 			if( strpos( $_POST['allgvars']['file'], '..' ) === false ){
 				
-				$file = $filepath.'/'.$_POST['allgvars']['file'];
+				//neuen Dateinamen bereinigen
+				$newdateiname = $_POST['allgvars']['file'];
+				//	Umlaute und Leerezeichen
+				$newdateiname = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '..'),array('ae','oe','ue','ss','Ae','Oe','Ue', '_', '.'), $newdateiname);
+				//	Rest weg
+				$newdateiname = preg_replace( '/([^A-Za-z0-9\_\.\-])/' , '' , $newdateiname );
+				
+				$file = $filepath.'/'.$newdateiname;
 				
 				//Daten übertragen
 				if( !empty( $_POST['data'] )){
@@ -312,8 +319,17 @@ if( check_felogin_login( '---session---', $sysfile->read_kimb_one( 'siteid' ), t
 			//keine .. im Pfad -  Dateisystemschutz
 			if( strpos( $_POST['allgvars']['file'], '..' ) === false ){
 				
+				//neuen Dateinamen bereinigen
+				$newdateiname = $_POST['allgvars']['file'];
+				//	Umlaute und Leerezeichen
+				$newdateiname = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '..'),array('ae','oe','ue','ss','Ae','Oe','Ue', '_', '.'), $newdateiname);
+				//	Rest weg
+				$newdateiname = preg_replace( '/([^A-Za-z0-9\_\.\-])/' , '' , $newdateiname );
+				
+				$output_dev[] = $newdateiname;
+				
 				//Pfad zum Ordner
-				$file = $filepath.'/'.$_POST['allgvars']['file'];
+				$file = $filepath.'/'.$newdateiname;
 				
 				//Ordner erstellen
 				if( mkdir( $file ) && chmod( $file , (fileperms( $filepath ) & 0777)) ){
@@ -349,10 +365,17 @@ if( check_felogin_login( '---session---', $sysfile->read_kimb_one( 'siteid' ), t
 		elseif( $_POST['todo'] == 'uploadfile' ) {
 			
 			//keine .. im Pfad -  Dateisystemschutz
-			if( strpos( $_FILES['name'], '..' ) === false ){
+			if( strpos( $_FILES['file']['name'], '..' ) === false ){
+				
+				//neuen Dateinamen bereinigen
+				$newdateiname = $_FILES['file']['name'];
+				//	Umlaute und Leerezeichen
+				$newdateiname = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '..'),array('ae','oe','ue','ss','Ae','Oe','Ue', '_', '.'), $newdateiname);
+				//	Rest weg
+				$newdateiname = preg_replace( '/([^A-Za-z0-9\_\.\-])/' , '' , $newdateiname );
 				
 				//Pfad zum Ordner
-				$file = $filepath.$_FILES['file']['name'];
+				$file = $filepath.'/'.$newdateiname;
 				
 				//Datei und löschen okay
 				if( move_uploaded_file( $_FILES['file']['tmp_name'] , $file ) ){
