@@ -37,12 +37,21 @@ $trackinfo = $eaconffile->read_kimb_id( '002' );
 if( $trackinfo['art'] == 'path' ){
 	
 	if( is_file( __DIR__ . '/' . $trackinfo['path'] ) ){
-	
-		//KIMB-EA Tracker laden
-		require_once( __DIR__ . '/' . $trackinfo['path'] );
-	
-		//Tracken
-		KIMB_EA\kimb_ea_track_easy( $trackinfo['siteid'] );
+
+		//KIMB_EA Tracking Funktion
+		//	wichtig, damit CMS Variablen und EA Variablen unbahängig bleiben!!
+		function KIMB_EA_TRACK_DO(){
+			//Tracking Infos von Add-on für EA
+			global $trackinfo;
+
+			//KIMB-EA Tracker laden
+			require_once( __DIR__ . '/' . $trackinfo['path'] );
+		
+			//Tracken
+			KIMB_EA\kimb_ea_track_easy( $trackinfo['siteid'] );
+		}
+		//Tracking im CMS durchführen
+		KIMB_EA_TRACK_DO();
 	}
 	else{
 		$sitecontent->echo_error('Der Tracker für KIMB-EA wurde nicht gefunden!!');
