@@ -1,0 +1,23 @@
+<[about:doc]>KIMB dbf V3.50 - KIMB-technologies<[about:doc]>
+<[time]>1456508364<[time]>
+<[allidslist1]>1<[allidslist1]>
+<[1-link]>http://cms.dev:8000/de/home<[1-link]>
+<[1]>link==name==niveau==clicked==requid<[1]>
+<[1-name]>Home<[1-name]>
+<[1-niveau]>1<[1-niveau]>
+<[1-clicked]>yes<[1-clicked]>
+<[1-requid]>1<[1-requid]>
+<[allidslist2]>2<[allidslist2]>
+<[2-link]>http://cms.dev:8000/de/menue<[2-link]>
+<[2]>link==name==niveau==clicked==requid<[2]>
+<[2-name]>Menü<[2-name]>
+<[2-niveau]>1<[2-niveau]>
+<[2-clicked]>no<[2-clicked]>
+<[2-requid]>2<[2-requid]>
+<[allidslist3]>3<[allidslist3]>
+<[3-link]>http://cms.dev:8000/de/menue/untermenue<[3-link]>
+<[3]>link==name==niveau==clicked==requid<[3]>
+<[3-name]>Untermenü<[3-name]>
+<[3-niveau]>2<[3-niveau]>
+<[3-clicked]>no<[3-clicked]>
+<[3-requid]>3<[3-requid]>

@@ -1,62 +1,32 @@
 <?php
 
 /*************************************************/
-//KIMB-technologies
 //KIMB CMS Add-on
-//KIMB ContentManagementSystem
-//WWW.KIMB-technologies.eu
+//KIMB ContentManagementSystem Add-on
+//Copyright (c) 2015 by KIMB-technologies
 /*************************************************/
-//CC BY-ND 4.0
-//http://creativecommons.org/licenses/by-nd/4.0/
-//http://creativecommons.org/licenses/by-nd/4.0/legalcode
+//This program is free software: you can redistribute it and/or modify
+//it under the terms of the GNU General Public License version 3
+//published by the Free Software Foundation.
+//
+//This program is distributed in the hope that it will be useful,
+//but WITHOUT ANY WARRANTY; without even the implied warranty of
+//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//GNU General Public License for more details.
+//
+//You should have received a copy of the GNU General Public License
+//along with this program.
 /*************************************************/
-//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
-//BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-//IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-//WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
-//IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//www.KIMB-technologies.eu
+//www.bitbucket.org/kimbtech
+//http://www.gnu.org/licenses/gpl-3.0
+//http://www.gnu.org/licenses/gpl-3.0.txt
 /*************************************************/
 
+defined('KIMB_CMS') or die('No clean Request');
 
-defined('KIMB_Backend') or die('No clean Request');
 
-$kontakt['file'] = new KIMBdbf( 'addon/kontakt__file.kimb' );
+//Verweis
+$sitecontent->add_site_content('Dieses Add-on können Sie mit erhöhten Rechten konfigurieren.');
 
-$ch = array( ' ' , ' ' , ' ' , ' ' , ' ' , ' ' );
-
-if( $kontakt['file']->read_kimb_one( 'mail' ) == 'on' ){
-	$ch[2] = ' checked="checked" ';
-}
-else{
-	$ch[1] = ' checked="checked" ';
-}
-if( $kontakt['file']->read_kimb_one( 'form' ) == 'on' ){
-	$ch[4] = ' checked="checked" ';
-}
-else{
-	$ch[3] = ' checked="checked" ';
-}
-if( $kontakt['file']->read_kimb_one( 'other' ) == 'on' ){
-	$ch[6] = ' checked="checked" ';
-}
-else{
-	$ch[5] = ' checked="checked" ';
-}
-
-$sitecontent->add_html_header('<script>
-$(function() { 
-	nicEditors.allTextAreas({buttonList : [] , iconsPath : \''.$allgsysconf['siteurl'].'/load/system/nicEditorIcons.gif\'});
-});
-</script>');
-
-$sitecontent->add_site_content('<br /><br /><form action="" method="post" >');
-
-$sitecontent->add_site_content('<input readonly="readonly" name="id" type="text" value="'.$kontakt['file']->read_kimb_one( 'siteid' ).'" > ( SiteID <b title="Bitte geben Sie hier die SeitenID, der Seite auf welcher die Kontaktinfos erscheinen sollen, ein. ( Seiten -> Auflisten )">*</b> )<br />');
-$sitecontent->add_site_content('<input readonly="readonly" type="radio" name="mailoo" value="off"'.$ch[1].'> <span style="display:inline-block;" title="Bild der E-Mail-Adresse deaktiviert" class="ui-icon ui-icon-closethick"></span> <input readonly="readonly" type="radio" name="mailoo" value="on"'.$ch[2].'> <span style="display:inline-block;" title="Bild der E-Mail-Adresse aktiviert" class="ui-icon ui-icon-check"></span> (E-Mail-Adresse)<br />');
-$sitecontent->add_site_content('<input readonly="readonly" type="radio" name="formoo" value="off"'.$ch[3].'> <span style="display:inline-block;" title="Kontakformular deaktiviert" class="ui-icon ui-icon-closethick"></span> <input readonly="readonly" type="radio" name="formoo" value="on"'.$ch[4].'> <span style="display:inline-block;" title="Kontaktformular aktiviert" class="ui-icon ui-icon-check"></span> (Kontaktformular)<br />');
-$sitecontent->add_site_content('<input readonly="readonly" type="radio" name="otheroo" value="off"'.$ch[5].'> <span style="display:inline-block;" title="Über JavaScript gesicherter Inhalt deaktiviert" class="ui-icon ui-icon-closethick"></span> <input readonly="readonly" type="radio" name="otheroo" value="on"'.$ch[6].'> <span style="display:inline-block;" title="Über JavaScript gesicherter Inhalt aktiviert" class="ui-icon ui-icon-check"></span> (JavaScript Inhalt)<br /><br />');
-$sitecontent->add_site_content('<input readonly="readonly" name="mail" type="text" value="'.$kontakt['file']->read_kimb_one( 'formaddr' ).'" > ( Mail-Adresse <b title="Die Adresse wird, wenn aktiviert, als Bild auf der Seite angezeigt und für das Kontaktformular genutzt!">*</b>)<br />');
-$sitecontent->add_site_content('<textarea readonly="readonly" name="othercont" style="width:99%;">'.$kontakt['file']->read_kimb_one( 'othercont' ).'</textarea> ( Über JavaScript gesicherter Inhalt &uarr; <b title="Der Text wird so nachgeladen, dass es für Bots schwer ist ihn zu lesen, so lassen sich z.B. Telefonnummern und Adressen schützen!">*</b>)<br />');
-
-$sitecontent->add_site_content('<input type="submit" value="Ändern" disabled="disabled"> <span style="display:inline-block;" class="ui-icon ui-icon-info" title="Dies ist nur eine Einstellungsübersicht, bitte wählen Sie mit entsprechenden Rechten Add-ons -> Konfiguration"></span>');
 ?>

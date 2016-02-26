@@ -34,6 +34,11 @@ defined('KIMB_CMS') or die('No clean Request');
 if( isset($_SERVER['REQUEST_URI']) && $allgsysconf['urlrewrite'] == 'on' && !isset($_GET['id']) && $allgsysconf['use_request_url'] == 'ok'){
 	$_GET['url'] = $_SERVER['REQUEST_URI'];
 }
+elseif( $allgsysconf['urlrewrite'] == 'on' && !isset($_GET['id']) && $allgsysconf['use_request_url'] == 'nok' ){
+	if( !isset( $_GET['url'] ) ){
+		$_GET['url'] = '/';
+	}
+}
 
 //	Die URL für das URL-Rewriting befindet sich hier immer in $_GET['url'], sie wird benutzt, wenn kein ID-Zugriff stattfindet und 
 //	URL-Rewriting aktiviert ist
@@ -44,7 +49,13 @@ if( isset($_GET['url']) && $allgsysconf['urlrewrite'] == 'on' && !isset($_GET['i
 	$oldurlfile = new KIMBdbf( 'menue/oldurl.kimb' );
 
 	//ist die aufgerufenen URL für eine Weiterleitung reserviert?
-	$oldurl = $oldurlfile->search_kimb_xxxid( $_GET['url'] , 'url' );
+	if (substr($_GET['url'], 0, 1) != '/') {
+		$umzugurl = '/'.$_GET['url'];
+	}
+	else{
+		$umzugurl = $_GET['url'];
+	}
+	$oldurl = $oldurlfile->search_kimb_xxxid( $umzugurl , 'url' );
 
 	//sofern ja, dann machen
 	if( $oldurl != false ){

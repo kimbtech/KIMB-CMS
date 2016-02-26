@@ -1,177 +1,225 @@
 <?php
 
 /*************************************************/
-//KIMB-technologies
 //KIMB CMS Add-on
-//KIMB ContentManagementSystem
-//WWW.KIMB-technologies.eu
+//KIMB ContentManagementSystem Add-on
+//Copyright (c) 2015 by KIMB-technologies
 /*************************************************/
-//CC BY-ND 4.0
-//http://creativecommons.org/licenses/by-nd/4.0/
-//http://creativecommons.org/licenses/by-nd/4.0/legalcode
+//This program is free software: you can redistribute it and/or modify
+//it under the terms of the GNU General Public License version 3
+//published by the Free Software Foundation.
+//
+//This program is distributed in the hope that it will be useful,
+//but WITHOUT ANY WARRANTY; without even the implied warranty of
+//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//GNU General Public License for more details.
+//
+//You should have received a copy of the GNU General Public License
+//along with this program.
 /*************************************************/
-//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
-//BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-//IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-//WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
-//IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//www.KIMB-technologies.eu
+//www.bitbucket.org/kimbtech
+//http://www.gnu.org/licenses/gpl-3.0
+//http://www.gnu.org/licenses/gpl-3.0.txt
 /*************************************************/
 
+defined('KIMB_CMS') or die('No clean Request');
 
-defined('KIMB_Backend') or die('No clean Request');
-
+//URL
 $addonurl = $allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=more&amp;addon=kontakt';
 
+//Konfigurationsdatei
 $kontakt['file'] = new KIMBdbf( 'addon/kontakt__file.kimb' );
 
-if( is_numeric( $_POST['id'] ) && $_POST['id'] != '' ){
+//wir die Seiten ID übergeben?
+if( is_numeric( $_POST['id'] ) && !empty( $_POST['id'] ) ){
 
+	//aktuelle Seite lesen
 	$siteid = $kontakt['file']->read_kimb_one( 'siteid' );
+	//Seiten ID verändert?
 	if( $_POST['id'] != $siteid ){
-		if( $siteid == '' ){
-			$kontakt['file']->write_kimb_new( 'siteid' , $_POST['id'] );
-		}
-		else{
-			$kontakt['file']->write_kimb_replace( 'siteid' , $_POST['id'] );
-		}
+		//Seiten ID überschreiben
+		$kontakt['file']->write_kimb_one( 'siteid' , $_POST['id'] );
+		
+		//die neue Seiten ID der Add-on API mitteilen
+		$a = new ADDonAPI( 'kontakt' );
+		$a->set_fe( 'vorn', 's'.$_POST['id'] , 'no' );
 
+		//Meldung
 		$sitecontent->echo_message( 'Die SiteID wurde geändert!' );
 	}
 
 }
-if( $_POST['mailoo'] == 'on' || $_POST['mailoo'] == 'off' ){
 
-	$new = $_POST['mailoo'];
-	$param = 'mail';
-	$oo = $kontakt['file']->read_kimb_one( $param );
-	if( $new != $oo ){
-		if( $oo == '' ){
-			$kontakt['file']->write_kimb_new( $param , $new );
+//zu prüfenden on/off Einstellungen
+$dos = array( 'mailoo' => 'mail', 'formoo' => 'form', 'otheroo' => 'other' );
+
+//alle durchgehen
+//	$key -> Name in Übergabe
+//	$val -> Name in dbf
+foreach( $dos as $key => $val ){
+
+	//Ist der Wert on oder off (anderes nicht möglich)
+	if(  $_POST[$key] == 'on' ||  $_POST[$key] == 'off' ){
+		//ist der Wert geändert?
+		if( $_POST[$key] != $kontakt['file']->read_kimb_one( $val ) ){
+			
+			//Änderung speichern
+			$kontakt['file']->write_kimb_one( $val , $_POST[$key] );
+	
+			//Medlung vorbereiten
+			$changed .= 'Der Status von "'.$val.'" wurde verändert!<br />';
 		}
-		else{
-			$kontakt['file']->write_kimb_replace( $param , $new );
-		}
-
-	}
-
-}
-if( $_POST['formoo'] == 'on' || $_POST['formoo'] == 'off' ){
-
-	$new = $_POST['formoo'];
-	$param = 'form';
-	$oo = $kontakt['file']->read_kimb_one( $param );
-	if( $new != $oo ){
-		if( $oo == '' ){
-			$kontakt['file']->write_kimb_new( $param , $new );
-		}
-		else{
-			$kontakt['file']->write_kimb_replace( $param , $new );
-		}
-
 	}
 }
-if( $_POST['otheroo'] == 'on' || $_POST['otheroo'] == 'off' ){
+//Sind Meldungen vorbereitet?
+if( !empty( $changed ) ){
+	//wenn ja, ausgeben
+	$sitecontent->echo_message( $changed );
+}
 
-	$new = $_POST['otheroo'];
-	$param = 'other';
-	$oo = $kontakt['file']->read_kimb_one( $param );
-	if( $new != $oo ){
-		if( $oo == '' ){
-			$kontakt['file']->write_kimb_new( $param , $new );
-		}
-		else{
-			$kontakt['file']->write_kimb_replace( $param , $new );
-		}
+//Ist ein über JavaScript zu sichernder Text übergeben
+if( !empty( $_POST['othercont'] ) ){
 
+	//unterscheidet sich der Text in der Übergabe von der dbf?
+	if( $_POST['othercont'] != $kontakt['file']->read_kimb_one( 'othercont' ) ){
+		//wenn ja, anpassen
+		$kontakt['file']->write_kimb_one( 'othercont' , $_POST['othercont'] );
+		//Medlung
+		$sitecontent->echo_message( 'Der über JavaScript gesicherter Inhalt wurde geändert!' );
 	}
 }
-if( isset( $_POST['mail'] ) && $_POST['mail'] != '' ){
-	$mail = $kontakt['file']->read_kimb_one( 'formaddr' );
-	if( $_POST['mail'] != $mail ){
-		if( $mail == '' ){
-			$kontakt['file']->write_kimb_new( 'formaddr' , $_POST['mail'] );
-		}
-		else{
-			$kontakt['file']->write_kimb_replace( 'formaddr' , $_POST['mail'] );
-		}
 
+//Wird eine E-Mail-Adresse übergeben?
+if( !empty( $_POST['mail'] ) ){
+	//Ist die Übergabe anders als in der dbf?
+	//Wird expliziet eine Änderung vorgeschrieben?
+	if( $_POST['mail'] != $kontakt['file']->read_kimb_one( 'formaddr' ) || isset( $_POST['newimg'] ) ){
+	
+		//Adresse in dbf schreiben	
+		$kontakt['file']->write_kimb_one( 'formaddr' , $_POST['mail'] );
+
+		//den Namen des alten E-Mail-Bildes lesen
 		$oldname = $kontakt['file']->read_kimb_one( 'bildname' );
-		$name = mt_rand();
-		if( $oldname == '' ){
-			$kontakt['file']->write_kimb_new( 'bildname' , $name );
-		}
-		else{
+		//gibt es das alte Bild noch?
+		if( is_file(__DIR__.'/../../../load/addondata/kontakt/'.$oldname.'.png') ){
+			//wenn ja, löschen
 			unlink( __DIR__.'/../../../load/addondata/kontakt/'.$oldname.'.png' );
-			$kontakt['file']->write_kimb_replace( 'bildname' , $name );
 		}
 		
+		//Namen für das neue Bild machen
+		$name = makepassw( 20, '', 'numaz');
+		//Namen in dbf sichern
+		$kontakt['file']->write_kimb_one( 'bildname' , $name );
+		
+		//E-Mail-Adresse für Bild vorbereiten
 		$string = $_POST['mail'];
-		$im = imagecreate (400, 30);
-		imagecolorallocate( $im , 255 , 255 , 255 );
-		$color = imagecolorallocate( $im , 0 , 0 , 0 );
-		imagettftext ($im, 20, 0, 5, 25, $color, __DIR__.'/Ubuntu-B.ttf', $string );
+		
+		//nötige Größe des Bildes berechen
+		$box = imagettfbbox ( 20 , 5 , __DIR__.'/Ubuntu-B.ttf' , $string );
+		//	Breite
+		$w = abs($box[4] - $box[0]);
+		//	Höhe
+		$h = abs($box[5] - $box[1]);
+		
+		//Bild passend erstellen (überall 5px Rand)
+		$im = imagecreate ($w +10 , $h + 10 );
+		//Hintergrund weiß
+		imagecolorallocate( $im , 255 , 255 , 255);
+		//Textfarbe (schwarz)
+		$color = imagecolorallocate( $im, 0, 0, 0);
+		//Text dem Bild hinzufügen
+		//	Textgröße, Winkel, Abstände
+		imagettftext ($im, 20, -5, 5, 25, $color, __DIR__.'/Ubuntu-B.ttf', $string );
+		//Bild speichern 
 		imagepng( $im , __DIR__.'/../../../load/addondata/kontakt/'.$name.'.png' );
+		//Bild löschen
 		imagedestroy( $im );
 
+		//Medlung
 		$sitecontent->echo_message( 'Die E-Mail-Adresse wurde geändert!' );
 	}
 }
-if( isset( $_POST['othercont'] ) && $_POST['othercont'] != '' ){
 
-	$cont = $kontakt['file']->read_kimb_one( 'othercont' );
-	if( $_POST['othercont'] != $cont ){
-		if( $cont == '' ){
-			$kontakt['file']->write_kimb_new( 'othercont' , $_POST['othercont'] );
-		}
-		else{
-			$kontakt['file']->write_kimb_replace( 'othercont' , $_POST['othercont'] );
-		}
-
-		$sitecontent->echo_message( 'Der über JavaScript gesicherter Inhalt wurde geändert!' );
+//alle zu lesenden on/off Werte durchgehen
+$i = 0;
+foreach( $dos as $val ){
+	
+	//bei off Array ( checked, '' ) setzen
+	if( $kontakt['file']->read_kimb_one( $val ) == 'off' ){
+		$ch[$i] = ' checked="checked" ';
+		$ch[$i+1] = ' ';
 	}
-
+	//bei on Array ( '', checked ) setzen
+	elseif( $kontakt['file']->read_kimb_one( $val ) == 'on' ){
+		$ch[$i+1] = ' checked="checked" ';
+		$ch[$i] = ' ';
+	}
+	//wenn nichts, keine Vorauswahl
+	
+	//zwei Indexe im Array weiter
+	$i = $i + 2;
 }
 
+//JavaScript Datei, welche Funktion liefert um sicheren Text zu codieren
+$sitecontent->add_html_header('<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/kontakt/coder.min.js"></script>');
 
-$ch = array( ' ' , ' ' , ' ' , ' ' , ' ' , ' ' );
+//Formular
+$sitecontent->add_site_content('<br /><br /><form action="'.$addonurl.'" method="post" onsubmit="submitsecure();">');
 
-if( $kontakt['file']->read_kimb_one( 'mail' ) == 'on' ){
-	$ch[2] = ' checked="checked" ';
+//SiteID lesen
+$siteid = $kontakt['file']->read_kimb_one( 'siteid' );
+if( empty( $siteid )){
+	//leer -> keine
+	$siteid = 'none';
 }
-else{
-	$ch[1] = ' checked="checked" ';
+//im Dropdown mit SiteIDs Akteulle wählen
+$sitecontent->add_html_header('<script>$(function(){ $( "select[name=id]" ).val( \''.$siteid.'\' ); }); </script>');
+//Dropdown und Infotext
+$sitecontent->add_site_content(id_dropdown( 'id', 'siteid' ).' (SiteID <b title="Bitte geben Sie hier die Seite an, auf welcher die Kontaktinfos erscheinen sollen.">*</b>)<br />');
+
+//Mailbild on/off
+$sitecontent->add_site_content('<input type="radio" name="mailoo" value="off"'.$ch[0].'> <span style="display:inline-block;" title="Bild der E-Mail-Adresse deaktiviert" class="ui-icon ui-icon-closethick"></span>');
+$sitecontent->add_site_content('<input type="radio" name="mailoo" value="on"'.$ch[1].'> <span style="display:inline-block;" title="Bild der E-Mail-Adresse aktiviert" class="ui-icon ui-icon-check"></span> (E-Mail-Adresse)<br />');
+
+//Formular on/off
+$sitecontent->add_site_content('<input type="radio" name="formoo" value="off"'.$ch[2].'> <span style="display:inline-block;" title="Kontakformular deaktiviert" class="ui-icon ui-icon-closethick"></span>');
+$sitecontent->add_site_content('<input type="radio" name="formoo" value="on"'.$ch[3].'> <span style="display:inline-block;" title="Kontaktformular aktiviert" class="ui-icon ui-icon-check"></span> (Kontaktformular)<br />');
+
+//sicherer Text on/off
+$sitecontent->add_site_content('<input type="radio" name="otheroo" value="off"'.$ch[4].'> <span style="display:inline-block;" title="Über JavaScript gesicherter Inhalt deaktiviert" class="ui-icon ui-icon-closethick"></span>');
+$sitecontent->add_site_content('<input type="radio" name="otheroo" value="on"'.$ch[5].'> <span style="display:inline-block;" title="Über JavaScript gesicherter Inhalt aktiviert" class="ui-icon ui-icon-check"></span> (JavaScript Inhalt)<br /><br />');
+
+//E-Mail-Adresse lesen
+$mailadr = $kontakt['file']->read_kimb_one( 'formaddr' );
+//wenn leer, dann Systemadminmail
+if( empty( $mailadr )){
+	$mailadr = $allgsysconf['adminmail'];
 }
-if( $kontakt['file']->read_kimb_one( 'form' ) == 'on' ){
-	$ch[4] = ' checked="checked" ';
-}
-else{
-	$ch[3] = ' checked="checked" ';
-}
-if( $kontakt['file']->read_kimb_one( 'other' ) == 'on' ){
-	$ch[6] = ' checked="checked" ';
-}
-else{
-	$ch[5] = ' checked="checked" ';
+//nach E-Mail-Adresse fragen (für Bild und als Ziel für Kontakformular) 
+$sitecontent->add_site_content('<input name="mail" type="text" value="'.$mailadr.'" > (E-Mail-Adresse <b title="Die Adresse wird, wenn aktiviert, als Bild auf der Seite angezeigt und für das Kontaktformular genutzt!">*</b>)<br />');
+
+//wenn Bild vorhanden
+if( !empty( $kontakt['file']->read_kimb_one( 'bildname' ) ) ){
+	//Link zum Bild erstellen
+	$link = $allgsysconf['siteurl'].'/load/addondata/kontakt/'.$kontakt['file']->read_kimb_one( 'bildname' ).'.png';
+	//Icon um Vorschau des Bildes zu sehen
+	$sitecontent->add_site_content('<a href="'.$link.'" target="popup" onclick="window.open(\'\', \'popup\', \'width=900px,height=500px,top=20px,left=20px\'); "><span style="display:inline-block;" title="Vorschau" class="ui-icon ui-icon-image"></span></a>');
+	//Auwahl, expliziet neues Bild erstellen 
+	$sitecontent->add_site_content('<input type="checkbox" name="newimg" value="yes">(Neues Bild <b title="Ein neues Bild erstellen, auch wenn E-Mail-Adresse nicht geändert wurde">*</b>)<br /><br >');
 }
 
-$sitecontent->add_html_header('<script>
-$(function() { 
-	nicEditors.allTextAreas({fullPanel : true, iconsPath : \''.$allgsysconf['siteurl'].'/load/system/nicEditorIcons.gif\'});
-});
-</script>');
+//sicheren Text laden
+$othercont = $kontakt['file']->read_kimb_one( 'othercont' );
+//br's weg (werden per JS eingefügt)
+$othercont = str_replace( '<br />', '', $othercont);
+//Eingabefeld
+$sitecontent->add_site_content('<textarea name="othercont" id="othercont" style="width:99%; min-height:150px;">'.$othercont.'</textarea>');
+//Hinweistext
+$sitecontent->add_site_content('(Über JavaScript gesicherter Inhalt &uarr; <b title="Der Text wird so nachgeladen, dass es für Bots schwer ist ihn zu lesen, so lassen sich z.B. Telefonnummern und Adressen schützen!">*</b>)<br />');
+$sitecontent->add_site_content('<i>Bitte schreiben Sie nur reinen Text mit Absätzen!</i>)<br />');
 
-$sitecontent->add_site_content('<br /><br /><form action="'.$addonurl.'" method="post" >');
-
-$sitecontent->add_html_header('<script>$(function(){ $( "[name=id]" ).val( '.$kontakt['file']->read_kimb_one( 'siteid' ).' ); }); </script>');
-
-$sitecontent->add_site_content(id_dropdown( 'id', 'siteid' ).' ( SiteID <b title="Bitte geben Sie hier die Seite an, auf welcher die Kontaktinfos erscheinen sollen.">*</b> )<br />');
-$sitecontent->add_site_content('<input type="radio" name="mailoo" value="off"'.$ch[1].'> <span style="display:inline-block;" title="Bild der E-Mail-Adresse deaktiviert" class="ui-icon ui-icon-closethick"></span> <input type="radio" name="mailoo" value="on"'.$ch[2].'> <span style="display:inline-block;" title="Bild der E-Mail-Adresse aktiviert" class="ui-icon ui-icon-check"></span> (E-Mail-Adresse)<br />');
-$sitecontent->add_site_content('<input type="radio" name="formoo" value="off"'.$ch[3].'> <span style="display:inline-block;" title="Kontakformular deaktiviert" class="ui-icon ui-icon-closethick"></span> <input type="radio" name="formoo" value="on"'.$ch[4].'> <span style="display:inline-block;" title="Kontaktformular aktiviert" class="ui-icon ui-icon-check"></span> (Kontaktformular)<br />');
-$sitecontent->add_site_content('<input type="radio" name="otheroo" value="off"'.$ch[5].'> <span style="display:inline-block;" title="Über JavaScript gesicherter Inhalt deaktiviert" class="ui-icon ui-icon-closethick"></span> <input type="radio" name="otheroo" value="on"'.$ch[6].'> <span style="display:inline-block;" title="Über JavaScript gesicherter Inhalt aktiviert" class="ui-icon ui-icon-check"></span> (JavaScript Inhalt)<br /><br />');
-$sitecontent->add_site_content('<input name="mail" type="text" value="'.$kontakt['file']->read_kimb_one( 'formaddr' ).'" > ( Mail-Adresse <b title="Die Adresse wird, wenn aktiviert, als Bild auf der Seite angezeigt und für das Kontaktformular genutzt!">*</b>)<br />');
-$sitecontent->add_site_content('<textarea name="othercont" style="width:99%;">'.$kontakt['file']->read_kimb_one( 'othercont' ).'</textarea> ( Über JavaScript gesicherter Inhalt &uarr; <b title="Der Text wird so nachgeladen, dass es für Bots schwer ist ihn zu lesen, so lassen sich z.B. Telefonnummern und Adressen schützen!">*</b>)<br />');
-
+//Formular absenden
 $sitecontent->add_site_content('<input type="submit" value="Ändern"> </form>');
-
 
 ?>

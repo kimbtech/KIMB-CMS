@@ -1,117 +1,140 @@
 <?php
 
 /*************************************************/
-//KIMB-technologies
 //KIMB CMS Add-on
-//KIMB ContentManagementSystem
-//WWW.KIMB-technologies.eu
+//KIMB ContentManagementSystem Add-on
+//Copyright (c) 2015 by KIMB-technologies
 /*************************************************/
-//CC BY-ND 4.0
-//http://creativecommons.org/licenses/by-nd/4.0/
-//http://creativecommons.org/licenses/by-nd/4.0/legalcode
+//This program is free software: you can redistribute it and/or modify
+//it under the terms of the GNU General Public License version 3
+//published by the Free Software Foundation.
+//
+//This program is distributed in the hope that it will be useful,
+//but WITHOUT ANY WARRANTY; without even the implied warranty of
+//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//GNU General Public License for more details.
+//
+//You should have received a copy of the GNU General Public License
+//along with this program.
 /*************************************************/
-//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
-//BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-//IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-//WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
-//IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//www.KIMB-technologies.eu
+//www.bitbucket.org/kimbtech
+//http://www.gnu.org/licenses/gpl-3.0
+//http://www.gnu.org/licenses/gpl-3.0.txt
 /*************************************************/
 
 defined('KIMB_CMS') or die('No clean Request');
 
+//Cache aktiviert?
 if( is_object($sitecache) ){
 
+	//Cache der Sitemap anfragen
 	$menuecache = $sitecache->get_cached_addon( $search_sitemap['searchsiteid'] , 'search_sitemap' );
 
+	//Cache vorhanden?
 	if( $menuecache != false ){
+		//Cache der Ausgabe anfügen
 		$sitecontent->add_site_content( $menuecache[0] );
 		$cacheload = 'yes';
 	}
 	else{
+		//kein Cache
 		$cacheload = 'no';
 	}
 
 }
 else{
+	//kein Cache
 	$cacheload = 'no';
 }
 
+//wenn kein Cache: neue Sitemap erstellen
 if( $cacheload == 'no' ){
 
+	//Dateien für make_menue_array()
 	$idfile = new KIMBdbf('menue/allids.kimb');
 	$menuenames = new KIMBdbf('menue/menue_names.kimb');
+	//Menue Array machen
 	make_menue_array();
+	
+	//Sitemap beginnen
+	$menue = '<ul id="sitemap">'."\r\n";
 
-	$menue = '<ul id="sitemap">';
-
+	//alle Menüpunkte durchgehen
 	foreach( $menuearray as $menuear ){
 
-		$niveau = $menuear['niveau'];
-
-		if( $allgsysconf['urlrewrite'] == 'on' ){
-
+		//nur aktivierte Menüpunkte zeigen
+		if ( $menuear['status'] == 'on' ){
+			
+			//Niveau des Punktes
+			$niveau = $menuear['niveau'];
+	
+			//letztes Niveau gesetzt?
 			if( !isset( $thisniveau ) ){
-				$grpath = $allgsysconf['siteurl'].'/'.$menuear['path'];
+				//wenn nein, dann erster Durchgang -> los mit li
+				$menue .= '<li>';
 			}
+			//gleiches Niveau
 			elseif( $thisniveau == $niveau ){
-				$grpath = substr( $grpath , '0', '-'.strlen(strrchr( $grpath , '/')));
-				$grpath = $grpath.'/'.$menuear['path'];
+				//ein li beenden und neues öffnen
+				$menue .= '</li>'."\r\n".'<li>';
 			}
+			//tieferes Menü
 			elseif( $thisniveau < $niveau ){
-				$grpath = $grpath.'/'.$menuear['path'];
-				$thisulaufp = $thisulauf + 1;
+				//neues Untermenü
+				
+				//wie viel tiefer?
+				$i = 1;
+				while( $thisniveau != $niveau - $i  ){
+					$i++;
+				}
+				
+				//entsprechend oft ul öffnen
+				//neues li öffnen
+				$menue .= str_repeat( "\r\n".'<ul>' , $i )."\r\n".'<li>';
+				//Tiefe merken
+				$thisulauf = $thisulauf + $i;
 			}
+			//höheres Menü
 			elseif( $thisniveau > $niveau ){
+				//Untermenü verlassen
+				
+				//wie viel höher?
 				$i = 1;
 				while( $thisniveau != $niveau + $i  ){
 					$i++;
-					$grpath = substr( $grpath , '0', '-'.strlen(strrchr( $grpath , '/')));
 				}
-				$thisulaufp = $thisulaufp - $i;
-
-				$grpath = substr( $grpath , '0', '-'.strlen(strrchr( $grpath , '/')));
-				$grpath = substr( $grpath , '0', '-'.strlen(strrchr( $grpath , '/')));
-				$grpath = $grpath.'/'.$menuear['path'];
+				
+				//li schließen
+				//entsprechend oft ul schließen
+				//neues li öffnen
+				$menue .= '</li>'."\r\n".str_repeat( '</ul>'."\r\n" , $i ).'<li>'."\r\n";
+				$thisulauf = $thisulauf - $i;
 			}
-			$url = $grpath.'/';
-		}
-		else{
-			$url = $allgsysconf['siteurl'].'/index.php?id='.$menuear['requid'];
-		}
 
-		if( !isset( $thisniveau ) ){
-			$menue .= '<li>'."\r\n";
+			//Link zur Seite
+			$menue .=  '<a href="'.$allgsysconf['siteurl'].make_path_outof_reqid( $menuear['requid'] ).'">'.$menuear['menuname'].'</a>';
+			
+			//aktuelles Menü wird jetzt letztes
+			$thisniveau = $niveau;
 		}
-		elseif( $thisniveau == $niveau ){
-			$menue .= '</li><li>'."\r\n";
-		}
-		elseif( $thisniveau < $niveau ){
-			$menue .= '<ul><li>'."\r\n";
-			$thisulauf = $thisulauf + 1;
-		}
-		elseif( $thisniveau > $niveau ){
-			$i = 1;
-			while( $thisniveau != $niveau + $i  ){
-				$i++;
-			}
-			$menue .= '</li>'.str_repeat( '</ul>' , $i ).'<li>'."\r\n";
-			$thisulauf = $thisulauf - $i;
-		}
-
-		if ( $menuear['status'] == 'on' ){
-			$menue .=  '<a href="'.$url.'">'.$menuear['menuname'].'</a>'."\r\n";
-		}
-		$thisniveau = $niveau;
 	}
 
-	$menue .= '</li>'.str_repeat( '</ul>' , $thisulauf );
+	//Menü beenden
+	//	li schließen
+	//	alle offenen ul schließen
+	//	ul von ganz vorne schließen
+	$menue .= '</li>'."\r\n".str_repeat( '</ul>'."\r\n" , $thisulauf ).'</ul>'."\r\n";
 
+	//Map ausgeben
 	$sitecontent->add_site_content( $menue );
 
+	//wenn Cache aktiviert, Ausgaben cachen
 	if( is_object($sitecache) ){
 		$sitecache->cache_addon( $search_sitemap['searchsiteid'] , $menue , 'search_sitemap' );
 	}
 
 }
+
 
 ?>

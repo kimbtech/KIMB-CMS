@@ -59,6 +59,7 @@ class BEaddconf{
 	public function make_addon_list( $way ){
 		//in der Methode normal auf den Seiteninhalt zugreifen
 		$sitecontent = $this->sitecontent;
+		$allgsysconf = $this->allgsysconf;
 		
 		//Tabellendesign
 		$sitecontent->add_html_header('<style>td { border:1px solid #000000; padding:2px;} td a { text-decoration:none; }</style>');

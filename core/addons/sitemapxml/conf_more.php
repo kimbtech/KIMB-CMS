@@ -1,59 +1,65 @@
 <?php
 
 /*************************************************/
-//KIMB-technologies
 //KIMB CMS Add-on
-//KIMB ContentManagementSystem
-//WWW.KIMB-technologies.eu
+//KIMB ContentManagementSystem Add-on
+//Copyright (c) 2015 by KIMB-technologies
 /*************************************************/
-//CC BY-ND 4.0
-//http://creativecommons.org/licenses/by-nd/4.0/
-//http://creativecommons.org/licenses/by-nd/4.0/legalcode
+//This program is free software: you can redistribute it and/or modify
+//it under the terms of the GNU General Public License version 3
+//published by the Free Software Foundation.
+//
+//This program is distributed in the hope that it will be useful,
+//but WITHOUT ANY WARRANTY; without even the implied warranty of
+//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//GNU General Public License for more details.
+//
+//You should have received a copy of the GNU General Public License
+//along with this program.
 /*************************************************/
-//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
-//BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-//IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-//WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
-//IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//www.KIMB-technologies.eu
+//www.bitbucket.org/kimbtech
+//http://www.gnu.org/licenses/gpl-3.0
+//http://www.gnu.org/licenses/gpl-3.0.txt
 /*************************************************/
 
-defined('KIMB_Backend') or die('No clean Request');
+defined('KIMB_CMS') or die('No clean Request');
 
+//URL
 $addonurl = $allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=more&addon=sitemapxml';
-
-$sitecontent->add_site_content( '<hr /><br /><h2>Sitemap.xml</h2>' );
-
-$sitecontent->add_site_content( 'Dieses Add-on generiert für Sie eine Sitemap.xml.<br />' );
 
 $conffile = new KIMBdbf( 'addon/sitemapxml__conf.kimb' );
 
-if( isset( $_GET['keygen'] ) ){
+if( !empty($_POST['age']) && is_numeric($_POST['age'])){
 
-	$key = makepassw( 30, '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz' );	
-
-	if( empty( $conffile->read_kimb_one( 'key' ) ) ){
-		$conffile->write_kimb_new( 'key', $key );
+	if( $_POST['age'] != $conffile->read_kimb_one( 'age' ) ){
+						
+		//Wert anpassen
+		$conffile->write_kimb_one( 'age', $_POST['age'] );
+						
+		//Stunden aus Übergabe in Sekunden umrechen
+		$agesec = $_POST['age']*3600;
+							
+		//Add-on API wish
+		$a = new ADDonAPI( 'sitemapxml' );
+		$a->set_cron( $agesec );
+		
+		$sitecontent->echo_message( 'Der Abstand der Erstellungen wurde verändert!');
+				
 	}
-	else{
-		$conffile->write_kimb_replace( 'key', $key );
-	}
-	$sitecontent->echo_message( 'Es wurde ein neuer Key erstellt!' );
 }
 
-$key = $conffile->read_kimb_one( 'key' );
+$age = $conffile->read_kimb_one( 'age' );
 
-$sitecontent->add_site_content( '<h3>Links</h3>' );
-$sitecontent->add_site_content( '<a href="'.$allgsysconf['siteurl'].'/ajax.php?addon=sitemapxml&amp;key='.$key.'" target="_blank" >Neue Sitemap anschauen</a><br />' );
-$sitecontent->add_site_content( '<a href="'.$allgsysconf['siteurl'].'/ajax.php?addon=sitemapxml&amp;save&amp;key='.$key.'" target="_blank" >Neue Sitemap speichern <b title="Unter der URL: '.$allgsysconf['siteurl'].'/sitemap.xml" >*</b></a><br />' );
-$sitecontent->add_site_content( '<a href="'.$allgsysconf['siteurl'].'/ajax.php?addon=sitemapxml&amp;down&amp;key='.$key.'" target="_blank" >Neue Sitemap herunterladen</a><br />' );
-$sitecontent->add_site_content( '<a href="'.$allgsysconf['siteurl'].'/sitemap.xml" target="_blank" >Aktuelle Sitemap ansehen</a><br />' );
-$sitecontent->add_site_content( '<br />' );
-$sitecontent->add_site_content( 'Key: <div style="background-color:#ccc; padding:10px; width:90%;" >'.$key.'</div><br />' );
-$sitecontent->add_site_content( 'Cron URL: <div title="Nutzen Sie diese URL um mit einem Cron-Job regelmäßig vollkommen automatisch eine neue Sitemap zu generieren." style="background-color:#ccc; padding:10px; width:90%;" >'.$allgsysconf['siteurl'].'/ajax.php?addon=sitemapxml&amp;save&amp;key='.$key.'</div><br />' );
-$sitecontent->add_site_content( '<br />' );
+$sitecontent->add_site_content( '<form action="'.$addonurl.'" method="post">' );
+$sitecontent->add_site_content( '<input type="number" name="age" placeholder="144" value="'.$age.'">Abstand <b title="Bitte geben Sie hier den Abstand zwischen den Erstellungen einer neuen Sitemap in Stunden an!">*</b><br />' );
+$sitecontent->add_site_content( '<input type="submit" value="Ändern">' );
+$sitecontent->add_site_content( '</form>' );
 
-$sitecontent->add_site_content( '<hr /><a href="'.$addonurl.'&amp;keygen">Neuen Key generieren</a>' );
+$sitecontent->add_site_content( '<h3>Cron-Job</h3>' );
+$sitecontent->add_site_content( 'Bitte richten Sie einen Cron-Job auf diese URL für das CMS ein:<br />' );
+$sitecontent->add_site_content( $allgsysconf['siteurl'].'/cron.php?key='.$allgsysconf['cronkey'].'<br />' );
 
-
+$sitecontent->add_site_content( '<br /><br /><i>Der tatsächliche Abstand zwischen der Erstellung  der Sitemaps hängt vom Abstand der Aufrufe der cron.php ab!</i>' );
 
 ?>

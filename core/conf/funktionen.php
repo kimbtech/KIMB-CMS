@@ -80,10 +80,29 @@ function SYS_INIT( $robots, $cont = 'text/html' ){
 	header('Content-Type: '.$cont.'; charset=utf-8');
 }
 
+//sichere Zufallszahlen, neu seit PHP 7
+//	$a => Anfang
+//	$e => Ende
+//	Rückgabe: Nummer
+function gen_zufallszahl( $a, $e ){
+	
+	//neue Funktion von PHP 7 verfügbar?
+	if( function_exists( 'random_int') ){
+		//nutzen
+		return random_int( $a, $e );
+	}
+	else{
+		//alte Zufallszahl nutzen
+		return mt_rand( $a, $e );
+	}
+	
+}
+
 //email versenden
 // $to => Empfänger
 // $inhalt => Inhalt
-function send_mail($to, $inhalt){
+//$mime => MIME Type (text oder html)
+function send_mail($to, $inhalt, $mime = 'plain'){
 	global $allgsysconf;
 	
 	//nicht leer ?
@@ -91,8 +110,15 @@ function send_mail($to, $inhalt){
 		return false;
 	}
 
+	//Header erstellen
+	//	Absender
+	$header = 'From: '.$allgsysconf['sitename'].' <'.$allgsysconf['mailvon'].'>'."\r\n";
+	//	MIME & Charset
+	$header .= 'MIME-Version: 1.0' ."\r\n";
+	$header .= 'Content-Type: text/'.$mime.'; charset=uft-8' . "\r\n";
+
 	//sende Mail und gebe zurück
-	return mail($to, 'Nachricht von: '.$allgsysconf['sitename'], $inhalt, 'From: '.$allgsysconf['sitename'].' <'.$allgsysconf['mailvon'].'>');
+	return mail($to, 'Nachricht von: '.$allgsysconf['sitename'], $inhalt, $header);
 }
 
 //Browser an  andere URL weiterleiten
@@ -677,7 +703,7 @@ function makepassw( $laenge , $chars = '!"#%&()*+,-./:;?[\]_0123456789ABCDEFGHIJ
 	//solange weniger oder genausoviele Charakter wie gwünscht im Sting weiteren erstellen 
 	while($i <= $laenge){
 		//Charakter zufällig wählen (Zufallszahl als Stelle für $chars nutzen)
-		$stelle = mt_rand('0', $anzahl);
+		$stelle = gen_zufallszahl('0', $anzahl);
 		//Ausgabe erweitern 
 		$output .= $chars{$stelle};
 		$i++;
@@ -858,10 +884,25 @@ function add_tiny( $big = false, $small = false, $ids = array( 'big' => '#inhalt
 
 //CMS und KIMB-Software Versionsstings vergleichen
 //	Verhaeltnis von $v1 zu $v2, z.B.:
-//		return 'newer'	-> 	$v1 neuer als $v2
-//		return 'older'	-> 	$v1 aelter als $v2
-//		return 'same'	-> 	$v1 gleich wie $v2
-//		return false	-> 	$v1 oder $v2 haben eine fehlerhafte Syntax
+//		return 'newer' -> $v1 neuer als $v2
+//		return 'older' -> $v1 aelter als $v2
+//		return 'same' -> $v1 gleich wie $v2
+//		return false -> $v1 oder $v2 haben eine fehlerhafte Syntax
+//
+//	Beispiele und Syntax für Versionsstings:
+//		V1.0B-p2
+//		V2.11A
+//		V2.3F-p1,2
+//			Aufbau:
+//				"V" für Version
+//				Zahl für ganze Versionsnummer
+//				"." Punkt als Komma
+//				Zahl für Unterversionsnummer (max. 4 Stellen)
+//				"A" oder "B" oder "F" für Alpha, Beta, Final Version
+//				evtl.: 
+//					"-p" für Patch
+//		 			Nummer des Patches
+//					weitere Nummer mit "," angeschlossen (Reihenfolge brachten: 1,2,3; nicht 2,3,1!!)
 function compare_cms_vers( $v1 , $v2 ) {
 
 	$v[0] = $v1;
@@ -903,20 +944,33 @@ function compare_cms_vers( $v1 , $v2 ) {
 
 		$teil['komma'] = substr( $ver , $ppos + 1 , $lv - 1 );
 
+		//als Nachkommastelle behandeln (mal 1000 nehmen)
+		$teil['komma'] = (int) str_pad( $teil['komma'], 4, 0 );
+
+		//max 4 Stellen
+		$teil['komma'] = (int) substr( $teil['komma'], 0, 4 );
+
 		//Patch
 		$papos = stripos( $ver , '-p', $lpos );
 	
-		$patch = substr( $ver , $papos + 2 );
-
-		$kpos = strrpos( $patch , ',' );
-
-		if( $kpos !== false ){
-			$patch = substr( $patch , $kpos + 1 );
+		//wenn -p gegeben, lesen
+		if( $papos !== false  ){
+			$patch = substr( $ver , $papos + 2 );
+	
+			$kpos = strrpos( $patch , ',' );
+	
+			if( $kpos !== false ){
+				$patch = substr( $patch , $kpos + 1 );
+			}
+	
+			$patch = preg_replace( "/\D/", '', $patch );  
+	
+			$teil['patch'] = $patch;
 		}
-
-		$patch = preg_replace( "/\D/", '', $patch );  
-
-		$teil['patch'] = $patch;
+		else{
+			//sonst Patch 0
+			$teil['patch'] = 0;
+		}
 
 		//fertig
 

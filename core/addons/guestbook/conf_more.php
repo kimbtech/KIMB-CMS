@@ -1,126 +1,185 @@
 <?php
 
 /*************************************************/
-//KIMB-technologies
-//KIMB CMS Add-on
+//KIMB CMS
 //KIMB ContentManagementSystem
-//WWW.KIMB-technologies.eu
+//Copyright (c) 2014 by KIMB-technologies
 /*************************************************/
-//CC BY-ND 4.0
-//http://creativecommons.org/licenses/by-nd/4.0/
-//http://creativecommons.org/licenses/by-nd/4.0/legalcode
+//This program is free software: you can redistribute it and/or modify
+//it under the terms of the GNU General Public License version 3
+//published by the Free Software Foundation.
+//
+//This program is distributed in the hope that it will be useful,
+//but WITHOUT ANY WARRANTY; without even the implied warranty of
+//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//GNU General Public License for more details.
+//
+//You should have received a copy of the GNU General Public License
+//along with this program.
 /*************************************************/
-//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
-//BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-//IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-//WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
-//IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//www.KIMB-technologies.eu
+//www.bitbucket.org/kimbtech
+//http://www.gnu.org/licenses/gpl-3.0
+//http://www.gnu.org/licenses/gpl-3.0.txt
 /*************************************************/
 
+defined('KIMB_CMS') or die('No clean Request');
 
-defined('KIMB_Backend') or die('No clean Request');
-
+//URL zu Add-on Konfiguration
 $addonurl = $allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=more&addon=guestbook';
 
-$cssallg = 'div#guestname{ position:relative; border-bottom:solid 1px #000000; font-weight:bold; } span#guestdate{ font-weight:normal; position:absolute; right:0px; } div#guest{ border:solid 1px #000000; border-radius:15px; background-color:#dddddd; padding:10px; margin:5px;}';
+//CSS Style Vorschlag
+$cssallg = 'div#guestname{ position:relative; border-bottom:solid 1px #000000; font-weight:bold; } span#guestdate{ font-weight:normal; position:absolute; right:0px; } div#guest, div.answer{ border:solid 1px #000000; border-radius:15px; background-color:#dddddd; padding:10px; margin:5px;} div.answer{ margin-left:80px; }';
 
+//Konfigurations dbf laden
 $guestfile = new KIMBdbf( 'addon/guestbook__conf.kimb' );
 
+//Soll ein neues Gästebuch einer Seite hinzugefügt werden?
 if( isset( $_GET['new'] ) && is_numeric( $_POST['id'] ) ){
 
+	//Ist die ID schon in der Liste der Seiten mit Gästebuch
+	//	existiert die Datei für die Seite schon?
 	if( !$guestfile->read_kimb_search_teilpl( 'siteid' , $_POST['id'] ) && !check_for_kimb_file( 'addon/guestbook__id_'.$_POST['id'].'.kimb' ) ){
 
+		//ID der Liste hinzufügen
 		if( $guestfile->write_kimb_teilpl( 'siteid' , $_POST['id'] , 'add' ) ){
+			//Medlung
 			$sitecontent->echo_message( 'Ein Gästebuch wurde zur Seite "'.$_POST['id'].'" hinzugefügt!' );
 		}
 
 	}
 	else{
+		//Fehler wenn Gästebuch schon da
 		$sitecontent->echo_error( 'Diese Seite hat bereits ein Gästebuch!' , 'unknown' );
 	}
 }
+//soll ein Gästebuch einer Seite entfernt werden
 elseif( isset( $_GET['del'] ) && is_numeric( $_GET['id'] ) ){
 
+	//Hat die Seite überhaupt ein Gästebuch?
 	if( $guestfile->read_kimb_search_teilpl( 'siteid' , $_GET['id'] ) ){
-
+		//ja
+		
+		//entfernen der ID aus der Gästebuchdatei
 		if( $guestfile->write_kimb_teilpl( 'siteid' , $_GET['id'] , 'del' ) ){
+			//Meldung
 			$sitecontent->echo_message( 'Das Gästebuch der Seite "'.$_GET['id'].'" wurde entfernt!' );
 		}
+		//existiert noch eine Datei mit Beiträgen des Gästebuchs?
 		if( check_for_kimb_file( 'addon/guestbook__id_'.$_GET['id'].'.kimb' ) ){
+			//Datei löschen
 			delete_kimb_datei( 'addon/guestbook__id_'.$_GET['id'].'.kimb' );
 		}
 
 	}
 	else{
+		//Fehlermeldung wenn Seite kein Gästebuch hat
 		$sitecontent->echo_error( 'Diese Seite hat kein Gästebuch!' , 'unknown' );
 	}
 }
+//Änderung der Einstellungen
+//	Sind alle Felder gesetzt?
 elseif( isset( $_GET['settings'] , $_POST['feloginoo'] , $_POST['mailoo'] , $_POST['nstatoo'] , $_POST['ipoo'] , $_POST['mail'] , $_POST['css'] ) ){
 
+	//Habe alle on/off Werte einen Wert?
+	//Ist die E-Mail-Adresse gesetzt?
 	if( !empty( $_POST['feloginoo'] ) && !empty( $_POST['mailoo'] ) && !empty( $_POST['nstatoo'] ) && !empty( $_POST['ipoo'] ) && !empty( $_POST['mail'] ) ){
 
+		//Array mit zu setztenden Werten
+		//	teil -> Name im Formular
+		//	trenner -> Name in dbf
 		$arrays[] = array( 'teil' => 'feloginoo' , 'trenner' => 'nurfeloginuser' );
 		$arrays[] = array( 'teil' => 'mailoo' , 'trenner' => 'mailinfo' );
 		$arrays[] = array( 'teil' => 'nstatoo' , 'trenner' => 'newstatus' );
 		$arrays[] = array( 'teil' => 'ipoo' , 'trenner' => 'ipsave' );
 
+		//zu Tuenden durchgehen
 		foreach( $arrays as $array ){
+			//Teil und Trenner aus Array bestimmen
 			$teil = $array['teil'];
 			$trenner = $array['trenner'];
 
+			//Ist der Wert on oder off?
+			//	muss so sein!
 			if( $_POST[$teil] == 'on' || $_POST[$teil] == 'off' ){
+				//aktuellen Wert lesen
 				$wert = $guestfile->read_kimb_one( $trenner );
+				//ist der übergebene Wert anders?
+				//	nur dann Änderung nötig
 				if( $wert != $_POST[$teil] ){
+					//ist der Wert überhaupt schon gesetzt?
 					if( empty( $wert ) ){
+						//neu schreiben
 						$guestfile->write_kimb_new( $trenner , $_POST[$teil] );
 					}
 					else{
+						//überschreiben
 						$guestfile->write_kimb_replace( $trenner , $_POST[$teil] );
 					}
+					//Meldung
 					$sitecontent->echo_message( '"'.$trenner.'" wurde auf "'.$_POST[$teil].'" gesetzt!' );
 				}
 			}
 		}
 
+		//aktuelle Mail lesen
 		$mail = $guestfile->read_kimb_one( 'mailinfoto' );
+		//ist die aktuelle Mail anders als die Übergabe? 
 		if( $mail != $_POST['mail'] ){
+			//ist der Wert überhaupt schon gesetzt?
 			if( empty( $mail ) ){
+				//neu schreiben
 				$guestfile->write_kimb_new( 'mailinfoto' , $_POST['mail'] );
 			}
 			else{
+				//überschreiben
 				$guestfile->write_kimb_replace( 'mailinfoto' , $_POST['mail'] );
 			}
+			//Meldung
 			$sitecontent->echo_message( 'Die E-Mail-Adresse wurde auf "'.$_POST['mail'].'" gesetzt!' );
 		}
 
+		//aktuellen CSS Wert lesen
 		$css = $guestfile->read_kimb_one( 'css' );
+		//ist das aktuelle CSS anders als Übergabe?
 		if( $css != $_POST['css'] ){
+			//ist die Übergabe leer?
 			if( empty( $_POST['css'] ) ){
+				//wenn ja, Vorschlag nutzen
 				$_POST['css'] = $cssallg;
 			}
+			//ist der Wert überhaupt schon gesetzt?
 			if( empty( $css ) ){
+				//neu schreiben
 				$guestfile->write_kimb_new( 'css' , $_POST['css'] );
 			}
 			else{
+				//überschreiben
 				$guestfile->write_kimb_replace( 'css' , $_POST['css'] );
 			}
+			//Meldung
 			$sitecontent->echo_message( 'Das Design wurde geändert!' );
 		}
 
 	}
 	else{
-		$sitecontent->echo_error( 'Fehlerhafte Anfrage! Bitte füllen Sie alle Felder außer CSS!' , 'unknown' );
+		//Fehlermeldung wenn Felder leer, außer CSS
+		//	kann eingentlich nicht vorkommen, denn wenn dbf leer werden automatisch Vorschläge in das Formular geschrieben
+		$sitecontent->echo_error( 'Fehlerhafte Anfrage! Bitte füllen Sie alle Felder (CSS kann leer bleiben)!' , 'Eingaben' );
 	}
 }
 
-$sitecontent->add_site_content('<hr /><h2>Seiten mit Gästebuch</h2>');
+//Liste der Seiten mit Gästebuch
+$sitecontent->add_site_content('<h2>Seiten mit Gästebuch</h2>');
 
+//CSS für Tabelle
 $sitecontent->add_html_header('<style>td { border:1px solid #000000; padding:2px;} td a { text-decoration:none; }</style>');
 
+//JavaScript für Löschen Dialog
 $sitecontent->add_html_header('<script>
 var del = function( id ) {
-	$( "#del-confirm" ).show( "fast" );
-	$( "#del-confirm" ).dialog({
+	$( "#del-guestbooksite" ).show( "fast" );
+	$( "#del-guestbooksite" ).dialog({
 	resizable: false,
 	height:200,
 	modal: true,
@@ -139,82 +198,103 @@ var del = function( id ) {
 }
 </script>');
 
-$sitecontent->add_site_content('<span class="ui-icon ui-icon-info" title="Hier können Sie allgemeine Einstellungen vornhemen und ein Gästebuch/ eine Kommentarmöglichkeit auf bestimmten Seite anzeigen. In der Liste werden die SiteIDs ( Seiten -> Auflisten ) angezeigt. Die Beiträge können Sie unter Add-ons -> Nutzung -> guestbook verwalten."></span>');
+//Info
+$sitecontent->add_site_content('<span class="ui-icon ui-icon-info" title="Hier können Sie allgemeine Einstellungen vornhemen und ein Gästebuch/ eine Kommentarmöglichkeit auf bestimmten Seite anzeigen. In der Liste werden die SiteIDs (Seiten -> Auflisten) angezeigt. Die Beiträge der Gästebücher können Sie unter Nutzung (Link oben rechts) verwalten."></span>');
+//Tabelle Beginn
 $sitecontent->add_site_content('<table width="100%"><tr><th>SiteID</th><th width="20px;">Löschen</th></tr>');
 
+//alle SiteIDs mit Gästebuch lesen
 foreach( $guestfile->read_kimb_all_teilpl( 'siteid' ) as $id ){
 
-	$del = '<span onclick="var delet = del( '.$id.' ); delet();"><span class="ui-icon ui-icon-trash" title="Dieses Gästebuch löschen. ( inklusive aller Beiträge )"></span></span>';
+	//Mülleimer Button (löschen)
+	$del = '<span onclick="var delet = del( '.$id.' ); delet();"><span class="ui-icon ui-icon-trash" title="Dieses Gästebuch löschen. (inklusive aller Beiträge)"></span></span>';
 
+	//Tabellenzeile hinzufügen
 	$sitecontent->add_site_content('<tr><td>'.$id.'</td><td>'.$del.'</td></tr>');
 
+	//jetzt was in Tabelle
 	$gefunden = 'yes';
 }
 
+//Tabelle beenden
+$sitecontent->add_site_content('</table>');
+
+//wenn Tabelle leer:
 if( $gefunden != 'yes' ){
-	$sitecontent->add_site_content('</table>');
+	//Medlung (keine Gästebücher)
 	$sitecontent->echo_error( 'Es wurden keine Gästebuchseiten gefunden!' , 'unknown' );
 }
-else{
-	$sitecontent->add_site_content('</table>');
-}
 
+//Formular um neue Gästebuchseite hinzuzufügen
+//	Dropdown mit SiteIDs
 $sitecontent->add_site_content('<form action="'.$addonurl.'&amp;new" method="post"><span class="ui-icon ui-icon-plus" title="Bei einer weiteren Seite erstellen." style="display:inline-block;"></span>'.id_dropdown( 'id', 'siteid' ).'<input type="submit" value="Erstellen" ></form>');
 
-$sitecontent->add_site_content('<div style="display:none;"><div id="del-confirm" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Möchten Sie dieses Gästebuch und alle seine Beiträge wirklich löschen?</p></div></div>');
+//HTML-Code für Löschen Dialog
+$sitecontent->add_site_content('<div style="display:none;"><div id="del-guestbooksite" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Möchten Sie dieses Gästebuch und alle seine Beiträge wirklich löschen?</p></div></div>');
 
+//Allgemeine Einstellungen
+$sitecontent->add_site_content('<hr /><h2>Allgemeine Einstellungen</h2>');
+
+//erstmal nichts aktivert
 $ch = array( ' ' , ' ' , ' ' , ' ' , ' ' , ' ' , ' ' , ' ' );
 
-if( $guestfile->read_kimb_one( 'nurfeloginuser' ) == 'off' ){
-	$ch[1] = ' checked="checked" ';
-}
-else{
-	$ch[2] = ' checked="checked" ';
-}
-if( $guestfile->read_kimb_one( 'mailinfo' ) == 'off' ){
-	$ch[3] = ' checked="checked" ';
-}
-else{
-	$ch[4] = ' checked="checked" ';
-}
-if( $guestfile->read_kimb_one( 'newstatus' ) == 'off' ){
-	$ch[5] = ' checked="checked" ';
-}
-else{
-	$ch[6] = ' checked="checked" ';
-}
-if( $guestfile->read_kimb_one( 'ipsave' ) == 'off' ){
-	$ch[7] = ' checked="checked" ';
-}
-else{
-	$ch[8] = ' checked="checked" ';
+//Für die on/off Auswahl die aktuelle Auswahl laden
+//	jeden Wert in dbf durchgehen und  checked=checked passend setzen
+
+//Array key
+$i = 0;
+foreach( array('nurfeloginuser', 'mailinfo', 'newstatus', 'ipsave' ) as $dbf ){
+	//wenn off, dann ersten Wert checked
+	if( $guestfile->read_kimb_one( $dbf ) == 'off' ){
+		$ch[$i] = ' checked="checked" ';
+	}
+	//wenn on, dann zweiten Wert checked
+	else{
+		$ch[$i + 1] = ' checked="checked" ';
+	}
+	//Key um zwei erhähen
+	$i = $i + 2;
 }
 
+//CSS Style lesen
 $css = $guestfile->read_kimb_one( 'css' );
+//wenn leer, Vorschlag
 if( empty( $css ) ){
 	$css = $cssallg;
 }
 
+//E-Mail-Adresse lesen
+$mailinfo = $guestfile->read_kimb_one( 'mailinfoto' );
+//wenn leer, dann Systemadminmail
+if( empty( $mailinfo )){
+	$mailinfo = $allgsysconf['adminmail'];
+}
 
-$sitecontent->add_site_content('<hr /><h2>Allgemeine Einstellungen</h2>');
-
+//Formular beginnen
 $sitecontent->add_site_content('<form action="'.$addonurl.'&amp;settings" method="post" >');
 
-$sitecontent->add_site_content('<input type="radio" name="feloginoo" value="off"'.$ch[1].'><span style="display:inline-block;" title="Allen Usern das Kommentieren erlauben" class="ui-icon ui-icon-closethick"></span>');
-$sitecontent->add_site_content('<input type="radio" name="feloginoo" value="on"'.$ch[2].'> <span style="display:inline-block;" title="Nur eingeloggten Usern das Kommentieren erlauben ( Add-on &apos;felogin&apos; nötig )" class="ui-icon ui-icon-check"></span> ( Login )<br />');
+//on/off felogin
+$sitecontent->add_site_content('<input type="radio" name="feloginoo" value="off"'.$ch[0].'><span style="display:inline-block;" title="Allen Usern das Kommentieren erlauben" class="ui-icon ui-icon-closethick"></span>');
+$sitecontent->add_site_content('<input type="radio" name="feloginoo" value="on"'.$ch[1].'> <span style="display:inline-block;" title="Nur eingeloggten Usern das Kommentieren erlauben (Add-on &apos;felogin&apos; nötig)" class="ui-icon ui-icon-check"></span>(Login)<br />');
 
-$sitecontent->add_site_content('<input type="radio" name="mailoo" value="off"'.$ch[3].'><span style="display:inline-block;" title="Keine E-Mail bei neuen Beiträgen senden" class="ui-icon ui-icon-closethick"></span>');
-$sitecontent->add_site_content('<input type="radio" name="mailoo" value="on"'.$ch[4].'> <span style="display:inline-block;" title="Eine E-Mail an die Adresse unten senden, wenn ein neur Beitrag vorhanden ist" class="ui-icon ui-icon-check"></span> ( E-Mail )<br />');
+//on/off Infomail
+$sitecontent->add_site_content('<input type="radio" name="mailoo" value="off"'.$ch[2].'><span style="display:inline-block;" title="Keine E-Mail bei neuen Beiträgen senden" class="ui-icon ui-icon-closethick"></span>');
+$sitecontent->add_site_content('<input type="radio" name="mailoo" value="on"'.$ch[3].'> <span style="display:inline-block;" title="Eine E-Mail an die Adresse unten senden, wenn ein neuer Beitrag vorhanden ist" class="ui-icon ui-icon-check"></span> (E-Mail)<br />');
 
-$sitecontent->add_site_content('<input type="radio" name="nstatoo" value="off"'.$ch[5].'><span style="display:inline-block;" title="Neue Beiträge vor Veröffentlichung prüfen" class="ui-icon ui-icon-closethick"></span>');
-$sitecontent->add_site_content('<input type="radio" name="nstatoo" value="on"'.$ch[6].'> <span style="display:inline-block;" title="Neue Beiträge gleich veröffentlichen" class="ui-icon ui-icon-check"></span> ( Status )<br />');
+//on/off Prüfen
+$sitecontent->add_site_content('<input type="radio" name="nstatoo" value="off"'.$ch[4].'><span style="display:inline-block;" title="Neue Beiträge vor Veröffentlichung prüfen" class="ui-icon ui-icon-closethick"></span>');
+$sitecontent->add_site_content('<input type="radio" name="nstatoo" value="on"'.$ch[5].'> <span style="display:inline-block;" title="Neue Beiträge gleich veröffentlichen" class="ui-icon ui-icon-check"></span> (Status)<br />');
 
-$sitecontent->add_site_content('<input type="radio" name="ipoo" value="off"'.$ch[7].'><span style="display:inline-block;" title="IP des Users nicht speichern" class="ui-icon ui-icon-closethick"></span>');
-$sitecontent->add_site_content('<input type="radio" name="ipoo" value="on"'.$ch[8].'> <span style="display:inline-block;" title="IP des Users speichern ( Hinweis wird angezeigt )" class="ui-icon ui-icon-check"></span> ( IP )<br />');
+//on/off IPsave
+$sitecontent->add_site_content('<input type="radio" name="ipoo" value="off"'.$ch[6].'><span style="display:inline-block;" title="IP des Users nicht speichern" class="ui-icon ui-icon-closethick"></span>');
+$sitecontent->add_site_content('<input type="radio" name="ipoo" value="on"'.$ch[7].'> <span style="display:inline-block;" title="IP des Users speichern (Hinweis wird angezeigt)" class="ui-icon ui-icon-check"></span> (IP)<br />');
 
-$sitecontent->add_site_content('<input type="text" name="mail" value="'.$guestfile->read_kimb_one( 'mailinfoto' ).'" > ( E-Mail-Adresse )<br />');
-$sitecontent->add_site_content('<textarea name="css" style="width:99%; height:75px;">'.$css.'</textarea>( CSS-Style ( leer == Zurücksetzen ) &uarr; )<br />');
+//E-Mail-Adresse
+$sitecontent->add_site_content('<input type="text" name="mail" value="'.$mailinfo.'" > (E-Mail-Adresse)<br />');
+//CSS
+$sitecontent->add_site_content('<textarea name="css" style="width:99%; height:75px;">'.$css.'</textarea>(&uarr; CSS-Style  (leer == Zurücksetzen))<br />');
 
+//Button
 $sitecontent->add_site_content('<input type="submit" value="Ändern"></form>');
 
 ?>

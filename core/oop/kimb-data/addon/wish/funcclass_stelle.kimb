@@ -1,3 +1,21 @@
 <[about:doc]>KIMB Datei V.0.1 KIMB CMS<[about:doc]>
-
-
+<[allidslist1]>1<[allidslist1]>
+<[1-addon]>felogin<[1-addon]>
+<[1]>addon==stelle<[1]>
+<[1-stelle]>vorn<[1-stelle]>
+<[allidslist2]>2<[allidslist2]>
+<[2-addon]>captcha<[2-addon]>
+<[2]>addon==stelle<[2]>
+<[2-stelle]>vorn<[2-stelle]>
+<[allidslist3]>3<[allidslist3]>
+<[3-addon]>galerie<[3-addon]>
+<[3]>addon==stelle<[3]>
+<[3-stelle]>hinten<[3-stelle]>
+<[allidslist4]>4<[allidslist4]>
+<[4-addon]>guestbook<[4-addon]>
+<[4]>addon==stelle<[4]>
+<[4-stelle]>hinten<[4-stelle]>
+<[allidslist5]>5<[allidslist5]>
+<[5-addon]>im_export<[5-addon]>
+<[5]>addon==stelle<[5]>
+<[5-stelle]>hinten<[5-stelle]>

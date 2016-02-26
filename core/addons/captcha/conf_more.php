@@ -1,35 +1,31 @@
 <?php
 
 /*************************************************/
-//KIMB-technologies
 //KIMB CMS Add-on
-//KIMB ContentManagementSystem
-//WWW.KIMB-technologies.eu
+//KIMB ContentManagementSystem Add-on
+//Copyright (c) 2015 by KIMB-technologies
 /*************************************************/
-//This file is part of Add-on Captcha for KIMB-CMS.
+//This program is free software: you can redistribute it and/or modify
+//it under the terms of the GNU General Public License version 3
+//published by the Free Software Foundation.
 //
-//Add-on Captcha is free software: you can redistribute it and/or modify
-//it under the terms of the GNU General Public License as published by
-//the Free Software Foundation, either version 3 of the License, or
-//(at your option) any later version.
-//
-//Add-on Captcha is distributed in the hope that it will be useful,
+//This program is distributed in the hope that it will be useful,
 //but WITHOUT ANY WARRANTY; without even the implied warranty of
 //MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //GNU General Public License for more details.
 //
 //You should have received a copy of the GNU General Public License
-//along with Add-on Captcha.  If not, see <http://www.gnu.org/licenses/>.
+//along with this program.
+/*************************************************/
+//www.KIMB-technologies.eu
+//www.bitbucket.org/kimbtech
+//http://www.gnu.org/licenses/gpl-3.0
+//http://www.gnu.org/licenses/gpl-3.0.txt
 /*************************************************/
 
-defined('KIMB_Backend') or die('No clean Request');
 
-$sitecontent->add_site_content('<b>Dieses Add-on bietet API für andere Add-ons, keine Konfiguration nötig!</b>');
+defined('KIMB_CMS') or die('No clean Request');
 
-$sitecontent->add_site_content('<h2>Test</h2>');
-
-$sitecontent->add_site_content('<img src="'.$allgsysconf['siteurl'].'/ajax.php?addon=captcha" /><br />');
-
-$sitecontent->add_site_content('Kein Bild? Add-on aktiviert? PHP-GD installiert?<br />');
+require_once( __DIR__.'/conf_less.php' );
 
 ?>

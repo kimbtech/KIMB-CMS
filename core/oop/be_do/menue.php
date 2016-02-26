@@ -80,7 +80,7 @@ class BEmenue{
 					$newm['siteid'] = '---empty---';
 				}
 				//MenüID erstellen
-				$newm['menueid'] = $newm['requestid'].mt_rand( 100, 999 );
+				$newm['menueid'] = $newm['requestid'].gen_zufallszahl(100, 999 );
 				//Status wie gewünscht einstellen
 				$newm['status'] = $status;
 	

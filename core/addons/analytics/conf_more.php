@@ -1,68 +1,81 @@
 <?php
 
 /*************************************************/
-//KIMB-technologies
 //KIMB CMS Add-on
-//KIMB ContentManagementSystem
-//WWW.KIMB-technologies.eu
+//KIMB ContentManagementSystem Add-on
+//Copyright (c) 2015 by KIMB-technologies
 /*************************************************/
-//CC BY-ND 4.0
-//http://creativecommons.org/licenses/by-nd/4.0/
-//http://creativecommons.org/licenses/by-nd/4.0/legalcode
+//This program is free software: you can redistribute it and/or modify
+//it under the terms of the GNU General Public License version 3
+//published by the Free Software Foundation.
+//
+//This program is distributed in the hope that it will be useful,
+//but WITHOUT ANY WARRANTY; without even the implied warranty of
+//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//GNU General Public License for more details.
+//
+//You should have received a copy of the GNU General Public License
+//along with this program.
 /*************************************************/
-//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
-//BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-//IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-//WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
-//IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//www.KIMB-technologies.eu
+//www.bitbucket.org/kimbtech
+//http://www.gnu.org/licenses/gpl-3.0
+//http://www.gnu.org/licenses/gpl-3.0.txt
 /*************************************************/
 
-defined('KIMB_Backend') or die('No clean Request');
+defined('KIMB_CMS') or die('No clean Request');
 
+//alles laden
 require_once( __DIR__.'/tracking_codes.php' );
 
+//da in Klasse, evtl. dbf neu laden
+if( !is_object( $analyticsconffile ) ){
+	$analyticsconffile = new KIMBdbf( 'addon/analytics__conf.kimb' );
+}
+
+//Add-on URL, damit kann man später einfacher abrbeiten
 $addonurl = $allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=more&addon=analytics';
 
-$sitecontent->add_site_content('<hr /><br /><h2>Piwik &amp; Google Analytics</h2>');
-
+//Form beginnen
 $sitecontent->add_site_content('<form action="'.$addonurl.'" method="post" >');
 
+//Texte Vorgaben
+$examples = array( 'sys' => 'p' , 'infob' => 'on' , 'css' => 'div#analysehinweis{position:fixed; left:0; top:0; width:100%; background-color:orange; text-align:center; z-index:2;}' , 'text' => '<p>Diese Seite nutzt Cookies und einen Webanalysedienst. Mit der Nutzung dieser Seite erklären Sie sich damit einverstanden.</p><p><i>Weitere Informationen: <a href="http://www.example.com/" target="_blank" style="color:#ffffff; text-decoration:underline;">Impressum &amp; Datenschutz</a>!</i></p>' , 'url' => 'http://example.com/piwik' , 'pid' => '2' , 'piwikno' => 'on' , 'gaid' => 'UA-123456-1' );
+
+//Daten zum Speichern da?
 if( isset( $_POST['send'] ) ){
 
+	//alles was zu tun muss (Zuordung POST Name und dbf Tag)
 	$array[0] = array( 'sys' => 'anatool' , 'infob' => 'infobann' , 'css' => 'ibcss' , 'text' => 'ibtext' );
 	$array[1] = array( 'url' => 'url' , 'pid' => 'id' , 'piwikno' => 'pimg' );
 	$array[2] = array( 'gaid' => 'id' );
 
-	$examples = array( 'sys' => 'p' , 'infob' => 'on' , 'css' => 'div#analysehinweis{position:fixed; left:0; top:0; width:100%; background-color:orange;}' , 'text' => '<p>Diese Seite nutzt Cookies und einen Webanalysedienst. Mit der Nutzung dieser Seite erklären Sie sich damit einverstanden.<i>Weitere Informationen: <a href="http://www.example.com/" target="_blank" style="color:#ffffff; text-decoration:underline;">Impressum &amp; Datenschutz</a>!</i><br>' , 'url' => 'http://example.com/piwik' , 'pid' => '2' , 'piwikno' => 'on' , 'gaid' => 'UA-123456-1' );
-
+	//alles durchgehen und richtig abspeichern
+	//	Medlungen bei Änderungen
 	foreach( $array as $k1 => $v1 ){
 		if( $k1 == 0 ){
 			foreach( $v1 as $k2 => $v2 ){
-				$inhalt = $analytics['conffile']->read_kimb_one( $v2 );
+				$inhalt = $analyticsconffile->read_kimb_one( $v2 );
 				if( $inhalt != $_POST[$k2] || empty( $_POST[$k2] ) ){
 					if( empty( $_POST[$k2] ) ){
 						$_POST[$k2] = $examples[$k2];
 					}
 
-					if( empty( $inhalt ) ){
-						$analytics['conffile']->write_kimb_new( $v2 , $_POST[$k2] );
-					}
-					else{
-						$analytics['conffile']->write_kimb_replace( $v2 , $_POST[$k2] );
-					}
+					$analyticsconffile->write_kimb_one( $v2 , $_POST[$k2] );
+					
 					$sitecontent->echo_message( 'Der Wert "'.$v2.'" wurde geändert!' );
 				}
 			}
 		}
 		else{
 			foreach( $v1 as $k2 => $v2 ){
-				$inhalt = $analytics['conffile']->read_kimb_id( $k1 , $v2 );
+				$inhalt = $analyticsconffile->read_kimb_id( $k1 , $v2 );
 				if( $inhalt != $_POST[$k2] || empty( $_POST[$k2] ) ){
 					if( empty( $_POST[$k2] ) ){
 						$_POST[$k2] = $examples[$k2];
 					}
 
-					$analytics['conffile']->write_kimb_id( $k1 , 'add' , $v2 , $_POST[$k2] );
+					$analyticsconffile->write_kimb_id( $k1 , 'add' , $v2 , $_POST[$k2] );
 					$sitecontent->echo_message( 'Der Wert "'.$v2.'" wurde geändert!' );
 				}
 			}
@@ -71,16 +84,20 @@ if( isset( $_POST['send'] ) ){
 	}
 }
 
+//Werte lesen
+
+//zu lesenden Werte (Zuordung dbf, Array Key für Formularausgabe)
 $syss['anatool'] = array( 'p' => 'p' , 'pimg' => 'pimg' , 'ga' => 'ga' );
 $syss['infobann'] = array( 'on' => 'ion' , 'off' => 'ioff' );
 $syss[1] = array( 'on' => 'pnon' , 'off' => 'pnoff' );
 
+//alles durchgehen und in Arrays lesen
 foreach( $syss as $id => $value ){
 	if( $id == 1 ){
-		$inhalt = $analytics['conffile']->read_kimb_id( $id , 'pimg' );
+		$inhalt = $analyticsconffile->read_kimb_id( $id , 'pimg' );
 	}
 	else{
-		$inhalt = $analytics['conffile']->read_kimb_one( $id );
+		$inhalt = $analyticsconffile->read_kimb_one( $id );
 	}
 
 	foreach( $value as $iid => $vvalue ){
@@ -93,24 +110,36 @@ foreach( $syss as $id => $value ){
 	}
 }
 
+//Vorgabetexte in Arrays für Formularausgabe
+$val = array( 'css' => $examples['css'] , 'text'  => $examples['text'], 'url'  => $examples['url'] , 'pid' => $examples['pid'], 'gaid' => $examples['gaid'] );
 
+//zu lesenden Werte (Zuordung dbf, Array Key für Formularausgabe)
 $vals[0] = array( 'ibcss' => 'css' , 'ibtext' => 'text' );
 $vals[1] = array( 'id' => 'pid' , 'url' => 'url' );
 $vals[2] = array( 'id' => 'gaid' );
 
+//alles durchgehen und Array entsprechende füllen
 foreach( $vals as $key => $vval ){
 	if( $key == 0 ){
 		foreach( $vval as $kkkey => $vvval ){
-			$val[$vvval] = $analytics['conffile']->read_kimb_one( $kkkey );
+			$temp = $analyticsconffile->read_kimb_one( $kkkey );
+			if( !empty( $temp ) ){
+				$val[$vvval] = $temp;
+			}
 		}
 	}
 	else{
 		foreach( $vval as $kkkey => $vvval ){
-			$val[$vvval] = $analytics['conffile']->read_kimb_id( $key , $kkkey );
+			$temp = $analyticsconffile->read_kimb_id( $key , $kkkey );
+			if( !empty( $temp ) ){
+				$val[$vvval] = $temp;
+			}
+
 		}	
 	}
 }
 
+//Formularausgaben
 $sitecontent->add_site_content('<h3>Allgemein</h3>');
 $sitecontent->add_site_content('<input name="sys" value="p" type="radio" '.$sys['p'].'> Piwik<span style="display:inline-block;" title="Piwik normal verwenden" class="ui-icon ui-icon-info"></span>' );
 $sitecontent->add_site_content('<input name="sys" value="pimg" type="radio" '.$sys['pimg'].'> Piwik Img<span style="display:inline-block;" title="Piwik nur mit Bild verwenden (weniger Daten, kein JavaScript nötig)" class="ui-icon ui-icon-info"></span>' );

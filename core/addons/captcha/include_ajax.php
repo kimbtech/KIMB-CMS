@@ -1,338 +1,129 @@
 <?php
 
 /*************************************************/
-//KIMB-technologies
 //KIMB CMS Add-on
-//KIMB ContentManagementSystem
-//WWW.KIMB-technologies.eu
+//KIMB ContentManagementSystem Add-on
+//Copyright (c) 2015 by KIMB-technologies
 /*************************************************/
-//This file is part of Add-on Captcha for KIMB-CMS.
+//This program is free software: you can redistribute it and/or modify
+//it under the terms of the GNU General Public License version 3
+//published by the Free Software Foundation.
 //
-//Add-on Captcha is free software: you can redistribute it and/or modify
-//it under the terms of the GNU General Public License as published by
-//the Free Software Foundation, either version 3 of the License, or
-//(at your option) any later version.
-//
-//Add-on Captcha is distributed in the hope that it will be useful,
+//This program is distributed in the hope that it will be useful,
 //but WITHOUT ANY WARRANTY; without even the implied warranty of
 //MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //GNU General Public License for more details.
 //
 //You should have received a copy of the GNU General Public License
-//along with Add-on Captcha.  If not, see <http://www.gnu.org/licenses/>.
+//along with this program.
 /*************************************************/
-
+//www.KIMB-technologies.eu
+//www.bitbucket.org/kimbtech
+//http://www.gnu.org/licenses/gpl-3.0
+//http://www.gnu.org/licenses/gpl-3.0.txt
+/*************************************************/
 
 defined('KIMB_CMS') or die('No clean Request');
 
-if( $_GET['addon'] == 'captcha' ){ 
-	/**
-	 *
-	 * @author  Jose Rodriguez <jose.rodriguez@exec.cl>
-	 * @license GPLv3
-	 * @link    http://code.google.com/p/cool-php-captcha
-	 * @package captcha
-	 * @version 0.3
-	 *
-	 */
-
-	class SimpleCaptcha {
-
-	    /** Width of the image */
-	    public $width  = 200;
-
-	    /** Height of the image */
-	    public $height = 70;
-
-	    /** Dictionary word file (empty for random text) */
-	    public $wordsFile = '';
-
-	    /**
-	     * Path for resource files (fonts, words, etc.)
-	     *
-	     * "resources" by default. For security reasons, is better move this
-	     * directory to another location outise the web server
-	     *
-	     */
-	    public $resourcesPath = 'resources';
-
-	    /** Min word length (for non-dictionary random text generation) */
-	    public $minWordLength = 5;
-
-	    /**
-	     * Max word length (for non-dictionary random text generation)
-	     * 
-	     * Used for dictionary words indicating the word-length
-	     * for font-size modification purposes
-	     */
-	    public $maxWordLength = 8;
-
-	    /** Sessionname to store the original text */
-	    public $session_var = 'captcha';
-
-	    /** Background color in RGB-array */
-	    public $backgroundColor = array(255, 255, 255);
-
-	    /** Foreground colors in RGB-array */
-	    public $colors = array(
-		array(27,78,181), // blue
-		array(22,163,35), // green
-		array(214,36,7),  // red
-	    );
-
-	    /** Shadow color in RGB-array or null */
-	    public $shadowColor = null; //array(0, 0, 0);
-
-	    /** Horizontal line through the text */
-	    public $lineWidth = 0;
-
-	    /**
-	     * Font configuration
-	     *
-	     * - font: TTF file
-	     * - spacing: relative pixel space between character
-	     * - minSize: min font size
-	     * - maxSize: max font size
-	     */
-	    public $fonts = array(
-		'Antykwa'  => array('spacing' => -3, 'minSize' => 27, 'maxSize' => 30, 'font' => 'AntykwaBold.ttf'),
-		'Candice'  => array('spacing' =>-1.5,'minSize' => 28, 'maxSize' => 31, 'font' => 'Candice.ttf'),
-		'DingDong' => array('spacing' => -2, 'minSize' => 24, 'maxSize' => 30, 'font' => 'Ding-DongDaddyO.ttf'),
-		'Duality'  => array('spacing' => -2, 'minSize' => 30, 'maxSize' => 38, 'font' => 'Duality.ttf'),
-		'Heineken' => array('spacing' => -2, 'minSize' => 24, 'maxSize' => 34, 'font' => 'Heineken.ttf'),
-		'Jura'     => array('spacing' => -2, 'minSize' => 28, 'maxSize' => 32, 'font' => 'Jura.ttf'),
-		'StayPuft' => array('spacing' =>-1.5,'minSize' => 28, 'maxSize' => 32, 'font' => 'StayPuft.ttf'),
-		'Times'    => array('spacing' => -2, 'minSize' => 28, 'maxSize' => 34, 'font' => 'TimesNewRomanBold.ttf'),
-		'VeraSans' => array('spacing' => -1, 'minSize' => 20, 'maxSize' => 28, 'font' => 'VeraSansBold.ttf'),
-	    );
-
-	    /** Wave configuracion in X and Y axes */
-	    public $Yperiod    = 12;
-	    public $Yamplitude = 14;
-	    public $Xperiod    = 11;
-	    public $Xamplitude = 5;
-
-	    /** letter rotation clockwise */
-	    public $maxRotation = 8;
-
-	    /**
-	     * Internal image size factor (for better image quality)
-	     * 1: low, 2: medium, 3: high
-	     */
-	    public $scale = 2;
-
-	    /** 
-	     * Blur effect for better image quality (but slower image processing).
-	     * Better image results with scale=3
-	     */
-	    public $blur = false;
-
-	    /** Debug? */
-	    public $debug = false;
-	    
-	    /** Image format: jpeg or png */
-	    public $imageFormat = 'jpeg';
+//Bild ausgeben
 
 
-	    /** GD image */
-	    public $im;
+    //
+    //  A simple PHP CAPTCHA script
+    //
+    //  Copyright 2013 by Cory LaViska for A Beautiful Site, LLC
+    //
+    //  MIT License
+    //
 
+    //Änderungen KIMB-technologies 2015
 
-	    public function __construct( $fonts ){
-		$this->fontfiles = $fonts;
-	    }
+    //Ordner
+    $bg_path = __DIR__.'/backgrounds/';
+    $font_path = __DIR__.'/fonts/';
 
-	    public function CreateImage() {
-		$ini = microtime(true);
+    // Default values
+    $captcha_config = array(
+        'backgrounds' => array(
+            $bg_path . '45-degree-fabric.png',
+            $bg_path . 'cloth-alike.png',
+            $bg_path . 'grey-sandbag.png',
+            $bg_path . 'kinda-jean.png',
+            $bg_path . 'polyester-lite.png',
+            $bg_path . 'stitched-wool.png',
+            $bg_path . 'white-carbon.png',
+            $bg_path . 'white-wave.png'
+        ),
+        'fonts' => array(
+            $font_path . 'times_new_yorker.ttf'
+        ),
+        'min_font_size' => 23,
+        'max_font_size' => 25,
+        'color' => '#666',
+        'angle_min' => 0,
+        'angle_max' => 10,
+        'shadow' => true,
+        'shadow_color' => '#fff',
+        'shadow_offset_x' => -1,
+        'shadow_offset_y' => 1
+    );
 
-		/** Initialization */
-		$this->ImageAllocate();
-		
-		/** Text insertion */
-		$text = $this->GetRandomCaptchaText();
-		$fontcfg  = $this->fonts[array_rand($this->fonts)];
-		$this->WriteText($text, $fontcfg);
+    //Code zufällig erstellen
+    $captcha_config['code'] = makepassw( mt_rand(5, 7) , '', 'numaz');
+    $_SESSION['captcha_code'] = $captcha_config['code'];
 
-		$_SESSION[$this->session_var] = $text;
+    srand(microtime() * 100);
 
-		/** Transformations */
-		if (!empty($this->lineWidth)) {
-		    $this->WriteLine();
-		}
-		$this->WaveImage();
-		if ($this->blur && function_exists('imagefilter')) {
-		    imagefilter($this->im, IMG_FILTER_GAUSSIAN_BLUR);
-		}
-		$this->ReduceImage();
+    // Pick random background, get info, and start captcha
+    $background = $captcha_config['backgrounds'][rand(0, count($captcha_config['backgrounds']) -1)];
+    list($bg_width, $bg_height, $bg_type, $bg_attr) = getimagesize($background);
 
+    $captcha = imagecreatefrompng($background);
 
-		if ($this->debug) {
-		    imagestring($this->im, 1, 1, $this->height-8,
-		        "$text {$fontcfg['font']} ".round((microtime(true)-$ini)*1000)."ms",
-		        $this->GdFgColor
-		    );
-		}
+    $color = hex2rgb($captcha_config['color']);
+    $color = imagecolorallocate($captcha, $color['r'], $color['g'], $color['b']);
 
+    // Determine text angle
+    $angle = rand( $captcha_config['angle_min'], $captcha_config['angle_max'] ) * (rand(0, 1) == 1 ? -1 : 1);
 
-		/** Output */
-		$this->WriteImage();
-		$this->Cleanup();
-	    }
+    // Select font randomly
+    $font = $captcha_config['fonts'][rand(0, count($captcha_config['fonts']) - 1)];
 
-	    protected function ImageAllocate() {
-		// Cleanup
-		if (!empty($this->im)) {
-		    imagedestroy($this->im);
-		}
+    // Verify font file exists
+    if( !file_exists($font) ) throw new Exception('Font file not found: ' . $font);
 
-		$this->im = imagecreatetruecolor($this->width*$this->scale, $this->height*$this->scale);
+    //Set the font size.
+    $font_size = rand($captcha_config['min_font_size'], $captcha_config['max_font_size']);
+    $text_box_size = imagettfbbox($font_size, $angle, $font, $captcha_config['code']);
 
-		// Background color
-		$this->GdBgColor = imagecolorallocate($this->im,
-		    $this->backgroundColor[0],
-		    $this->backgroundColor[1],
-		    $this->backgroundColor[2]
-		);
-		imagefilledrectangle($this->im, 0, 0, $this->width*$this->scale, $this->height*$this->scale, $this->GdBgColor);
+    // Determine text position
+    $box_width = abs($text_box_size[6] - $text_box_size[2]);
+    $box_height = abs($text_box_size[5] - $text_box_size[1]);
+    $text_pos_x_min = 0;
+    $text_pos_x_max = ($bg_width) - ($box_width);
+    $text_pos_x = rand($text_pos_x_min, $text_pos_x_max);
+    $text_pos_y_min = $box_height;
+    $text_pos_y_max = ($bg_height) - ($box_height / 2);
+    $text_pos_y = rand($text_pos_y_min, $text_pos_y_max);
 
-		// Foreground color
-		$color           = $this->colors[mt_rand(0, sizeof($this->colors)-1)];
-		$this->GdFgColor = imagecolorallocate($this->im, $color[0], $color[1], $color[2]);
+    // Draw shadow
+    if( $captcha_config['shadow'] ){
+        $shadow_color = hex2rgb($captcha_config['shadow_color']);
+        $shadow_color = imagecolorallocate($captcha, $shadow_color['r'], $shadow_color['g'], $shadow_color['b']);
+        imagettftext($captcha, $font_size, $angle, $text_pos_x + $captcha_config['shadow_offset_x'], $text_pos_y + $captcha_config['shadow_offset_y'], $shadow_color, $font, $captcha_config['code']);
+    }
 
-		// Shadow color
-		if (!empty($this->shadowColor) && is_array($this->shadowColor) && sizeof($this->shadowColor) >= 3) {
-		    $this->GdShadowColor = imagecolorallocate($this->im,
-		        $this->shadowColor[0],
-		        $this->shadowColor[1],
-		        $this->shadowColor[2]
-		    );
-		}
-	    }
+    // Draw text
+    imagettftext($captcha, $font_size, $angle, $text_pos_x, $text_pos_y, $color, $font, $captcha_config['code']);
 
-	    protected function GetRandomCaptchaText($length = null) {
-		if (empty($length)) {
-		    $length = rand($this->minWordLength, $this->maxWordLength);
-		}
+    //Cache aus
+    header('Expires: Sun, 01 Jan 2014 00:00:00 GMT');
+    header('Cache-Control: no-store, no-cache, must-revalidate');
+    header('Cache-Control: post-check=0, pre-check=0', FALSE);
+    header('Pragma: no-cache');
 
-		$words  = "abcdefghijlmnopqrstvwyz";
-		$vocals = "aeiou";
+    // Output image
+    header("Content-type: image/png");
+    imagepng($captcha);
 
-		$text  = "";
-		$vocal = rand(0, 1);
-		for ($i=0; $i<$length; $i++) {
-		    if ($vocal) {
-		        $text .= substr($vocals, mt_rand(0, 4), 1);
-		    } else {
-		        $text .= substr($words, mt_rand(0, 22), 1);
-		    }
-		    $vocal = !$vocal;
-		}
-		return $text;
-	    }
-
-	    protected function WriteLine() {
-
-		$x1 = $this->width*$this->scale*.15;
-		$x2 = $this->textFinalX;
-		$y1 = rand($this->height*$this->scale*.40, $this->height*$this->scale*.65);
-		$y2 = rand($this->height*$this->scale*.40, $this->height*$this->scale*.65);
-		$width = $this->lineWidth/2*$this->scale;
-
-		for ($i = $width*-1; $i <= $width; $i++) {
-		    imageline($this->im, $x1, $y1+$i, $x2, $y2+$i, $this->GdFgColor);
-		}
-	    }
-
-	    protected function WriteText($text, $fontcfg = array()) {
-		if (empty($fontcfg)) {
-		    // Select the font configuration
-		    $fontcfg  = $this->fonts[array_rand($this->fonts)];
-		}
-
-		$fontfile = $this->fontfiles.$fontcfg['font'];
-
-		$lettersMissing = $this->maxWordLength-strlen($text);
-		$fontSizefactor = 1+($lettersMissing*0.09);
-
-		$x      = 20*$this->scale;
-		$y      = round(($this->height*27/40)*$this->scale);
-		$length = strlen($text);
-		for ($i=0; $i<$length; $i++) {
-		    $degree   = rand($this->maxRotation*-1, $this->maxRotation);
-		    $fontsize = rand($fontcfg['minSize'], $fontcfg['maxSize'])*$this->scale*$fontSizefactor;
-		    $letter   = substr($text, $i, 1);
-
-		    if ($this->shadowColor) {
-		        $coords = imagettftext($this->im, $fontsize, $degree,
-		            $x+$this->scale, $y+$this->scale,
-		            $this->GdShadowColor, $fontfile, $letter);
-		    }
-		    $coords = imagettftext($this->im, $fontsize, $degree,
-		        $x, $y,
-		        $this->GdFgColor, $fontfile, $letter);
-		    $x += ($coords[2]-$x) + ($fontcfg['spacing']*$this->scale);
-		}
-
-		$this->textFinalX = $x;
-	    }
-
-
-	    protected function WaveImage() {
-
-		$xp = $this->scale*$this->Xperiod*rand(1,3);
-		$k = rand(0, 100);
-		for ($i = 0; $i < ($this->width*$this->scale); $i++) {
-		    imagecopy($this->im, $this->im,
-		        $i-1, sin($k+$i/$xp) * ($this->scale*$this->Xamplitude),
-		        $i, 0, 1, $this->height*$this->scale);
-		}
-
-
-		$k = rand(0, 100);
-		$yp = $this->scale*$this->Yperiod*rand(1,2);
-		for ($i = 0; $i < ($this->height*$this->scale); $i++) {
-		    imagecopy($this->im, $this->im,
-		        sin($k+$i/$yp) * ($this->scale*$this->Yamplitude), $i-1,
-		        0, $i, $this->width*$this->scale, 1);
-		}
-	    }
-
-	    protected function ReduceImage() {
-		$imResampled = imagecreatetruecolor($this->width, $this->height);
-		imagecopyresampled($imResampled, $this->im,
-		    0, 0, 0, 0,
-		    $this->width, $this->height,
-		    $this->width*$this->scale, $this->height*$this->scale
-		);
-		imagedestroy($this->im);
-		$this->im = $imResampled;
-	    }
-
-	    protected function WriteImage() {
-		if ($this->imageFormat == 'png' && function_exists('imagepng')) {
-		    header("Content-type: image/png");
-		    imagepng($this->im);
-		} else {
-		    header("Content-type: image/jpeg");
-		    imagejpeg($this->im, null, 80);
-		}
-	    }
-
-	    protected function Cleanup() {
-		imagedestroy($this->im);
-	    }
-	}
-
-	$captcha = new SimpleCaptcha( __DIR__.'/fonts/' );
-
-	$captcha->CreateImage();
-
-	//Text zum Test in $_SESSION['captcha']
-
-	//if (empty($_SESSION['captcha']) || trim(strtolower($_REQUEST['captcha'])) != $_SESSION['captcha']) {
-	//        $captcha_message = "Invalid captcha";
-	//}
-
-	die;
-}
 ?>

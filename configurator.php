@@ -30,7 +30,46 @@ header('Content-Type: text/html; charset=utf-8');
 //Nur mit conf-enable Datei den Konfigurator erlauben, sonst unerlaubte Konfiguration möglich
 if(file_exists ('conf-enable') != 'true'){
 	//User bitten den Konfigurator zu aktivieren
-	echo('<title>KIMB CMS - Installation</title><link rel="shortcut icon" href="load/system/KIMB.ico" type="image/x-icon; charset=binary"><h1>Error - 403</h1>Bitte schalten Sie den Configurator frei, erstellen Sie eine leere "conf-enable" Datei im CMS-Root-Verzeichnis.<br /> Please activate the configurator, create an empty "conf-enable" file in the CMS root folder.'); die;
+	echo('<!DOCTYPE html><html><head><title>KIMB CMS - Installation</title><link rel="shortcut icon" href="load/system/KIMB.ico" type="image/x-icon; charset=binary"></head><body><h1>Error - 403</h1>Bitte schalten Sie den Configurator frei, erstellen Sie eine leere "conf-enable" Datei im CMS-Root-Verzeichnis.<br /> Please activate the configurator, create an empty "conf-enable" file in the CMS root folder.</body></html>'); die;
+}
+
+//sichere Zufallszahlen, neu seit PHP 7
+//	$a => Anfang
+//	$e => Ende
+//	Rückgabe: Nummer
+function gen_zufallszahl( $a, $e ){
+	
+	//neue Funktion von PHP 7 verfügbar?
+	if( function_exists( 'random_int') ){
+		//nutzen
+		return random_int( $a, $e );
+	}
+	else{
+		//alte Zufallszahl nutzen
+		return mt_rand( $a, $e );
+	}
+	
+}
+//Zufallsstrings erzeugen
+//	$laenge => Länge des zu erzeugenden Stings
+// 	$chars => Charakter des Stings
+function makepassw( $laenge , $chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'){	
+	//Anzahl der möglichen Charakter bestimmen
+	$anzahl = strlen($chars);
+	//mit dem ersten Charakter geht es los
+	$i = '1';
+	//noch keine Ausgabe
+	$output = '';
+	//solange weniger oder genausoviele Charakter wie gwünscht im Sting weiteren erstellen 
+	while($i <= $laenge){
+		//Charakter zufällig wählen (Zufallszahl als Stelle für $chars nutzen)
+		$stelle = gen_zufallszahl('0', $anzahl);
+		//Ausgabe erweitern 
+		$output .= $chars{$stelle};
+		$i++;
+	}
+	//Ausgeben
+	return $output;
 }
 
 //HTML des Konfigurators 
@@ -110,16 +149,7 @@ $(function() {
 if($_GET['step'] == '2'){
 
 	//Zufallsgenerator Passwortsalt
-	$alles = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-	$laenge = '10';
-	$anzahl = strlen($alles);
-	$i = '1';
-	$output = '';
-	while($i <= $laenge){
-		$stelle = mt_rand('0', $anzahl); 
-		$output .= $alles{$stelle};
-		$i++;
-	}
+	$output = makepassw( 10 );
 
 	//Formular für die Konfiguration
 	echo '<h2>Allgemeine Systemeinstellungen</h2>';
@@ -160,16 +190,10 @@ elseif($_GET['step'] == '3'){
 	$url = substr($urlg, '0', '-'.strlen(strrchr($urlg, '/')));
 
 	//Zufallsgenerator Loginokay
-	$alles = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-	$laenge = '50';
-	$anzahl = strlen($alles);
-	$i = '1';
-	$output = '';
-	while($i <= $laenge){
-		$stelle = mt_rand('0', $anzahl); 
-		$output .= $alles{$stelle};
-		$i++;
-	}
+	$output = makepassw( 50 );
+
+	//Zufallsgenerator Cronkey
+	$cronkey = makepassw( 50 );
 
 	//Konfigurationsteile
 	//erster
@@ -180,7 +204,8 @@ elseif($_GET['step'] == '3'){
 <[001-description]>'.$_POST['metades'].'<[001-description]>
 <[001-adminmail]>'.$_POST['sysadminmail'].'<[001-adminmail]>
 <[001-mailvon]>cms@'.$_SERVER['HTTP_HOST'].'<[001-mailvon]>
-<[001-urlrewrite]>'.$_POST['urlrew'].'<[001-urlrewrite]>';
+<[001-urlrewrite]>'.$_POST['urlrew'].'<[001-urlrewrite]>
+<[001-cronkey]>'.$cronkey.'<[001-cronkey]>';
 
 	//Schreibe in Konfigurationsdatei
 	$handle = fopen(__DIR__.'/core/oop/kimb-data/config.kimb', 'a+');
@@ -223,12 +248,16 @@ else{
 	echo '<ul>';
 	
 	//PHP - Version OK?
-	if (version_compare(PHP_VERSION, '5.3.0' ) >= 0 ) {
-    		echo '<li class="okay">Sie verwenden PHP 5.3.0 oder neuer!</li>';
+	if (version_compare(PHP_VERSION, '7.0.0' ) >= 0 ) {
+    		echo '<li class="okay">Sie verwenden PHP 7</li>';
 		$okay[] = 'okay';
 	}
+	elseif (version_compare(PHP_VERSION, '5.5.0' ) >= 0 ) {
+    		echo '<li class="war">Sie verwenden PHP 5.5.0, aber noch nicht das neue PHP 7</li>';
+		$okay[] = 'war';
+	}
 	else{
-		echo '<li class="err">Dieses System wurde f&uuml;r PHP 5.3.0 und h&ouml;her entwickelt, bitte f&uuml;hren Sie ein PHP-Update durch!</li>';
+		echo '<li class="err">Dieses System wurde f&uuml;r PHP 5.5.0 und h&ouml;her entwickelt, bitte f&uuml;hren Sie ein PHP-Update durch!</li>';
 		$okay[] = 'err';
 	}
 	
@@ -245,7 +274,7 @@ else{
 	//cURL
 	if( function_exists('curl_version') ){
 		$okay[] = 'okay';
-		echo '<li class="okay">Ihr Server hat cURL !</li>';
+		echo '<li class="okay">Ihr Server hat cURL!</li>';
 	}
 	else{
 		$okay[] = 'war';
@@ -255,7 +284,7 @@ else{
 	//PHP GD
 	if (defined('GD_VERSION')) {   
 		$okay[] = 'okay';
-		echo '<li class="okay">Ihr Server hat PHP_GD !</li>';
+		echo '<li class="okay">Ihr Server hat PHP_GD!</li>';
 	}
 	else{
 		$okay[] = 'war';

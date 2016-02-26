@@ -1,39 +1,46 @@
 <?php
 
 /*************************************************/
-//KIMB-technologies
 //KIMB CMS Add-on
-//KIMB ContentManagementSystem
-//WWW.KIMB-technologies.eu
+//KIMB ContentManagementSystem Add-on
+//Copyright (c) 2015 by KIMB-technologies
 /*************************************************/
-//CC BY-ND 4.0
-//http://creativecommons.org/licenses/by-nd/4.0/
-//http://creativecommons.org/licenses/by-nd/4.0/legalcode
+//This program is free software: you can redistribute it and/or modify
+//it under the terms of the GNU General Public License version 3
+//published by the Free Software Foundation.
+//
+//This program is distributed in the hope that it will be useful,
+//but WITHOUT ANY WARRANTY; without even the implied warranty of
+//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//GNU General Public License for more details.
+//
+//You should have received a copy of the GNU General Public License
+//along with this program.
 /*************************************************/
-//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
-//BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-//IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-//WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
-//IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//www.KIMB-technologies.eu
+//www.bitbucket.org/kimbtech
+//http://www.gnu.org/licenses/gpl-3.0
+//http://www.gnu.org/licenses/gpl-3.0.txt
 /*************************************************/
-
 
 defined('KIMB_CMS') or die('No clean Request');
 
-if( $_GET['addon'] == 'kontakt' ){ 
+//sicheren Text mit Code nachladen
 
-	if( $_SESSION['code'] == $_GET['code'] ){
-		$kontakt['file'] = new KIMBdbf( 'addon/kontakt__file.kimb' );
-
-		echo $kontakt['file']->read_kimb_one( 'othercont' );
-	}
-	else{
-		http_response_code(400);
-	}
-
-	die;
-
+//Ist der Code des Request gleich dem des Session?
+//Ist der Code in der Session nicht leer?
+if( $_SESSION['kontakt_code'] == $_GET['code']  && !empty( $_SESSION['kontakt_code'] ) ){
+	//dbf laden
+	$file = new KIMBdbf( 'addon/kontakt__file.kimb' );
+	//sicheren Text lesen und ausgeben
+	echo $file->read_kimb_one( 'othercont' );
+}
+else{
+	//wenn Code nicht passt Fehlermedlung & Header
+	http_response_code(403);
+	echo( 'Code falsch - Code incorrect' );
 }
 
+die;
 
 ?>
