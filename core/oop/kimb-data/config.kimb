@@ -1,8 +1,8 @@
 <[about:doc]>KIMB dbf V3.00B - KIMB-technologies<[about:doc]>
-<[001]>sitename==sitefavi==loginokay==siteurl==description==urlweitermeth==adminmail==robots==mailvon==cache==sitespr==systemversion==build==urlrewrite==cachelifetime==use_request_url==show_siteinfos==theme==cronkey==lang==coolifetime<[001]>
+<[001]>sitename==sitefavi==loginokay==siteurl==description==urlweitermeth==adminmail==robots==mailvon==cache==sitespr==systemversion==build==urlrewrite==cachelifetime==use_request_url==show_siteinfos==theme==cronkey==lang==coolifetime==smime_cert_ini_folder==smime_cert_ini_name==mail_log<[001]>
 <[001-urlweitermeth]>1<[001-urlweitermeth]>
 <[001-robots]>index, follow<[001-robots]>
-<[001-cache]>on<[001-cache]>
+<[001-cache]>off<[001-cache]>
 <[001-sitespr]>auto<[001-sitespr]>
 <[001-systemversion]>2.11 Final<[001-systemversion]>
 <[001-build]>V2.11F-p1<[001-build]>
@@ -12,7 +12,6 @@
 <[001-theme]>norm<[001-theme]>
 <[001-lang]>on<[001-lang]>
 <[001-coolifetime]>0<[001-coolifetime]>
-
 <[001-sitename]>KIMB CMS<[001-sitename]>
 <[001-sitefavi]>http://cms.dev:8000/load/system/KIMB.ico<[001-sitefavi]>
 <[001-loginokay]>T4qcAw2b46OYHZvPGaFBrKmanscSa14ANgXiOo3B2rYwZn38nv<[001-loginokay]>
@@ -22,3 +21,6 @@
 <[001-mailvon]>cms@cms.dev:8000<[001-mailvon]>
 <[001-urlrewrite]>on<[001-urlrewrite]>
 <[001-cronkey]>lCsBhONwJptT5P2Ih33AEtqzCMYy7J3BHyQLVpA1oFKYbDrNBL<[001-cronkey]>
+<[001-smime_cert_ini_folder]>pem<[001-smime_cert_ini_folder]>
+<[001-smime_cert_ini_name]><[001-smime_cert_ini_name]>
+<[001-mail_log]>on<[001-mail_log]>

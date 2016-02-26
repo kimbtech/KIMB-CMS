@@ -98,27 +98,151 @@ function gen_zufallszahl( $a, $e ){
 	
 }
 
-//email versenden
-// $to => Empfänger
-// $inhalt => Inhalt
-//$mime => MIME Type (text oder html)
+//E-Mail versenden
+//	Unterschrift per S/MIME, wenn im Backend des CMS aktiviert!	
+//		$to => Empfänger
+//		$inhalt => Inhalt
+//		$mime => MIME Type (text oder html)
 function send_mail($to, $inhalt, $mime = 'plain'){
 	global $allgsysconf;
 	
 	//nicht leer ?
 	if( empty( $inhalt ) || empty( $to ) ){
-		return false;
+		$return = false;
+	}
+	else{
+		//erstmal S/MIME nehmen
+		$oldstyle = false;
+		//aber noch nicht signiert
+		$this_signed = false;
+		
+		//Pfad absolut (beginnt mit /) oder relativ?
+		if( substr( $allgsysconf['smime_cert_ini_folder'], 0 , 1) != '/' ){
+			//absolut machen (Angabe aus config ist relativ zum Ordner dieser Datei!)
+			$allgsysconf['smime_cert_ini_folder'] = __DIR__.'/'.$allgsysconf['smime_cert_ini_folder'];
+		}
+
+		//S/MIME INI gegeben und Order vorhanden??
+		if( !empty( $allgsysconf['smime_cert_ini_name'] ) ){
+			//Cert Vars laden
+			$certini = $allgsysconf['smime_cert_ini_folder'].'/'.$allgsysconf['smime_cert_ini_name'];
+			$certpath = $allgsysconf['smime_cert_ini_folder'].'/';
+
+			//	INI vorhanden?
+			//	Pfad vorhnaden?
+			if( is_file( $certini ) && is_dir( $certpath ) ){
+
+				//Daten für Certs lesen
+				$certdata = parse_ini_file( $certini , true );
+
+				//Certs für Absenderadresse vorhanden?
+				//	in Vars laden
+				//		Public Cert
+				$cert_pub = $certpath.$certdata[$allgsysconf['mailvon']]['smime_cert_pub'];
+				//		Priv Cert
+				$cert_priv = $certpath.$certdata[$allgsysconf['mailvon']]['smime_cert_priv'];
+				//		Key für Priv Cert
+				$cert_key = $certdata[$allgsysconf['mailvon']]['smime_cert_priv_key'];
+
+				//alles für Certs gegeben?
+				if( !empty( $cert_pub ) && !empty( $cert_priv ) && !empty( $cert_key ) ){
+
+					//E-Mail in einer Datei speichern
+					//	Pfad von INI nehmen und Dateinamen machen
+					$randint = gen_zufallszahl( 1000, 9999 );
+					$mailfile = $certpath.'maildraft_'.$randint.'.txt';
+					$mailfile_signed = $certpath.'mailsigned_'.$randint.'.txt';
+
+					//	einen Umbruch adden, sonst sign-Fehler
+					$inhalt = "\r\n".$inhalt;
+					//	Header für Inhalt
+					$inhalt = 'Content-Type: text/'.$mime.'; charset=utf-8'."\r\n".$inhalt;
+
+					//	E-Mail Inhalt in Datei
+					$fp = fopen( $mailfile , 'w+');
+					fwrite( $fp, $inhalt );
+					fclose( $fp );
+		
+					//Verschlüsselung durchführen
+					if(
+						openssl_pkcs7_sign(
+							$mailfile,
+							$mailfile_signed,
+							'file://'.$cert_pub,
+							array( 'file://'.$cert_priv, $cert_key ),
+							array( 'From: '.$allgsysconf['sitename'].' <'.$allgsysconf['mailvon'].'>' )
+						)
+					){
+						//Mail signiert
+						$this_signed = true;
+
+						//Mail in Inhalt und Header teilen
+						$parts = explode("This is an S/MIME signed message", file_get_contents( $mailfile_signed ), 2);
+
+						//durch Teilung entferntes wieder anfügen
+						$parts[1] = 'This is an S/MIME signed message'.$parts[1];
+
+						//Mail absenden
+						$return = mail($to, 'Nachricht von: '.$allgsysconf['sitename'], $parts[1], $parts[0] );
+					}
+					else{
+						//keine S/MIME
+						$oldstyle = true;
+					}
+
+					//aufräumen
+					unlink( $mailfile );
+					unlink( $mailfile_signed );
+				}
+				else{
+					//keine S/MIME
+					$oldstyle = true;
+				}
+			}
+			else{
+				//keine S/MIME
+				$oldstyle = true;
+			}
+		}
+		else{
+			//keine S/MIME
+			$oldstyle = true;
+		}
+
+		//Ohne S/MIME?
+		if( $oldstyle ){
+			//Header erstellen
+			//	Absender
+			$header = 'From: '.$allgsysconf['sitename'].' <'.$allgsysconf['mailvon'].'>'."\r\n";
+			//	MIME & Charset
+			$header .= 'MIME-Version: 1.0' ."\r\n";
+			$header .= 'Content-Type: text/'.$mime.'; charset=utf-8' . "\r\n";
+
+			//sende Mail und gebe zurück
+			$return = mail($to, 'Nachricht von: '.$allgsysconf['sitename'], $inhalt, $header);
+		}
 	}
 
-	//Header erstellen
-	//	Absender
-	$header = 'From: '.$allgsysconf['sitename'].' <'.$allgsysconf['mailvon'].'>'."\r\n";
-	//	MIME & Charset
-	$header .= 'MIME-Version: 1.0' ."\r\n";
-	$header .= 'Content-Type: text/'.$mime.'; charset=uft-8' . "\r\n";
+	//Mail Logging?
+	if( isset( $allgsysconf['mail_log'] ) && $allgsysconf['mail_log'] == 'on' ){
 
-	//sende Mail und gebe zurück
-	return mail($to, 'Nachricht von: '.$allgsysconf['sitename'], $inhalt, $header);
+		//Trenner
+		$logdata = "\r\n".'====================================================================='."\r\n";
+		$logdata .= 'From: '.$allgsysconf['sitename'].' <'.$allgsysconf['mailvon'].'>'."\r\n";
+		$logdata .= 'To: '.$to."\r\n";
+		$logdata .= 'Subject: Nachricht von: '.$allgsysconf['sitename']."\r\n";
+		$logdata .= "\r\n";
+		$logdata .= $inhalt;
+		$logdata .= "\r\n\r\n";
+		$logdata .= 'Status: Signatur ('.( $this_signed ? 'true' : 'false' ).'); Versandt ('.( $return ? 'true' : 'false' ).'); Type ('.$mime.')'."\r\n";
+		$logdata .= 'Zeitpunkt: '.date( 'd.m.Y H:i:s' )."\r\n";
+
+		$f = fopen( __DIR__.'/mail.log', 'a+' );
+		fwrite( $f, $logdata );
+		fclose( $f );
+	}
+
+	return $return;
 }
 
 //Browser an  andere URL weiterleiten

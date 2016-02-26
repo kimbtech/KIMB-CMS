@@ -54,7 +54,10 @@ class BEsyseinst{
 		'theme' => 'Wählen Sie ein installiertes Thema für Ihre Seite, ohne oder mit falschem Parameter wird das Standardthema verwendet. (Dieser Wert wird automatisch bei einer Themeninstallation geändert.)',
 		'cronkey' => 'Hier finden Sie den Cronkey. Diese Zeichenkette müssen Sie an die URL hängen, um den Systemcron ausführen zu können. (<cms-url>/cron.php?key=XXXX)',
 		'lang' => 'Hier können Sie das CMS für mehrsprachige Seiten freischalten. (on / off) (Wird auch über Other -> Mehrsprachige Seite verändert)' ,
-		'coolifetime' => 'Lebenszeit des Session Cookies in Sekunden, 0 -> bis Browser geschlossen wird'
+		'coolifetime' => 'Lebenszeit des Session Cookies in Sekunden, 0 -> bis Browser geschlossen wird',
+		'smime_cert_ini_folder' => 'Ordner mit den Zertifikaten und der ini-Datei für den Versandt von unterschriebenen E-Mails (S/MIME). [absolute Pfade mit / beginnen, wenn ohne / relativ zu /core/conf/; siehe auch readme in /core/conf/pem/]',
+		'smime_cert_ini_name' => 'Name der ini-Datei für den Versand von signierten E-Mails (S/MIME). [Die Datei muss im Ordner smime_cert_ini_folder liegen; z.B.: &apos;cert_cms.ini&apos;; wenn leer werden nur unsignierte E-Mails versandt]',
+		'mail_log' => 'Alle vom System versandten E-Mails loggen (on/ off) [Die Logdatei wird unter /core/conf/mail.log erstellt]'
 	);
 	
 	public function __construct( $allgsysconf, $sitecontent,$conffile ){
