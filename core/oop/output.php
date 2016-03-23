@@ -91,9 +91,19 @@ class system_output{
 		
 		//wenn siteinfos aktiviert hinzufügen
 		if( $this->allgsysconf['show_siteinfos'] == 'on' ){
+			
+			//Permalink über Domain des CMS laufen lassen (einfacher ID Zugriff)
+			if( $this->allgsysconf['permalink_domain'] == 'off' ){
+				$permaurl = $this->allgsysconf['siteurl'].'/index.php?id='.$content['req_id'];
+			}
+			else{
+				//Permalink über andere Domain laufen lassen (Weiterleitung auf ID-Zugriff per externem Skript nötig)
+				$permaurl = $this->allgsysconf['permalink_domain'].$content['req_id'];
+			}
+			
 			$time = date( "d.m.Y" , $content['time'] );
 			$schlusszeile .= '<div id="usertime">'.$trans['estv'].' '.$content['made_user'].' '.$trans['am'].' '.$time.'</div>';
-			$schlusszeile .= '<div id="permalink">'.$trans['perma'].': <a href="'.$this->allgsysconf['siteurl'].'/index.php?id='.$content['req_id'].'">'.$this->allgsysconf['siteurl'].'/index.php?id='.$content['req_id'].'</a></div>';
+			$schlusszeile .= '<div id="permalink">'.$trans['perma'].': <a href="'.$permaurl.'">'.$permaurl.'</a></div>';
 			$this->sitecontent .= $schlusszeile."\r\n";
 		}
 	}
