@@ -86,7 +86,7 @@ class system_output{
 			$this->add_html_header('<meta name="keywords" content="'.$content['keywords'].'">');
 		}
 		//Seiteninhalt und Footer
-		$this->sitecontent .= $content['inhalt']."\r\n";
+		$this->add_site_content($content['inhalt'] );
 		$this->add_footer($content['footer']);
 		
 		//wenn siteinfos aktiviert hinzufügen
@@ -106,12 +106,14 @@ class system_output{
 
 	//Seiteninhalt hinzufügen
 	public function add_site_content($content){
-		$this->sitecontent .= $content;
+		$this->sitecontent .= $content."\r\n";
 	}
 
 	//Add-on Area hinzufügen
 	public function add_addon_area($inhalt, $style = '', $cssclass = ''){
-		$this->addon .= '<div id="apps" class="'.$cssclass.'" style="'.$style.'">'.$inhalt.'</div>'."\r\n";
+		$this->addon .= '<div id="apps" class="'.$cssclass.'" style="'.$style.'">'."\r\n";
+		$this->addon .= $inhalt."\r\n";
+		$this->addon .= '</div>'."\r\n";
 	}
 
 	//Footer hinzufügen

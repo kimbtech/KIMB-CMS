@@ -949,7 +949,7 @@ function add_tiny( $big = false, $small = false, $ids = array( 'big' => '#inhalt
 			width : 680,
 			height : 300,
 			resize: "horizontal",
-			content_css : "'.$allgsysconf['siteurl'].'/load/system/theme/design_for_tiny.css",
+			content_css : "'.$allgsysconf['siteurl'].'/load/system/theme/design_for_tiny.min.css",
 			browser_spellcheck : true,
 			image_list: function( success ) {
 				success( [ '.listdirrec( __DIR__.'/../../load/userdata', '/load/userdata' ).' ] );
@@ -987,7 +987,7 @@ function add_tiny( $big = false, $small = false, $ids = array( 'big' => '#inhalt
 			width : 680,
 			height : 100,
 			resize: "horizontal",
-			content_css : "'.$allgsysconf['siteurl'].'/load/system/theme/design_for_tiny.css",
+			content_css : "'.$allgsysconf['siteurl'].'/load/system/theme/design_for_tiny.min.css",
 			browser_spellcheck : true,
 			menubar : false,
 			autosave_interval: "20s",
