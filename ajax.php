@@ -226,7 +226,7 @@ elseif( $_GET['file'] == 'other_filemanager.php' && isset( $_GET['key'] ) ){
 		//Datei mit richtigem Header und Dateinamen ausgeben
 		header("Content-type: ". mime_content_type($datei) );
 		header('Content-Disposition: filename= '.$dateiname);
-		echo ( file_get_contents($datei) );
+		readfile( $datei );
 	}
 	else{
 		//keine Datei zum Key da -> Fehler!
