@@ -367,7 +367,9 @@ class BEsites{
 		//JavaScript
 		$this->jsobject->for_site_edit();
 		//TinyMCE
+		add_content_editor( '' );
 		add_tiny( true, true);
+		
 	
 		//wurden Daten übermittelt?
 		if( isset( $_POST['title'] ) || isset( $_POST['inhalt'] ) ){
@@ -418,16 +420,17 @@ class BEsites{
 			//JavaScript Bibilotheken einfach wählen für den Header
 			$sitecontent->add_site_content('<br /> <select id="libs">');
 			$sitecontent->add_site_content('<option value=""></option>');
-			$sitecontent->add_site_content('<option value="&lt;!-- jQuery --&gt;">jQuery</option>');
-			$sitecontent->add_site_content('<option value="&lt;!-- jQuery UI --&gt;">jQuery UI</option>');
-			$sitecontent->add_site_content('<option value="&lt;!-- nicEdit --&gt;">nicEdit</option>');
-			$sitecontent->add_site_content('<option value="&lt;!-- TinyMCE --&gt;">TinyMCE</option>');
-			$sitecontent->add_site_content('<option value="&lt;!-- Hash --&gt;">Hash</option>');
+			//alle Bibliotheken aus KlassenArray laden
+			$out = new system_output( $allgsysconf );
+			foreach( array_keys( $out->jsapicodes ) as $lib ){
+				$sitecontent->add_site_content('<option value="'.htmlspecialchars( $lib ).'">'.substr( $lib, 5, ( strlen( $lib ) - 9 )  ).'</option>');	
+			}
+			unset( $out );
 			$sitecontent->add_site_content('</select><span class="ui-icon ui-icon-info" style="display:inline-block;" title="Fügen Sie Ihrer Seite ganz einfach eine JavaScript-Bibilothek hinzu." ></span></span></div>');
 		$sitecontent->add_site_content('<input type="text" value="'.$seite['keywords'].'" name="keywords" style="width:74%;"> <i>Keywords</i><br />');
 		$sitecontent->add_site_content('<div style="position:relative;" ><textarea name="description" style="width:74%; height:50px;">'.$seite['description'].'</textarea><span style="position:absolute; top:0; left:75.5%;"> <i>Description</i></span></div>');
-		$sitecontent->add_site_content('<textarea name="inhalt" id="inhalt" style="width:99%; height:300px;">'.$seite['inhalt'].'</textarea> <i>Inhalt &uarr;</i> <button onclick="tinychange( \'inhalt\' ); return false;">Editor I/O</button> <br />');
-		$sitecontent->add_site_content('<textarea name="footer" id="footer" style="width:99%; height:75px;">'.$seite['footer'].'</textarea> <i>Footer &uarr;</i> <button onclick="tinychange( \'footer\' ); return false;">Editor I/O</button> <br />');
+		$sitecontent->add_site_content('<textarea name="inhalt" id="inhalt" style="width:99%; height:300px;">'.$seite['inhalt'].'</textarea> <i>Inhalt &uarr;</i> <br />');
+		$sitecontent->add_site_content('<textarea name="footer" id="footer" style="width:99%; height:75px;">'.$seite['footer'].'</textarea> <i>Footer &uarr;</i> <br />');
 		$sitecontent->add_site_content('<input type="text" readonly="readonly" value="'.$seite['time'].'" name="time" style="width:74%;"> <i>Zuletzt geändert</i><br />');
 		$sitecontent->add_site_content('<input type="submit" value="Ändern"></form>');
 		$sitecontent->echo_message('<p>Wenn Sie auf eine Seite verweisen und dabei auf Nummer sicher gehen wollen, dass die Links auch bei einer Veränderung der Menüpfade noch gültig sind, können Sie für den Link den Platzhalter "<b>&lt;!--URLoutofID=123--&gt;</b>" verwenden. Setzen Sie für "123" einfach die RequestID<b title="Die RequestIDs finden Sie in der Tabelle unter Menue -> Auflisten">*</b> der Seite/ des Menüpunktes ein und der Rest erfolgt automatisch.</p>', 'Tipp');

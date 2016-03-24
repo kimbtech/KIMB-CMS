@@ -940,10 +940,10 @@ function add_tiny( $big = false, $small = false, $ids = array( 'big' => '#inhalt
 				"advlist autosave autolink lists link image charmap preview hr anchor pagebreak",
 				"searchreplace wordcount visualblocks visualchars fullscreen",
 				"insertdatetime media nonbreaking save table contextmenu directionality",
-				"emoticons paste textcolor colorpicker textpattern codemagic"
+				"emoticons paste textcolor colorpicker textpattern code"
 			],
 			toolbar1: "styleselect | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent hr",
-			toolbar2: "fontselect | undo redo | forecolor backcolor | link image emoticons | preview fullscreen | codemagic searchreplace",
+			toolbar2: "fontselect | undo redo | forecolor backcolor | link image emoticons | preview fullscreen | code searchreplace",
 			image_advtab: true,
 			language : "de",
 			width : 680,
@@ -978,10 +978,10 @@ function add_tiny( $big = false, $small = false, $ids = array( 'big' => '#inhalt
 				"advlist autosave autolink lists link image charmap preview hr anchor pagebreak",
 				"searchreplace wordcount visualblocks visualchars fullscreen",
 				"insertdatetime media nonbreaking save table contextmenu directionality",
-				"emoticons paste textcolor colorpicker textpattern codemagic"
+				"emoticons paste textcolor colorpicker textpattern code"
 			],
 			toolbar1: "styleselect | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent hr",
-			toolbar2: "fontselect | undo redo | forecolor backcolor | link image emoticons | preview fullscreen | codemagic searchreplace",
+			toolbar2: "fontselect | undo redo | forecolor backcolor | link image emoticons | preview fullscreen | code searchreplace",
 			image_advtab: true,
 			language : "de",
 			width : 680,
@@ -1004,6 +1004,51 @@ function add_tiny( $big = false, $small = false, $ids = array( 'big' => '#inhalt
 	}
 	//Script beenden
 	$sitecontent->add_html_header('</script>');
+}
+
+//Ein Inhaltseingabefeld einer Seite hinzufügen
+//	$id => ID der Textarea
+//	$art => Größe von TinyMCE ('big'/ 'small')
+function add_content_editor( $id, $art = 'big' ){
+	global $sitecontent, $allgsysconf, $add_content_editor_globals;
+	
+	//Funktion schon mal ausgeführt??
+	if( !is_array( $add_content_editor_globals ) ){
+		//nein
+		//	Array mit Editorinfos erstellen
+		$add_content_editor_globals = array(
+			//JS lib noch nicht geladen
+			'libload'  => false
+		);
+	}
+	
+	//Die Edtioren benötigen zusätzliche JS und CSS Dateien
+	//	hier laden (wenn noch nicht getan!)
+	if( !$add_content_editor_globals['libload'] ){
+		
+		$header = '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/system/nicEdit.js"></script>'."\r\n";
+		$header .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/system/tinymce/tinymce.min.js"></script>'."\r\n";
+		$header .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/system/tinymce/tinymce.min.js"></script>'."\r\n";
+		$header .= '<script>var codemirrorloader_siteurl = "'.$allgsysconf['siteurl'].'", codemirrorloader_done = false;</script>';
+		$header .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/system/codemirror/codemirrorloader.dev.js"></script>';
+		
+		$sitecontent->add_html_header( $header );
+		
+	}
+	
+	//Codemirror INIT JS
+	/*
+		$( function () {
+			$( document ).on( "cms_codemirror_loaded" , function() {
+				CodeMirror.fromTextArea(document.getElementById("htmlcode"), {
+					lineNumbers: true,
+					mode: "text/html"
+				});
+			});
+		});
+	*/
+	
+	
 }
 
 //CMS und KIMB-Software Versionsstings vergleichen

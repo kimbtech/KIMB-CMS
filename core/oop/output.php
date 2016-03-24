@@ -33,11 +33,22 @@ class system_output{
 
 	//Klasse init
 	protected $title, $header, $allgsysconf, $menue, $sitecontent, $addon, $footer, $sonderfile, $hidden_menu;
-
+	public $jsapicodes = array();
+	
 	public function __construct($allgsysconf){
 		$this->allgsysconf = $allgsysconf;
 		$this->sonderfile = new KIMBdbf('sonder.kimb');
 		$this->footer = $this->sonderfile->read_kimb_one('footer')."\r\n";
+	
+		 //einfügen von JavaScript Code für Platzhalter	
+		$this->jsapicodes = array(	
+			'<!-- jQuery -->' => '<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/jquery/jquery.min.js"></script>',
+			'<!-- jQuery UI -->' => '<link rel="stylesheet" type="text/css" href="'.$this->allgsysconf['siteurl'].'/load/system/jquery/jquery-ui.min.css" >'."\r\n".'<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/jquery/jquery-ui.min.js"></script>',
+			'<!-- nicEdit -->' => '<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/nicEdit.js"></script>',
+			'<!-- TinyMCE -->' => '<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/tinymce/tinymce.min.js"></script>',
+			'<!-- Hash -->' => '<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/hash.js"></script>',
+			'<!-- CodeMirror -->' => '<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/codemirror/codemirrorloader.dev.js"></script>'
+		);
 	}
 
 	//Menüeinträge hinzufügen
@@ -185,24 +196,20 @@ class system_output{
 	//abschließende Ausgabe der Seite
 	public function output_complete_site( $allgsys_trans ){
 
-		//einfügen von JavaScript Code für Platzhalter
-		$jsapicodes = array(
-			'<!-- jQuery -->' => '<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/jquery/jquery.min.js"></script>',
-			'<!-- jQuery UI -->' => '<link rel="stylesheet" type="text/css" href="'.$this->allgsysconf['siteurl'].'/load/system/jquery/jquery-ui.min.css" >'."\r\n".'<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/jquery/jquery-ui.min.js"></script>',
-			'<!-- nicEdit -->' => '<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/nicEdit.js"></script>',
-			'<!-- TinyMCE -->' => '<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/tinymce/tinymce.min.js"></script>',
-			'<!-- Hash -->' => '<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/hash.js"></script>'
-		);
-
 		//jede JS Datei soll nur einmal dabei sein
 		//	jQuery-UI benötigt jQuery
 		$add = '';
 		$dones = array();
 		//alle JavaScript Platzhalter durchgehen
-		foreach( $jsapicodes as $key => $code ){
+		foreach( $this->jsapicodes as $key => $code ){
 			//wenn Platzhalter gefunden 
 			if( strpos( $this->header , $key ) !== false ){
 				//im Array $dones werden alle schon hinzugefügten abgelegt
+				
+				//der Loader für CodeMirror braucht die GrundURL des Systems
+				if( $key == '<!-- CodeMirror -->' ){
+					$add .= '<script>var codemirrorloader_siteurl = "'.$this->allgsysconf['siteurl'].'", codemirrorloader_done = false;</script>';
+				}
 				
 				//bei jQuery UI überprüfen ob jQuery schon geladen, wenn nicht beides hinzufügen
 				if( $key == '<!-- jQuery UI -->' && !in_array( '<!-- jQuery -->', $dones ) && !in_array( '<!-- jQuery UI -->', $dones ) ){

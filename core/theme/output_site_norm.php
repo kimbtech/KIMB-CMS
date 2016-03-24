@@ -55,7 +55,7 @@ echo ('<meta name="description" content="'.$this->allgsysconf['description'].'">
 //	charset
 echo ('<meta charset="utf-8">'."\r\n");
 //	CSS (font, print, screen)
-echo ('<link rel="stylesheet" type="text/css" href="'.$this->allgsysconf['siteurl'].'/load/system/theme/fonts.css" media="all">'."\r\n");
+echo ('<link rel="stylesheet" type="text/css" href="'.$this->allgsysconf['siteurl'].'/load/system/theme/fonts.min.css" media="all">'."\r\n");
 echo ('<link rel="stylesheet" type="text/css" href="'.$this->allgsysconf['siteurl'].'/load/system/theme/design.css" media="screen">'."\r\n");
 echo ('<link rel="stylesheet" type="text/css" href="'.$this->allgsysconf['siteurl'].'/load/system/theme/print.css" media="print">'."\r\n");
 //	Touch Icon

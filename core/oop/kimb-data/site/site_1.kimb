@@ -1,12 +1,12 @@
 <[about:doc]>KIMB dbf V3.50 - KIMB-technologies<[about:doc]>
 <[title]>Home<[title]>
-<[header]><[header]>
+<[header]><!-- CodeMirror --><!-- jQuery --><!--UMBRUCH--><script type="text/javascript"><!--UMBRUCH-->$( document ).on( "cms_codemirror_loaded" , function() {<!--UMBRUCH-->		CodeMirror.fromTextArea(document.getElementById("htmlcode"), {<!--UMBRUCH-->			lineNumbers: true,<!--UMBRUCH-->			mode: "text/html"<!--UMBRUCH-->		});<!--UMBRUCH-->	});<!--UMBRUCH--></script><[header]>
 <[keywords]><[keywords]>
 <[description]><[description]>
-<[inhalt]><h1>Home</h1><!--UMBRUCH--><h2>Willkommen</h2><!--UMBRUCH--><p style="text-align: left; padding-left: 30px;">Das KIMB-CMS wurde erfolgreich installiert!</p><!--UMBRUCH--><p style="text-align: left; padding-left: 30px;"><a title="Zum Backend" href="<!--SYS-SITEURL-->/kimb-cms-backend/" target="_blank">Zum Backend</a></p><!--UMBRUCH--><h2>KIMB-technologies</h2><!--UMBRUCH--><p style="padding-left: 30px;"><a title="KIMB-technologies" href="https://kimb-technologies.eu/software/cms" target="_blank">KIMB-technologies</a></p><!--UMBRUCH--><p style="padding-left: 30px;"><a title="KIMB-CMS GIT" href="https://bitbucket.org/kimbtech/kimb-cms" target="_blank">KIMB-CMS GIT</a></p><!--UMBRUCH--><p style="padding-left: 30px;"><a title="KIMB-technologies Register" href="https://register.kimb-technologies.eu/" target="_blank">KIMB-technologies Register</a></p><[inhalt]>
+<[inhalt]><h1>Home</h1><!--UMBRUCH--><h2>Willkommen</h2><!--UMBRUCH--><p style="text-align: left; padding-left: 30px;">Das KIMB-CMS wurde erfolgreich installiert!</p><!--UMBRUCH--><p><textarea id="htmlcode" style="width: 426px; height: 124px;">		    &lt;p&gt;Shows the &lt;a href="xmlcomplete.html"&gt;XML completer&lt;/a&gt;<!--UMBRUCH-->    parameterized with information about the tags in HTML.<!--UMBRUCH-->    Press &lt;strong&gt;ctrl-space&lt;/strong&gt; to activate completion.&lt;/p&gt;<!--UMBRUCH-->	</textarea></p><[inhalt]>
 <[footer]><[footer]>
-<[time]>1435167735<[time]>
-<[made_user]>Max Mustermann<[made_user]>
+<[time]>1458847067<[time]>
+<[made_user]>Max Muster<[made_user]>
 <[title-1]>Title<[title-1]>
 <[keywords-1]><[keywords-1]>
 <[description-1]><[description-1]>
