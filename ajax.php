@@ -205,7 +205,7 @@ elseif( $_GET['file'] == 'user.php' && isset( $_GET['user'] ) ){
 	//beenden
 	die;
 }
-//BE User - Username vorhanden?
+//JSON für TinyMCE
 elseif( $_GET['file'] == 'sites.php' ){
 
 	//Rechte prüfen
@@ -213,9 +213,28 @@ elseif( $_GET['file'] == 'sites.php' ){
 	
 	//Header passend machen
 	header( "Content-Type: application/javascript; charset=utf-8" );
-
-	//Bilderliste laden
-	echo "[".listdirrec( __DIR__.'/load/userdata', '/load/userdata' )."]";
+	
+	//Bilder?
+	if( isset( $_GET['img'] ) ){
+		//Bilderliste laden
+		echo "[".listdirrec( __DIR__.'/load/userdata', '/load/userdata' )."]";
+	}
+	//Links
+	elseif( isset( $_GET['links'] ) ){
+		
+		//Menü als Array erstellen
+		$data = make_menue_array_helper();
+		
+		//JSON für TinyMCE
+		echo '[';
+		foreach( $data as $d  ){
+			echo '{ title: "'.$d['menuname'].'", value: "<!--URLoutofID='.$d['requid'].'-->" },';
+		}
+		echo ']';
+	}
+	else{
+		echo '{ "error":"Weder Bilder noch Links gewollt!!" }';		
+	}
 	
 	//beenden
 	die;

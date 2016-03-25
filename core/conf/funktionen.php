@@ -934,7 +934,7 @@ function add_content_editor( $id ){
 		$header .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/system/tinymce/tinymce.min.js"></script>'."\r\n";
 		$header .= '<script>var codemirrorloader_siteurl = "'.$allgsysconf['siteurl'].'", codemirrorloader_done = false;</script>'."\r\n";
 		$header .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/system/codemirror/codemirrorloader.min.js"></script>'."\r\n";
-		$header .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/system/editorloader.dev.js"></script>'."\r\n";
+		$header .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/system/editorloader.min.js"></script>'."\r\n";
 		
 		$sitecontent->add_html_header( $header );
 		

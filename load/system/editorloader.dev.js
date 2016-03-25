@@ -3,10 +3,10 @@
 $( function () {
 	
 	//Stift auf Seite oben rechts
-	$( "div#content" ).prepend( '<div style="position:relative;"><span class="ui-icon ui-icon-pencil" id="editorloader_dialog_btn" style="display:inline-block; position:absolute;; right:5px; top:5px;" title="Editoren für Inhalte verwalten"></span></div>' );
+	$( "div#content" ).prepend( '<div style="position:relative;"><button id="editorloader_dialog_btn" title="Editoren für Inhalte verwalten" style="display:inline-block; position:absolute; right:5px; top:5px;"><span class="ui-icon ui-icon-pencil"></span></button></div>' );
 	
 	//Dialog durch Klick öffnen
-	$( "span#editorloader_dialog_btn" ).click( function (){
+	$( "button#editorloader_dialog_btn" ).click( function (){
 		
 		//Dialog HTML
 		var html = '<div id="editorloader_dialog" title="Editoren verwalten">';
@@ -22,6 +22,7 @@ $( function () {
 		html += '<input type="radio" name="editorloader_wahl" value="textarea">Textfeld ';
 		html += '<span class="ui-icon ui-icon-info" style="display:inline-block;" title="Nutzen Sie ein einfaches Textfeld zur Eingabe der Inhalte."></span><br />';
 		
+		html += '<p><small>Ihre Auswahl wird lokal in Ihrem Browser gespeichert. (Speicherdauer je nach Einstellung; mindestens jedoch für diese Session)</small></p>';
 		html += '</div>';
 		
 		//Dialog HTML der Seite anfügen
@@ -30,7 +31,7 @@ $( function () {
 		//aktuellen Editor laden (aus localStorage)
 		var editor = window.localStorage.getItem( "editorloader" );
 		//	wenn leer => Standard TinyMCE
-		if( typeof editor !== "undefined" ){
+		if( editor !== null ){
 			$( "input[name=editorloader_wahl][value="+editor+"]" ).prop("checked", true)
 		}
 		//	sonst wie aus localStorage
@@ -50,12 +51,22 @@ $( function () {
 			//button übernehmen
 			buttons: [
 				{
-					text: "Übernehmen",
+					text: "Speichern & Übernehmen",
 					icons: {
 						primary: "ui-icon-circle-check"
 					},
 					click: function() {
 						save_settings();
+						$( this ).dialog( "close" );
+					}
+				},
+				{
+					text: "Schließen",
+					icons: {
+						primary: "ui-icon-circle-close"
+					},
+					click: function() {
+						$( this ).dialog( "close" );
 					}
 				}
 			]
@@ -63,9 +74,57 @@ $( function () {
 		});
 	});
 	
+	//Editorwahl aus Dialog lesen und ablegen
 	function save_settings(){
+		//alter Werte
+		var old = window.localStorage.getItem( "editorloader" );
+		//neuer Werte
 		var editor = $( "input[name=editorloader_wahl]:checked" ).val();
+		//neuen Wert ablegen
 		window.localStorage.setItem( "editorloader", editor );
+		
+		//wenn Änderung, Editoren neu laden
+		if( old != editor ){
+			reload_all( old , editor );
+		}
+	}
+	
+	//Alle Editoren auf der Seite neu laden
+	//	old => aktuell noch geladener Editor
+	//	editor => neu zu ladender Editor
+	function reload_all( old, editor ){
+		
+		//TinyMCE aktuell?
+		if( old == "tinymce" || typeof old === "undefined" ){
+			
+			//alle IDs durchgehen	
+			editorloader_ids.forEach( function( v ){
+				//Tiny weg
+				tinymce.EditorManager.execCommand( "mceRemoveEditor", true, v);
+			});
+		}
+		//CodeMirror aktuell
+		else if( old == "codemirror" ){
+			//alle IDs durchgehen	
+			editorloader_ids.forEach( function( v ){
+				//CodeMirror weg
+				var cm = codemirrorloader_instances[v];
+				cm.toTextArea();
+			});
+		}
+		//Textarea muss nicht entladen werden 
+		
+		//wenn Textarea als Neues,
+		//	kein laden nötig 
+		if( editor != "textarea" ) {
+			//alle IDs durchgehen	
+			editorloader_ids.forEach( function( v ){
+				//Editor jeweils neu laden
+				editorloader_add( v, "no" );
+			});
+		}
+		
+		return true;
 	}
 });
 
@@ -73,9 +132,12 @@ $( function () {
 var editorloader_ids = Array();
 //Editor zu einer ID laden
 //	id => ID der Textarea
-function editorloader_add( id ){
-	//ID merken
-	editorloader_ids.push( id );
+//	save => wenn nicht leer, werden die IDs des Textareas gespeichert
+function editorloader_add( id, save ){
+	if( typeof save === "undefined" ){
+		//ID merken
+		editorloader_ids.push( id );
+	}
 
 	//aktuell gewünschten Editor lesen
 	var editor = window.localStorage.getItem( "editorloader" );
@@ -111,18 +173,20 @@ function tinymceloader_add( id ){
 			"advlist autosave autolink lists link image charmap preview hr anchor pagebreak",
 			"searchreplace wordcount visualblocks visualchars fullscreen",
 			"insertdatetime media nonbreaking save table contextmenu directionality",
-			"emoticons paste textcolor colorpicker textpattern code"
+			"emoticons paste textcolor colorpicker textpattern code",
+			"fontawesome noneditable"
 		],
-		toolbar1: "styleselect | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent hr",
-		toolbar2: "fontselect | undo redo | forecolor backcolor | link image emoticons | preview fullscreen | code searchreplace",
+		toolbar1: "styleselect | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent hr ",
+		toolbar2: "fontselect | undo redo | forecolor backcolor | link image emoticons fontawesome | preview fullscreen | code searchreplace",
 		image_advtab: true,
 		language : "de",
 		width : 680,
 		height : 300,
 		resize: "horizontal",
-		content_css : codemirrorloader_siteurl+"/load/system/theme/design_for_tiny.min.css",
+		content_css : codemirrorloader_siteurl+"/load/system/theme/design_for_tiny.min.css,"+codemirrorloader_siteurl+"/load/system/fontawesome/font-awesome.min.css",
 		browser_spellcheck : true,
-		image_list: codemirrorloader_siteurl+"/ajax.php?file=sites.php",
+		image_list: codemirrorloader_siteurl+"/ajax.php?file=sites.php&img",
+		link_list: codemirrorloader_siteurl+"/ajax.php?file=sites.php&links",
 		autosave_interval: "20s",
 		autosave_restore_when_empty: true,
 		autosave_retention: "60m",
@@ -132,6 +196,7 @@ function tinymceloader_add( id ){
 			ed.on('init', function(e) {
 				$( "iframe#"+id+"_ifr" ).tooltip({ disabled: true });
 			});
-		}
+		},
+		extended_valid_elements: 'span[class]',
 	});
 }

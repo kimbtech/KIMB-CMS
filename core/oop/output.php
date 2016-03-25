@@ -44,10 +44,10 @@ class system_output{
 		$this->jsapicodes = array(	
 			'<!-- jQuery -->' => '<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/jquery/jquery.min.js"></script>',
 			'<!-- jQuery UI -->' => '<link rel="stylesheet" type="text/css" href="'.$this->allgsysconf['siteurl'].'/load/system/jquery/jquery-ui.min.css" >'."\r\n".'<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/jquery/jquery-ui.min.js"></script>',
-			'<!-- nicEdit -->' => '<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/nicEdit.js"></script>',
 			'<!-- TinyMCE -->' => '<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/tinymce/tinymce.min.js"></script>',
 			'<!-- Hash -->' => '<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/hash.js"></script>',
-			'<!-- CodeMirror -->' => '<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/codemirror/codemirrorloader.min.js"></script>'
+			'<!-- CodeMirror -->' => '<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/codemirror/codemirrorloader.min.js"></script>',
+			'<!-- FontAwesome -->' => '<link rel="stylesheet" type="text/css" href="'.$this->allgsysconf['siteurl'].'/load/system/fontawesome/font-awesome.min.css">'
 		);
 	}
 

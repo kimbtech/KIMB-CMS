@@ -101,6 +101,7 @@ class backend_output{
 			echo ('<meta name="robots" content="none">'."\r\n");
 			echo ('<meta charset="utf-8">'."\r\n");
 			echo ('<link rel="stylesheet" type="text/css" href="'.$this->allgsysconf['siteurl'].'/load/system/theme/fonts.min.css" >'."\r\n");
+			echo ('<link rel="stylesheet" type="text/css" href="'.$this->allgsysconf['siteurl'].'/load/system/fontawesome/font-awesome.min.css">'."\r\n");
 			echo ('<link rel="stylesheet" type="text/css" href="'.$this->allgsysconf['siteurl'].'/load/system/be.min.css" >'."\r\n");
 			echo ('<link rel="stylesheet" type="text/css" href="'.$this->allgsysconf['siteurl'].'/load/system/jquery/jquery-ui.min.css" >'."\r\n");
 			echo ('<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/jquery/jquery.min.js"></script>'."\r\n");

@@ -15,8 +15,9 @@
 //You should have received a copy of the GNU General Public License
 //along with this program.
 /*************************************************/
-//www.KIMB-technologies.eu
-//www.bitbucket.org/kimbtech
+//https://www.KIMB-technologies.eu
+//https://www.bitbucket.org/kimbtech
+//https://www.github.com/kimbtech
 //http://www.gnu.org/licenses/gpl-3.0
 //http://www.gnu.org/licenses/gpl-3.0.txt
 /*************************************************/
@@ -25,11 +26,13 @@
 //Some componets of this programm are licensed under
 //other Licenses:
 /*************************************************/
-//MIT-License: jQuery (http://jquery.com), jQueryUI (http://jqueryui.com), CodeMirror (http://codemirror.net/)
+//MIT-License: jQuery (http://jquery.com), jQueryUI (http://jqueryui.com),
+//	CodeMirror (http://codemirror.net/), FontAwesome CSS (http://fontawesome.io)
 //LGPL: TinyMCE (http://tinymce.com)
 //CC-BY: Flags (http://duesdings.de/bilder/sprachen.php)
 //Ubuntu Font License: Ubuntu Font Family (http://font.ubuntu.com)
 //3-Clause BSD License: CryptoJS (https://code.google.com/p/crypto-js/)
+//SIL OFL License: FontAwesome Font (http://fontawesome.io)
 /*************************************************/
 
 

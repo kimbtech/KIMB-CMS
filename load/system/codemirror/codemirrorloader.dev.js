@@ -48,12 +48,14 @@ $( function () {
 	} );
 });
 
+//CodeMirror Instanzen
+var codemirrorloader_instances = {};
 //Einfaches Laden von CodeMirror
 //	id => ID der Textarea, welche mit CodeMirror versehen werden soll
 function codemirrorloader_add( id ){
 		
 	function add( domid ){
-		CodeMirror.fromTextArea(document.getElementById( domid ), {
+		codemirrorloader_instances[id] = CodeMirror.fromTextArea(document.getElementById( domid ), {
 			lineNumbers: true,
 			mode: "gfm"
 		});
