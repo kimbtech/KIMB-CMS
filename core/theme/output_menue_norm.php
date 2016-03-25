@@ -1,5 +1,4 @@
 <?php
-
 /*************************************************/
 //KIMB CMS
 //KIMB ContentManagementSystem
@@ -35,7 +34,7 @@ defined('KIMB_CMS') or die('No clean Request');
 if( !isset( $this->menuenumid ) ){
 	$this->menuenumid = 0;
 }
-$this->menuenumid ++;
+$this->menuenumid++;
 
 //eine verschachtelte ul, li Tabelle bauen
 
@@ -43,11 +42,12 @@ $this->menuenumid ++;
 if( !isset( $this->niveau ) ){
 	//die erste li öffnen
 	$this->menue .= '<li>'."\r\n";
+
 }
 //Niveau gleich?
 elseif( $this->niveau == $niveau ){
 	//li beenden und neues öffnen
-	$this->menue .= '</li><li>'."\r\n";
+	$this->menue .= '</a></li><li>'."\r\n";
 }
 //altes Niveau kleiner?
 elseif( $this->niveau < $niveau ){
@@ -58,9 +58,12 @@ elseif( $this->niveau < $niveau ){
 	while( $this->niveau != $niveau - $i  ){
 		$i++;
 	}
-	$this->menue .= str_repeat( '<ul>' , $i ).'<li>'."\r\n";
+	//Zeichen im Menü als Hinweis auf Untermenü
+	$this->menue .= '&raquo;</a>'.str_repeat( '<ul>' , $i ).'<li>'."\r\n";
+
 	//Menütiefe mitzählen
 	$this->ulauf = $this->ulauf + $i;
+
 }
 //altes Niveau größer?
 elseif( $this->niveau > $niveau ){
@@ -71,7 +74,8 @@ elseif( $this->niveau > $niveau ){
 	while( $this->niveau != $niveau + $i  ){
 		$i++;
 	}
-	$this->menue .= '</li>'.str_repeat( '</ul>' , $i ).'<li>'."\r\n";
+	$this->menue .= '</a></li>'.str_repeat( '</ul>' , $i ).'<li>'."\r\n";
+
 	//Menütiefe mitzählen
 	$this->ulauf = $this->ulauf - $i;
 }
@@ -79,10 +83,16 @@ elseif( $this->niveau > $niveau ){
 //Den Menüpunkt der Ausgabe anfügen
 //	wenn dieser 'clicked' ist (also der Menüpunkt der aktuellen Seite) die id #liclicked anfügen
 if( $clicked == 'yes' ){
-	$this->menue .=  '<a id="liclicked" href="'.$link.'" onclick=" return menueclick( '.$this->menuenumid.' ); ">'.$name.'</a>'."\r\n";
+	$this->menue .=  '<a id="liclicked" href="'.$link.'" onclick="return menueclick('.$this->menuenumid.');" >'.$name."\r\n";
+	//für Menüausschnitt links aufnehmen
+	$this->over_menue[$this->menuenumid] = array( $niveau, '<a id="liclicked" href="'.$link.'">'.$name.'</a>' );
+	$this->over_menue_clicked_id = $this->menuenumid;
+	$this->over_menue_clicked_niv = $niveau;
 }
 else{
-	$this->menue .=  '<a href="'.$link.'" onclick=" return menueclick( '.$this->menuenumid.' ); ">'.$name.'</a>'."\r\n";
+	//für Menüausschnitt links aufnehmen
+	$this->menue .=  '<a href="'.$link.'" onclick="return menueclick('.$this->menuenumid.');" >'.$name."\r\n";
+	$this->over_menue[$this->menuenumid] = array( $niveau, '<a href="'.$link.'">'.$name.'</a>' );
 }
 
 $this->niveau = $niveau;

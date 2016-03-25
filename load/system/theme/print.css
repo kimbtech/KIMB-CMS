@@ -1,26 +1,50 @@
 body {
 	background:white;
-	font-family: Ubuntu,Arial,sans-serif;
+	font-family: Ubuntu,sans-serif;
 	font-size:100%;
 	color:#000000;
 }
+h1, h2, h3, h4, h5, h6 {
+    font-weight: bold;
+}
 h1 {
+	font-size:2em;
+	color:black;
+	text-align:center;
+	margin: auto;
+}
+h2 {
 	font-size:1.8em;
 	color:black;
 	text-align:center;
 	margin: auto;
-	font-weight: bold;
 }
-h2 {
-	font-size:1.3em;
-	color:black;
-	text-align:center;
-	margin: auto;
-	font-weight: bold;
+h3{
+	font-size: 1.6em;
+}
+h4{
+	font-size: 1.4em;
+}
+h5{
+	font-size: 1.2em;
+}
+h6{
+	color: gray;
+	font-size: 1em;
+}
+
+hr{
+	height: 0.2em;
+	border: 0;
+	color: #CCCCCC;
+	background-color: #CCCCCC;
 }
 input, textarea, button{
 	font-size:100%;
-	font-family:Ubuntu,Arial,sans-serif;
+	font-family:Ubuntu,sans-serif;
+}
+img{
+	max-width: 95%;
 }
 
 /*Definitionen <div>*/
@@ -28,8 +52,8 @@ input, textarea, button{
 #page {
 	margin:auto;
 	text-align:left;
-	border-radius:20px;
 	background-color:white;
+	border-radius: 15px;
 }
 
 #header{
@@ -37,7 +61,7 @@ input, textarea, button{
 	font-size:40px;
 	color:black;
 	background-color:gray;
-	border-radius: 20px;
+	border-radius: 15px;
 	border:solid 2px black;
 	padding:15px;
 }
@@ -72,9 +96,9 @@ input, textarea, button{
 	height:auto;
 	min-height:250px;
 	padding:10px;
-	border-radius: 20px;
+	border-radius: 15px;
 	background-color:#ffffff;
-	border:solid 2px black;
+	border: 1px solid #A18527;
 	position:relative;	
 }
 
@@ -85,14 +109,14 @@ input, textarea, button{
 	font-size:0.8em;
 	color:#000;
 	background-color:white;
-	border-radius: 20px;
+	border-radius: 15px;
 	margin-top:20px;
-	border:solid 2px black;
+	border: 1px solid #A18527;
 }
 
 #errorbox{
 	background:gray;
-	border-radius:20px;
+	border-radius: 15px;
 	padding:20px;
 	margin: 5px 0;
 
@@ -130,4 +154,41 @@ input, textarea, button{
 
 div#lang ul{
 	display: none;
+}
+
+div#each_regbox{
+	display:none;
+}
+
+div#analysehinweis{
+	display:none;
+}
+
+
+blockquote{
+	margin: 15px 0;
+	margin-left: 1.5em;
+	padding-left: 1.5em;
+	border-left: 0.2em gray solid;
+}
+code:not( [class*="language-"] ), pre:not( [class*="language-"] ){
+	border-radius: 3px;
+	background-color: #F8F8F8;
+	color: inherit;
+}
+code:not( [class*="language-"] ){
+	border: 1px solid #EAEAEA;
+	margin: 0 2px;
+	padding: 0 5px;
+}
+pre:not( [class*="language-"] ){
+	border: 1px solid #CCCCCC;
+	line-height: 1.25em;
+	overflow: auto;
+	padding: 6px 10px;
+}
+pre:not( [class*="language-"] ) > code:not( [class*="language-"] ) {
+	border: 0;
+	margin: 0;
+	padding: 0;
 }
