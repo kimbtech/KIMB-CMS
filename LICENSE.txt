@@ -25,7 +25,7 @@
 //Some componets of this programm are licensed under
 //other Licenses:
 /*************************************************/
-//MIT-License: jQuery (http://jquery.com), jQueryUI (http://jqueryui.com), NicEdit (http://nicedit.com)
+//MIT-License: jQuery (http://jquery.com), jQueryUI (http://jqueryui.com), CodeMirror (http://codemirror.net/)
 //LGPL: TinyMCE (http://tinymce.com)
 //CC-BY: Flags (http://duesdings.de/bilder/sprachen.php)
 //Ubuntu Font License: Ubuntu Font Family (http://font.ubuntu.com)

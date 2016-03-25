@@ -205,6 +205,21 @@ elseif( $_GET['file'] == 'user.php' && isset( $_GET['user'] ) ){
 	//beenden
 	die;
 }
+//BE User - Username vorhanden?
+elseif( $_GET['file'] == 'sites.php' ){
+
+	//Rechte prüfen
+	check_backend_login('three');
+	
+	//Header passend machen
+	header( "Content-Type: application/javascript; charset=utf-8" );
+
+	//Bilderliste laden
+	echo "[".listdirrec( __DIR__.'/load/userdata', '/load/userdata' )."]";
+	
+	//beenden
+	die;
+}
 //Filemanager secure Dateizugriff
 elseif( $_GET['file'] == 'other_filemanager.php' && isset( $_GET['key'] ) ){
 

@@ -366,9 +366,9 @@ class BEsites{
 	
 		//JavaScript
 		$this->jsobject->for_site_edit();
-		//TinyMCE
-		add_content_editor( '' );
-		add_tiny( true, true);
+		//Editoren laden (Footer, Inhalt)
+		add_content_editor( 'inhalt' );
+		add_content_editor( 'footer' );
 		
 	
 		//wurden Daten übermittelt?

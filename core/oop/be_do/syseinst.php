@@ -215,20 +215,17 @@ class BEsyseinst{
 			$this->make_syseinst_sonder_dbf( $_POST );
 		}
 
-		//TinyMCE alle Textfelder
-		$arr['small'] = '#footer';
-		add_tiny( false, true, $arr );
-		$arr['small'] = '#err404';
-		add_tiny( false, true, $arr );
-		$arr['small'] = '#err403';
-		add_tiny( false, true, $arr );
+		//Editoren laden (Footer, Inhalt)
+		add_content_editor( 'footer' );
+		add_content_editor( 'err404' );
+		add_content_editor( 'err403' );
 		
 		//Eingabefelder
 		$sitecontent->add_site_content('<h2>Error- und Footertexte</h2>');
 		$sitecontent->add_site_content('<form method="post" action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/syseinst.php?text">');
-		$sitecontent->add_site_content('<textarea name="footer" id="footer" style="width:99%;">'.$sonder->read_kimb_one( 'footer' ).'</textarea> <i>Footer &uarr;</i> <button onclick="tinychange( \'footer\' ); return false;">Editor I/O</button> <br />');
-		$sitecontent->add_site_content('<textarea name="err404" id="err404" style="width:99%;">'.$sonder->read_kimb_one( 'error-404' ).'</textarea> <i>Error 404 &uarr;</i> <button onclick="tinychange( \'err404\' ); return false;">Editor I/O</button> <br />');
-		$sitecontent->add_site_content('<textarea name="err403" id="err403" style="width:99%;">'.$sonder->read_kimb_one( 'error-403' ).'</textarea> <i>Error 403 &uarr;</i> <button onclick="tinychange( \'err403\' ); return false;">Editor I/O</button> <br />');
+		$sitecontent->add_site_content('<textarea name="footer" id="footer" style="width:99%;">'.$sonder->read_kimb_one( 'footer' ).'</textarea> <i>Footer &uarr;</i><br />');
+		$sitecontent->add_site_content('<textarea name="err404" id="err404" style="width:99%;">'.$sonder->read_kimb_one( 'error-404' ).'</textarea> <i>Error 404 &uarr;</i><br />');
+		$sitecontent->add_site_content('<textarea name="err403" id="err403" style="width:99%;">'.$sonder->read_kimb_one( 'error-403' ).'</textarea> <i>Error 403 &uarr;</i><br />');
 		$sitecontent->add_site_content('<input type="submit" value="Ändern"></form>');
 	}
 	

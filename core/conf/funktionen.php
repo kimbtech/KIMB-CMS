@@ -888,128 +888,33 @@ function listdirrec( $dir, $grdir ){
 	}
 }
 
+//	====================================
+//	------ BITTE NICHT MEHR AKTIV NUTZEN -------
+//	------    siehe add_content_editor( $id )     -------
+//	====================================
 //einfaches Hinzufügen von TinyMCE in eine Textarea
 //Die benötigten JavaScript Dateien werden im Backend automatisch geladen, im Frontend ist das Hinzufügen des HTML-Headers '<!-- TinyMCE -->' nötig!
 //	$big => großes Feld aktivieren (mit TinyMCE Menü) [boolean]
 //	$small => kleines Feld aktivieren (ohne TinyMCE menü) [boolean]
 //	$ids => Array ()'big' => ' HTML ID des Textarea für großes Feld ', 'small' => ' HTML ID des Textarea für kleines Feld ' ) 
 function add_tiny( $big = false, $small = false, $ids = array( 'big' => '#inhalt', 'small' => '#footer' ) ){
-	global $sitecontent, $allgsysconf, $tinyoo;
-
-	//$tinyoo => gibt an, ob JS Funktion tinychange(); schon in der Ausagabe 
-
-	//JavaScript Ausgabe beginnen
-	$sitecontent->add_html_header('<script>');
-
-	//Funktion tinychange(); schon da?
-	if( !$tinyoo ){
-		//wenn nicht, dann hinzufügen
-		//	Die Funktion tinychange(); verändert den Status des TinyMCE Editoren. Bei einem Aufruf von tinychange( <<HTML ID der Textarea>> ); wird deren TinyMCE Status verändert.
-		//	TinyMCE wird entweder ausgeblendet oder eingeblendet.
-		$sitecontent->add_html_header('
-		var tiny = [];
-
-		function tinychange( id ){
-			if( !tiny[id] ){
-				tinymce.EditorManager.execCommand( "mceAddEditor", true, id);
-				tiny[id] = true;
-			}
-			else{
-				tinymce.EditorManager.execCommand( "mceRemoveEditor", true, id)
-				tiny[id] = false;
-			}
-		}
-		
-		function disabletooltips(){ 
-			$( "iframe" ).tooltip({ disabled: true });
-		}
-		');
-		$tinyoo = true;
-	}
-
-	//großer TinyMCE gewünscht?
+	
+	//es gibt keine Größenunterschiede mehr!!
+	
+	//hier wird eindfach die neue Funktion add_content_editor() benutzt!!	
 	if( $big ){
-		//Initialisierung von TinyMCE
-		//	http://www.tinymce.com
-		//	Angabe der Textarea ID aus $ids
-		$sitecontent->add_html_header('
-		tinymce.init({
-			selector: "'.$ids['big'].'",
-			theme: "modern",
-			plugins: [
-				"advlist autosave autolink lists link image charmap preview hr anchor pagebreak",
-				"searchreplace wordcount visualblocks visualchars fullscreen",
-				"insertdatetime media nonbreaking save table contextmenu directionality",
-				"emoticons paste textcolor colorpicker textpattern code"
-			],
-			toolbar1: "styleselect | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent hr",
-			toolbar2: "fontselect | undo redo | forecolor backcolor | link image emoticons | preview fullscreen | code searchreplace",
-			image_advtab: true,
-			language : "de",
-			width : 680,
-			height : 300,
-			resize: "horizontal",
-			content_css : "'.$allgsysconf['siteurl'].'/load/system/theme/design_for_tiny.min.css",
-			browser_spellcheck : true,
-			image_list: function( success ) {
-				success( [ '.listdirrec( __DIR__.'/../../load/userdata', '/load/userdata' ).' ] );
-			},
-			autosave_interval: "20s",
-			autosave_restore_when_empty: true,
-			autosave_retention: "60m",
-			menubar: "file edit insert view format table",
-			convert_urls: false,
-			init_instance_callback : "disabletooltips"
-		});
-		tiny[\''.substr( $ids['big'], 1 ).'\'] = true;
-		');
-
+		add_content_editor( substr( $ids['small'], 1 ) );
 	}
-	//kleiner TinyMCE gewünscht?
 	if( $small ){
-		//Initialisierung von TinyMCE
-		//	http://www.tinymce.com
-		//	Angabe der Textarea ID aus $ids
-		$sitecontent->add_html_header('
-		tinymce.init({
-			selector: "'.$ids['small'].'",
-			theme: "modern",
-			plugins: [
-				"advlist autosave autolink lists link image charmap preview hr anchor pagebreak",
-				"searchreplace wordcount visualblocks visualchars fullscreen",
-				"insertdatetime media nonbreaking save table contextmenu directionality",
-				"emoticons paste textcolor colorpicker textpattern code"
-			],
-			toolbar1: "styleselect | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent hr",
-			toolbar2: "fontselect | undo redo | forecolor backcolor | link image emoticons | preview fullscreen | code searchreplace",
-			image_advtab: true,
-			language : "de",
-			width : 680,
-			height : 100,
-			resize: "horizontal",
-			content_css : "'.$allgsysconf['siteurl'].'/load/system/theme/design_for_tiny.min.css",
-			browser_spellcheck : true,
-			menubar : false,
-			autosave_interval: "20s",
-			autosave_restore_when_empty: true,
-			autosave_retention: "60m",
-			image_list: function( success ) {
-				success( [ '.listdirrec( __DIR__.'/../../load/userdata', '/load/userdata' ).' ] );
-			},
-			convert_urls: false,
-			init_instance_callback : "disabletooltips"
-		});
-		tiny[\''.substr( $ids['small'], 1 ).'\'] = true;
-		');
+		add_content_editor( substr( $ids['big'], 1 ) );
 	}
-	//Script beenden
-	$sitecontent->add_html_header('</script>');
+	
 }
 
 //Ein Inhaltseingabefeld einer Seite hinzufügen
-//	$id => ID der Textarea
+//	$id => ID der Textarea (ohne #)
 //	$art => Größe von TinyMCE ('big'/ 'small')
-function add_content_editor( $id, $art = 'big' ){
+function add_content_editor( $id ){
 	global $sitecontent, $allgsysconf, $add_content_editor_globals;
 	
 	//Funktion schon mal ausgeführt??
@@ -1025,30 +930,23 @@ function add_content_editor( $id, $art = 'big' ){
 	//Die Edtioren benötigen zusätzliche JS und CSS Dateien
 	//	hier laden (wenn noch nicht getan!)
 	if( !$add_content_editor_globals['libload'] ){
-		
-		$header = '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/system/nicEdit.js"></script>'."\r\n";
+
 		$header .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/system/tinymce/tinymce.min.js"></script>'."\r\n";
-		$header .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/system/tinymce/tinymce.min.js"></script>'."\r\n";
-		$header .= '<script>var codemirrorloader_siteurl = "'.$allgsysconf['siteurl'].'", codemirrorloader_done = false;</script>';
-		$header .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/system/codemirror/codemirrorloader.dev.js"></script>';
+		$header .= '<script>var codemirrorloader_siteurl = "'.$allgsysconf['siteurl'].'", codemirrorloader_done = false;</script>'."\r\n";
+		$header .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/system/codemirror/codemirrorloader.min.js"></script>'."\r\n";
+		$header .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/system/editorloader.dev.js"></script>'."\r\n";
 		
 		$sitecontent->add_html_header( $header );
 		
+		$sitecontent->add_html_header( '<style>.CodeMirror{border: 1px solid black;}</style>' );
+		
+		$add_content_editor_globals['libload'] = true;
 	}
 	
-	//Codemirror INIT JS
-	/*
-		$( function () {
-			$( document ).on( "cms_codemirror_loaded" , function() {
-				CodeMirror.fromTextArea(document.getElementById("htmlcode"), {
-					lineNumbers: true,
-					mode: "text/html"
-				});
-			});
-		});
-	*/
+	//Editor laden (per JS Funktion)	
+	$sitecontent->add_html_header( '<script>editorloader_add( "'.$id.'" );</script>' );
 	
-	
+	return true;
 }
 
 //CMS und KIMB-Software Versionsstings vergleichen

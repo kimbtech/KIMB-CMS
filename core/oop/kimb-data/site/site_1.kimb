@@ -1,11 +1,11 @@
 <[about:doc]>KIMB dbf V3.50 - KIMB-technologies<[about:doc]>
 <[title]>Home<[title]>
-<[header]><!-- CodeMirror --><!-- jQuery --><!--UMBRUCH--><script type="text/javascript"><!--UMBRUCH-->$( document ).on( "cms_codemirror_loaded" , function() {<!--UMBRUCH-->		CodeMirror.fromTextArea(document.getElementById("htmlcode"), {<!--UMBRUCH-->			lineNumbers: true,<!--UMBRUCH-->			mode: "text/html"<!--UMBRUCH-->		});<!--UMBRUCH-->	});<!--UMBRUCH--></script><[header]>
+<[header]><!-- CodeMirror --><!-- jQuery --><!--UMBRUCH--><script type="text/javascript"><!--UMBRUCH-->codemirrorloader_add( "htmlcode" )<!--UMBRUCH--></script><[header]>
 <[keywords]><[keywords]>
 <[description]><[description]>
-<[inhalt]><h1>Home</h1><!--UMBRUCH--><h2>Willkommen</h2><!--UMBRUCH--><p style="text-align: left; padding-left: 30px;">Das KIMB-CMS wurde erfolgreich installiert!</p><!--UMBRUCH--><p><textarea id="htmlcode" style="width: 426px; height: 124px;">		    &lt;p&gt;Shows the &lt;a href="xmlcomplete.html"&gt;XML completer&lt;/a&gt;<!--UMBRUCH-->    parameterized with information about the tags in HTML.<!--UMBRUCH-->    Press &lt;strong&gt;ctrl-space&lt;/strong&gt; to activate completion.&lt;/p&gt;<!--UMBRUCH-->	</textarea></p><[inhalt]>
+<[inhalt]># H1<!--UMBRUCH-->Hallo Franz<!--UMBRUCH--><h1>Home</h1><!--UMBRUCH--><h2>Willkommen</h2><!--UMBRUCH--><p style="text-align: left; padding-left: 30px;">Das KIMB-CMS wurde erfolgreich installiert!</p><!--UMBRUCH-->	<[inhalt]>
 <[footer]><[footer]>
-<[time]>1458847067<[time]>
+<[time]>1458907323<[time]>
 <[made_user]>Max Muster<[made_user]>
 <[title-1]>Title<[title-1]>
 <[keywords-1]><[keywords-1]>
