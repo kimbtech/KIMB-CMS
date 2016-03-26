@@ -42,7 +42,9 @@ function autoload_classes( $class ){
 		'BEsyseinst' => 'be_do/syseinst',
 		'BEuser' => 'be_do/user',
 		'BEaddconf' => 'be_do/addon_conf',
-		'BEaddinst' => 'be_do/addon_inst'
+		'BEaddinst' => 'be_do/addon_inst',
+		'Parsedown' => 'parsedown/Parsedown',
+		'ParsedownExtra' => 'parsedown/ParsedownExtra'
 	);
 	
 	//laden der gewünschten Klasse

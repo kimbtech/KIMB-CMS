@@ -27,7 +27,8 @@
 //other Licenses:
 /*************************************************/
 //MIT-License: jQuery (http://jquery.com), jQueryUI (http://jqueryui.com),
-//	CodeMirror (http://codemirror.net/), FontAwesome CSS (http://fontawesome.io)
+//	CodeMirror (http://codemirror.net/), FontAwesome CSS (http://fontawesome.io),
+//	Parsedown (http://parsedown.org)
 //LGPL: TinyMCE (http://tinymce.com)
 //CC-BY: Flags (http://duesdings.de/bilder/sprachen.php)
 //Ubuntu Font License: Ubuntu Font Family (http://font.ubuntu.com)

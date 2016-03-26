@@ -1410,6 +1410,20 @@ function replace_urloutofid( $content ){
 	return $content;
 }
 
+//Parse Markdown
+//	$md => Markdown String
+//	Rückgabe => HTML String
+function parse_markdown( $md ){
+	//ParsedownExtra Klasse
+	$obj = new ParsedownExtra();
+	//Parsen
+	$html =  $obj->text( $md );
+	//OBJ löschen
+	unset( $obj );
+	//Zurückgeben
+	return $html;
+}
+
 // Funktionen von Add-ons hinzufügen
 require_once( __DIR__.'/../addons/addons_funcclass.php' );
 ?>
