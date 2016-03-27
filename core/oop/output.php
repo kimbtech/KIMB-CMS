@@ -47,7 +47,8 @@ class system_output{
 			'<!-- TinyMCE -->' => '<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/tinymce/tinymce.min.js"></script>',
 			'<!-- Hash -->' => '<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/hash.js"></script>',
 			'<!-- CodeMirror -->' => '<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/codemirror/codemirrorloader.min.js"></script>',
-			'<!-- FontAwesome -->' => '<link rel="stylesheet" type="text/css" href="'.$this->allgsysconf['siteurl'].'/load/system/fontawesome/font-awesome.min.css">'
+			'<!-- FontAwesome -->' => '<link rel="stylesheet" type="text/css" href="'.$this->allgsysconf['siteurl'].'/load/system/fontawesome/font-awesome.min.css">',
+			'<!-- PrismJS -->' => '<link rel="stylesheet" type="text/css" href="'.$this->allgsysconf['siteurl'].'/load/system/prism/prism.min.css">'."\r\n".'<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/prism/prism.min.js" async></script>'
 		);
 	}
 
@@ -232,6 +233,9 @@ class system_output{
 
 		//JavaScript dem Header anfügen
 		$this->header = $add.$this->header;
+		
+		//alle Bibilothek Keywords entfernen
+		$this->header = str_replace( array_keys( $this->jsapicodes ), '', $this->header );
 		
 		//den URL-Placeholder duch die aktuelle URL ersetzen
 		$this->header = str_replace( '<!--SYS-SITEURL-->', $this->allgsysconf['siteurl'], $this->header );

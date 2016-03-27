@@ -1,11 +1,11 @@
 <[about:doc]>KIMB dbf V3.50 - KIMB-technologies<[about:doc]>
 <[title]>Home<[title]>
-<[header]><!-- CodeMirror --><!-- jQuery --><!--UMBRUCH--><script type="text/javascript"><!--UMBRUCH-->codemirrorloader_add( "htmlcode" )<!--UMBRUCH--></script><[header]>
+<[header]><!-- PrismJS --><[header]>
 <[keywords]><[keywords]>
 <[description]><[description]>
-<[inhalt]># H1<!--UMBRUCH-->Hallo Franz<!--UMBRUCH--><h1>Home</h1><!--UMBRUCH--><h2>Willkommen</h2><!--UMBRUCH--><p style="text-align: left; padding-left: 30px;">Das KIMB-CMS wurde erfolgreich installiert!</p><!--UMBRUCH-->	<[inhalt]>
+<[inhalt]><p># H1 Hallo Franz</p><!--UMBRUCH--><h1>Home</h1><!--UMBRUCH--><h2>Willkommen</h2><!--UMBRUCH--><p style="text-align: left; padding-left: 30px;">Das KIMB-CMS wurde erfolgreich installiert!</p><!--UMBRUCH--><pre><code class="language-css"><!--UMBRUCH-->	p { color: red }<!--UMBRUCH--></code></pre><[inhalt]>
 <[footer]><[footer]>
-<[time]>1458907323<[time]>
+<[time]>1459082128<[time]>
 <[made_user]>Max Muster<[made_user]>
 <[title-1]>Title<[title-1]>
 <[keywords-1]><[keywords-1]>

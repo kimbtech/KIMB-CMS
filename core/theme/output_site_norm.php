@@ -94,8 +94,9 @@ echo "\t\t".'<meta name="viewport" content="width=device-width, initial-scale=1"
 echo ( !empty( $headeralts ) ? $headeralts : '' );
 
 	//HTML Header hinzufügen
-	echo "\r\n\r\n";
-	echo $this->header;
+	echo "\r\n\r\n\t\t";
+	//	zwei Tabs vorher einfügen
+	echo preg_replace('/[\r\n]+/', "\r\n\t\t", $this->header );
 	echo "\r\n\r\n";
 
 echo "\t".'</head>'."\r\n";
@@ -113,9 +114,10 @@ echo "\t".'<body>'."\r\n";
 
 		//Menü
 		//	ul muss geöffnet werden
-		echo "\t\t\t\t".'<ul id="nav">'."\r\n";
+		echo "\t\t\t\t".'<ul id="nav">'."\r\n\t\t\t\t\t";
 
-			echo $this->menue.'</a>'."\r\n";
+			//	jeweils 4 Tabs davor, damit eingerückt wird
+			echo preg_replace('/[\r\n]+/', "\r\n\t\t\t\t\t", $this->menue ).'</a>'."\r\n\t\t\t\t\t";
 			//schließendes li anfügen
 			echo '</li>';
 			//wenn nötig schließende ul anfügen
@@ -224,16 +226,19 @@ echo "\t".'<body>'."\r\n";
 		//Add-on Bereich anfügen
 		if( !empty( $this->addon ) ){
 
-				//Divs
-				echo($this->addon);
-				echo("\r\n");
+				echo "\r\n\t\t\t\t";
+				//	4 Tabs davor
+				echo preg_replace('/[\r\n]+/', "\r\n\t\t\t\t",$this->addon);
+				echo "\r\n";
 
 			//Passenden Inhalt
 			echo "\t\t\t\t".'<div id="contents">'."\r\n";
 
 				//Inhalte
-				echo($this->sitecontent);
-				echo("\r\n");
+				echo "\r\n\t\t\t\t\t";
+				//	5 Tabs davor
+				echo preg_replace('/[\r\n]+/', "\r\n\t\t\t\t\t",$this->sitecontent);
+				echo "\r\n";
 
 			echo "\t\t\t\t".'</div>'."\r\n";
 		}
@@ -242,8 +247,10 @@ echo "\t".'<body>'."\r\n";
 			echo "\t\t\t\t".'<div id="contentm">'."\r\n";
 
 				//Inhalte
-				echo($this->sitecontent);
-				echo("\r\n");
+				echo "\r\n\t\t\t\t\t";
+				//	5 Tabs davor
+				echo preg_replace('/[\r\n]+/', "\r\n\t\t\t\t\t",$this->sitecontent);
+				echo "\r\n";
 
 			echo "\t\t\t\t".'</div>'."\r\n";
 		}
@@ -257,7 +264,9 @@ echo "\t".'<body>'."\r\n";
 		echo "\t\t\t".'<div id="footer" >'."\r\n";
 
 			//Inhalte
-			echo $this->footer;
+			echo "\r\n\t\t\t\t";
+			//	5 Tabs davor
+			echo preg_replace('/[\r\n]+/', "\r\n\t\t\t\t",$this->footer);
 			echo "\r\n";
 
 		echo "\t\t\t".'</div>'."\r\n";
