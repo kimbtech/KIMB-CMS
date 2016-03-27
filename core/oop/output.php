@@ -48,7 +48,7 @@ class system_output{
 			'<!-- Hash -->' => '<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/hash.js"></script>',
 			'<!-- CodeMirror -->' => '<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/codemirror/codemirrorloader.min.js"></script>',
 			'<!-- FontAwesome -->' => '<link rel="stylesheet" type="text/css" href="'.$this->allgsysconf['siteurl'].'/load/system/fontawesome/font-awesome.min.css">',
-			'<!-- PrismJS -->' => '<link rel="stylesheet" type="text/css" href="'.$this->allgsysconf['siteurl'].'/load/system/prism/prism.min.css">'."\r\n".'<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/prism/prism.min.js" async></script>'
+			'<!-- PrismJS -->' => '<link rel="stylesheet" type="text/css" href="'.$this->allgsysconf['siteurl'].'/load/system/prism/prism.min.css">'."\r\n".'<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/prism/prism.min.js"></script>'
 		);
 	}
 

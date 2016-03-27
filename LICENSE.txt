@@ -2,6 +2,7 @@
 //KIMB CMS
 //KIMB ContentManagementSystem
 //Copyright (c) 2014 by KIMB-technologies
+//	Version 2.5* (c) 2016 by KIMB-technologies.eu
 /*************************************************/
 //This program is free software: you can redistribute it and/or modify
 //it under the terms of the GNU General Public License version 3
@@ -28,7 +29,7 @@
 /*************************************************/
 //MIT-License: jQuery (http://jquery.com), jQueryUI (http://jqueryui.com),
 //	CodeMirror (http://codemirror.net/), FontAwesome CSS (http://fontawesome.io),
-//	Parsedown (http://parsedown.org)
+//	Parsedown (http://parsedown.org), PrismJS (http://prismjs.com)
 //LGPL: TinyMCE (http://tinymce.com)
 //CC-BY: Flags (http://duesdings.de/bilder/sprachen.php)
 //Ubuntu Font License: Ubuntu Font Family (http://font.ubuntu.com)
