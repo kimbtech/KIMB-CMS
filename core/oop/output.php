@@ -98,7 +98,7 @@ class system_output{
 			$this->add_html_header('<meta name="keywords" content="'.$content['keywords'].'">');
 		}
 		//Seiteninhalt und Footer
-		$this->add_site_content($content['inhalt'] );
+		$html = $content['inhalt'];
 		$this->add_footer($content['footer']);
 		
 		//wenn siteinfos aktiviert hinzufügen
@@ -116,8 +116,11 @@ class system_output{
 			$time = date( "d.m.Y" , $content['time'] );
 			$schlusszeile .= '<div id="usertime">'.$trans['estv'].' '.$content['made_user'].' '.$trans['am'].' '.$time.'</div>';
 			$schlusszeile .= '<div id="permalink">'.$trans['perma'].': <a href="'.$permaurl.'">'.$permaurl.'</a></div>';
-			$this->sitecontent .= $schlusszeile."\r\n";
+			$html .= $schlusszeile."\r\n";
 		}
+		
+		//Seiteninhalt anfügen
+		$this->add_site_content( $html );
 	}
 	
 	//Sprachinformationen für das Theme annehmen und speichern

@@ -45,66 +45,83 @@ if( $allgerr == '403' ){
 elseif( is_object( $sitefile ) && !isset( $allgerr ) ){
 	//Seitendaten lesen und ausgeben
 	
-	//Bei mehrsprachigen Seiten, die richige Version wählen
-	if( $allgsysconf['lang'] == 'on' && $requestlang['id'] != 0 ){
-		
-		//Die Seiteninhalt werden ja nach Sprache mit einem anderen Tag abgespeichert.
-		//Hier wird der zu lesende Tag mit Hilfe der SprachID definiert
-		$dbftag['title'] = 'title-'.$requestlang['id'];
-		$dbftag['keywords'] = 'keywords-'.$requestlang['id'];
-		$dbftag['description'] = 'description-'.$requestlang['id'];
-		$dbftag['inhalt'] = 'inhalt-'.$requestlang['id'];
-		$dbftag['footer'] = 'footer-'.$requestlang['id'];
-		
-		//Nicht jede Seite ist in alle Sprachen übersetzt, sollte dies nicht der Fall sein, wird eine Meldung angezeit und die Seite in der Standardsprache geladen 
-		if( empty($sitefile->read_kimb_one( $dbftag['title'] )) && empty($sitefile->read_kimb_one( $dbftag['inhalt'] )) ){
-			//Meldung
-			$sitecontent->echo_error( $allgsys_trans['make_content']['err03'], 'unknown', $allgsys_trans['make_content']['err04'] );
-			//normale Tags nutzen
-			$normtags = true;
-		}
+	//Cache aktiviert?
+	if( $allgsysconf['cache'] == 'on' ){
+		//versuchen den Cache zu laden
+		$thissitecache =  $sitecache->load_cached_site( $allgsiteid, $requestlang['id'] );
 	}
 	else{
-		//normsle Tags nutzen
-		$normtags = true;
+		//Fehler (kein Cache)
+		$thissitecache = false;
 	}
-	
-	if( $normtags ){
-		//normale Tags laden
-		$dbftag['title'] = 'title';
-		$dbftag['keywords'] = 'keywords';
-		$dbftag['description'] = 'description';
-		$dbftag['inhalt'] = 'inhalt';
-		$dbftag['footer'] = 'footer';	
-	}
+
+	//Wenn Fehler beim Cache (z.B. nicht drin oder schon zu alt, neu machen )
+	if( !$thissitecache ){
+		//Bei mehrsprachigen Seiten, die richige Version wählen
+		if( $allgsysconf['lang'] == 'on' && $requestlang['id'] != 0 ){
+			
+			//Die Seiteninhalt werden ja nach Sprache mit einem anderen Tag abgespeichert.
+			//Hier wird der zu lesende Tag mit Hilfe der SprachID definiert
+			$dbftag['title'] = 'title-'.$requestlang['id'];
+			$dbftag['keywords'] = 'keywords-'.$requestlang['id'];
+			$dbftag['description'] = 'description-'.$requestlang['id'];
+			$dbftag['inhalt'] = 'inhalt-'.$requestlang['id'];
+			$dbftag['footer'] = 'footer-'.$requestlang['id'];
+			
+			//Nicht jede Seite ist in alle Sprachen übersetzt, sollte dies nicht der Fall sein, wird eine Meldung angezeit und die Seite in der Standardsprache geladen 
+			if( empty($sitefile->read_kimb_one( $dbftag['title'] )) && empty($sitefile->read_kimb_one( $dbftag['inhalt'] )) ){
+				//Meldung
+				$sitecontent->echo_error( $allgsys_trans['make_content']['err03'], 'unknown', $allgsys_trans['make_content']['err04'] );
+				//normale Tags nutzen
+				$normtags = true;
+			}
+		}
+		else{
+			//normsle Tags nutzen
+			$normtags = true;
+		}
 		
-	//alle Seiteninhalte lesen und in Array speichern
-	//header, time, made_user und ID haben keine Sprache
-	$seite['title'] = $sitefile->read_kimb_one( $dbftag['title'] );
-	$seite['header'] = $sitefile->read_kimb_one( 'header' );
-	$seite['markdown'] = $sitefile->read_kimb_one( 'markdown' );
-	$seite['keywords'] = $sitefile->read_kimb_one( $dbftag['keywords'] );
-	$seite['description'] = $sitefile->read_kimb_one( $dbftag['description'] );
-	$seite['inhalt'] = $sitefile->read_kimb_one( $dbftag['inhalt'] );
-	$seite['time'] = $sitefile->read_kimb_one( 'time' );
-	$seite['made_user'] = $sitefile->read_kimb_one( 'made_user' );
-	$seite['footer'] = $sitefile->read_kimb_one( $dbftag['footer'] );
-	$seite['req_id'] = $_GET['id'];
-	
-	//Markdown aktiviert oder seitenspezifisch aktiviert??
-	if(
-		$allgsysconf['markdown'] == 'on' ||
-		( $allgsysconf['markdown'] == 'custom' && $seite['markdown'] == 'on' )
-	){
-		//Seiteninhalt als Markdown parsen
-		$seite['inhalt'] = parse_markdown( $seite['inhalt'] );
-		//Footer als Markdown parsen
-		$seite['footer'] = parse_markdown( $seite['footer'] );
+		if( $normtags ){
+			//normale Tags laden
+			$dbftag['title'] = 'title';
+			$dbftag['keywords'] = 'keywords';
+			$dbftag['description'] = 'description';
+			$dbftag['inhalt'] = 'inhalt';
+			$dbftag['footer'] = 'footer';	
+		}
+			
+		//alle Seiteninhalte lesen und in Array speichern
+		//header, time, made_user und ID haben keine Sprache
+		$seite['title'] = $sitefile->read_kimb_one( $dbftag['title'] );
+		$seite['header'] = $sitefile->read_kimb_one( 'header' );
+		$seite['markdown'] = $sitefile->read_kimb_one( 'markdown' );
+		$seite['keywords'] = $sitefile->read_kimb_one( $dbftag['keywords'] );
+		$seite['description'] = $sitefile->read_kimb_one( $dbftag['description'] );
+		$seite['inhalt'] = $sitefile->read_kimb_one( $dbftag['inhalt'] );
+		$seite['time'] = $sitefile->read_kimb_one( 'time' );
+		$seite['made_user'] = $sitefile->read_kimb_one( 'made_user' );
+		$seite['footer'] = $sitefile->read_kimb_one( $dbftag['footer'] );
+		$seite['req_id'] = $_GET['id'];
+		
+		//Markdown aktiviert oder seitenspezifisch aktiviert??
+		if(
+			$allgsysconf['markdown'] == 'on' ||
+			( $allgsysconf['markdown'] == 'custom' && $seite['markdown'] == 'on' )
+		){
+			//Seiteninhalt als Markdown parsen
+			$seite['inhalt'] = parse_markdown( $seite['inhalt'] );
+			//Footer als Markdown parsen
+			$seite['footer'] = parse_markdown( $seite['footer'] );
+		}
+
+		//das Array mit den Seiteninhalten zur Ausgabe geben
+		$sitecontent->add_site($seite, $allgsys_trans['output'] );
+		//Cache aktiviert?
+		if( $allgsysconf['cache'] == 'on' ){
+			//Seite in den Cache
+			$sitecache->cache_site($allgsiteid, $requestlang['id'], $seite, $allgsys_trans['output'] );
+		}
 	}
-
-	//das Array mit den Seiteninhalten zur Ausgabe geben
-	$sitecontent->add_site($seite, $allgsys_trans['output']);
-
 }
 //wenn noch kein Fehler vorhanden ist und man hier landet, ist irgendwas beim laden der Seiteninhalt falsch gelaufen
 //	User informieren

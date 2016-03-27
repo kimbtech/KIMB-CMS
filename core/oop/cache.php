@@ -43,7 +43,7 @@ defined('KIMB_CMS') or die('No clean Request');
 class cacheCMS{
 
 	//Klasse init
-	protected $menuefile, $sitefile, $sitecontent, $allgsysconf, $menue, $addon;
+	protected $menuefile, $addonfile, $sitefile, $sitecontent, $allgsysconf, $menue, $addon;
 
 	public function __construct($allgsysconf, $sitecontent){
 		$this->allgsysconf = $allgsysconf;
@@ -120,17 +120,17 @@ class cacheCMS{
 	//Add-on cachen
 	public function cache_addon( $id , $inhalt , $name = 'unknown'){
 		//nach Datei gucken
-		if(!is_object($this->sitefile)){
+		if(!is_object($this->addonfile)){
 			//Datei laden
-			$this->sitefile = new KIMBdbf('/cache/addon_'.$id.'.kimb');
+			$this->addonfile = new KIMBdbf('/cache/addon_'.$id.'.kimb');
 		}
 		//alte Datei löschen, wenn vorhanden
 		if( !isset( $this->addon )){
-			$this->sitefile->write_kimb_one( 'time' , time() );
+			$this->addonfile->write_kimb_one( 'time' , time() );
 			$this->addon = 'yes';
 		}
 		//Cache füllen
-		$this->sitefile->write_kimb_one( 'inhalt-'.$name , $inhalt );
+		$this->addonfile->write_kimb_one( 'inhalt-'.$name , $inhalt );
 		
 		return true;
 	}
@@ -138,17 +138,78 @@ class cacheCMS{
 	//aus Cache lesen
 	public function get_cached_addon( $id , $name = 'unknown' ){
 		//nach Datei gucken
-		if(!is_object($this->sitefile)){
-			$this->sitefile = new KIMBdbf('/cache/addon_'.$id.'.kimb');
+		if(!is_object($this->addonfile)){
+			$this->addonfile = new KIMBdbf('/cache/addon_'.$id.'.kimb');
 		}
 		//Alter des Caches überprüfen
-		$time = $this->sitefile->read_kimb_one( 'time' );
+		$time = $this->addonfile->read_kimb_one( 'time' );
 		if(( time()-$time <= $this->allgsysconf['cachelifetime'] || $this->allgsysconf['cachelifetime'] == 'always' ) && $time != '' ){
 			//Cache lesen und zurückgeben
-			return $this->sitefile->read_kimb_all( 'inhalt-'.$name );
+			return $this->addonfile->read_kimb_all( 'inhalt-'.$name );
 		}
 		return false;
 		
+	}
+	
+	//Seite in den Cache legen
+	//	sinvoll, da das Parsen von Markdown Leistung braucht!!
+	public function cache_site( $id, $langid, $seite, $trans ){
+		//beim ersten Aufruf eine Seitencachedatei laden
+		if(!is_object($this->sitefile)){	
+			if( $langid != 0 ){
+				$this->sitefile = new KIMBdbf('/cache/site_'.$id.'_lang_'.$langid.'.kimb');	
+			}
+			else{
+				$this->sitefile = new KIMBdbf('/cache/site_'.$id.'.kimb');
+			}
+		}
+		//alte Datei löschen
+		$this->sitefile->delete_kimb_file( );
+		$this->sitefile->write_kimb_one( 'time' , time() );
+		
+		//Arrays zu Strings 
+		$seite = json_encode( $seite );
+		$trans = json_encode( $trans );
+		
+		//Daten speichern
+		$this->sitefile->write_kimb_one( 'seite' , $seite );
+		$this->sitefile->write_kimb_one( 'trans' , $trans );
+		
+		return true;
+	}
+	
+	//Seite aus Cache laden
+	public function load_cached_site($id, $langid = 0){
+		//beim ersten Aufruf eine Seitencachedatei laden
+		if(!is_object($this->sitefile)){	
+			if( $langid != 0 ){
+				$this->sitefile = new KIMBdbf('/cache/site_'.$id.'_lang_'.$langid.'.kimb');	
+			}
+			else{
+				$this->sitefile = new KIMBdbf('/cache/site_'.$id.'.kimb');
+			}
+		}
+
+		//Alter des Caches überprüfen
+		$time = $this->sitefile->read_kimb_one( 'time' );
+		if(( time()-$time <= $this->allgsysconf['cachelifetime'] || $this->allgsysconf['cachelifetime'] == 'always' ) && $time != '' ){
+			//Cache okay
+			//	auslesen
+			
+			//Daten aus dbf lesen
+			$seite= $this->sitefile->read_kimb_one( 'seite' );
+			$trans = $this->sitefile->read_kimb_one( 'trans' );			
+			
+			//Arrays zu Strings 
+			$seite = json_decode( $seite, true );
+			$trans = json_decode( $trans, true );
+					
+			//Seite gleich hinzufügen
+			$this->sitecontent->add_site($seite, $trans );
+		
+			return true;
+		}
+		return false;
 	}
 
 }
