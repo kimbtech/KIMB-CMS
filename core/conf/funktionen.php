@@ -1424,6 +1424,16 @@ function parse_markdown( $md ){
 	return $html;
 }
 
+//Umbruchbaren String machen
+//	$str => String, welcher vom Browser umgebrochen werden soll
+//	$zeichen => Nach wie vielen Zeichen soll immer ein Umbruch möglich sein
+//	Rüchgabe: String mit Umbruchstellen (&shy;)
+//		Achtung: Diese Funktion zerstört Umlaute!! 
+function breakable( $str, $zeichen = 10 ){
+	$a = str_split( $str, $zeichen );
+	return implode( '&shy;', $a );
+}
+
 // Funktionen von Add-ons hinzufügen
 require_once( __DIR__.'/../addons/addons_funcclass.php' );
 ?>

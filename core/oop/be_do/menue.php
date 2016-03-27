@@ -80,7 +80,7 @@ class BEmenue{
 					$newm['siteid'] = '---empty---';
 				}
 				//MenüID erstellen
-				$newm['menueid'] = $newm['requestid'].gen_zufallszahl(100, 999 );
+				$newm['menueid'] = $newm['requestid'].gen_zufallszahl(10, 99);
 				//Status wie gewünscht einstellen
 				$newm['status'] = $status;
 	
@@ -350,7 +350,7 @@ class BEmenue{
 		$menuearray = make_menue_array_helper();
 		
 		//Tabelle beginnen
-		$sitecontent->add_site_content('<table width="100%"><tr> <th title="Jedes Menü hat eine Tiefe, ein Niveau. ( ein ==> ist eine Tiefe tiefer ) ">Niveau</th> <th></th> <th title="Dieser Name wird Besuchern im Frontend angezeigt">MenueName</th> <th title="Pfad-Teil des Menues für URL-Rewriting">Pfad</th> <th title="ID für Aufruf /index.php?id=XXX">RequestID</th> <th>Status</th> <th title="ID der zugeordnenten Seite">SiteID</th> <th title="ID des Menüs ( Systemintern )">MenueID</th> <th>Löschen</th> <th>Neu</th> </tr>');
+		$sitecontent->add_site_content('<table width="100%"><tr> <th title="Jedes Menü hat eine Tiefe, ein Niveau. ( ein ==> ist eine Tiefe tiefer ) ">Niveau</th> <th></th> <th title="Dieser Name wird Besuchern im Frontend angezeigt">Menue Name</th> <th title="Pfad-Teil des Menues für URL-Rewriting">Pfad</th> <th title="ID für Aufruf /index.php?id=XXX">RequestID</th> <th>Status</th> <th title="ID der zugeordnenten Seite">SiteID</th> <th title="ID des Menüs ( Systemintern )">MenueID</th> <th>Löschen</th> <th>Neu</th> </tr>');
 		
 		//Link zum direkten Bearbeiten? 
 		//	nur wenn Rechte dazu
@@ -402,7 +402,7 @@ class BEmenue{
 			$versch .= '<span onclick="var updo = updown( \''.$menuear['fileid'].'\' , \'down\' , '.$menuear['requid'].' ); updo();"><span class="ui-icon ui-icon-arrowthick-1-s" title="Dieses Menue nach unten schieben."></span></span>';
 	
 			//Tabellenzeile ausgeben
-			$sitecontent->add_site_content('<tr> <td>'.$menuear['niveau'].'</td> <td>'.$versch.'</td> <td>'.$menuename.'</td> <td>'.$menuear['path'].'</td> <td>'.$requid.'</td> <td>'.$menuear['status'].'</td> <td>'.$siteid_and_link.'</td> <td>'.$menuear['menueid'].'</td> <td>'.$del.'</td> <td>'.$newmenue.'</td> </tr>');
+			$sitecontent->add_site_content('<tr> <td>'.$menuear['niveau'].'</td> <td>'.$versch.'</td> <td>'.$menuename.'</td> <td>'.breakable( $menuear['path'], 2 ).'</td> <td>'.$requid.'</td> <td>'.$menuear['status'].'</td> <td>'.$siteid_and_link.'</td> <td>'.breakable( $menuear['menueid'], 2 ).'</td> <td>'.$del.'</td> <td>'.$newmenue.'</td> </tr>');
 	
 			$liste = 'yes';
 		}
