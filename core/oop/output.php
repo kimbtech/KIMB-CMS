@@ -209,14 +209,20 @@ class system_output{
 				
 				//der Loader für CodeMirror braucht die GrundURL des Systems
 				if( $key == '<!-- CodeMirror -->' ){
-					$add .= '<script>var codemirrorloader_siteurl = "'.$this->allgsysconf['siteurl'].'", codemirrorloader_done = false;</script>';
+					$add .= '<script>var codemirrorloader_siteurl = "'.$this->allgsysconf['siteurl'].'", codemirrorloader_done = false;</script>'."\r\n";
+				
+					//CodeMirror braucht auch jQuery
+					//	wenn nicht geladen, dann hinzufügen
+					if(  !in_array( '<!-- jQuery -->', $dones ) ){
+						$add .= $this->jsapicodes['<!-- jQuery -->']."\r\n";
+					}
 				}
 				
 				//bei jQuery UI überprüfen ob jQuery schon geladen, wenn nicht beides hinzufügen
 				if( $key == '<!-- jQuery UI -->' && !in_array( '<!-- jQuery -->', $dones ) && !in_array( '<!-- jQuery UI -->', $dones ) ){
 					
 					//beide Scripte hinzufügen
-					$add .= $jsapicodes['<!-- jQuery -->']."\r\n";
+					$add .= $this->jsapicodes['<!-- jQuery -->']."\r\n";
 					$add .= $code."\r\n";
 
 					//beide als erledigt speichern

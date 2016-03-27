@@ -96,7 +96,7 @@ echo ( !empty( $headeralts ) ? $headeralts : '' );
 	//HTML Header hinzufügen
 	echo "\r\n\r\n\t\t";
 	//	zwei Tabs vorher einfügen
-	echo preg_replace('/[\r\n]+/', "\r\n\t\t", $this->header );
+	echo preg_replace('/[\r\n]/', "\r\n\t\t", $this->header );
 	echo "\r\n\r\n";
 
 echo "\t".'</head>'."\r\n";
@@ -117,7 +117,7 @@ echo "\t".'<body>'."\r\n";
 		echo "\t\t\t\t".'<ul id="nav">'."\r\n\t\t\t\t\t";
 
 			//	jeweils 4 Tabs davor, damit eingerückt wird
-			echo preg_replace('/[\r\n]+/', "\r\n\t\t\t\t\t", $this->menue ).'</a>'."\r\n\t\t\t\t\t";
+			echo preg_replace('/[\r\n]/', "\r\n\t\t\t\t\t", $this->menue ).'</a>'."\r\n\t\t\t\t\t";
 			//schließendes li anfügen
 			echo '</li>';
 			//wenn nötig schließende ul anfügen
@@ -228,7 +228,7 @@ echo "\t".'<body>'."\r\n";
 
 				echo "\r\n\t\t\t\t";
 				//	4 Tabs davor
-				echo preg_replace('/[\r\n]+/', "\r\n\t\t\t\t",$this->addon);
+				echo preg_replace('/[\r\n]/', "\r\n\t\t\t\t",$this->addon);
 				echo "\r\n";
 
 			//Passenden Inhalt
@@ -237,7 +237,7 @@ echo "\t".'<body>'."\r\n";
 				//Inhalte
 				echo "\r\n\t\t\t\t\t";
 				//	5 Tabs davor
-				echo preg_replace('/[\r\n]+/', "\r\n\t\t\t\t\t",$this->sitecontent);
+				echo preg_replace('/[\r\n]/', "\r\n\t\t\t\t\t",$this->sitecontent);
 				echo "\r\n";
 
 			echo "\t\t\t\t".'</div>'."\r\n";
@@ -249,7 +249,7 @@ echo "\t".'<body>'."\r\n";
 				//Inhalte
 				echo "\r\n\t\t\t\t\t";
 				//	5 Tabs davor
-				echo preg_replace('/[\r\n]+/', "\r\n\t\t\t\t\t",$this->sitecontent);
+				echo preg_replace('/[\r\n]/', "\r\n\t\t\t\t\t",$this->sitecontent);
 				echo "\r\n";
 
 			echo "\t\t\t\t".'</div>'."\r\n";
@@ -266,7 +266,7 @@ echo "\t".'<body>'."\r\n";
 			//Inhalte
 			echo "\r\n\t\t\t\t";
 			//	5 Tabs davor
-			echo preg_replace('/[\r\n]+/', "\r\n\t\t\t\t",$this->footer);
+			echo preg_replace('/[\r\n]/', "\r\n\t\t\t\t",$this->footer);
 			echo "\r\n";
 
 		echo "\t\t\t".'</div>'."\r\n";

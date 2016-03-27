@@ -82,6 +82,7 @@ elseif( is_object( $sitefile ) && !isset( $allgerr ) ){
 	//header, time, made_user und ID haben keine Sprache
 	$seite['title'] = $sitefile->read_kimb_one( $dbftag['title'] );
 	$seite['header'] = $sitefile->read_kimb_one( 'header' );
+	$seite['markdown'] = $sitefile->read_kimb_one( 'markdown' );
 	$seite['keywords'] = $sitefile->read_kimb_one( $dbftag['keywords'] );
 	$seite['description'] = $sitefile->read_kimb_one( $dbftag['description'] );
 	$seite['inhalt'] = $sitefile->read_kimb_one( $dbftag['inhalt'] );
@@ -89,6 +90,17 @@ elseif( is_object( $sitefile ) && !isset( $allgerr ) ){
 	$seite['made_user'] = $sitefile->read_kimb_one( 'made_user' );
 	$seite['footer'] = $sitefile->read_kimb_one( $dbftag['footer'] );
 	$seite['req_id'] = $_GET['id'];
+	
+	//Markdown aktiviert oder seitenspezifisch aktiviert??
+	if(
+		$allgsysconf['markdown'] == 'on' ||
+		( $allgsysconf['markdown'] == 'custom' && $seite['markdown'] == 'on' )
+	){
+		//Seiteninhalt als Markdown parsen
+		$seite['inhalt'] = parse_markdown( $seite['inhalt'] );
+		//Footer als Markdown parsen
+		$seite['footer'] = parse_markdown( $seite['footer'] );
+	}
 
 	//das Array mit den Seiteninhalten zur Ausgabe geben
 	$sitecontent->add_site($seite, $allgsys_trans['output']);

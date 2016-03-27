@@ -388,6 +388,9 @@ class BEsites{
 			$sitef->write_kimb_replace( $dbftag['footer'] , $_POST['footer'] );
 			$sitef->write_kimb_replace( 'time' , time() );
 			$sitef->write_kimb_replace( 'made_user' , $_SESSION['name'] );
+			if( !empty( $_POST['markdown'] ) ){
+				$sitef->write_kimb_one( 'markdown', $_POST['markdown'] );
+			}
 	
 		}
 		
@@ -400,6 +403,7 @@ class BEsites{
 		$seite['footer'] = $sitef->read_kimb_one( $dbftag['footer'] );
 		$seite['time'] = $sitef->read_kimb_one( 'time' );
 		$seite['time'] = date( "d.m.Y \u\m H:i" , $seite['time'] );
+		$seite['markdown'] = $sitef->read_kimb_one( 'markdown' );
 	
 		//Überprüfung ob Seite einen Menüpunkt hat, wenn nicht Hinweis
 		$idfile = new KIMBdbf('menue/allids.kimb');
@@ -432,6 +436,18 @@ class BEsites{
 		$sitecontent->add_site_content('<textarea name="inhalt" id="inhalt" style="width:99%; height:300px;">'.$seite['inhalt'].'</textarea> <i>Inhalt &uarr;</i> <br />');
 		$sitecontent->add_site_content('<textarea name="footer" id="footer" style="width:99%; height:75px;">'.$seite['footer'].'</textarea> <i>Footer &uarr;</i> <br />');
 		$sitecontent->add_site_content('<input type="text" readonly="readonly" value="'.$seite['time'].'" name="time" style="width:74%;"> <i>Zuletzt geändert</i><br />');
+		//MD seitenspezifisch?
+		if( $allgsysconf['markdown'] == 'custom' ){
+			//erstmal nichts gewählt
+			$md = array( 'on' => '', 'off' => '' );
+			//on oder off gewählt
+			if( $seite['markdown'] == 'on' || $seite['markdown'] == 'off' ){
+				//passend auf checked setzen
+				$md[$seite['markdown']] = ' checked="checked"';
+			}
+			//Auswahlbuttons ausgeben
+			$sitecontent->add_site_content('<input type="radio" value="on" name="markdown"'.$md['on'].'>Aktiviert <input type="radio" value="off" name="markdown" '.$md['off'].'> Deaktiviert <i>Den Inhalt und den Footer dieser Seite als Markdown rendern?</i><br />');
+		}
 		$sitecontent->add_site_content('<input type="submit" value="Ändern"></form>');
 		$sitecontent->echo_message('<p>Wenn Sie auf eine Seite verweisen und dabei auf Nummer sicher gehen wollen, dass die Links auch bei einer Veränderung der Menüpfade noch gültig sind, können Sie für den Link den Platzhalter "<b>&lt;!--URLoutofID=123--&gt;</b>" verwenden. Setzen Sie für "123" einfach die RequestID<b title="Die RequestIDs finden Sie in der Tabelle unter Menue -> Auflisten">*</b> der Seite/ des Menüpunktes ein und der Rest erfolgt automatisch.</p>', 'Tipp');
 		

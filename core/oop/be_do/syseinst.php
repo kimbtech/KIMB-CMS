@@ -59,7 +59,8 @@ class BEsyseinst{
 		'smime_cert_ini_name' => 'Name der ini-Datei für den Versand von signierten E-Mails (S/MIME). [Die Datei muss im Ordner smime_cert_ini_folder liegen; z.B.: &apos;cert_cms.ini&apos;; wenn leer werden nur unsignierte E-Mails versandt]',
 		'mail_log' => 'Alle vom System versandten E-Mails loggen (on/ off) [Die Logdatei wird unter /core/conf/mail.log erstellt]',
 		'permalink_domain' => 'Geben Sie hier eine Domain bzw. eine Grundurl für die Permalinks an. [off/ URL](Es wird einfach die ID der Seite an den hier eingegebenen String angehängt und auf den Seiten angezeigt.;Sie müssen die Weiterleitung manuell einrichten. Siehe Beispiel im KIMB-CMS Wiki unter &apos;https://cmswiki.kimb-technologies.eu/tutorials/erste-schritte/konfiguration&apos;)',
-		'overview_left' => 'Links auf der Seite einen aktuellen Auschnitt des Menüs anzeigen. (on/off) [nicht auf Mobilgeräten; nur wenn vom Theme unterstützt]'
+		'overview_left' => 'Links auf der Seite einen aktuellen Auschnitt des Menüs anzeigen. (on/off) [nicht auf Mobilgeräten; nur wenn vom Theme unterstützt]',
+		'markdown' => 'Soll für den Seiteninhalt und den seitenspezifischen Footer Markdown ermöglicht werden? (on[=> auf allen Seiten]/ off[=> auf keiner Seite]/ custom[=> für jede Seite einstellbar]) [MarkdownExtra von http://parsedown.org/]'
 	);
 	
 	public function __construct( $allgsysconf, $sitecontent,$conffile ){
