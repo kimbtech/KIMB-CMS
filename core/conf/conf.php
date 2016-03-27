@@ -54,6 +54,7 @@ $kimbcmsinfo = '<!--
 	This site is made with KIMB-CMS!
 	https://www.KIMB-technologies.eu
 	https://bitbucket.org/kimbtech/kimb-cms/
+	https://github.com/kimbtech/kimb-cms/
 
 	GNU General Public License v3
 	http://www.gnu.org/licenses/gpl-3.0

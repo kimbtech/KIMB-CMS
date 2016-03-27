@@ -85,7 +85,7 @@ if( $_GET['todo'] == 'new' ){
 		}
 		else{
 			//Eingabe nicht passend
-			$sitecontent->echo_error( 'Ihre Eingabe war leer oder ein verbotener Wert ( more, less, all, levellist )!' , 'unknown');
+			$sitecontent->echo_error( 'Ihre Eingabe war leer oder ein verbotener Wert (more, less, all, levellist)!' , 'unknown');
 		}
 	}
 
@@ -161,35 +161,35 @@ elseif( $_GET['todo'] == 'edit' && isset( $_GET['level'] ) ){
 		
 		//Levelauswahlformular
 		$sitecontent->add_site_content('<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/other_level.php?todo=edit&amp;level='.$_GET['level'].'" method="post" >');
-		$sitecontent->add_site_content('<input type="text" name="name" readonly="readonly" value="'.$_GET['level'].'"> <i title="Nicht zu ändern.">( Levelname * )</i><br />');
-		$sitecontent->add_site_content('<span class="ui-icon ui-icon-info" title="Klicken Sie alle Menuepunkte an, auf die ein User der Gruppe Zugriff haben soll! ( Es dürfen nicht alle Felder deaktiviert sein! )"></span><br />');
+		$sitecontent->add_site_content('<input type="text" name="name" readonly="readonly" value="'.$_GET['level'].'"> <i title="Nicht zu ändern.">(Levelname *)</i><br />');
+		$sitecontent->add_site_content('<span class="ui-icon ui-icon-info" title="Klicken Sie alle Menuepunkte an, auf die ein User der Gruppe Zugriff haben soll! (Es dürfen nicht alle Felder deaktiviert sein!)"></span><br />');
 
 		//Checkbox für jedes mögliche Recht
 		//	neuen Backendseiten müssen hier hinzugefügt werden
 		//	außerdem auch in die 'level.kimb'' unter 'all''
 		//	und als Menüpunkt in die 'output_backend.php''
-		$sitecontent->add_site_content('<input type="checkbox" name="numbers[]" value="one"'.$checks['one'].'> Seiten ( one )<br />');
-		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'one\' );" value="two"'.$checks['two'].'> Neue Seite ( two )<br />');
-		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'one\' );" value="three"'.$checks['three'].'> Seite bearbeiten ( three )<br />');
-		$sitecontent->add_site_content('<input type="checkbox" name="numbers[]" value="four"'.$checks['four'].'> Menue ( four )<br />');
-		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'four\' );" value="five"'.$checks['five'].'> Neues Menue ( five )<br />');
-		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'four\' );" value="six"'.$checks['six'].'> Menue Zuordnen ( six )<br />');
-		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'four\' );" value="seven"'.$checks['seven'].'> Menue bearbeiten ( seven )<br />');
-		$sitecontent->add_site_content('<input type="checkbox" name="numbers[]" value="eight"'.$checks['eight'].'> User ( eight ) <b title="Dies muss aktiviert sein, wenn ein User die Möglichkeit haben soll, sich selbst zu verändern! (z.B Passwort )">*</b><br />');
-		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'eight\' );" value="nine"'.$checks['nine'].'> Neuer User ( nine )<br />');
-		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'eight\' );" value="ten"'.$checks['ten'].'> User bearbeiten ( ten )<br />');
-		$sitecontent->add_site_content('<input type="checkbox" name="numbers[]" value="eleven"'.$checks['eleven'].'> Konfiguration ( eleven )<br />');
-		$sitecontent->add_site_content('<input type="checkbox" name="numbers[]" value="twelve"'.$checks['twelve'].'> Add-ons ( twelve )<br />');
-		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'twelve\' );" value="thirteen"'.$checks['thirteen'].'> Normale-Add-on-Einstellungen ( thirteen )<br />');
-		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'twelve\' );" value="fourteen"'.$checks['fourteen'].'> Admin-Add-on-Einstellungen ( fourteen )<br />');
-		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'twelve\' );" value="fiveteen"'.$checks['fiveteen'].'> Add-on installieren ( fiveteen )<br />');
-		$sitecontent->add_site_content('<input type="checkbox" name="numbers[]" value="sixteen"'.$checks['sixteen'].'> Other ( sixteen )<br />');
-		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'sixteen\' );" value="seventeen"'.$checks['seventeen'].'> Filemanager ( seventeen )<br />');
-		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'sixteen\' );" value="eightteen"'.$checks['eightteen'].'> Themes ( eightteen )<br />');
-		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'sixteen\' );" value="nineteen"'.$checks['nineteen'].'> Userlevel ( nineteen ) <br />');
-		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'sixteen\' );" value="twenty"'.$checks['twenty'].'> Umzug ( twenty ) <br />');
-		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'sixteen\' );" value="twentyone"'.$checks['twentyone'].'> Mehrsprachige Seite ( twentyone ) <br />');
-		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'sixteen\' );" value="twentytwo"'.$checks['twentytwo'].'> Easy Menue ( twentytwo ) <br />');
+		$sitecontent->add_site_content('<input type="checkbox" name="numbers[]" value="one"'.$checks['one'].'> Seiten (one)<br />');
+		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'one\' );" value="two"'.$checks['two'].'> Neue Seite (two)<br />');
+		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'one\' );" value="three"'.$checks['three'].'> Seite bearbeiten (three)<br />');
+		$sitecontent->add_site_content('<input type="checkbox" name="numbers[]" value="four"'.$checks['four'].'> Menue (four)<br />');
+		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'four\' );" value="five"'.$checks['five'].'> Neues Menue (five)<br />');
+		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'four\' );" value="six"'.$checks['six'].'> Menue Zuordnen (six)<br />');
+		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'four\' );" value="seven"'.$checks['seven'].'> Menue bearbeiten (seven)<br />');
+		$sitecontent->add_site_content('<input type="checkbox" name="numbers[]" value="eight"'.$checks['eight'].'> User (eight) <b title="Dies muss aktiviert sein, wenn ein User die Möglichkeit haben soll, sich selbst zu verändern! (z.B Passwort )">*</b><br />');
+		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'eight\' );" value="nine"'.$checks['nine'].'> Neuer User (nine)<br />');
+		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'eight\' );" value="ten"'.$checks['ten'].'> User bearbeiten (ten)<br />');
+		$sitecontent->add_site_content('<input type="checkbox" name="numbers[]" value="eleven"'.$checks['eleven'].'> Konfiguration (eleven)<br />');
+		$sitecontent->add_site_content('<input type="checkbox" name="numbers[]" value="twelve"'.$checks['twelve'].'> Add-ons (twelve)<br />');
+		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'twelve\' );" value="thirteen"'.$checks['thirteen'].'> Normale-Add-on-Einstellungen (thirteen)<br />');
+		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'twelve\' );" value="fourteen"'.$checks['fourteen'].'> Admin-Add-on-Einstellungen (fourteen)<br />');
+		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'twelve\' );" value="fiveteen"'.$checks['fiveteen'].'> Add-on installieren (fiveteen)<br />');
+		$sitecontent->add_site_content('<input type="checkbox" name="numbers[]" value="sixteen"'.$checks['sixteen'].'> Other (sixteen)<br />');
+		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'sixteen\' );" value="seventeen"'.$checks['seventeen'].'> Filemanager (seventeen)<br />');
+		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'sixteen\' );" value="eightteen"'.$checks['eightteen'].'> Themes (eightteen)<br />');
+		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'sixteen\' );" value="nineteen"'.$checks['nineteen'].'> Userlevel (nineteen) <br />');
+		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'sixteen\' );" value="twenty"'.$checks['twenty'].'> Umzug (twenty) <br />');
+		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'sixteen\' );" value="twentyone"'.$checks['twentyone'].'> Mehrsprachige Seite (twentyone) <br />');
+		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'sixteen\' );" value="twentytwo"'.$checks['twentytwo'].'> Easy Menue (twentytwo) <br />');
 
 		$sitecontent->add_site_content('<input type="submit" value="Ändern" >');
 		$sitecontent->add_site_content('</form>');
@@ -298,7 +298,7 @@ else{
 			//Button zum  löschen erstellen
 			$del = '<span onclick="var delet = del( \''.$lev.'\' ); delet();"><span class="ui-icon ui-icon-trash" title="Dieses Level löschen." style="display:inline-block;" ></span></span>';
 			//Tabellenzeile
-			$sitecontent->add_site_content('<tr> <td><a title="Ändern" href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/other_level.php?todo=edit&amp;level='.$lev.'">'.$lev.'</a></td> <td>'.substr( $read , '0' , '50' ).' ( ... )</td> <td>'.$del.'</td> </tr>');
+			$sitecontent->add_site_content('<tr> <td><a title="Ändern" href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/other_level.php?todo=edit&amp;level='.$lev.'">'.$lev.'</a></td> <td>'.substr( $read , '0' , '50' ).' (...)</td> <td>'.$del.'</td> </tr>');
 		}
 	}
 	$sitecontent->add_site_content('</table>');
@@ -308,7 +308,7 @@ else{
 }
 
 //Hinweis wie man User einem Level zuordnet
-$sitecontent->add_site_content('<br /><br /><span class="ui-icon ui-icon-info" title="Die User können Sie unter &apos;User&apos; -> &apos;Auflisten&apos; -> &apos;Name ( User bearbeiten )&apos; den Gruppen zuordnen! Das Zuordnen ist nur für User der Gruppe Admin ( &apos;more&apos; ) möglich!"></span><br />');
+$sitecontent->add_site_content('<br /><br /><span class="ui-icon ui-icon-info" title="Die User können Sie unter &apos;User&apos; -> &apos;Auflisten&apos; -> &apos;Name (User bearbeiten)&apos; den Gruppen zuordnen! Das Zuordnen ist nur für User der Gruppe Admin (&apos;more&apos;) möglich!"></span><br />');
 //Add-ons Ende 
 require_once(__DIR__.'/../core/addons/addons_be_second.php');
 

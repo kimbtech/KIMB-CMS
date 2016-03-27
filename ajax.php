@@ -205,6 +205,40 @@ elseif( $_GET['file'] == 'user.php' && isset( $_GET['user'] ) ){
 	//beenden
 	die;
 }
+//JSON für TinyMCE
+elseif( $_GET['file'] == 'sites.php' ){
+
+	//Rechte prüfen
+	check_backend_login('three');
+	
+	//Header passend machen
+	header( "Content-Type: application/javascript; charset=utf-8" );
+	
+	//Bilder?
+	if( isset( $_GET['img'] ) ){
+		//Bilderliste laden
+		echo "[".listdirrec( __DIR__.'/load/userdata', '/load/userdata' )."]";
+	}
+	//Links
+	elseif( isset( $_GET['links'] ) ){
+		
+		//Menü als Array erstellen
+		$data = make_menue_array_helper();
+		
+		//JSON für TinyMCE
+		echo '[';
+		foreach( $data as $d  ){
+			echo '{ title: "'.$d['menuname'].'", value: "<!--URLoutofID='.$d['requid'].'-->" },';
+		}
+		echo ']';
+	}
+	else{
+		echo '{ "error":"Weder Bilder noch Links gewollt!!" }';		
+	}
+	
+	//beenden
+	die;
+}
 //Filemanager secure Dateizugriff
 elseif( $_GET['file'] == 'other_filemanager.php' && isset( $_GET['key'] ) ){
 
@@ -226,7 +260,7 @@ elseif( $_GET['file'] == 'other_filemanager.php' && isset( $_GET['key'] ) ){
 		//Datei mit richtigem Header und Dateinamen ausgeben
 		header("Content-type: ". mime_content_type($datei) );
 		header('Content-Disposition: filename= '.$dateiname);
-		echo ( file_get_contents($datei) );
+		readfile( $datei );
 	}
 	else{
 		//keine Datei zum Key da -> Fehler!

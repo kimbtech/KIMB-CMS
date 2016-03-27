@@ -98,27 +98,151 @@ function gen_zufallszahl( $a, $e ){
 	
 }
 
-//email versenden
-// $to => Empfänger
-// $inhalt => Inhalt
-//$mime => MIME Type (text oder html)
+//E-Mail versenden
+//	Unterschrift per S/MIME, wenn im Backend des CMS aktiviert!	
+//		$to => Empfänger
+//		$inhalt => Inhalt
+//		$mime => MIME Type (text oder html)
 function send_mail($to, $inhalt, $mime = 'plain'){
 	global $allgsysconf;
 	
 	//nicht leer ?
 	if( empty( $inhalt ) || empty( $to ) ){
-		return false;
+		$return = false;
+	}
+	else{
+		//erstmal S/MIME nehmen
+		$oldstyle = false;
+		//aber noch nicht signiert
+		$this_signed = false;
+		
+		//Pfad absolut (beginnt mit /) oder relativ?
+		if( substr( $allgsysconf['smime_cert_ini_folder'], 0 , 1) != '/' ){
+			//absolut machen (Angabe aus config ist relativ zum Ordner dieser Datei!)
+			$allgsysconf['smime_cert_ini_folder'] = __DIR__.'/'.$allgsysconf['smime_cert_ini_folder'];
+		}
+
+		//S/MIME INI gegeben und Order vorhanden??
+		if( !empty( $allgsysconf['smime_cert_ini_name'] ) ){
+			//Cert Vars laden
+			$certini = $allgsysconf['smime_cert_ini_folder'].'/'.$allgsysconf['smime_cert_ini_name'];
+			$certpath = $allgsysconf['smime_cert_ini_folder'].'/';
+
+			//	INI vorhanden?
+			//	Pfad vorhnaden?
+			if( is_file( $certini ) && is_dir( $certpath ) ){
+
+				//Daten für Certs lesen
+				$certdata = parse_ini_file( $certini , true );
+
+				//Certs für Absenderadresse vorhanden?
+				//	in Vars laden
+				//		Public Cert
+				$cert_pub = $certpath.$certdata[$allgsysconf['mailvon']]['smime_cert_pub'];
+				//		Priv Cert
+				$cert_priv = $certpath.$certdata[$allgsysconf['mailvon']]['smime_cert_priv'];
+				//		Key für Priv Cert
+				$cert_key = $certdata[$allgsysconf['mailvon']]['smime_cert_priv_key'];
+
+				//alles für Certs gegeben?
+				if( !empty( $cert_pub ) && !empty( $cert_priv ) && !empty( $cert_key ) ){
+
+					//E-Mail in einer Datei speichern
+					//	Pfad von INI nehmen und Dateinamen machen
+					$randint = gen_zufallszahl( 1000, 9999 );
+					$mailfile = $certpath.'maildraft_'.$randint.'.txt';
+					$mailfile_signed = $certpath.'mailsigned_'.$randint.'.txt';
+
+					//	einen Umbruch adden, sonst sign-Fehler
+					$inhalt = "\r\n".$inhalt;
+					//	Header für Inhalt
+					$inhalt = 'Content-Type: text/'.$mime.'; charset=utf-8'."\r\n".$inhalt;
+
+					//	E-Mail Inhalt in Datei
+					$fp = fopen( $mailfile , 'w+');
+					fwrite( $fp, $inhalt );
+					fclose( $fp );
+		
+					//Verschlüsselung durchführen
+					if(
+						openssl_pkcs7_sign(
+							$mailfile,
+							$mailfile_signed,
+							'file://'.$cert_pub,
+							array( 'file://'.$cert_priv, $cert_key ),
+							array( 'From: '.$allgsysconf['sitename'].' <'.$allgsysconf['mailvon'].'>' )
+						)
+					){
+						//Mail signiert
+						$this_signed = true;
+
+						//Mail in Inhalt und Header teilen
+						$parts = explode("This is an S/MIME signed message", file_get_contents( $mailfile_signed ), 2);
+
+						//durch Teilung entferntes wieder anfügen
+						$parts[1] = 'This is an S/MIME signed message'.$parts[1];
+
+						//Mail absenden
+						$return = mail($to, 'Nachricht von: '.$allgsysconf['sitename'], $parts[1], $parts[0] );
+					}
+					else{
+						//keine S/MIME
+						$oldstyle = true;
+					}
+
+					//aufräumen
+					unlink( $mailfile );
+					unlink( $mailfile_signed );
+				}
+				else{
+					//keine S/MIME
+					$oldstyle = true;
+				}
+			}
+			else{
+				//keine S/MIME
+				$oldstyle = true;
+			}
+		}
+		else{
+			//keine S/MIME
+			$oldstyle = true;
+		}
+
+		//Ohne S/MIME?
+		if( $oldstyle ){
+			//Header erstellen
+			//	Absender
+			$header = 'From: '.$allgsysconf['sitename'].' <'.$allgsysconf['mailvon'].'>'."\r\n";
+			//	MIME & Charset
+			$header .= 'MIME-Version: 1.0' ."\r\n";
+			$header .= 'Content-Type: text/'.$mime.'; charset=utf-8' . "\r\n";
+
+			//sende Mail und gebe zurück
+			$return = mail($to, 'Nachricht von: '.$allgsysconf['sitename'], $inhalt, $header);
+		}
 	}
 
-	//Header erstellen
-	//	Absender
-	$header = 'From: '.$allgsysconf['sitename'].' <'.$allgsysconf['mailvon'].'>'."\r\n";
-	//	MIME & Charset
-	$header .= 'MIME-Version: 1.0' ."\r\n";
-	$header .= 'Content-Type: text/'.$mime.'; charset=uft-8' . "\r\n";
+	//Mail Logging?
+	if( isset( $allgsysconf['mail_log'] ) && $allgsysconf['mail_log'] == 'on' ){
 
-	//sende Mail und gebe zurück
-	return mail($to, 'Nachricht von: '.$allgsysconf['sitename'], $inhalt, $header);
+		//Trenner
+		$logdata = "\r\n".'====================================================================='."\r\n";
+		$logdata .= 'From: '.$allgsysconf['sitename'].' <'.$allgsysconf['mailvon'].'>'."\r\n";
+		$logdata .= 'To: '.$to."\r\n";
+		$logdata .= 'Subject: Nachricht von: '.$allgsysconf['sitename']."\r\n";
+		$logdata .= "\r\n";
+		$logdata .= $inhalt;
+		$logdata .= "\r\n\r\n";
+		$logdata .= 'Status: Signatur ('.( $this_signed ? 'true' : 'false' ).'); Versandt ('.( $return ? 'true' : 'false' ).'); Type ('.$mime.')'."\r\n";
+		$logdata .= 'Zeitpunkt: '.date( 'd.m.Y H:i:s' )."\r\n";
+
+		$f = fopen( __DIR__.'/mail.log', 'a+' );
+		fwrite( $f, $logdata );
+		fclose( $f );
+	}
+
+	return $return;
 }
 
 //Browser an  andere URL weiterleiten
@@ -764,122 +888,65 @@ function listdirrec( $dir, $grdir ){
 	}
 }
 
+//	====================================
+//	------ BITTE NICHT MEHR AKTIV NUTZEN -------
+//	------    siehe add_content_editor( $id )     -------
+//	====================================
 //einfaches Hinzufügen von TinyMCE in eine Textarea
 //Die benötigten JavaScript Dateien werden im Backend automatisch geladen, im Frontend ist das Hinzufügen des HTML-Headers '<!-- TinyMCE -->' nötig!
 //	$big => großes Feld aktivieren (mit TinyMCE Menü) [boolean]
 //	$small => kleines Feld aktivieren (ohne TinyMCE menü) [boolean]
 //	$ids => Array ()'big' => ' HTML ID des Textarea für großes Feld ', 'small' => ' HTML ID des Textarea für kleines Feld ' ) 
 function add_tiny( $big = false, $small = false, $ids = array( 'big' => '#inhalt', 'small' => '#footer' ) ){
-	global $sitecontent, $allgsysconf, $tinyoo;
-
-	//$tinyoo => gibt an, ob JS Funktion tinychange(); schon in der Ausagabe 
-
-	//JavaScript Ausgabe beginnen
-	$sitecontent->add_html_header('<script>');
-
-	//Funktion tinychange(); schon da?
-	if( !$tinyoo ){
-		//wenn nicht, dann hinzufügen
-		//	Die Funktion tinychange(); verändert den Status des TinyMCE Editoren. Bei einem Aufruf von tinychange( <<HTML ID der Textarea>> ); wird deren TinyMCE Status verändert.
-		//	TinyMCE wird entweder ausgeblendet oder eingeblendet.
-		$sitecontent->add_html_header('
-		var tiny = [];
-
-		function tinychange( id ){
-			if( !tiny[id] ){
-				tinymce.EditorManager.execCommand( "mceAddEditor", true, id);
-				tiny[id] = true;
-			}
-			else{
-				tinymce.EditorManager.execCommand( "mceRemoveEditor", true, id)
-				tiny[id] = false;
-			}
-		}
-		
-		function disabletooltips(){ 
-			$( "iframe" ).tooltip({ disabled: true });
-		}
-		');
-		$tinyoo = true;
-	}
-
-	//großer TinyMCE gewünscht?
+	
+	//es gibt keine Größenunterschiede mehr!!
+	
+	//hier wird eindfach die neue Funktion add_content_editor() benutzt!!	
 	if( $big ){
-		//Initialisierung von TinyMCE
-		//	http://www.tinymce.com
-		//	Angabe der Textarea ID aus $ids
-		$sitecontent->add_html_header('
-		tinymce.init({
-			selector: "'.$ids['big'].'",
-			theme: "modern",
-			plugins: [
-				"advlist autosave autolink lists link image charmap preview hr anchor pagebreak",
-				"searchreplace wordcount visualblocks visualchars fullscreen",
-				"insertdatetime media nonbreaking save table contextmenu directionality",
-				"emoticons paste textcolor colorpicker textpattern codemagic"
-			],
-			toolbar1: "styleselect | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent hr",
-			toolbar2: "fontselect | undo redo | forecolor backcolor | link image emoticons | preview fullscreen | codemagic searchreplace",
-			image_advtab: true,
-			language : "de",
-			width : 680,
-			height : 300,
-			resize: "horizontal",
-			content_css : "'.$allgsysconf['siteurl'].'/load/system/theme/design_for_tiny.css",
-			browser_spellcheck : true,
-			image_list: function( success ) {
-				success( [ '.listdirrec( __DIR__.'/../../load/userdata', '/load/userdata' ).' ] );
-			},
-			autosave_interval: "20s",
-			autosave_restore_when_empty: true,
-			autosave_retention: "60m",
-			menubar: "file edit insert view format table",
-			convert_urls: false,
-			init_instance_callback : "disabletooltips"
-		});
-		tiny[\''.substr( $ids['big'], 1 ).'\'] = true;
-		');
-
+		add_content_editor( substr( $ids['small'], 1 ) );
 	}
-	//kleiner TinyMCE gewünscht?
 	if( $small ){
-		//Initialisierung von TinyMCE
-		//	http://www.tinymce.com
-		//	Angabe der Textarea ID aus $ids
-		$sitecontent->add_html_header('
-		tinymce.init({
-			selector: "'.$ids['small'].'",
-			theme: "modern",
-			plugins: [
-				"advlist autosave autolink lists link image charmap preview hr anchor pagebreak",
-				"searchreplace wordcount visualblocks visualchars fullscreen",
-				"insertdatetime media nonbreaking save table contextmenu directionality",
-				"emoticons paste textcolor colorpicker textpattern codemagic"
-			],
-			toolbar1: "styleselect | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent hr",
-			toolbar2: "fontselect | undo redo | forecolor backcolor | link image emoticons | preview fullscreen | codemagic searchreplace",
-			image_advtab: true,
-			language : "de",
-			width : 680,
-			height : 100,
-			resize: "horizontal",
-			content_css : "'.$allgsysconf['siteurl'].'/load/system/theme/design_for_tiny.css",
-			browser_spellcheck : true,
-			menubar : false,
-			autosave_interval: "20s",
-			autosave_restore_when_empty: true,
-			autosave_retention: "60m",
-			image_list: function( success ) {
-				success( [ '.listdirrec( __DIR__.'/../../load/userdata', '/load/userdata' ).' ] );
-			},
-			convert_urls: false,
-			init_instance_callback : "disabletooltips"
-		});
-		tiny[\''.substr( $ids['small'], 1 ).'\'] = true;
-		');
+		add_content_editor( substr( $ids['big'], 1 ) );
 	}
-	//Script beenden
-	$sitecontent->add_html_header('</script>');
+	
+}
+
+//Ein Inhaltseingabefeld einer Seite hinzufügen
+//	$id => ID der Textarea (ohne #)
+//	$art => Größe von TinyMCE ('big'/ 'small')
+function add_content_editor( $id ){
+	global $sitecontent, $allgsysconf, $add_content_editor_globals;
+	
+	//Funktion schon mal ausgeführt??
+	if( !is_array( $add_content_editor_globals ) ){
+		//nein
+		//	Array mit Editorinfos erstellen
+		$add_content_editor_globals = array(
+			//JS lib noch nicht geladen
+			'libload'  => false
+		);
+	}
+	
+	//Die Edtioren benötigen zusätzliche JS und CSS Dateien
+	//	hier laden (wenn noch nicht getan!)
+	if( !$add_content_editor_globals['libload'] ){
+
+		$header .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/system/tinymce/tinymce.min.js"></script>'."\r\n";
+		$header .= '<script>var codemirrorloader_siteurl = "'.$allgsysconf['siteurl'].'", codemirrorloader_done = false;</script>'."\r\n";
+		$header .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/system/codemirror/codemirrorloader.min.js"></script>'."\r\n";
+		$header .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/system/editorloader.min.js"></script>'."\r\n";
+		
+		$sitecontent->add_html_header( $header );
+		
+		$sitecontent->add_html_header( '<style>.CodeMirror{border: 1px solid black;}</style>' );
+		
+		$add_content_editor_globals['libload'] = true;
+	}
+	
+	//Editor laden (per JS Funktion)	
+	$sitecontent->add_html_header( '<script>editorloader_add( "'.$id.'" );</script>' );
+	
+	return true;
 }
 
 //CMS und KIMB-Software Versionsstings vergleichen
@@ -1341,6 +1408,30 @@ function replace_urloutofid( $content ){
 	
 	//fertigen String zurückgeben
 	return $content;
+}
+
+//Parse Markdown
+//	$md => Markdown String
+//	Rückgabe => HTML String
+function parse_markdown( $md ){
+	//ParsedownExtra Klasse
+	$obj = new ParsedownExtra();
+	//Parsen
+	$html =  $obj->text( $md );
+	//OBJ löschen
+	unset( $obj );
+	//Zurückgeben
+	return $html;
+}
+
+//Umbruchbaren String machen
+//	$str => String, welcher vom Browser umgebrochen werden soll
+//	$zeichen => Nach wie vielen Zeichen soll immer ein Umbruch möglich sein
+//	Rüchgabe: String mit Umbruchstellen (&shy;)
+//		Achtung: Diese Funktion zerstört Umlaute!! 
+function breakable( $str, $zeichen = 10 ){
+	$a = str_split( $str, $zeichen );
+	return implode( '&shy;', $a );
 }
 
 // Funktionen von Add-ons hinzufügen

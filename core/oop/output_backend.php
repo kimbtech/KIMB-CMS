@@ -100,14 +100,13 @@ class backend_output{
 			echo ('<meta name="generator" content="KIMB-technologies CMS V. '.$this->allgsysconf['systemversion'].'" >'."\r\n");
 			echo ('<meta name="robots" content="none">'."\r\n");
 			echo ('<meta charset="utf-8">'."\r\n");
-			echo ('<link rel="stylesheet" type="text/css" href="'.$this->allgsysconf['siteurl'].'/load/system/theme/fonts.css" >'."\r\n");
-			echo ('<link rel="stylesheet" type="text/css" href="'.$this->allgsysconf['siteurl'].'/load/system/be.css" >'."\r\n");
+			echo ('<link rel="stylesheet" type="text/css" href="'.$this->allgsysconf['siteurl'].'/load/system/theme/fonts.min.css" >'."\r\n");
+			echo ('<link rel="stylesheet" type="text/css" href="'.$this->allgsysconf['siteurl'].'/load/system/fontawesome/font-awesome.min.css">'."\r\n");
+			echo ('<link rel="stylesheet" type="text/css" href="'.$this->allgsysconf['siteurl'].'/load/system/be.min.css" >'."\r\n");
 			echo ('<link rel="stylesheet" type="text/css" href="'.$this->allgsysconf['siteurl'].'/load/system/jquery/jquery-ui.min.css" >'."\r\n");
 			echo ('<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/jquery/jquery.min.js"></script>'."\r\n");
 			echo ('<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/jquery/jquery-ui.min.js"></script>'."\r\n");
 			echo ('<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/hash.js"></script>'."\r\n");
-			echo ('<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/nicEdit.js"></script>'."\r\n");
-			echo ('<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/tinymce/tinymce.min.js"></script>'."\r\n");
 			
 			//Menü disabled, je nach Rechten
 			echo ('<script>'."\r\n");
@@ -164,9 +163,10 @@ class backend_output{
 			echo ('});'."\r\n");
 			echo ('</script>'."\r\n");
 			
+				echo ('<!-- Seitenspezifischer Header Bereich - Anfang -->'."\r\n");
 				//HTML Header
-				echo($this->header);
-				echo("\r\n");
+				echo($this->header."\r\n");
+				echo ('<!-- Seitenspezifischer Header Bereich - Ende -->'."\r\n");
 
 		echo('</head><body>'."\r\n");
 				echo('<div id="header">'."\r\n");
@@ -268,12 +268,13 @@ echo('
 				//Seiteninhalt
 				echo('<div id="content">'."\r\n");
 
+					echo ('<!-- Seitenspezifischer HTML Bereich - Anfang -->'."\r\n");
 					//ausgeben
-					echo($this->sitecontent);
-					echo("\r\n");
+					echo($this->sitecontent."\r\n");
+					echo ('<!-- Seitenspezifischer HTML Bereich - Ende -->'."\r\n");
 
 				echo('</div></div>'."\r\n");
-		echo('</body> </html>');
+		echo('</body> </html>'."\r\n");
 	}
 }
 

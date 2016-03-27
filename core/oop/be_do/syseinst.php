@@ -54,7 +54,13 @@ class BEsyseinst{
 		'theme' => 'Wählen Sie ein installiertes Thema für Ihre Seite, ohne oder mit falschem Parameter wird das Standardthema verwendet. (Dieser Wert wird automatisch bei einer Themeninstallation geändert.)',
 		'cronkey' => 'Hier finden Sie den Cronkey. Diese Zeichenkette müssen Sie an die URL hängen, um den Systemcron ausführen zu können. (<cms-url>/cron.php?key=XXXX)',
 		'lang' => 'Hier können Sie das CMS für mehrsprachige Seiten freischalten. (on / off) (Wird auch über Other -> Mehrsprachige Seite verändert)' ,
-		'coolifetime' => 'Lebenszeit des Session Cookies in Sekunden, 0 -> bis Browser geschlossen wird'
+		'coolifetime' => 'Lebenszeit des Session Cookies in Sekunden, 0 -> bis Browser geschlossen wird',
+		'smime_cert_ini_folder' => 'Ordner mit den Zertifikaten und der ini-Datei für den Versandt von unterschriebenen E-Mails (S/MIME). [absolute Pfade mit / beginnen, wenn ohne / relativ zu /core/conf/; siehe auch readme in /core/conf/pem/]',
+		'smime_cert_ini_name' => 'Name der ini-Datei für den Versand von signierten E-Mails (S/MIME). [Die Datei muss im Ordner smime_cert_ini_folder liegen; z.B.: &apos;cert_cms.ini&apos;; wenn leer werden nur unsignierte E-Mails versandt]',
+		'mail_log' => 'Alle vom System versandten E-Mails loggen (on/ off) [Die Logdatei wird unter /core/conf/mail.log erstellt]',
+		'permalink_domain' => 'Geben Sie hier eine Domain bzw. eine Grundurl für die Permalinks an. [off/ URL](Es wird einfach die ID der Seite an den hier eingegebenen String angehängt und auf den Seiten angezeigt.;Sie müssen die Weiterleitung manuell einrichten. Siehe Beispiel im KIMB-CMS Wiki unter &apos;https://cmswiki.kimb-technologies.eu/tutorials/erste-schritte/konfiguration&apos;)',
+		'overview_left' => 'Links auf der Seite einen aktuellen Auschnitt des Menüs anzeigen. (on/off) [nicht auf Mobilgeräten; nur wenn vom Theme unterstützt]',
+		'markdown' => 'Soll für den Seiteninhalt und den seitenspezifischen Footer Markdown ermöglicht werden? (on[=> auf allen Seiten]/ off[=> auf keiner Seite]/ custom[=> für jede Seite einstellbar]) [MarkdownExtra von http://parsedown.org/]'
 	);
 	
 	public function __construct( $allgsysconf, $sitecontent,$conffile ){
@@ -211,20 +217,17 @@ class BEsyseinst{
 			$this->make_syseinst_sonder_dbf( $_POST );
 		}
 
-		//TinyMCE alle Textfelder
-		$arr['small'] = '#footer';
-		add_tiny( false, true, $arr );
-		$arr['small'] = '#err404';
-		add_tiny( false, true, $arr );
-		$arr['small'] = '#err403';
-		add_tiny( false, true, $arr );
+		//Editoren laden (Footer, Inhalt)
+		add_content_editor( 'footer' );
+		add_content_editor( 'err404' );
+		add_content_editor( 'err403' );
 		
 		//Eingabefelder
 		$sitecontent->add_site_content('<h2>Error- und Footertexte</h2>');
 		$sitecontent->add_site_content('<form method="post" action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/syseinst.php?text">');
-		$sitecontent->add_site_content('<textarea name="footer" id="footer" style="width:99%;">'.$sonder->read_kimb_one( 'footer' ).'</textarea> <i>Footer &uarr;</i> <button onclick="tinychange( \'footer\' ); return false;">Editor I/O</button> <br />');
-		$sitecontent->add_site_content('<textarea name="err404" id="err404" style="width:99%;">'.$sonder->read_kimb_one( 'error-404' ).'</textarea> <i>Error 404 &uarr;</i> <button onclick="tinychange( \'err404\' ); return false;">Editor I/O</button> <br />');
-		$sitecontent->add_site_content('<textarea name="err403" id="err403" style="width:99%;">'.$sonder->read_kimb_one( 'error-403' ).'</textarea> <i>Error 403 &uarr;</i> <button onclick="tinychange( \'err403\' ); return false;">Editor I/O</button> <br />');
+		$sitecontent->add_site_content('<textarea name="footer" id="footer" style="width:99%;">'.$sonder->read_kimb_one( 'footer' ).'</textarea> <i>Footer &uarr;</i><br />');
+		$sitecontent->add_site_content('<textarea name="err404" id="err404" style="width:99%;">'.$sonder->read_kimb_one( 'error-404' ).'</textarea> <i>Error 404 &uarr;</i><br />');
+		$sitecontent->add_site_content('<textarea name="err403" id="err403" style="width:99%;">'.$sonder->read_kimb_one( 'error-403' ).'</textarea> <i>Error 403 &uarr;</i><br />');
 		$sitecontent->add_site_content('<input type="submit" value="Ändern"></form>');
 	}
 	

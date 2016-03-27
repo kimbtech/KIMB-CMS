@@ -1,6 +1,6 @@
 body {
 	background-color:#494949;
-	font-family: Ubuntu;
+	font-family: Ubuntu,sans-serif;
 	font-size:14px;
 	color:#000000;
 }
@@ -113,7 +113,7 @@ input[readonly=readonly]{
 }
 
 input, button{
-	font-family: Ubuntu;
+	font-family: Ubuntu,sans-serif;
 	font-size:14px;
 	color:#000000;
 }

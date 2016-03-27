@@ -33,11 +33,23 @@ class system_output{
 
 	//Klasse init
 	protected $title, $header, $allgsysconf, $menue, $sitecontent, $addon, $footer, $sonderfile, $hidden_menu;
-
+	public $jsapicodes = array();
+	
 	public function __construct($allgsysconf){
 		$this->allgsysconf = $allgsysconf;
 		$this->sonderfile = new KIMBdbf('sonder.kimb');
 		$this->footer = $this->sonderfile->read_kimb_one('footer')."\r\n";
+	
+		 //einfügen von JavaScript Code für Platzhalter	
+		$this->jsapicodes = array(	
+			'<!-- jQuery -->' => '<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/jquery/jquery.min.js"></script>',
+			'<!-- jQuery UI -->' => '<link rel="stylesheet" type="text/css" href="'.$this->allgsysconf['siteurl'].'/load/system/jquery/jquery-ui.min.css" >'."\r\n".'<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/jquery/jquery-ui.min.js"></script>',
+			'<!-- TinyMCE -->' => '<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/tinymce/tinymce.min.js"></script>',
+			'<!-- Hash -->' => '<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/hash.js"></script>',
+			'<!-- CodeMirror -->' => '<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/codemirror/codemirrorloader.min.js"></script>',
+			'<!-- FontAwesome -->' => '<link rel="stylesheet" type="text/css" href="'.$this->allgsysconf['siteurl'].'/load/system/fontawesome/font-awesome.min.css">',
+			'<!-- PrismJS -->' => '<link rel="stylesheet" type="text/css" href="'.$this->allgsysconf['siteurl'].'/load/system/prism/prism.min.css">'."\r\n".'<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/prism/prism.min.js"></script>'
+		);
 	}
 
 	//Menüeinträge hinzufügen
@@ -86,16 +98,29 @@ class system_output{
 			$this->add_html_header('<meta name="keywords" content="'.$content['keywords'].'">');
 		}
 		//Seiteninhalt und Footer
-		$this->sitecontent .= $content['inhalt']."\r\n";
+		$html = $content['inhalt'];
 		$this->add_footer($content['footer']);
 		
 		//wenn siteinfos aktiviert hinzufügen
 		if( $this->allgsysconf['show_siteinfos'] == 'on' ){
+			
+			//Permalink über Domain des CMS laufen lassen (einfacher ID Zugriff)
+			if( $this->allgsysconf['permalink_domain'] == 'off' ){
+				$permaurl = $this->allgsysconf['siteurl'].'/index.php?id='.$content['req_id'];
+			}
+			else{
+				//Permalink über andere Domain laufen lassen (Weiterleitung auf ID-Zugriff per externem Skript nötig)
+				$permaurl = $this->allgsysconf['permalink_domain'].$content['req_id'];
+			}
+			
 			$time = date( "d.m.Y" , $content['time'] );
 			$schlusszeile .= '<div id="usertime">'.$trans['estv'].' '.$content['made_user'].' '.$trans['am'].' '.$time.'</div>';
-			$schlusszeile .= '<div id="permalink">'.$trans['perma'].': <a href="'.$this->allgsysconf['siteurl'].'/index.php?id='.$content['req_id'].'">'.$this->allgsysconf['siteurl'].'/index.php?id='.$content['req_id'].'</a></div>';
-			$this->sitecontent .= $schlusszeile."\r\n";
+			$schlusszeile .= '<div id="permalink">'.$trans['perma'].': <a href="'.$permaurl.'">'.$permaurl.'</a></div>';
+			$html .= $schlusszeile."\r\n";
 		}
+		
+		//Seiteninhalt anfügen
+		$this->add_site_content( $html );
 	}
 	
 	//Sprachinformationen für das Theme annehmen und speichern
@@ -106,12 +131,14 @@ class system_output{
 
 	//Seiteninhalt hinzufügen
 	public function add_site_content($content){
-		$this->sitecontent .= $content;
+		$this->sitecontent .= $content."\r\n";
 	}
 
 	//Add-on Area hinzufügen
 	public function add_addon_area($inhalt, $style = '', $cssclass = ''){
-		$this->addon .= '<div id="apps" class="'.$cssclass.'" style="'.$style.'">'.$inhalt.'</div>'."\r\n";
+		$this->addon .= '<div id="apps" class="'.$cssclass.'" style="'.$style.'">'."\r\n";
+		$this->addon .= $inhalt."\r\n";
+		$this->addon .= '</div>'."\r\n";
 	}
 
 	//Footer hinzufügen
@@ -173,30 +200,32 @@ class system_output{
 	//abschließende Ausgabe der Seite
 	public function output_complete_site( $allgsys_trans ){
 
-		//einfügen von JavaScript Code für Platzhalter
-		$jsapicodes = array(
-			'<!-- jQuery -->' => '<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/jquery/jquery.min.js"></script>',
-			'<!-- jQuery UI -->' => '<link rel="stylesheet" type="text/css" href="'.$this->allgsysconf['siteurl'].'/load/system/jquery/jquery-ui.min.css" >'."\r\n".'<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/jquery/jquery-ui.min.js"></script>',
-			'<!-- nicEdit -->' => '<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/nicEdit.js"></script>',
-			'<!-- TinyMCE -->' => '<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/tinymce/tinymce.min.js"></script>',
-			'<!-- Hash -->' => '<script language="javascript" src="'.$this->allgsysconf['siteurl'].'/load/system/hash.js"></script>'
-		);
-
 		//jede JS Datei soll nur einmal dabei sein
 		//	jQuery-UI benötigt jQuery
 		$add = '';
 		$dones = array();
 		//alle JavaScript Platzhalter durchgehen
-		foreach( $jsapicodes as $key => $code ){
+		foreach( $this->jsapicodes as $key => $code ){
 			//wenn Platzhalter gefunden 
 			if( strpos( $this->header , $key ) !== false ){
 				//im Array $dones werden alle schon hinzugefügten abgelegt
+				
+				//der Loader für CodeMirror braucht die GrundURL des Systems
+				if( $key == '<!-- CodeMirror -->' ){
+					$add .= '<script>var codemirrorloader_siteurl = "'.$this->allgsysconf['siteurl'].'", codemirrorloader_done = false;</script>'."\r\n";
+				
+					//CodeMirror braucht auch jQuery
+					//	wenn nicht geladen, dann hinzufügen
+					if(  !in_array( '<!-- jQuery -->', $dones ) ){
+						$add .= $this->jsapicodes['<!-- jQuery -->']."\r\n";
+					}
+				}
 				
 				//bei jQuery UI überprüfen ob jQuery schon geladen, wenn nicht beides hinzufügen
 				if( $key == '<!-- jQuery UI -->' && !in_array( '<!-- jQuery -->', $dones ) && !in_array( '<!-- jQuery UI -->', $dones ) ){
 					
 					//beide Scripte hinzufügen
-					$add .= $jsapicodes['<!-- jQuery -->']."\r\n";
+					$add .= $this->jsapicodes['<!-- jQuery -->']."\r\n";
 					$add .= $code."\r\n";
 
 					//beide als erledigt speichern
@@ -213,6 +242,9 @@ class system_output{
 
 		//JavaScript dem Header anfügen
 		$this->header = $add.$this->header;
+		
+		//alle Bibilothek Keywords entfernen
+		$this->header = str_replace( array_keys( $this->jsapicodes ), '', $this->header );
 		
 		//den URL-Placeholder duch die aktuelle URL ersetzen
 		$this->header = str_replace( '<!--SYS-SITEURL-->', $this->allgsysconf['siteurl'], $this->header );
