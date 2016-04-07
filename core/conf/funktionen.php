@@ -106,6 +106,13 @@ function gen_zufallszahl( $a, $e ){
 function send_mail($to, $inhalt, $mime = 'plain'){
 	global $allgsysconf;
 	
+	//In einigen Add-ons ist ein Bug, welcher die Umbrüche falsch ausgibt:
+	//	nr statt rn!!
+	//		diesen Fehler hier entfernen, sonst schlägt Unterschrift fehl!!
+	if( strpos( $inhalt, "\n\r" ) !== false ){
+		$inhalt = str_replace( "\n\r", "\r\n", $inhalt );
+	}
+	
 	//nicht leer ?
 	if( empty( $inhalt ) || empty( $to ) ){
 		$return = false;
