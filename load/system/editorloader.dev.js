@@ -95,7 +95,7 @@ $( function () {
 	function reload_all( old, editor ){
 		
 		//TinyMCE aktuell?
-		if( old == "tinymce" || typeof old === "undefined" ){
+		if( old == "tinymce" ){
 			
 			//alle IDs durchgehen	
 			editorloader_ids.forEach( function( v ){
@@ -112,7 +112,17 @@ $( function () {
 				cm.toTextArea();
 			});
 		}
-		//Textarea muss nicht entladen werden 
+		else if( old == "textarea" ){
+			//Textarea muss nicht entladen werden 
+		}
+		//nicht gesetzt bedeutet TinyMCE
+		else{
+			//alle IDs durchgehen	
+			editorloader_ids.forEach( function( v ){
+				//Tiny weg
+				tinymce.EditorManager.execCommand( "mceRemoveEditor", true, v);
+			});
+		}
 		
 		//wenn Textarea als Neues,
 		//	kein laden nötig 
