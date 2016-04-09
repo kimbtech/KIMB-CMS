@@ -142,6 +142,11 @@ class JSforBE{
 			});
 		}
 		var updown = function( fileid , updo , requid ){
+			
+			var over = \'<div class="updown_over" style="position:absolute; top:0; right:0; width:100%; height:100%; background-color:gray; opacity:0.6;"></div>\';
+			over += \'<div class="updown_over" style="position:absolute; top:60px; left:60px; width:50px; height:50px; background-color:white; border:2px solid black; border-radius:15px;"><img width="50px" height="50px" src="'.$allgsysconf['siteurl'].'/load/system/spin_load.gif"></div>\';
+			$( "body" ).append( over );
+			
 			$.get( "'.$allgsysconf['siteurl'].'/ajax.php?file=menue.php&fileid=" + fileid + "&updo=" + updo + "&requid=" + requid , function( data ) {
 				if( data == "ok" ){
 					location.reload();
@@ -159,6 +164,8 @@ class JSforBE{
 						}
 					}
 					});
+					
+					$( "div.updown_over" ).remove();
 				}
 			});
 		}
