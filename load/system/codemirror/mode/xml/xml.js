@@ -57,3 +57,5 @@ while(context&&context.prev&&!context.startOfLine)
 context=context.prev;if(context)return context.indent+indentUnit;else return state.baseIndent||0},electricInput:/<\/[\s\w:]+>$/,blockCommentStart:"<!--",blockCommentEnd:"-->",configuration:config.htmlMode?"html":"xml",helperType:config.htmlMode?"html":"xml",skipAttribute:function(state){if(state.state==attrValueState)
 state.state=attrState}}});CodeMirror.defineMIME("text/xml","xml");CodeMirror.defineMIME("application/xml","xml");if(!CodeMirror.mimeModes.hasOwnProperty("text/html"))
 CodeMirror.defineMIME("text/html",{name:"xml",htmlMode:!0})})
+
+$( document ).trigger( 'cms_codemirror_nextfile' );

@@ -26,3 +26,5 @@ return style};return{startState:function(){var state=htmlMode.startState();retur
 return{token:state.token,inTag:state.inTag,localMode:state.localMode,localState:local,htmlState:CodeMirror.copyState(htmlMode,state.htmlState)}},token:function(stream,state){return state.token(stream,state)},indent:function(state,textAfter){if(!state.localMode||/^\s*<\//.test(textAfter))
 return htmlMode.indent(state.htmlState,textAfter);else if(state.localMode.indent)
 return state.localMode.indent(state.localState,textAfter);else return CodeMirror.Pass},innerMode:function(state){return{state:state.localState||state.htmlState,mode:state.localMode||htmlMode}}}},"xml","javascript","css");CodeMirror.defineMIME("text/html","htmlmixed")})
+
+$( document ).trigger( 'cms_codemirror_nextfile' );

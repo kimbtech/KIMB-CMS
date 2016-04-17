@@ -16,3 +16,5 @@ if(stream.sol()||state.ateSpace){state.ateSpace=!1;if(modeConfig.gitHubSpice!==!
 if(stream.match(urlRE)&&stream.string.slice(stream.start-2,stream.start)!="]("&&(stream.start==0||/\W/.test(stream.string.charAt(stream.start-1)))){state.combineTokens=!0;return "link"}
 stream.next();return null},blankLine:blankLine};var markdownConfig={underscoresBreakWords:!1,taskLists:!0,fencedCodeBlocks:'```',strikethrough:!0};for(var attr in modeConfig){markdownConfig[attr]=modeConfig[attr]}
 markdownConfig.name="markdown";return CodeMirror.overlayMode(CodeMirror.getMode(config,markdownConfig),gfmOverlay);},"markdown");CodeMirror.defineMIME("text/x-gfm","gfm")})
+
+$( document ).trigger( 'cms_codemirror_nextfile' );
