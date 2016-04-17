@@ -1042,3 +1042,6 @@ if(lst(order).level==1&&(m=str.match(/\s+$/))){lst(order).to-=m[0].length;order.
 if(order[0].level==2)
 order.unshift(new BidiSpan(1,order[0].to,order[0].to));if(order[0].level!=lst(order).level)
 order.push(new BidiSpan(order[0].level,len,len));return order}})();CodeMirror.version="5.13.3";return CodeMirror})
+
+
+$( document ).trigger( 'cms_codemirror_nextfile' );
