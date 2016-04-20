@@ -236,8 +236,8 @@ class BEsites{
 		$sitecontent->add_site_content('<textarea name="header" style="width:74%; height:50px;"></textarea><i>HTML Header </i><br />');
 		$sitecontent->add_site_content('<input type="text" name="keywords" style="width:74%;"> <i>Keywords</i><br />');
 		$sitecontent->add_site_content('<textarea name="description" style="width:74%; height:50px;"></textarea> <i>Description</i> <br />');
-		$sitecontent->add_site_content('<textarea name="inhalt" id="inhalt" style="width:99%; height:300px;">&lt;h1&gt;Titel&lt;/h1&gt;</textarea> <i>Inhalt &uarr;</i> <button onclick="tinychange( \'inhalt\' ); return false;">Editor I/O</button> <br />');
-		$sitecontent->add_site_content('<textarea name="footer" id="footer" style="width:99%; height:75px;"></textarea> <i>Footer &uarr;</i> <button onclick="tinychange( \'footer\' ); return false;">Editor I/O</button> <br />');
+		$sitecontent->add_site_content('<textarea name="inhalt" id="inhalt" style="width:99%; height:300px;">&lt;h1&gt;Titel&lt;/h1&gt;</textarea> <i>Inhalt &uarr;</i><br />');
+		$sitecontent->add_site_content('<textarea name="footer" id="footer" style="width:99%; height:75px;"></textarea> <i>Footer &uarr;</i><br />');
 		$sitecontent->add_site_content('<input type="submit" value="Erstellen"></form>');	
 
 	}
@@ -365,11 +365,7 @@ class BEsites{
 		}
 	
 		//JavaScript
-		$this->jsobject->for_site_edit();
-		//Editoren laden (Footer, Inhalt)
-		add_content_editor( 'inhalt' );
-		add_content_editor( 'footer' );
-		
+		$this->jsobject->for_site_edit();	
 	
 		//wurden Daten übermittelt?
 		if( isset( $_POST['title'] ) || isset( $_POST['inhalt'] ) ){
@@ -412,6 +408,20 @@ class BEsites{
 		if( $id == false ){
 			$sitecontent->echo_message( 'Achtung, diese Seite ist noch keinem Menü zugeordnet, daher ist sie im Frontend nicht auffindbar!' );
 		}
+		
+		//Editoren laden (Footer, Inhalt)
+		// MD beachten
+		if(
+			( $allgsysconf['markdown'] == 'custom' && $seite['markdown'] == 'on' ) ||
+			( $allgsysconf['markdown'] == 'on' )
+		){
+			$mdhere = true;
+		}
+		else{
+			$mdhere = false;
+		}
+		add_content_editor( 'inhalt', $mdhere );
+		add_content_editor( 'footer', $mdhere );
 	
 		//Löschen und Seite ansehen Buttons
 		$sitecontent->add_site_content('<span onclick="var delet = del( '.$_GET['id'].' ); delet();"><span class="ui-icon ui-icon-trash" style="display:inline-block;" title="Diese Seite löschen."></span></span>');

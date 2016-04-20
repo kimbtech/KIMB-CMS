@@ -1,3 +1,21 @@
+//Bei Markdown soll CodeMirror statt TinyMCE der
+//Standardeditor sein!
+//	PHP definiert _hashmd als true, wenn Markdownseite
+function editorloader_setcodem(){
+	// Markdownseite??
+	if( typeof editorloader_hasmd !== "undefined" && editorloader_hasmd ){
+		//noch keine Auswahl?
+		var locst = window.localStorage.getItem( "editorloader" );
+		if(
+			locst != "tinymce" &&
+			locst != "codemirror" &&
+			locst != "textarea"
+		){
+			window.localStorage.setItem( "editorloader", "codemirror" );
+		}
+	}
+}
+editorloader_setcodem();
 
 //Dialog zur Auswahl der Editoren anzeigen
 $( function () {

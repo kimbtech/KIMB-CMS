@@ -920,8 +920,8 @@ function add_tiny( $big = false, $small = false, $ids = array( 'big' => '#inhalt
 
 //Ein Inhaltseingabefeld einer Seite hinzufügen
 //	$id => ID der Textarea (ohne #)
-//	$art => Größe von TinyMCE ('big'/ 'small')
-function add_content_editor( $id ){
+//	$md => true (CodeMirror als Standard für Markdowneingabe)/ false (TinyMCE als Standard) [Hat nur beim ersten Aufruf innerhalb des Requests Auswirkungen]
+function add_content_editor( $id, $md = false ){
 	global $sitecontent, $allgsysconf, $add_content_editor_globals;
 	
 	//Funktion schon mal ausgeführt??
@@ -938,9 +938,15 @@ function add_content_editor( $id ){
 	//	hier laden (wenn noch nicht getan!)
 	if( !$add_content_editor_globals['libload'] ){
 
-		$header .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/system/tinymce/tinymce.min.js"></script>'."\r\n";
+		$header = '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/system/tinymce/tinymce.min.js"></script>'."\r\n";
 		$header .= '<script>var codemirrorloader_siteurl = "'.$allgsysconf['siteurl'].'", codemirrorloader_done = false;</script>'."\r\n";
 		$header .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/system/codemirror/codemirrorloader.min.js"></script>'."\r\n";
+		//Seite mit MD?
+		//	hier gewollt?
+		if( $md ){
+			//JS mitteilen
+			$header .= '<script>editorloader_hasmd = true;</script>';
+		}
 		$header .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/system/editorloader.min.js"></script>'."\r\n";
 		
 		$sitecontent->add_html_header( $header );
