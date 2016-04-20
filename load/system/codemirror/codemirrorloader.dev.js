@@ -20,7 +20,7 @@ function codemirrorloader_add( domid ){
 		setTimeout(function() {
 			var dodo = codemirrorloader_instances[domid];
 			dodo.refresh();
-		}, 10);
+		}, 1000);
 	});
 }
 
