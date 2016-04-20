@@ -7,6 +7,4 @@ define(["../../lib/codemirror"],mod);else mod(CodeMirror)})(function(CodeMirror)
 if(stream.start==state.basePos){state.baseCur=base.token(stream,state.base);state.basePos=stream.pos}
 if(stream.start==state.overlayPos){stream.pos=stream.start;state.overlayCur=overlay.token(stream,state.overlay);state.overlayPos=stream.pos}
 stream.pos=Math.min(state.basePos,state.overlayPos);if(state.overlayCur==null)return state.baseCur;else if(state.baseCur!=null&&state.overlay.combineTokens||combine&&state.overlay.combineTokens==null)
-return state.baseCur+" "+state.overlayCur;else return state.overlayCur},indent:base.indent&&function(state,textAfter){return base.indent(state.base,textAfter)},electricChars:base.electricChars,innerMode:function(state){return{state:state.base,mode:base}},blankLine:function(state){if(base.blankLine)base.blankLine(state.base);if(overlay.blankLine)overlay.blankLine(state.overlay)}}}})
-
-$( document ).trigger( 'cms_codemirror_nextfile' );
+return state.baseCur+" "+state.overlayCur;else return state.overlayCur},indent:base.indent&&function(state,textAfter){return base.indent(state.base,textAfter)},electricChars:base.electricChars,innerMode:function(state){return{state:state.base,mode:base}},blankLine:function(state){if(base.blankLine)base.blankLine(state.base);if(overlay.blankLine)overlay.blankLine(state.overlay)}}}});

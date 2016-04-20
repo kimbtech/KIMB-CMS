@@ -25,6 +25,4 @@ if(stream.eol())state.inTag+=" "}
 return style};return{startState:function(){var state=htmlMode.startState();return{token:html,inTag:null,localMode:null,localState:null,htmlState:state}},copyState:function(state){var local;if(state.localState){local=CodeMirror.copyState(state.localMode,state.localState)}
 return{token:state.token,inTag:state.inTag,localMode:state.localMode,localState:local,htmlState:CodeMirror.copyState(htmlMode,state.htmlState)}},token:function(stream,state){return state.token(stream,state)},indent:function(state,textAfter){if(!state.localMode||/^\s*<\//.test(textAfter))
 return htmlMode.indent(state.htmlState,textAfter);else if(state.localMode.indent)
-return state.localMode.indent(state.localState,textAfter);else return CodeMirror.Pass},innerMode:function(state){return{state:state.localState||state.htmlState,mode:state.localMode||htmlMode}}}},"xml","javascript","css");CodeMirror.defineMIME("text/html","htmlmixed")})
-
-$( document ).trigger( 'cms_codemirror_nextfile' );
+return state.localMode.indent(state.localState,textAfter);else return CodeMirror.Pass},innerMode:function(state){return{state:state.localState||state.htmlState,mode:state.localMode||htmlMode}}}},"xml","javascript","css");CodeMirror.defineMIME("text/html","htmlmixed")});

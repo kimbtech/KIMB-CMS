@@ -108,6 +108,4 @@ state.prevLine=null}
 state.prevLine=state.thisLine
 state.thisLine=stream
 state.taskList=!1;state.trailingSpace=0;state.trailingSpaceNewLine=!1;state.f=state.block;var indentation=stream.match(/^\s*/,!0)[0].replace(/\t/g,'    ').length;state.indentationDiff=Math.min(indentation-state.indentation,4);state.indentation=state.indentation+state.indentationDiff;if(indentation>0)return null}
-return state.f(stream,state)},innerMode:function(state){if(state.block==htmlBlock)return{state:state.htmlState,mode:htmlMode};if(state.localState)return{state:state.localState,mode:state.localMode};return{state:state,mode:mode}},blankLine:blankLine,getType:getType,fold:"markdown"};return mode},"xml");CodeMirror.defineMIME("text/x-markdown","markdown")})
-
-$( document ).trigger( 'cms_codemirror_nextfile' );
+return state.f(stream,state)},innerMode:function(state){if(state.block==htmlBlock)return{state:state.htmlState,mode:htmlMode};if(state.localState)return{state:state.localState,mode:state.localMode};return{state:state,mode:mode}},blankLine:blankLine,getType:getType,fold:"markdown"};return mode},"xml");CodeMirror.defineMIME("text/x-markdown","markdown")});
