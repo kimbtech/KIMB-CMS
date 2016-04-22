@@ -387,6 +387,17 @@ class BEsites{
 			if( !empty( $_POST['markdown'] ) ){
 				$sitef->write_kimb_one( 'markdown', $_POST['markdown'] );
 			}
+			
+			
+			//Seiten Cache leeren gewünscht?
+			if( $allgsysconf['cache'] == 'on' && isset( $_POST['delcache'] ) ){
+				//Cache OBJ machen
+				$ca = new cacheCMS($allgsysconf, $sitecontent);
+				//Cache leeren (nur diese Seite und aktuelle Sprache)
+				$ca->del_cache_site( $_GET['id'] , $_GET['langid'] );
+				//OBJ wieder weg
+				unset( $ca );
+			}
 	
 		}
 		
@@ -457,6 +468,10 @@ class BEsites{
 			}
 			//Auswahlbuttons ausgeben
 			$sitecontent->add_site_content('<input type="radio" value="on" name="markdown"'.$md['on'].'>Aktiviert <input type="radio" value="off" name="markdown" '.$md['off'].'> Deaktiviert <i>Den Inhalt und den Footer dieser Seite als Markdown rendern?</i><br />');
+		}
+		//Seiten Cache leeren automatisch ermöglichen
+		if( $allgsysconf['cache'] == 'on' ){
+			$sitecontent->add_site_content('<input type="checkbox" value="on" name="delcache" checked="checked"> Cache dieser Seite leeren?<br />');
 		}
 		$sitecontent->add_site_content('<input type="submit" value="Ändern"></form>');
 		$sitecontent->echo_message('<p>Wenn Sie auf eine Seite verweisen und dabei auf Nummer sicher gehen wollen, dass die Links auch bei einer Veränderung der Menüpfade noch gültig sind, können Sie für den Link den Platzhalter "<b>&lt;!--URLoutofID=123--&gt;</b>" verwenden. Setzen Sie für "123" einfach die RequestID<b title="Die RequestIDs finden Sie in der Tabelle unter Menue -> Auflisten">*</b> der Seite/ des Menüpunktes ein und der Rest erfolgt automatisch.</p>', 'Tipp');
