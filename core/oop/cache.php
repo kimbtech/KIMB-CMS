@@ -211,6 +211,29 @@ class cacheCMS{
 		}
 		return false;
 	}
+	
+	//Cache einer Seite löschen
+	//	$id => SiteID, deren Cache geleert werden soll
+	//	$lang => Sprachversion, die gelöscht werden soll
+	public function del_cache_site( $id, $lang = 0 ){
+		
+		//Cachedateinamen je nach Sprache wählen
+		if( $langid != 0 ){
+			$file = '/cache/site_'.$id.'_lang_'.$langid.'.kimb';	
+		}
+		else{
+			$file = '/cache/site_'.$id.'.kimb';
+		}
+		
+		//Datei vorhanden?
+		if( check_for_kimb_file( $file ) ){
+			//löschen versuchen
+			return delete_kimb_datei( $file );
+		}
+		else{
+			return false;
+		}
+	}
 
 }
 
