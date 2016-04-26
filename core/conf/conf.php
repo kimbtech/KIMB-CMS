@@ -47,6 +47,10 @@ $sitecontent = new system_output($allgsysconf);
 if($allgsysconf['cache'] == 'on'){
 	$sitecache = new cacheCMS($allgsysconf, $sitecontent);
 }
+//wenn FullHTMLCache aktiviert, laden
+if($allgsysconf['fullcache'] == 'on'){
+	$fullsitecache = new FullHTMLCache($allgsysconf);
+}
 
 //Info über das CMS dem HTML-Code hinzufügen
 $kimbcmsinfo = '<!--

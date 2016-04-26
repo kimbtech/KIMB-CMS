@@ -83,7 +83,17 @@ class BEsyseinst{
 			delete_kimb_datei( 'cache/'.$cache );
 		}
 		//Meldung
-		$sitecontent->echo_message( 'Der Cache wurde gelöscht!' );
+		$sitecontent->echo_message( 'Der Cache wurde gelöscht!', 'Systemcache' );
+		
+		//FullHTMLCache
+		if( FullHTMLCache::clear_cache() ){
+			//Meldung
+			$sitecontent->echo_message( 'Der Cache wurde gelöscht!', 'FullHTMLCache' );
+		}
+		else{
+			//Meldung
+			$sitecontent->echo_error( 'Der Cache konnte nicht gelöscht werden!', 'unknown', 'FullHTMLCache' );
+		}
 		
 		return;
 	}

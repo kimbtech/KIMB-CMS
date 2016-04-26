@@ -44,7 +44,8 @@ function autoload_classes( $class ){
 		'BEaddconf' => 'be_do/addon_conf',
 		'BEaddinst' => 'be_do/addon_inst',
 		'Parsedown' => 'parsedown/Parsedown',
-		'ParsedownExtra' => 'parsedown/ParsedownExtra'
+		'ParsedownExtra' => 'parsedown/ParsedownExtra',
+		'FullHTMLCache' => 'full_cache'
 	);
 	
 	//laden der gewünschten Klasse

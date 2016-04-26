@@ -43,6 +43,9 @@ elseif( $allgsysconf['urlrewrite'] == 'on' && !isset($_GET['id']) && $allgsyscon
 //	Die URL für das URL-Rewriting befindet sich hier immer in $_GET['url'], sie wird benutzt, wenn kein ID-Zugriff stattfindet und 
 //	URL-Rewriting aktiviert ist
 if( isset($_GET['url']) && $allgsysconf['urlrewrite'] == 'on' && !isset($_GET['id']) ){
+	
+	//Request per Rewriting merken
+	$reqviarew = true;
 
 	//Unter Other -> Umzug ist es möglich ganze URLs auf bestimmte Seiten des CMS weiterzuleiten, dies erfolgt hier
 	//Lesen der KIMBdbf
@@ -365,6 +368,9 @@ if( isset($_GET['url']) && $allgsysconf['urlrewrite'] == 'on' && !isset($_GET['i
 //Kein URL-Zugriff sondern Zugriff per ID
 elseif( isset($_GET['id']) ){
 	
+	//Request nicht per Rewriting merken
+	$reqviarew = false;
+	
 	//erstmal merken (findet hier nicht über URL-Rewriting)
 	$idreq = true;
 
@@ -545,6 +551,12 @@ else{
 	$allgsiteid = 0;
 	$allgmenueid = 0;
 	$_GET['id'] = '0';
+}
+
+//FullHTMLCache an?
+if( is_object( $fullsitecache ) ){
+	//Daten für den FullHTMLCache definieren
+	$fullsitecache->start_cache( $_GET['id'], $reqviarew, $requestlang['id'] );
 }
 
 ?>
