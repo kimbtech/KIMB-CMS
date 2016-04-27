@@ -1,5 +1,5 @@
 <[about:doc]>KIMB dbf V3.00B - KIMB-technologies<[about:doc]>
-<[001]>sitename==sitefavi==loginokay==siteurl==description==urlweitermeth==adminmail==robots==mailvon==cache==fullcache==sitespr==systemversion==build==urlrewrite==cachelifetime==use_request_url==show_siteinfos==theme==cronkey==lang==coolifetime==smime_cert_ini_folder==smime_cert_ini_name==mail_log==permalink_domain==overview_left==markdown<[001]>
+<[001]>sitename==sitefavi==loginokay==siteurl==description==urlweitermeth==adminmail==robots==mailvon==cache==fullcache==sitespr==systemversion==build==urlrewrite==cachelifetime==fullcachelifetime==use_request_url==show_siteinfos==theme==cronkey==lang==coolifetime==smime_cert_ini_folder==smime_cert_ini_name==mail_log==permalink_domain==overview_left==markdown<[001]>
 <[001-urlweitermeth]>1<[001-urlweitermeth]>
 <[001-robots]>index, follow<[001-robots]>
 <[001-cache]>off<[001-cache]>
@@ -28,3 +28,4 @@
 <[001-overview_left]>on<[001-overview_left]>
 <[001-markdown]>on<[001-markdown]>
 <[001-fullcache]>on<[001-fullcache]>
+<[001-fullcachelifetime]>259200<[001-fullcachelifetime]>

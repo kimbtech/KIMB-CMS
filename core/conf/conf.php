@@ -32,6 +32,12 @@ require_once( __DIR__.'/../oop/all_oop.php' );
 $conffile = new KIMBdbf('config.kimb');
 $allgsysconf = $conffile->read_kimb_id('001');
 
+//wenn FullHTMLCache aktiviert, laden
+//	Add-ons sollen in Funcclass Objektzugriff haben!
+if($allgsysconf['fullcache'] == 'on'){
+	$fullsitecache = new FullHTMLCache($allgsysconf);
+}
+
 //allgemeine Funktionen usw. laden
 require_once(__DIR__.'/funktionen.php');
 
@@ -46,10 +52,6 @@ $sitecontent = new system_output($allgsysconf);
 //wenn Cache aktiviert, cache laden
 if($allgsysconf['cache'] == 'on'){
 	$sitecache = new cacheCMS($allgsysconf, $sitecontent);
-}
-//wenn FullHTMLCache aktiviert, laden
-if($allgsysconf['fullcache'] == 'on'){
-	$fullsitecache = new FullHTMLCache($allgsysconf);
 }
 
 //Info über das CMS dem HTML-Code hinzufügen
@@ -66,5 +68,9 @@ $kimbcmsinfo = '<!--
 -->';
 
 $sitecontent->add_html_header($kimbcmsinfo);
+
+if( is_object( $fullsitecache ) ){
+	$fullsitecache->addon_set( 'on', array( 'GET' => 'dd' ) );
+}
 
 ?>
