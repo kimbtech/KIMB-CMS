@@ -41,8 +41,8 @@ class FullHTMLCache{
 	protected $filesdir, $allgsysconf;
 	
 	//speziell zu diesem Aufruf
-	//	SeitenID, URL Rewrite an?, Seitensprache, Cache an?, Wünsche von Add-ons?
-	protected $requid, $rewrite, $lang, $status = null, $other = array();
+	//	SeitenID, URL Rewrite an?, Seitensprache, Cache an?, Wünsche von Add-ons fertig?, Wünsche add-ons PreSaved
+	protected $requid, $rewrite, $lang, $status = null, $other = array(), $other_pre = array();
 	
 	//allgeines schonmal setzen
 	public function __construct( $allgsysconf ){
@@ -71,6 +71,10 @@ class FullHTMLCache{
 		$this->requid = $requid;
 		$this->rewrite = $rewrite; 
 		$this->lang = $lang;
+		
+		//Wünsche, Mitteilungen der Add-ons passend laden
+		//	Status wird evtl. auf false gesetzt, wenn Add-ons das wollen!
+		$this->addon_load_set();
 		
 		//Status schon gesetzt?
 		if( $this->status == null ){
@@ -175,37 +179,117 @@ class FullHTMLCache{
 	
 	//Add-on Mitteilung
 	//	Ein Add-on kann den Cache für eine Seite (auf der es Inhalte hat) bearbeiten
+	//		$requestid => RequestID bei deren Aufruf die Wünsche gelten sollen ('a' => immer)
 	//		$mode => on, off 
 	//			(Modus des Cache setzen => Ganz normal an, Cache komplett deaktivieren )
 	//		$aufp = Array(
-	//				'POST' => ,
-	//				'GET' =>,
-	//				'COOKIE' =>
+	//				'POST' => Array( 'attribut1', 'attribut2' ),
+	//				'GET' => Array( 'attribut1' ),
+	//				'COOKIE' => Array()
 	//			);
 	//			(Der Cache kann zwischen bestimmten Fällen unterscheiden)
 	//			(Es wird ein Array übergeben, welches die Cache vorschreiben kann, was neben der URL/RequestID
 	//			eines Aufrufs noch identisch sein muss, damit er die gleichen Inhalte ausspucken kann.)
 	//			(Es wird für als Key POST/ GET/ COOKIE genommen und als Value das Attribut welches geleich sein soll.)
-	//	=> Die Mitteilung soll per Add-on Funcclass auf das Objekt "$fullsitecache" gesendet werden (Objekt vorher mit is_object() prüfen.)!
-	public function addon_set( $mode = 'on', $aufp = array() ){
-		//Cache soll aus?
-		if( $mode == 'off' ){
-			//gleich aus machen
-			$this->end_cache();
+	//	=> Die Mitteilungen werden vom System erstellt, das Add-on kann sie über die Klasse "ADDonAPI" melden.
+	public function addon_set( $requestid , $mode = 'on', $aufp = array( 'POST' => array(), 'GET' => array(), 'COOKIE' => array() ) ){
+		//Überhaupt noch möglich/ sinnvoll Wünsche zu äußern
+		//	dies muss vor $this->start_cache(); sein
+		if( $this->other == array() ){
+			//Überall oder für best. ID?
+			if( $requestid == 'a' ){
+				$pretag = 'a';
+			}
+			//ID eine richtige Zahl?
+			elseif( is_numeric( $requestid ) ){
+				$pretag = $requestid;
+			}
+			else{
+				return false;
+			}
+			//Array für Infos je RestID machen 
+			$this->other_pre[$pretag] = array();
+			
+			//Cache soll aus?
+			if( $mode == 'off' ){
+				//Immer auf aus stellen (für diese ID)
+				$this->other_pre[$pretag]['status'] = false;
+			}
+			else{
+				//Status schon gesetzt?
+				if( !isset( $this->other_pre[$pretag]['status'] ) ){
+					//nein, also auf an setzen
+					$this->other_pre[$pretag]['status'] = true;
+				}
+				
+				//Daten Array lesen
+				foreach( $aufp as $art => $attrs ){
+					//Array IDs okay?
+					if( in_array( $art, array( 'POST', 'GET', 'COOKIE' ) ) ){
+						
+						//Array Other Pre mit $art erweitern 
+						if( !is_array( $this->other_pre[$pretag][$art] ) ){
+							//anlegen
+							$this->other_pre[$pretag][$art] = array();
+						}
+						
+						//Alle wichtigen Arrtibute aus Array $attrs lesen
+						foreach ($attrs as $attr) {
+							//wird Attribut schon als wichtig geführt?
+							if( !in_array( $attr, $this->other_pre[$pretag][$art] ) ){
+								//neues Attribut anfügen
+								$this->other_pre[$pretag][$art][] = $attr;
+							}
+						}
+					}
+					else {
+						//Falsche Übergabevals
+						return false;
+					}
+				}
+				
+				//Array erfolgeich erweitert
+				return true;
+				
+			}
 		}
 		else{
-			//Daten lesen
+			//Umsetzung der Wünsche nicht mehr möglich
+			return false;
+		}
+	}
+	
+	//Other_pre enthält die Wünsche der Add-ons,
+	//diese jetzt für den Cache parsen
+	//	Diese Funktion wird von $this->start_cache(); ausgeführt.
+	protected function addon_load_set(){
+		//Allgemeine Daten (für alle Request IDs) gesetzt
+		if( is_array( $this->other_pre['a'] ) && $this->other_pre['a'] != array() ){
+			//Array zusammenbauen
+			$this->other = array_merge_recursive( $this->other, $this->other_pre['a'] );
 			
-			//alle möglichen Datenarten durchgehen
-			foreach( array( 'POST', 'GET', 'COOKIE' ) as $art ){
-				//aktuelle Datenart im Array wichtig?
-				if( isset( $aufp[$art] ) ){
-					// gewünschtes POST Attribut merken
-					$this->other[$art][] = $aufp[$art];
-				}
+			//Status auf aus?
+			if( $this->other_pre['a']['status'] == false ){
+				//Cache stoppen
+				$this->status = false;	
+			}
+		}
+		
+		//Daten für die aktuelle Seite gewünscht
+		if( is_array( $this->other_pre[$this->requid] ) && $this->other_pre[$this->requid] != array() ){
+			//Array zusammenbauen
+			$this->other = array_merge_recursive( $this->other, $this->other_pre[$this->requid] );
+			
+			//Status auf aus?
+			if( $this->other_pre[$this->requid]['status'] == false ){
+				//Cache stoppen
+				$this->status = false;	
 			}
 			
 		}
+		
+		//Okay, weiter geht's
+		return true;
 	}
 	
 	//Versuchen den passenden Cache für diese Seite zu laden
@@ -243,66 +327,47 @@ class FullHTMLCache{
 								$othervalues = array();
 								
 								//	alle möglichen Arten durchgehen
-								foreach( array( 'POST', 'GET', 'COOKIE' ) as $art ){
+								foreach( array( 'POST', 'GET', 'COOKIE' ) as $arrid => $art ){
 									//Attribute der art anschauen
 									foreach( $this->other[$art] as $attr ){
 										
-										//Je nach Art
-										if( $art == 'POST' ){
-											//Gewünschtes Attribut in Cache Datei gegeben?
-											if( isset( $data['info'][0][$attr] ) ){
-												//aktueller Wert auch wie in 
-												if( $_POST[$attr] == $data['info'][0][$attr] ){
-													//passt
-													$othervalues[] = true;
-												}
-												else{
-													//passt nicht
-													$othervalues[] = false;	
-												}
-											}
-											else{
-												//passt nicht
-												$othervalues[] = false;	
-											}
-										}
-										elseif( $art == 'GET' ){
-											//Gewünschtes Attribut in Cache Datei gegeben?
-											if( isset( $data['info'][1][$attr] ) ){
-												//aktueller Wert auch wie in 
-												if( $_GET[$attr] == $data['info'][1][$attr] ){
-													//passt
-													$othervalues[] = true;
-												}
-												else{
-													//passt nicht
-													$othervalues[] = false;	
-												}
-											}
-											else{
-												//passt nicht
-												$othervalues[] = false;	
-											}
-										}
-										elseif( $art == 'COOKIE' ){
-											//Gewünschtes Attribut in Cache Datei gegeben?
-											if( isset( $data['info'][2][$attr] ) ){
-												//aktueller Wert auch wie in 
-												if( $_COOKIE[$attr] == $data['info'][2][$attr] ){
-													//passt
-													$othervalues[] = true;
-												}
-												else{
-													//passt nicht
-													$othervalues[] = false;	
-												}
-											}
-											else{
-												//passt nicht
-												$othervalues[] = false;	
-											}
-										}
+										//Name der passenden globalen Var
+										$varname = '_'.$art;
 										
+										$debug = array(
+											isset( $data['info'][$arrid][$attr] ),
+											isset( ${$varname}[$attr] ),
+											$data['info'][$arrid][$attr],
+											${$varname}[$attr],
+											$_GET[$attr]
+										);
+										
+										
+										//Gewünschtes Attribut in Cache Datei gegeben und bei diesem Aufruf
+										if( isset( $data['info'][$arrid][$attr] )  && isset( ${$varname}[$attr] ) ){
+											//aktueller Wert auch wie in 
+											if( ${$varname}[$attr] == $data['info'][$arrid][$attr] ){
+												//passt (Inhalte gleich)
+												$othervalues[] = true;
+											}
+											else{
+												//passt nicht
+												$othervalues[] = false;	
+											}
+										}
+										elseif(
+											//Gewünschtes Attribut in Cache Datei gegeben und nicht bei diesem Aufruf
+											( isset( $data['info'][$arrid][$attr] )  && !isset( ${$varname}[$attr] ) ) ||
+											//Gewünschtes Attribut nicht in Cache Datei gegeben und bei diesem Aufruf
+											( !isset( $data['info'][$arrid][$attr] )  && isset( ${$varname}[$attr] ) )
+										){
+											//passt nicht
+											$othervalues[] = false;	
+										}
+										else{
+											//passt (beide leer)
+											$othervalues[] = true;	
+										}
 									}
 								}
 								

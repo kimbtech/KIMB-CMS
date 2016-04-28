@@ -70,7 +70,7 @@ $kimbcmsinfo = '<!--
 $sitecontent->add_html_header($kimbcmsinfo);
 
 if( is_object( $fullsitecache ) ){
-	$fullsitecache->addon_set( 'on', array( 'GET' => 'dd' ) );
+	$fullsitecache->addon_set( 1 ,'on', array( 'GET' => array( 'dd' ) ) );
 }
 
 ?>
