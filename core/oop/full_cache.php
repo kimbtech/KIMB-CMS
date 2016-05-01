@@ -77,7 +77,7 @@ class FullHTMLCache{
 		$this->addon_load_set();
 		
 		//Status schon gesetzt?
-		if( $this->status == null ){
+		if( $this->status === null ){
 			//Nein, Cache auf an setzen
 			$this->status = true;
 		}
@@ -207,8 +207,10 @@ class FullHTMLCache{
 			else{
 				return false;
 			}
-			//Array für Infos je RestID machen 
-			$this->other_pre[$pretag] = array();
+			//Array für Infos je RestID machen
+			if( !is_array( $this->other_pre[$pretag] ) ){ 
+				$this->other_pre[$pretag] = array();
+			}		
 			
 			//Cache soll aus?
 			if( $mode == 'off' ){
@@ -288,6 +290,9 @@ class FullHTMLCache{
 			
 		}
 		
+		//Statusdaten schon verarbeitet
+		unset( $this->other['status'] );
+		
 		//Okay, weiter geht's
 		return true;
 	}
@@ -326,13 +331,18 @@ class FullHTMLCache{
 								//Othervalues
 								$othervalues = array();
 								
+								//GET, COOKIE, POST für unten in andere Var
+								$GET = $_GET;
+								$POST = $_POST;
+								$COOKIE = $_COOKIE;
+								
 								//	alle möglichen Arten durchgehen
 								foreach( array( 'POST', 'GET', 'COOKIE' ) as $arrid => $art ){
 									//Attribute der art anschauen
 									foreach( $this->other[$art] as $attr ){
 										
 										//Name der passenden globalen Var
-										$varname = '_'.$art;
+										$varname = $art;
 										
 										$debug = array(
 											isset( $data['info'][$arrid][$attr] ),
