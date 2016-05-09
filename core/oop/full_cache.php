@@ -72,6 +72,10 @@ class FullHTMLCache{
 		$this->rewrite = $rewrite; 
 		$this->lang = $lang;
 		
+		//Add-on Wünsche per ADDonAPI Klasse gesetzt
+		//müssen jetzt geladen werden
+		$this->load_addonwish_kimbdbf();
+		
 		//Wünsche, Mitteilungen der Add-ons passend laden
 		//	Status wird evtl. auf false gesetzt, wenn Add-ons das wollen!
 		$this->addon_load_set();
@@ -460,5 +464,47 @@ class FullHTMLCache{
 		
 		//Output Buffering nutzen
 		return ob_start();
+	}
+	
+	//Diese Funktion lädt die von den Add-ons mit der ADDonAPI
+	//geäußerten Wünsche aus der fullcache.kimb.
+	protected function load_addonwish_kimbdbf(){
+		
+		//Datei mit Wünschen
+		$fullcache = new KIMBdbf('addon/wish/fullcache.kimb');
+		//Datei mit aktiven Add-ons
+		$addoninclude = new KIMBdbf('addon/includes.kimb');
+		
+		//alle aktivierten Add-ons (auf dem FE)
+		$all = $addoninclude->read_kimb_all_teilpl( 'fe_first' );
+		
+		//alle IDs in der Wunschdatei lesen
+		$ids = $fullcache->read_kimb_all_teilpl( 'allidslist' );
+		
+		//alle Wünsche durchgehen
+		foreach( $ids as $id ){
+			//Datensatz lesen
+			$data = $fullcache->read_kimb_id( $id );
+			
+			//Add-on mit diesem Datensatz auch geladen?
+			if( in_array( $data['addon'], $all) ){
+				
+				//zu Array
+				$data = json_decode( $data['array'], true );
+				
+				//alle Wünsche durchgehen
+				foreach( $data as $k => $v){
+					
+					//und in FullCache Klasse/ Objekt laden
+					$this->addon_set( $k , $v[0], $v[1] );
+					
+				}
+				
+			}
+		}
+		
+		//Okay
+		return true;
+		
 	}
 }
