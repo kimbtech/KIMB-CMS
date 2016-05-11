@@ -219,7 +219,11 @@ class BEaddinst{
 			}
 		}
 		
-		//Medlung
+		//Add-on Wish leeren
+		$wish = new ADDonAPI( $addon );
+		$wish->del();
+		
+		//Meldung
 		$sitecontent->echo_message( 'Das Add-on "'.$addon.'" wurde gelöscht!' );
 	}
 	
