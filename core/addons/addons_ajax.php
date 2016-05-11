@@ -27,6 +27,9 @@ defined('KIMB_CMS') or die('No clean Request');
 
 //Add-on Ajax Einbindung
 
+//Auch versch. Sprache der Bedienelemente erlauben
+require_once( __DIR__.'/../trans/trans_do.php' );
+
 //Add-on gewählt?
 if( !empty( $_GET['addon'] ) ){
 
@@ -42,6 +45,17 @@ if( !empty( $_GET['addon'] ) ){
 		if(strpos( $_GET['addon'] , "..") !== false){
 			echo ('Do not hack me!!');
 			die;
+		}
+		
+		//Übersetzung des Add-ons laden
+		//	nicht jedes Add-on hat Übersetzungen
+		if( is_file( __DIR__.'/'.$_GET['addon'].'/lang_'.$allgsys_sitespr.'.ini' ) ){
+			//als INI Datei mit richtiger Sprache laden
+			$allgsys_trans['addons'][$name] = parse_ini_file( __DIR__.'/'.$_GET['addon'].'/lang_'.$allgsys_sitespr.'.ini', true );	
+		}
+		elseif( is_file( __DIR__.'/'.$_GET['addon'].'/lang_en.ini' ) ){
+			//im Notfall Fallback EN
+			$allgsys_trans['addons'][$name] = parse_ini_file( __DIR__.'/'.$_GET['addon'].'/lang_en.ini', true );	
 		}
 
 		//Add-on Datei einbinden
