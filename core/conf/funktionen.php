@@ -1244,11 +1244,10 @@ function make_path_outof_reqid( $requid ){
 //	Rückgabe => boolean
 //	$addon => Name (ID) des zu testenden Add-ons
 //	$addoninclude => KIMBdbf includes.kimb
-//	$allinclpar => Array aus BEaddinst->allinclpar
-function check_addon_status( $addon, $addoninclude, $allinclpar ){
+function check_addon_status( $addon, $addoninclude ){
 
 	//alle Include Stellen durchgehen
-	foreach( $allinclpar as $par ){
+	foreach( BEaddinst::$allinclpar as $par ){
 
 		//nach Add-on und Stelle suchen
 		if( $addoninclude->read_kimb_search_teilpl( $par , $addon ) ){
@@ -1259,6 +1258,37 @@ function check_addon_status( $addon, $addoninclude, $allinclpar ){
 	}
 	//nicht gefunden, deaktiviert
 	return false;
+}
+
+//Add-on Infos holen
+//	$nameid => Naem des Add-ons
+//	Rückgabe: Array( bool, bool );
+//		Index 0: Add-on installiert
+//		Index 1: Add-on aktiviert
+function check_addon( $nameid ){
+	
+	//NameID okay?
+	if( preg_match( "/[^a-z_]/" , $nameid ) === 0 ){
+	
+		//Ordner des Add-ons vorhnaden?
+		//	dann installiert!
+		if( is_dir( __DIR__.'/../addons/'.$nameid.'/' ) ){
+			$inst = true;
+		}
+		else{
+			$inst = false;
+		}
+		
+		//Status prüfen
+		$stat = check_addon_status( $nameid, new KIMBdbf( 'addon/includes.kimb' ) );
+		
+		//Rückgabe
+		return array( $inst, $stat );
+	}
+	else{
+		//NameID unpassend
+		return false;
+	}
 }
 
 //Die RequestURL ohne alles nach dem ? extrahieren

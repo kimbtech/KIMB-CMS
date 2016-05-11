@@ -33,7 +33,7 @@ class BEaddinst{
 	protected $allgsysconf, $sitecontent, $addoninclude, $jsobject;
 	
 	//Add-on API Einbindungsstellen
-	public $allinclpar = array( 'ajax', 'cron', 'funcclass', 'be', 'fe');
+	public static $allinclpar = array( 'ajax', 'cron', 'funcclass', 'be', 'fe');
 	
 	public function __construct( $allgsysconf, $sitecontent, $addoninclude, $tabelle = true ){
 		$this->allgsysconf = $allgsysconf;
@@ -62,7 +62,7 @@ class BEaddinst{
 		
 		//alle Add-on API Einbindungsstellen aktivieren oder deaktivieren
 		//	jede Stelle einzeln testen (wenn in der Liste, Addon aktiviert)
-		foreach( $this->allinclpar as $par ){
+		foreach( self::$allinclpar as $par ){
 			
 			//Add-on in Liste?
 			if( !$addoninclude->read_kimb_search_teilpl( $par , $addon ) ){
@@ -213,7 +213,7 @@ class BEaddinst{
 			rm_r( __DIR__.'/../../../load/addondata/'.$addon.'/' );
 		}
 		//alle API Einbindungsstellen deaktivieren
-		foreach( $this->allinclpar as $par ){
+		foreach( self::$allinclpar as $par ){
 			if ( $addoninclude->read_kimb_search_teilpl( $par , $addon ) ){
 				$addoninclude->write_kimb_teilpl( $par , $addon , 'del' );
 			}
@@ -372,7 +372,7 @@ class BEaddinst{
 	
 			//je nach Status X oder V anzeigen
 			//	Link um Status zu ändern
-			if ( check_addon_status( $addon, $addoninclude, $this->allinclpar) ){
+			if ( check_addon_status( $addon, $addoninclude ) ){
 				$status = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_inst.php?todo=chdeak&amp;addon='.$addon.'"><span class="ui-icon ui-icon-check" style="display:inline-block;" title="Dieses Add-on ist zu Zeit aktiviert. ( click -> ändern )"></span></a>';
 			}
 			else{
