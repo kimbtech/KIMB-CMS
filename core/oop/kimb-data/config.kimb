@@ -27,5 +27,5 @@
 <[001-permalink_domain]>off<[001-permalink_domain]>
 <[001-overview_left]>on<[001-overview_left]>
 <[001-markdown]>on<[001-markdown]>
-<[001-fullcache]>on<[001-fullcache]>
+<[001-fullcache]>off<[001-fullcache]>
 <[001-fullcachelifetime]>259200<[001-fullcachelifetime]>

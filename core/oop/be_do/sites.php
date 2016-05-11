@@ -441,7 +441,7 @@ class BEsites{
 		//Eingabefelder
 		$sitecontent->add_site_content('<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=edit&amp;id='.$_GET['id'].'&amp;langid='.$_GET['langid'].'" method="post"><br />');
 		$sitecontent->add_site_content('<input type="text" value="'.$seite['title'].'" name="title" style="width:74%;"> <i>Seitentitel</i><br />');
-		$sitecontent->add_site_content('<div style="position:relative;" ><textarea name="header" style="width:74%; height:50px;">'.htmlentities( $seite['header'], ENT_COMPAT | ENT_HTML401,'UTF-8' ).'</textarea><span style="position:absolute; top:0; left:75.5%;"> <i>HTML Header</i>');
+		$sitecontent->add_site_content('<div style="position:relative;" ><textarea name="header" style="width:74%; height:50px;">'.htmlentities( $seite['header'], ENT_COMPAT | ENT_HTML401,'UTF-8' ).'</textarea><span style="position:absolute; top:0; left: calc( 74% + 16px );"> <i>HTML Header</i>');
 			//JavaScript Bibilotheken einfach wählen für den Header
 			$sitecontent->add_site_content('<br /> <select id="libs">');
 			$sitecontent->add_site_content('<option value=""></option>');
@@ -453,7 +453,7 @@ class BEsites{
 			unset( $out );
 			$sitecontent->add_site_content('</select><span class="ui-icon ui-icon-info" style="display:inline-block;" title="Fügen Sie Ihrer Seite ganz einfach eine JavaScript-Bibilothek hinzu." ></span></span></div>');
 		$sitecontent->add_site_content('<input type="text" value="'.$seite['keywords'].'" name="keywords" style="width:74%;"> <i>Keywords</i><br />');
-		$sitecontent->add_site_content('<div style="position:relative;" ><textarea name="description" style="width:74%; height:50px;">'.$seite['description'].'</textarea><span style="position:absolute; top:0; left:75.5%;"> <i>Description</i></span></div>');
+		$sitecontent->add_site_content('<div style="position:relative;" ><textarea name="description" style="width:74%; height:50px;">'.$seite['description'].'</textarea><span style="position:absolute; top:0; left: calc( 74% + 16px );"> <i>Description</i></span></div>');
 		$sitecontent->add_site_content('<textarea name="inhalt" id="inhalt" style="width:99%; height:300px;">'.$seite['inhalt'].'</textarea> <i>Inhalt &uarr;</i> <br />');
 		$sitecontent->add_site_content('<textarea name="footer" id="footer" style="width:99%; height:75px;">'.$seite['footer'].'</textarea> <i>Footer &uarr;</i> <br />');
 		$sitecontent->add_site_content('<input type="text" readonly="readonly" value="'.$seite['time'].'" name="time" style="width:74%;"> <i>Zuletzt geändert</i><br />');
