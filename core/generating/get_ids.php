@@ -556,7 +556,7 @@ else{
 //FullHTMLCache an?
 if( is_object( $fullsitecache ) ){
 	//Daten für den FullHTMLCache definieren
-	$fullsitecache->start_cache( $_GET['id'], $reqviarew, $requestlang['id'] );
+	$fullsitecache->start_cache( $_GET['id'], $reqviarew, $requestlang['id'], $allgsys_sitespr );
 }
 
 ?>

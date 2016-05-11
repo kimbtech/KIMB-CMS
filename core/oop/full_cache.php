@@ -42,7 +42,7 @@ class FullHTMLCache{
 	
 	//speziell zu diesem Aufruf
 	//	SeitenID, URL Rewrite an?, Seitensprache, Cache an?, Wünsche von Add-ons fertig?, Wünsche add-ons PreSaved
-	protected $requid, $rewrite, $lang, $status = null, $other = array(), $other_pre = array();
+	protected $requid, $rewrite, $lang, $spr, $status = null, $other = array(), $other_pre = array();
 	
 	//allgeines schonmal setzen
 	public function __construct( $allgsysconf ){
@@ -60,17 +60,19 @@ class FullHTMLCache{
 	//Cache beginnen (Ausgabe aufnehmen oder vorhanden Cache ausgeben )
 	//	$requid => Request ID der aktuellen Seite (INT/err404/err403)
 	//	$rewrite => Zugriff per URL-Rewriting (true/false)
-	//	$lang => ID der Sprache des Aufrufs 
+	//	$lang => ID der Sprache des Aufrufs (Inhalt)
+	//	$spr => Sprache der Seitenelemente (nicht Inhalt)
 	//	Rückgabe true/ false
 	//		Skript wird beendet, wenn alter Cache erfolgreich geladen
 	//		Cache wird durch diesen Aufruf bei true gefüllt und bei flase nicht,
 	//			das Skript sollte aber trotzdem nicht unterbrochen werden.
-	public function start_cache( $requid, $rewrite, $lang ){
+	public function start_cache( $requid, $rewrite, $lang, $spr ){
 		
 		//Übergaben als Klassenvar
 		$this->requid = $requid;
 		$this->rewrite = $rewrite; 
 		$this->lang = $lang;
+		$this->spr = $spr;
 		
 		//Add-on Wünsche per ADDonAPI Klasse gesetzt
 		//müssen jetzt geladen werden
@@ -133,6 +135,7 @@ class FullHTMLCache{
 				'id' => $this->requid,
 				'rew' => $this->rewrite,
 				'lang' => $this->lang,
+				'spr' => $this->spr,
 				'info' => array( $_POST, $_GET, $_COOKIE ),
 				'time' => time(),
 				'filename' => uniqid( makepassw( 2 ,'abcdefghijklmnop') )
@@ -325,7 +328,8 @@ class FullHTMLCache{
 					if( 
 						$data['id'] == $this->requid &&
 						$data['rew'] == $this->rewrite &&
-						$data['lang'] == $this->lang
+						$data['lang'] == $this->lang &&
+						$data['spr'] == $this->spr
 					){
 						//Cache Alter okay
 						if( $data['time'] + $this->allgsysconf['fullcachelifetime'] >= time() ){

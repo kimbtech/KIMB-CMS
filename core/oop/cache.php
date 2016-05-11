@@ -153,7 +153,7 @@ class cacheCMS{
 	
 	//Seite in den Cache legen
 	//	sinvoll, da das Parsen von Markdown Leistung braucht!!
-	public function cache_site( $id, $langid, $seite, $trans ){
+	public function cache_site( $id, $langid, $seite, $sprachefehlt = false ){
 		//beim ersten Aufruf eine Seitencachedatei laden
 		if(!is_object($this->sitefile)){	
 			if( $langid != 0 ){
@@ -167,19 +167,21 @@ class cacheCMS{
 		$this->sitefile->delete_kimb_file( );
 		$this->sitefile->write_kimb_one( 'time' , time() );
 		
+		//Hinweis, das Übersetzung fehlt anzeigen??
+		$seite['sprachefehlt'] = $sprachefehlt;
+		
 		//Arrays zu Strings 
 		$seite = json_encode( $seite );
-		$trans = json_encode( $trans );
 		
 		//Daten speichern
 		$this->sitefile->write_kimb_one( 'seite' , $seite );
-		$this->sitefile->write_kimb_one( 'trans' , $trans );
 		
 		return true;
 	}
 	
 	//Seite aus Cache laden
-	public function load_cached_site($id, $langid = 0){
+	//	=> $trans muss hier immer neu übergeben werden, da es nicht von der Seitensprache abhängig ist!
+	public function load_cached_site($id, $trans , $langid = 0){
 		//beim ersten Aufruf eine Seitencachedatei laden
 		if(!is_object($this->sitefile)){	
 			if( $langid != 0 ){
@@ -197,15 +199,19 @@ class cacheCMS{
 			//	auslesen
 			
 			//Daten aus dbf lesen
-			$seite= $this->sitefile->read_kimb_one( 'seite' );
-			$trans = $this->sitefile->read_kimb_one( 'trans' );			
+			$seite= $this->sitefile->read_kimb_one( 'seite' );			
 			
 			//Arrays zu Strings 
 			$seite = json_decode( $seite, true );
-			$trans = json_decode( $trans, true );
+			
+			//Nicht jede Seite ist in alle Sprachen übersetzt, sollte dies nicht der Fall sein, wird eine Meldung angezeit und die Seite in der Standardsprache geladen 
+			if( $seite['sprachefehlt'] ){
+				//Meldung
+				$this->sitecontent->echo_error( $trans['make_content']['err03'], 'unknown', $trans['make_content']['err04'] );
+			}
 					
 			//Seite gleich hinzufügen
-			$this->sitecontent->add_site($seite, $trans );
+			$this->sitecontent->add_site($seite, $trans['output'] );
 		
 			return true;
 		}
@@ -215,7 +221,7 @@ class cacheCMS{
 	//Cache einer Seite löschen
 	//	$id => SiteID, deren Cache geleert werden soll
 	//	$lang => Sprachversion, die gelöscht werden soll
-	public function del_cache_site( $id, $lang = 0 ){
+	public function del_cache_site( $id, $langid = 0 ){
 		
 		//Cachedateinamen je nach Sprache wählen
 		if( $langid != 0 ){

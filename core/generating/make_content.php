@@ -48,7 +48,7 @@ elseif( is_object( $sitefile ) && !isset( $allgerr ) ){
 	//Cache aktiviert?
 	if( $allgsysconf['cache'] == 'on' ){
 		//versuchen den Cache zu laden
-		$thissitecache =  $sitecache->load_cached_site( $allgsiteid, $requestlang['id'] );
+		$thissitecache =  $sitecache->load_cached_site( $allgsiteid, $allgsys_trans, $requestlang['id'] );
 	}
 	else{
 		//Fehler (kein Cache)
@@ -57,6 +57,10 @@ elseif( is_object( $sitefile ) && !isset( $allgerr ) ){
 
 	//Wenn Fehler beim Cache (z.B. nicht drin oder schon zu alt, neu machen )
 	if( !$thissitecache ){
+		
+		//Erstmal davon ausgehen, dass Übersetzung vorhanden
+		$sprachefehlt = false;
+		
 		//Bei mehrsprachigen Seiten, die richige Version wählen
 		if( $allgsysconf['lang'] == 'on' && $requestlang['id'] != 0 ){
 			
@@ -74,6 +78,8 @@ elseif( is_object( $sitefile ) && !isset( $allgerr ) ){
 				$sitecontent->echo_error( $allgsys_trans['make_content']['err03'], 'unknown', $allgsys_trans['make_content']['err04'] );
 				//normale Tags nutzen
 				$normtags = true;
+				//Hinweis wird gezeigt (keine Übersetzung für diese Seite)
+				$sprachefehlt = true;
 			}
 		}
 		else{
@@ -119,7 +125,7 @@ elseif( is_object( $sitefile ) && !isset( $allgerr ) ){
 		//Cache aktiviert?
 		if( $allgsysconf['cache'] == 'on' ){
 			//Seite in den Cache
-			$sitecache->cache_site($allgsiteid, $requestlang['id'], $seite, $allgsys_trans['output'] );
+			$sitecache->cache_site($allgsiteid, $requestlang['id'], $seite, $sprachefehlt );
 		}
 	}
 }
