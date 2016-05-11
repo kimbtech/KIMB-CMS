@@ -298,6 +298,9 @@ class BEaddinst{
 			//	Update?
 			if( compare_cms_vers( $oldini['inst']['addonversion'], $addonini['inst']['addonversion'] ) == 'older' ){
 				$sitecontent->echo_message( 'Das Add-on "'.$name.'" wurde mit dieser Installation aktualisiert!' );
+				
+				//ein Update!
+				$addonupdate = true;
 			}
 			else{
 				rm_r( __DIR__.'/../../addons/temp/' );
@@ -330,6 +333,12 @@ class BEaddinst{
 	
 		//Meldung, wenn alles OK
 		$sitecontent->echo_message( 'Das Add-on "'.$name.'" wurde installiert!' );
+		
+		//Update gemacht?
+		if( isset( $addonupdate ) && $addonupdate ){
+				//Jetzt nochmal neu nach Updates suchen
+				$this->check_addon_upd();
+		}
 	}
 	
 	//Liste mit allen Add-ons anzeigen (inkl. Link für Updatecheck, Löchen, Informationen und Status)
@@ -382,7 +391,7 @@ class BEaddinst{
 			//Updateinfos lesen
 			if( empty( $updinfos[$addon] ) ){
 				//Leer -> keine Infos oder zu alt
-				$upd = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_inst.php?todo=checkall"><span class="ui-icon ui-icon-help" style="display:inline-block;" title="Bitte klicken Sie für eine Abfrage! ( Wenn Sie gerade eine Abfrage gemacht haben, ist dieses Add-on nicht in der Datenbank! )"></span></a>';
+				$upd = '<span class="ui-icon ui-icon-help" style="display:inline-block;" title="Keine aktuellen Daten! (Bitte prüfen Sie mit dem Button unten nach Updates!) [Sollten Sie gerade eine Abfrage gemacht haben, ist dieses Add-on nicht in der Datenbank!]"></span>';
 			}
 			elseif( $updinfos[$addon] == 'noup' ){
 				//kein Update V
@@ -405,6 +414,9 @@ class BEaddinst{
 		if( $liste != 'yes' ){
 			$sitecontent->echo_error( 'Es wurden keine Add-ons gefunden!' );
 		}
+		
+		//Nach Updates prüfen Button
+		$sitecontent->add_site_content( '<p><a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_inst.php?todo=checkall"><button>Add-ons auf Updates prüfen</button></a></p>' );
 	
 		//HTML Form um Add-ons für die Installation hoch zu laden
 		$sitecontent->add_site_content('<br /><br /><h2>Add-on installieren</h2>');
