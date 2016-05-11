@@ -53,6 +53,24 @@ class BEaddconf{
 		}
 	} 
 	
+	//Ist die BE Conf Datei des Add-ons okay?
+	protected function be_conffile_okay( $addon, $way ){
+		
+		//Hat das Add-on überhaupt diese Konfigurationsoberfläche?
+		if( is_file( __DIR__.'/../../addons/'.$addon.'/conf_'.$way.'.php' ) ){
+				
+			//BE Conf Datei Zeilenanzahl prüfen (bei alten Add-ons fehlt die Datei nicht)
+			if( count( file( __DIR__.'/../../addons/'.$addon.'/conf_'.$way.'.php' ) ) > 35 ){
+				//Datei okay
+				return true;
+			}
+			
+		}
+		
+		//Datei nicht okay
+		return false;
+	}
+	
 	//Liste der Add-ons erstellen
 	//	Rückgabe => Tabelle
 	//	$way => more, less (je nach Zugriffsrecht)
@@ -67,12 +85,21 @@ class BEaddconf{
 		//Tabelle mit den Links und der Add-on NameID erstellen 
 		$ret = '<table width="100%"><tr> <th>Add-on</th> </tr>';
 
+		//Alle installierten Add-ons durchgehen
 		$addons = listaddons();
 		foreach( $addons as $addon ){
 			
-			$ret .= '<tr> <td><a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo='.$way.'&amp;addon='.$addon.'">'.$addon.'</a></td> </tr>';
+			//BE Conf okay?
+			if( $this->be_conffile_okay( $addon, $way ) ){
 
-			$liste = 'yes';
+				$ret .= '<tr>';
+				$ret .= '<td>';
+				$ret .= '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo='.$way.'&amp;addon='.$addon.'">'.$this->get_addon_name( $addon ).'</a>';
+				$ret .= '</td>';
+				$ret .= '</tr>';
+
+				$liste = 'yes';
+			}
 
 		}
 		$ret .= '</table>';
@@ -99,11 +126,21 @@ class BEaddconf{
 	
 			$sitecontent->add_site_content('<h2>Add-on "'.$addonname.'" nutzen</h2>');
 			$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=less">&larr; Alle Add-ons</a>');
-			//wenn auch Rechte für more, Link dorthin zeigen
-			if( check_backend_login( 'fourteen' , 'more', false) ){
+			
+			if(
+				//wenn auch Rechte für more, Link dorthin zeigen
+				check_backend_login( 'fourteen' , 'more', false) &&
+				//Datei more überhaupt vorhanden?
+				$this->be_conffile_okay( $_GET['addon'], 'more' )
+			){
 				$sitecontent->add_site_content('<a style="position:absolute; right:12px;" href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=more&addon='.$_GET['addon'].'">Zur Add-on Konfiguration &rarr;</a>');
 			}
 			$sitecontent->add_site_content('<hr />');
+			
+			//Meldung wenn Add-on nicht aktivert
+			if( check_addon( $_GET['addon'] ) == array( true, false ) ){
+				$sitecontent->echo_error( 'Dieses Add-on ist aktuell nicht aktivert!', 'unknown', 'Add-on nicht aktiv' );
+			}
 	
 			//Add-on Konfigurationsdatei laden
 			if( file_exists(__DIR__.'/../../addons/'.$_GET['addon'].'/conf_less.php') ){
@@ -136,9 +173,21 @@ class BEaddconf{
 
 			$sitecontent->add_site_content('<h2>Add-on "'.$addonname.'" konfigurieren</h2>');
 			$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=more">&larr; Alle Add-ons</a>');
-			//wenn auch Rechte für less, Link dorthin zeigen
-			if( check_backend_login( 'thirteen' , 'less', false) ){
-				$sitecontent->add_site_content('<a style="position:absolute; right:12px;" href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=less&addon='.$_GET['addon'].'">Zur Add-on Nutzung &rarr;</a><hr />');
+			
+			if(
+				//wenn auch Rechte für less, Link dorthin zeigen
+				check_backend_login( 'thirteen' , 'less', false) &&
+				//Datei more überhaupt vorhanden?
+				$this->be_conffile_okay( $_GET['addon'], 'less' )
+			){
+				$sitecontent->add_site_content('<a style="position:absolute; right:12px;" href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=less&addon='.$_GET['addon'].'">Zur Add-on Nutzung &rarr;</a>');
+			}
+			
+			$sitecontent->add_site_content('<hr />');
+	
+			//Meldung wenn Add-on nicht aktivert
+			if( check_addon( $_GET['addon'] ) == array( true, false ) ){
+				$sitecontent->echo_error( 'Dieses Add-on ist aktuell nicht aktivert!', 'unknown', 'Add-on nicht aktiv' );
 			}
 	
 			//Add-on Konfigurationsdatei laden
