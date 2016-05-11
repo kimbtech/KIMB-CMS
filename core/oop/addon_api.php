@@ -195,20 +195,27 @@ class ADDonAPI{
 		return false;
 	}
 
-	public function del(){
+	//Wünsche für das aktuelle Add-on löschen
+	//	$stellen = array( ... );
+	//		aus Wish zu löschende Stellen
+	//		leer => gesamtes Wish
+	public function del( $stellen = array( 'fe', 'be', 'funcclass', 'cron', 'fullcache' ) ){
 		// Add-on Wünsche löschen
 
 		//sollte alles okay sein
 		$re = true;
 
 		//jede Wunschdatei durchgehen
-		foreach( array( 'fe', 'be', 'funcclass', 'cron', 'fullcache' ) as $fi ){
+		foreach( $stellen as $fi ){
 			//ID lesen
 			$id = $this->get_addon_id( $fi );
 			//ID testen und alles sollte okay sein
 			if( is_numeric( $id ) && $re == true ){
-				//ID löschen
-				$re = $this->$fi->write_kimb_id( $id , 'del' );
+				//Stelle okay?
+				if( $this->$fi instanceof KIMBdbf ){
+					//ID löschen
+					$re = $this->$fi->write_kimb_id( $id , 'del' );
+				}
 			}
 			else{
 				//eins falsch, alles fehlerhaft
