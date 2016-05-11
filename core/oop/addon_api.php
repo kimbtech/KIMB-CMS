@@ -70,7 +70,7 @@ class ADDonAPI{
 
 	//in jeder Datei hat ein Add-on einen andere ID,
 	//diese wird hier bestimmt
-	protected function get_addon_id( $fi ){
+	protected function get_addon_id( $fi, $makenew = true ){
 
 		//suchen
 		$id = $this->$fi->search_kimb_xxxid( $this->addon , 'addon' );
@@ -80,8 +80,9 @@ class ADDonAPI{
 			//ausgeben
 			return $id;
 		}
-		else{
-			//sonst neu erstellen
+		//wenn neue ID erstellen erlaubt
+		elseif( $makenew ){
+			//neu erstellen
 			$id = $this->$fi->next_kimb_id();
 			if( $this->$fi->write_kimb_id( $id , 'add' , 'addon' , $this->addon ) ){
 				//ausgeben
@@ -90,6 +91,9 @@ class ADDonAPI{
 			else{
 				return false;
 			}
+		}
+		else{
+			return false;
 		}
 	}
 
@@ -225,6 +229,27 @@ class ADDonAPI{
 		
 		//Rückgabe
 		return $re;
+	}
+	
+	//Wünsche des aktuellen Array auslesen
+	//	$fi => fe|be|funcclass|cron|fullcache
+	//		Wunsch, der ausgelesen werden soll
+	//	Rückgabe => Array mit den Werten
+	function read( $fi  ){
+		//passende ID holen
+		$id = $this->get_addon_id( $fi, false );
+		//hat Add-on überhaupt dort einen Wunsch?
+		if( $id != false ){
+			//Daten lesen
+			$data = $this->$fi->read_kimb_id( $id );
+			//Add-on Name weg
+			unset( $data['addon'] );
+			//Ausgabe
+			return $data;
+		}
+		else{
+			return false;
+		}
 	}
 	
 	//für FullHTMLcache
