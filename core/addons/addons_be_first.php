@@ -33,7 +33,7 @@ if( !isset( $addoninclude ) ){
 }
 
 //Alle Add-ons auslesen, die BE first wollen
-$all = $addoninclude->read_kimb_all_teilpl( 'be_first' );
+$all = $addoninclude->read_kimb_all_teilpl( 'be' );
 
 //Add-on Wunschdaten lesen
 //	Stellen, Rechte des Users und Reihenfolge vom Add-on gewünscht
@@ -128,7 +128,11 @@ foreach( $all as $add ){
 //alles aus dem Include Array ausführen
 foreach( $includes as $name ){
 
-	require_once(__DIR__.'/'.$name.'/include_be_first.php');
+	//Datei first vorhnaden?
+	if( is_file( __DIR__.'/'.$name.'/include_be_first.php' ) ){
+		//Datei laden
+		require_once(__DIR__.'/'.$name.'/include_be_first.php');
+	}
 
 }
 

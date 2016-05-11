@@ -33,7 +33,7 @@ class BEaddinst{
 	protected $allgsysconf, $sitecontent, $addoninclude, $jsobject;
 	
 	//Add-on API Einbindungsstellen
-	public $allinclpar = array( 'ajax', 'cron', 'funcclass', 'be_first', 'be_second', 'fe_first', 'fe_second' );
+	public $allinclpar = array( 'ajax', 'cron', 'funcclass', 'be', 'fe');
 	
 	public function __construct( $allgsysconf, $sitecontent, $addoninclude, $tabelle = true ){
 		$this->allgsysconf = $allgsysconf;
@@ -67,7 +67,27 @@ class BEaddinst{
 			//Add-on in Liste?
 			if( !$addoninclude->read_kimb_search_teilpl( $par , $addon ) ){
 				//Add-on Datei für API vorhanden
-				if( file_exists(__DIR__.'/../../addons/'.$addon.'/include_'.$par.'.php') ){
+				
+				//eine oder zwei Dateien möglich?
+				if( $par == 'be' || $par == 'fe' ){
+					//eine der beiden Dateien vorhanden?
+					if(
+						file_exists(__DIR__.'/../../addons/'.$addon.'/include_'.$par.'_first.php') ||
+						file_exists(__DIR__.'/../../addons/'.$addon.'/include_'.$par.'_second.php')
+					){
+						$fileokay = true;
+					}
+					else {
+						$fileokay = false;
+					}
+				}
+				else{
+					//Nur eine Datei muss vorhanden sein!
+					$fileokay = file_exists(__DIR__.'/../../addons/'.$addon.'/include_'.$par.'.php');
+				}
+				
+				//Dateien okay, diese Einbindungsstelle laden?
+				if( $fileokay ){
 					//aktivieren
 					$addoninclude->write_kimb_teilpl( $par , $addon , 'add' );
 				}

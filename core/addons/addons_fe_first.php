@@ -33,7 +33,7 @@ if( !isset( $addoninclude ) ){
 }
 
 //Alle Add-ons auslesen, die FE first wollen
-$all = $addoninclude->read_kimb_all_teilpl( 'fe_first' );
+$all = $addoninclude->read_kimb_all_teilpl( 'fe' );
 
 //Add-on Wunschdaten lesen
 //	IDs, Error und Reihenfolge vom Add-on gewünscht
@@ -136,7 +136,11 @@ foreach( $includes as $name ){
 		$allgsys_trans['addons'][$name] = parse_ini_file( __DIR__.'/'.$name.'/lang_en.ini', true );	
 	}
 	
-	require_once(__DIR__.'/'.$name.'/include_fe_first.php');
+	//Datei first vorhanden?
+	if( is_file(  __DIR__.'/'.$name.'/include_fe_first.php' ) ){
+		//Datei first laden
+		require_once( __DIR__.'/'.$name.'/include_fe_first.php' );
+	}
 
 }
 
