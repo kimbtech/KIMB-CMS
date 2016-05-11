@@ -100,6 +100,16 @@ foreach( $all as $add ){
 		elseif( substr( $url , '-'.strlen( 'kimb-cms-backend/'.$si.'.php' ) ) == 'kimb-cms-backend/'.$si.'.php' ){
 			$site = true;
 		}
+		//Sonderfall index.php beachten (auch "kimb-cms-backend/" sowie "kimb-cms-backend" möglich)
+		elseif(
+			$si == 'index' &&
+			(
+				substr( $url , '-'.strlen( 'kimb-cms-backend' ) ) == 'kimb-cms-backend' ||
+				substr( $url , '-'.strlen( 'kimb-cms-backend/' ) ) == 'kimb-cms-backend/' 	
+			) 
+		){
+				$site = true;
+		}
 		//passt dann wohl nicht
 		else{
 			$site = false;

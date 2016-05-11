@@ -28,8 +28,33 @@ defined('KIMB_CMS') or die('No clean Request');
 //alles aus gesichertem Array von FE fist (oben) ausführen
 foreach( $fesecondincludesaddons as $name ){
 
+	//CMS Fehlerstatus immernoch wie bei First?
+	$wish = $fesecondincludesaddons_errwish[$name];
+	
+	//bei allem, dann einbinden
+	if( $wish == 'all' ){
+		$error = true;
+	}
+	//keine Fehler gewünscht und auch keine gegeben, dann einbinden
+	elseif( $wish == 'no' && $allgerr != '404' && $allgerr != '403' ){
+		$error = true;
+	}
+	//Fehler 404 gewünscht, dann einbinden
+	elseif( $wish == '404' && $allgerr == '404' ){
+		$error = true;
+	}
+	//Fehler 403 gewünscht, dann einbinden
+	elseif( $wish == '403' && $allgerr == '403' ){
+		$error = true;
+	}
+	else{
+		//Fehlerstatus erlaubt Einbinden nicht!
+		$error = false;
+	}
+	
 	//Datei second vorhanden?
-	if( is_file(  __DIR__.'/'.$name.'/include_fe_second.php' ) ){
+	//Und Fehlerstatus okay?
+	if( $error && is_file(  __DIR__.'/'.$name.'/include_fe_second.php' ) ){
 		//Datei second laden
 		require_once(__DIR__.'/'.$name.'/include_fe_second.php');
 	}

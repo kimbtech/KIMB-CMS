@@ -117,6 +117,10 @@ foreach( $all as $add ){
 			elseif( $wi == 'hinten' ){
 				$includes[] = $add;
 			}
+			
+			//der Fehlerstatus soll bei FE Second neu geprüft werden,
+			//hierzu die Fehlerwünsche der Add-ons speichern
+			$fesecondincludesaddons_errwish[$add] = $err; 
 		}
 	}
 
