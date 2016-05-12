@@ -1,13 +1,14 @@
 <[about:doc]>KIMB dbf V3.50 - KIMB-technologies<[about:doc]>
-<[allidslist1]>1<[allidslist1]>
 <[1-path]>home<[1-path]>
 <[1]>path==nextid==requestid==status<[1]>
 <[1-nextid]><[1-nextid]>
 <[1-requestid]>1<[1-requestid]>
 <[1-status]>on<[1-status]>
-<[allidslist2]>2<[allidslist2]>
 <[2-path]>menue<[2-path]>
 <[2]>path==nextid==requestid==status<[2]>
 <[2-nextid]>1<[2-nextid]>
 <[2-requestid]>2<[2-requestid]>
 <[2-status]>on<[2-status]>
+<[allidslist1]>1<[allidslist1]>
+<[allidslist2]>2<[allidslist2]>
+<[allidslist_okay]>yes<[allidslist_okay]>

@@ -63,17 +63,20 @@ class KIMBdbf {
 		else{
 			$this->dateicont = 'none';
 		}
-		$this->dateicontanfang = $this->dateicont;
+		$this->dateiconthash = hash( 'sha256', $this->dateicont );
 	}
 	
 	protected function umbruch_weg($teil, $art) {
 		if( $art == 'inhalt' ){
 			
-			//findigen Usern keine Möglichkeit geben, einfach Arrays zu speichern
-			$teil = str_replace('<!-- JSON TYPE -->', '', $teil);
-			
 			if( is_array( $teil ) ){
 				$teil = '<!-- JSON TYPE -->'.json_encode( $teil );
+			}
+			//findigen Usern keine Möglichkeit geben, einfach Arrays zu speichern
+			elseif( substr( $teil, 0, 18 ) == '<!-- JSON TYPE -->' ){
+				do{
+					$teil = substr( $teil, 18 );
+				}while( substr( $teil, 0, 18 ) == '<!-- JSON TYPE -->' );
 			}
 			
 			$teil = str_replace(array("\r\n","\n", "\r"), '<!--UMBRUCH-->', $teil);
@@ -154,7 +157,9 @@ class KIMBdbf {
 
 	public function __destruct() {
 
-		if( $this->dateicontanfang != $this->dateicont && $this->dateidel == 'no' ){
+		$nowhash = hash( 'sha256', $this->dateicont );
+
+		if( $this->dateiconthash != $nowhash && $this->dateidel == 'no' ){
 			$this->dateicont = preg_replace( "/[\r\n]+[\s\t]*[\r\n]+/", "\r\n", $this->dateicont );
 			$handle = fopen($this->path.'/kimb-data/'.$this->datei , 'w+');
 			$ok = fwrite($handle, $this->dateicont);
@@ -434,6 +439,7 @@ class KIMBdbf {
 	}
 	
 	public function read_kimb_id_all(){
+		$this->make_allidlist();
 		$allids = $this->read_kimb_all_teilpl( 'allidslist' );
 
 		$data = array();
@@ -466,6 +472,7 @@ class KIMBdbf {
 		$search = $this->umbruch_weg($search, 'inhalt');
 		$xxxid = $this->umbruch_weg($xxxid, 'tag');
 
+		$this->make_allidlist();
 		$allids = $this->read_kimb_all_teilpl( 'allidslist' );
 
 		foreach ( $allids as $id ) {
@@ -480,6 +487,7 @@ class KIMBdbf {
 
 	public function next_kimb_id(){
 		
+		$this->make_allidlist();
 		$allids = $this->read_kimb_all_teilpl( 'allidslist' );
 
 		sort ( $allids , SORT_NUMERIC );
@@ -619,6 +627,24 @@ class KIMBdbf {
 		}
 		
 		return ( in_array( false, $rets ) ? false : true );
+	}
+
+	protected function make_allidlist( $ende = 250 ){
+
+		if( empty( $this->read_kimb_one( 'allidslist_okay' ) ) ){
+			$this->write_kimb_teilpl_del_all( 'allidslist' );
+			$id = 1;
+			while ($id <= $ende) {
+				$info = $this->read_kimb_one($id);
+				if( !empty( $info ) ){
+					$this->write_kimb_teilpl('allidslist', $id, 'add');
+				}
+				$id++;
+			}
+			$this->write_kimb_one( 'allidslist_okay', 'yes' );
+		}
+		
+		return;		
 	}
 }
 

@@ -8,7 +8,6 @@
 <[1-name]>Max Muster<[1-name]>
 <[1-mail]>max.muster@example.com<[1-mail]>
 <[userids2]>2<[userids2]>
-<[allidslist1]>2<[allidslist1]>
 <[2-passw]>5584ef7bd4f5d780f641665c743dc0f8834d423c<[2-passw]>
 <[2]>passw==salt==permiss==name==mail==user<[2]>
 <[2-salt]>R0tiLOGlHt<[2-salt]>
@@ -16,3 +15,6 @@
 <[2-name]>F<[2-name]>
 <[2-mail]>f@f.ff<[2-mail]>
 <[2-user]>f<[2-user]>
+<[allidslist1]>1<[allidslist1]>
+<[allidslist2]>2<[allidslist2]>
+<[allidslist_okay]>yes<[allidslist_okay]>
