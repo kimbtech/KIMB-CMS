@@ -40,8 +40,9 @@ class KIMBdbf {
 	protected $dateicont;
 	protected $dateicontanfang;
 	protected $dateidel = 'no';
+	public $last_written_id;
 	
-	const DATEIVERSION = '4.15';
+	const DATEIVERSION = '4.5';
 	
 	public function __construct($datei, $encryptkey = 'off', $path = __DIR__){
 		$datei = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '..'),array('ae','oe','ue','ss','Ae','Oe','Ue', '', '.'), $datei);
@@ -67,13 +68,19 @@ class KIMBdbf {
 	
 	protected function umbruch_weg($teil, $art) {
 		if( $art == 'inhalt' ){
+			
+			if( is_array( $teil ) ){
+				$teil = '<!-- JSON TYPE -->'.json_encode( $teil );
+			}
+			
 			$teil = str_replace(array("\r\n","\n", "\r"), '<!--UMBRUCH-->', $teil);
-			$teil = str_replace(array('==','--entfernt--','<[',']>'),array('=','-entfernt-','<','>'), $teil);
+			$teil = str_replace( "\t", '<!-- TAB -->', $teil );
+			$teil = str_replace(array('==','<[',']>'),array('<!-- equal equal -->','<!-- dbf Tag open -->','<!-- dbf Tag close -->'), $teil);
 			return $teil;
 		}
 		elseif( $art == 'tag' ){
-			$teil = str_replace(array("\r\n","\n", "\r"), '', $teil);
-			$teil = str_replace(array('<[',']>','about:doc'),array('=','<','>','aboutdoc'), $teil);
+			$teil = str_replace(array("\r\n","\n", "\r", "\t"), '', $teil);
+			$teil = str_replace(array('<[',']>','about:doc'),array('<','>','aboutdoc'), $teil);
 			return $teil;
 		}
 		return false;
@@ -81,7 +88,15 @@ class KIMBdbf {
 	}
 
 	protected function for_inhalt_return( $inhalt ){
-		$inhalt = str_replace( '<!--UMBRUCH-->' , "\r\n" , $inhalt);
+			$inhalt = str_replace(
+					array( '<!--UMBRUCH-->',  '<!-- TAB -->', '<!-- equal equal -->','<!-- dbf Tag open -->','<!-- dbf Tag close -->' ) , 
+					array( "\r\n", "\t", '==','<[',']>' ),
+				$inhalt);
+				
+			if( substr( $inhalt, 0, 18 ) == '<!-- JSON TYPE -->'){
+				$inhalt = json_decode( substr( $inhalt, 18 ), true );
+			}
+	
 		return $inhalt;
 	}
 
@@ -216,7 +231,7 @@ class KIMBdbf {
 			$count++;
 		}
 		array_splice($return, $i-1);
-		return $this->inhalt_return( $return );
+		return $return;
 	}
 	
 	//KIMB-Dateien schreiben public, weiter an protected
@@ -395,13 +410,13 @@ class KIMBdbf {
 			foreach ($idinfos as $info) {
 				$return[$info] = $this->read_kimb_one($id.'-'.$info);
 			}
-			return $this->inhalt_return( $return );
+			return $return;
 		}	
 		else{
 			foreach ($idinfos as $info) {
 
 				if($xxxid == $info){
-					return $this->inhalt_return( $this->read_kimb_one($id.'-'.$info) );
+					return $this->read_kimb_one($id.'-'.$info);
 				}
 			}
 			return false;
@@ -413,6 +428,18 @@ class KIMBdbf {
 		$idinfo = $this->read_kimb_one($id);
 		$idteile = explode('==', $idinfo);
 		return $this->inhalt_return( $idteile );
+	}
+	
+	public function read_kimb_id_all(){
+		$allids = $this->read_kimb_all_teilpl( 'allidslist' );
+
+		$data = array();
+
+		foreach ( $allids as $id ) {
+			$data[$id] = $this->read_kimb_id( $id );	
+		}
+		
+		return $data;
 	}
 	
 	public function search_kimb_id($search, $id) {
@@ -432,38 +459,69 @@ class KIMBdbf {
 		return false;
 	}
 	
-	public function search_kimb_xxxid($search, $xxxid, $ende = 1000) {
+	public function search_kimb_xxxid($search, $xxxid ) {
 		$search = $this->umbruch_weg($search, 'inhalt');
 		$xxxid = $this->umbruch_weg($xxxid, 'tag');
 
-		$id = 1;
-		while ($id <= $ende) {
+		$allids = $this->read_kimb_all_teilpl( 'allidslist' );
+
+		foreach ( $allids as $id ) {
 			$idinhalt = $this->read_kimb_id($id, $xxxid);
 			if($idinhalt == $search){
 				return $id;
 			}
-			$id++;
 		}
 		return false;		
 
 	}
 
-	public function next_kimb_id($ende = '1000'){
-		$id = 1;
-		while ($id <= $ende) {
-			$idinhalt = $this->read_kimb_one($id);
-			if($idinhalt == ''){
-				return $id;
+	public function next_kimb_id(){
+		
+		$allids = $this->read_kimb_all_teilpl( 'allidslist' );
+
+		sort ( $allids , SORT_NUMERIC );
+
+		$idfound = false;
+
+		foreach( $allids as $key => $id ){
+			if( ( $key + 1 ) != $id ){
+				$idfound = true;
+				break;
 			}
+		}
+		
+		if( $idfound ){
+			$id--;
+		}
+		else{
 			$id++;
 		}
-		return false;
+		
+		$idinhalt = $this->read_kimb_one($id);
+		if($idinhalt == ''){
+			return $id;
+		}
+		else{
+			return false;
+		}
 	}
 	
 	public function write_kimb_id($id, $todo, $xxxid = '---none---', $inhalt = '---none---') {
 		$id = preg_replace( '/[^0-9]/' , '' , $id );
 		$xxxid = $this->umbruch_weg($xxxid, 'tag');
 		$inhalt = $this->umbruch_weg($inhalt, 'inhalt');
+		
+		//Auto-Increatment?
+		//	$id == 0 ?
+		if( $id == 0 ){
+			$id = $this->next_kimb_id();
+		}
+		if( $id === false ){
+			return false;
+		}
+		
+		//Zuletzt geschriebene ID merken
+		$this->last_written_id = $id;
 		
 		$idinfo = $this->read_kimb_one($id);
 		if( empty( $idinfo ) && $todo != 'add'){
@@ -543,6 +601,21 @@ class KIMBdbf {
 		else{
 			return false;
 		}
+	}
+	
+	public function write_kimb_id_array( $array ){
+		
+		$rets = array();
+		
+		foreach( $array as $id => $idc ){
+			
+			foreach( $idc as $xxxid => $val ){
+
+				$rets[] = $this->write_kimb_id( $id, 'add', $xxxid, $val );
+			}
+		}
+		
+		return ( in_array( false, $rets ) ? false : true );
 	}
 }
 
