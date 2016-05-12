@@ -69,6 +69,9 @@ class KIMBdbf {
 	protected function umbruch_weg($teil, $art) {
 		if( $art == 'inhalt' ){
 			
+			//findigen Usern keine Möglichkeit geben, einfach Arrays zu speichern
+			$teil = str_replace('<!-- JSON TYPE -->', '', $teil);
+			
 			if( is_array( $teil ) ){
 				$teil = '<!-- JSON TYPE -->'.json_encode( $teil );
 			}
