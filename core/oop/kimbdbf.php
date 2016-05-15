@@ -495,25 +495,6 @@ class KIMBdbf {
 				break;
 			}
 		}
-
-/*		sort ( $allids , SORT_NUMERIC );
-
-		$idfound = false;
-
-		foreach( $allids as $key => $id ){
-			if( ( $key + 1 ) != $id ){
-				$idfound = true;
-				break;
-			}
-		}
-		
-		if( $idfound ){
-			$id--;
-		}
-		else{
-			$id++;
-		}
-		*/
 		
 		$idinhalt = $this->read_kimb_one($id);
 		if($idinhalt == ''){
