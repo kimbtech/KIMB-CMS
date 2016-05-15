@@ -1,13 +1,14 @@
 <[about:doc]>KIMB dbf V3.50 - KIMB-technologies<[about:doc]>
-<[allidslist1]>0<[allidslist1]>
 <[0-tag]>de<[0-tag]>
 <[0]>tag==status==name==flag<[0]>
 <[0-status]>on<[0-status]>
 <[0-name]>Deutsch<[0-name]>
 <[0-flag]><!--SYS-SITEURL-->/load/system/flags/de.gif<[0-flag]>
-<[allidslist2]>1<[allidslist2]>
 <[1-tag]>en<[1-tag]>
 <[1]>tag==status==name==flag<[1]>
 <[1-status]>on<[1-status]>
 <[1-name]>Englisch<[1-name]>
 <[1-flag]><!--SYS-SITEURL-->/load/system/flags/en.gif<[1-flag]>
+<[allidslist1]>0<[allidslist1]>
+<[allidslist2]>1<[allidslist2]>
+<[allidslist_okay]>yes<[allidslist_okay]>

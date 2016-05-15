@@ -26,7 +26,7 @@
 defined('KIMB_CMS') or die('No clean Request');
 
 //Sofern Seite gefunden, nach Seitendatei suchen und lesen
-if( $allgerr != '404' ){
+if( $allgerr != '404' && $allgerr != '403' ){
 	if( check_for_kimb_file( '/site/site_'.$allgsiteid.'.kimb' ) ){
 		$sitefile = new KIMBdbf( '/site/site_'.$allgsiteid.'.kimb' );
 	}

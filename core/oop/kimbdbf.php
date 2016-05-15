@@ -377,7 +377,7 @@ class KIMBdbf {
 		while( true ){
 			$teilread = $teil.$count;
 			$gelesen = $this->read_kimb_one($teilread);
-			if( !empty( $gelesen ) ){
+			if( !empty( $gelesen ) || $gelesen === '0' ){
 				$this->write_kimb_delete_pr($teilread);
 			}
 			else{
@@ -489,8 +489,14 @@ class KIMBdbf {
 		
 		$this->make_allidlist();
 		$allids = $this->read_kimb_all_teilpl( 'allidslist' );
+		
+		for( $id = 1; $id < ( count( $allids ) + 2 ); $id++ ){
+			if( !in_array( $id , $allids) ){
+				break;
+			}
+		}
 
-		sort ( $allids , SORT_NUMERIC );
+/*		sort ( $allids , SORT_NUMERIC );
 
 		$idfound = false;
 
@@ -507,6 +513,7 @@ class KIMBdbf {
 		else{
 			$id++;
 		}
+		*/
 		
 		$idinhalt = $this->read_kimb_one($id);
 		if($idinhalt == ''){
@@ -517,18 +524,21 @@ class KIMBdbf {
 		}
 	}
 	
-	public function write_kimb_id($id, $todo, $xxxid = '---none---', $inhalt = '---none---') {
+	public function write_kimb_id($id, $todo, $xxxid = '---none---', $inhalt = '---none---', $oldmode = false ) {
 		$id = preg_replace( '/[^0-9]/' , '' , $id );
 		$xxxid = $this->umbruch_weg($xxxid, 'tag');
 		$inhalt = $this->umbruch_weg($inhalt, 'inhalt');
 		
-		//Auto-Increatment?
-		//	$id == 0 ?
-		if( $id == 0 ){
-			$id = $this->next_kimb_id();
-		}
-		if( $id === false ){
-			return false;
+		//A_I dekativerbar!
+		if( !$oldmode ){
+			//Auto-Increatment?
+			//	$id == 0 ?
+			if( $id == 0 ){
+				$id = $this->next_kimb_id();
+			}
+			if( $id === false ){
+				return false;
+			}
 		}
 		
 		//Zuletzt geschriebene ID merken
@@ -633,6 +643,13 @@ class KIMBdbf {
 
 		if( empty( $this->read_kimb_one( 'allidslist_okay' ) ) ){
 			$this->write_kimb_teilpl_del_all( 'allidslist' );
+			
+			//evtl. ID null über oldmode
+			$info = $this->read_kimb_one('0');
+			if( !empty( $info ) ){
+				$this->write_kimb_teilpl('allidslist', '0', 'add');
+			}
+			
 			$id = 1;
 			while ($id <= $ende) {
 				$info = $this->read_kimb_one($id);

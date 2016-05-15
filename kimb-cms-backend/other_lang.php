@@ -59,21 +59,21 @@ if( isset( $_GET['do'] ) && $allgsysconf['lang'] == 'on' ){
 		//aktueller Tag anders als übergebener Wert
 		if( $vals['tag'] != $_POST['stdtag'] ){
 			//ändern
-			$langfile->write_kimb_id( '0', 'add', 'tag', $_POST['stdtag'] );
+			$langfile->write_kimb_id( '0', 'add', 'tag', $_POST['stdtag'], true );
 			//da wurde was geändert
 			$ch = true;
 		}
 		//Status anders?
 		if( $vals['status'] != 'on' ){
 			//anpassen
-			$langfile->write_kimb_id( '0', 'add', 'status', 'on' );
+			$langfile->write_kimb_id( '0', 'add', 'status', 'on', true );
 			//da wurde was geändert
 			$ch = true;
 		}
 		//Name anders?
 		if( $vals['name'] != $_POST['stdlangname'] ){
 			//anpassen
-			$langfile->write_kimb_id( '0', 'add', 'name', $_POST['stdlangname'] );
+			$langfile->write_kimb_id( '0', 'add', 'name', $_POST['stdlangname'], true );
 			//da wurde was geändert
 			$ch = true;
 		}
@@ -82,12 +82,12 @@ if( isset( $_GET['do'] ) && $allgsysconf['lang'] == 'on' ){
 			//existiert die neuen Flagge überhaupt?
 			if( is_file( __DIR__.'/../load/system/flags/'.$_POST['stdtag'].'.gif' ) ){
 				//hinzufügen (mit SYS-SITEURL Platzhalter)
-				$langfile->write_kimb_id( '0', 'add', 'flag', '<!--SYS-SITEURL-->/load/system/flags/'.$_POST['stdtag'].'.gif' );
+				$langfile->write_kimb_id( '0', 'add', 'flag', '<!--SYS-SITEURL-->/load/system/flags/'.$_POST['stdtag'].'.gif', true );
 			}
 			else{
 				//die Flagge exstiert nicht
 				//	? hinzufügen (mit SYS-SITEURL Platzhalter)
-				$langfile->write_kimb_id( '0', 'add', 'flag', '<!--SYS-SITEURL-->/load/system/flags/new.gif' );			
+				$langfile->write_kimb_id( '0', 'add', 'flag', '<!--SYS-SITEURL-->/load/system/flags/new.gif', true );			
 			}
 			//da wurde was geändert
 			$ch = true;

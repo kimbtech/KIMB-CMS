@@ -263,7 +263,7 @@ if( isset($_GET['url']) && $allgsysconf['urlrewrite'] == 'on' && !isset($_GET['i
 	//erstes Verzeichnis aus dem URL-Array suchen
 	$ok = $file->search_kimb_xxxid( $urlteile[$i] , 'path' );
 	//gefunden ?
-	if( $ok != false){
+	if( $ok != false || empty( $urlteile[$i] ) ){
 		//also gefunden
 		
 		//NextID gibt die ID der nächsten URL-Datei an
@@ -301,7 +301,7 @@ if( isset($_GET['url']) && $allgsysconf['urlrewrite'] == 'on' && !isset($_GET['i
 							//Fehlermedlung und $allgerr für z.B. Add-ons und RequestID = 0 (nicht vergeben!)
 							$sitecontent->echo_error( $allgsys_trans['get_ids']['err01'] , '404' );
 							$allgerr = '404';
-							$_GET['id'] = '0';
+							$_GET['id'] = '00404';
 						}
 						//Ist die gelesene RequestID richtig?
 						if( !is_numeric($_GET['id']) || empty( $_GET['id'] ) ){
@@ -310,7 +310,7 @@ if( isset($_GET['url']) && $allgsysconf['urlrewrite'] == 'on' && !isset($_GET['i
 							//Fehlermedlung und $allgerr für z.B. Add-ons und RequestID = 0 (nicht vergeben!)
 							$sitecontent->echo_error( $allgsys_trans['get_ids']['err02'], '404' );
 							$allgerr = '404';
-							$_GET['id'] = '0';
+							$_GET['id'] = '00404';
 						}
 						//Schleife verlassen, alles fertig
 						break;
@@ -322,7 +322,7 @@ if( isset($_GET['url']) && $allgsysconf['urlrewrite'] == 'on' && !isset($_GET['i
 					//Fehlermedlung und $allgerr für z.B. Add-ons und RequestID = 0 (nicht vergeben!)
 					$sitecontent->echo_error( $allgsys_trans['get_ids']['err01'] , '404' );
 					$allgerr = '404';
-					$_GET['id'] = '0';
+					$_GET['id'] = '00404';
 					//Schleife verlassen
 					break;
 				}
@@ -338,7 +338,7 @@ if( isset($_GET['url']) && $allgsysconf['urlrewrite'] == 'on' && !isset($_GET['i
 				//Fehlermedlung und $allgerr für z.B. Add-ons und RequestID = 0 (nicht vergeben!)
 				$sitecontent->echo_error( $allgsys_trans['get_ids']['err01'] , '404' );
 				$allgerr = '404';
-				$_GET['id'] = '0';
+				$_GET['id'] = '00404';
 			}
 			//Ist die gelesene RequestID richtig?
 			if( !is_numeric($_GET['id']) || empty( $_GET['id'] ) ){
@@ -361,7 +361,7 @@ if( isset($_GET['url']) && $allgsysconf['urlrewrite'] == 'on' && !isset($_GET['i
 		//Fehlermedlung und $allgerr für z.B. Add-ons und RequestID = 0 (nicht vergeben!)
 		$sitecontent->echo_error( $allgsys_trans['get_ids']['err01'] , '404' );
 		$allgerr = '404';
-		$_GET['id'] = '0';
+		$_GET['id'] = '00404';
 	}
 	
 }
@@ -381,14 +381,14 @@ elseif( isset($_GET['id']) ){
 		//nicht gefunden
 		$sitecontent->echo_error( $allgsys_trans['get_ids']['err03'] , '404' );
 		$allgerr = '404';
-		$_GET['id'] = '1';
+		$_GET['id'] = '00404';
 	}
 	elseif( $_GET['id'] == 'err403' ){
 		//keine Rechte
 		$allgerr = '403';
-		$_GET['id'] = '1';
+		$_GET['id'] = '00403';
 	}
-	
+
 	//einmal testen ist angebracht, eine ID muss aus Zahlen bestehen!
 	if( !is_numeric($_GET['id']) ){
 		//eine ID aus etwas anderem als Zahlen -> Fehler
@@ -396,7 +396,7 @@ elseif( isset($_GET['id']) ){
 		//Fehlermedlung und $allgerr für z.B. Add-ons und RequestID = 0 (nicht vergeben!)
 		$sitecontent->echo_error( $allgsys_trans['get_ids']['err04'], '404' );
 		$allgerr = '404';
-		$_GET['id'] = '0';
+		$_GET['id'] = '00404';
 	}
 }
 else{
@@ -524,7 +524,7 @@ if( $allgsysconf['lang'] == 'on' ){
 }
 
 //wenn kein Fehler 404, aus der RequestID die anderen IDs feststellen
-if( $allgerr != '404' ){
+if( $allgerr != '404' && $allgerr != '403' ){
 	// get MenueID && get SiteID
 	
 	//Datei mit den IDs lesen
@@ -550,7 +550,11 @@ else{
 	//alle IDs auf 0 setzen
 	$allgsiteid = 0;
 	$allgmenueid = 0;
-	$_GET['id'] = '0';
+	//GET id ist meist schon bei Fehlern gesetzt
+	if( $_GET['id'] != '00404' && $_GET['id'] != '00403' ){
+		//nicht gefunden
+		$_GET['id'] != '00404';
+	}
 }
 
 //FullHTMLCache an?
