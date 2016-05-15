@@ -40,6 +40,7 @@ class KIMBdbf {
 	protected $dateicont;
 	protected $dateicontanfang;
 	protected $dateidel = 'no';
+	protected $handle = false;
 	public $last_written_id;
 	
 	const DATEIVERSION = '4.5';
@@ -94,14 +95,14 @@ class KIMBdbf {
 	}
 
 	protected function for_inhalt_return( $inhalt ){
-			$inhalt = str_replace(
-					array( '<!--UMBRUCH-->',  '<!-- TAB -->', '<!-- equal equal -->','<!-- dbf Tag open -->','<!-- dbf Tag close -->' ) , 
-					array( "\r\n", "\t", '==','<[',']>' ),
-				$inhalt);
+		$inhalt = str_replace(
+				array( '<!--UMBRUCH-->',  '<!-- TAB -->', '<!-- equal equal -->','<!-- dbf Tag open -->','<!-- dbf Tag close -->' ) , 
+				array( "\r\n", "\t", '==','<[',']>' ),
+			$inhalt);
 				
-			if( substr( $inhalt, 0, 18 ) == '<!-- JSON TYPE -->'){
-				$inhalt = json_decode( substr( $inhalt, 18 ), true );
-			}
+		if( substr( $inhalt, 0, 18 ) == '<!-- JSON TYPE -->'){
+			$inhalt = json_decode( substr( $inhalt, 18 ), true );
+		}
 	
 		return $inhalt;
 	}
@@ -117,6 +118,9 @@ class KIMBdbf {
 	}
 	
 	protected function file_write($inhalt, $art) {
+		
+		$this->file_lock();
+		
 		if( $this->dateicont == 'none' ){
 			$this->dateicont = '';
 		}
@@ -152,20 +156,62 @@ class KIMBdbf {
 			echo "Error on writing KIMBdbf!";
 			die;
 		}
+
 		return true;
+	}
+	
+	protected function write_file_to_disk() {
+		
+		$nowhash = hash( 'sha256', $this->dateicont );
+
+		$ok = false;
+
+		if( $this->dateiconthash != $nowhash && $this->dateidel == 'no' ){
+			$this->dateicont = preg_replace( "/[\r\n]+[\s\t]*[\r\n]+/", "\r\n", $this->dateicont );
+			
+			if( !$this->handle ){
+				$this->file_lock();
+			}
+			$ok = fwrite($this->handle, $this->dateicont);
+			
+			if( $ok ){
+				$this->dateiconthash = hash( 'sha256', $this->dateicont );
+			}
+		}
+		
+		if( $this->handle != false ){
+			//Datei wieder freigeben
+			flock( $this->handle, LOCK_UN );
+			fclose($this->handle);
+			$this->handle = false;
+		}
+		
+		return $ok;
+	}
+	
+	protected function file_lock(){
+		//Datei öffnen
+		if( !$this->handle ){
+			$this->handle = fopen($this->path.'/kimb-data/'.$this->datei , 'w+');
+		}
+		//Versuche Datei zu sperren
+		//	bei Fehler, warte 1 Sec und versuche erneut
+		$i = 1;
+		while (!flock( $this->handle, LOCK_EX ) ) {
+			//Zu lange gewartet?
+			if( $i > 10 ){
+				echo "Can't lock and write KIMBdbf file!";
+				die;
+			}
+			sleep( 1 );
+			$i++;
+		}
+		return;
 	}
 
 	public function __destruct() {
 
-		$nowhash = hash( 'sha256', $this->dateicont );
-
-		if( $this->dateiconthash != $nowhash && $this->dateidel == 'no' ){
-			$this->dateicont = preg_replace( "/[\r\n]+[\s\t]*[\r\n]+/", "\r\n", $this->dateicont );
-			$handle = fopen($this->path.'/kimb-data/'.$this->datei , 'w+');
-			$ok = fwrite($handle, $this->dateicont);
-			fclose($handle);
-		}
-		return true;
+		return $this->write_file_to_disk();
 	}
 	
 	//KIMB-Dateien lesen
@@ -390,6 +436,7 @@ class KIMBdbf {
 	//kimb datei loeschen
 	public function delete_kimb_file(){
 		if(unlink($this->path.'/kimb-data/'.$this->datei)){
+			$this->file_lock();
 			$this->dateicont = 'none';
 			$this->dateidel = 'yes';
 			return true;
@@ -490,7 +537,7 @@ class KIMBdbf {
 		$this->make_allidlist();
 		$allids = $this->read_kimb_all_teilpl( 'allidslist' );
 		
-		for( $id = 1; $id < ( count( $allids ) + 2 ); $id++ ){
+		for( $id = 1, $size = ( count( $allids ) + 2 ); $id < $size; $id++ ){
 			if( !in_array( $id , $allids) ){
 				break;
 			}
