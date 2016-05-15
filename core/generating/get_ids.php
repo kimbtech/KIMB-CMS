@@ -377,7 +377,7 @@ elseif( isset($_GET['id']) ){
 	//RequestID ist ja schon gegeben, nicht viel zu tun
 
 	//wird eine Fehlerseite gefordert?
-	if( $_GET['id'] == 'err404' ){
+	if( $_GET['id'] == 'err404' || $_GET['id'] == '0' ){
 		//nicht gefunden
 		$sitecontent->echo_error( $allgsys_trans['get_ids']['err03'] , '404' );
 		$allgerr = '404';
@@ -540,6 +540,7 @@ if( $allgerr != '404' && $allgerr != '403' ){
 		//wenn nicht dann Fehler ausgeben
 		$sitecontent->echo_error($allgsys_trans['get_ids']['err05'] , '404' );
 		$allgerr = '404';
+		$_GET['id'] = '00404';
 	}
 	
 	//Weitergabe von $allgsiteid, $allgmenueid, $allgerr
