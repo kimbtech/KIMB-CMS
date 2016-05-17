@@ -197,13 +197,13 @@ class KIMBdbf {
 		//Versuche Datei zu sperren
 		//	bei Fehler, warte 1 Sec und versuche erneut
 		$i = 1;
-		while (!flock( $this->handle, LOCK_EX ) ) {
+		while (!flock( $this->handle, LOCK_EX | LOCK_NB ) ) {
 			//Zu lange gewartet?
 			if( $i > 10 ){
 				echo "Can't lock and write KIMBdbf file!";
 				die;
 			}
-			sleep( 1 );
+			usleep( 750000 );
 			$i++;
 		}
 		return;
