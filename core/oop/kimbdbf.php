@@ -436,7 +436,6 @@ class KIMBdbf {
 	//kimb datei loeschen
 	public function delete_kimb_file(){
 		if(unlink($this->path.'/kimb-data/'.$this->datei)){
-			$this->file_lock();
 			$this->dateicont = 'none';
 			$this->dateidel = 'yes';
 			return true;

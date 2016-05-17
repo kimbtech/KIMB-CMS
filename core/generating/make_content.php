@@ -27,13 +27,55 @@ defined('KIMB_CMS') or die('No clean Request');
 
 //Sofern Seite gefunden, nach Seitendatei suchen und lesen
 if( $allgerr != '404' && $allgerr != '403' ){
-	if( check_for_kimb_file( '/site/site_'.$allgsiteid.'.kimb' ) ){
-		$sitefile = new KIMBdbf( '/site/site_'.$allgsiteid.'.kimb' );
+	//Vorschau gewünscht?
+	//	Und Array mit Daten dazu?
+	if( !empty( $_GET['siteprev'] ) && is_array( $_SESSION['sites_preview'] ) ){
+		//SeiteID herausbekommen
+		$sid = array_search( $_GET['siteprev'], $_SESSION['sites_preview'] );
+		
+		//Sid gefunden?
+		if( $sid !== false ){
+			//ID passend
+			$allgsiteid = $sid;
+			
+			//Hinweis
+			$sitecontent->add_footer('<div style="position:fixed; top:0; left:0; width:100%; background-color:black;"><hr /><center><u><b><span style="color:red; font-size:2em;">Achtung: Dies ist eine Vorschau!!</sapn></b></u></center><hr /></div>');
+			
+			//Caches müssen aus!
+			$allgsysconf['cache'] == 'off';
+			if( is_object( $fullsitecache ) ){
+				$fullsitecache->end_cache();
+			}
+			
+			//Seite aktviert?
+			if( check_for_kimb_file( '/site/site_'.$allgsiteid.'.kimb' ) ){
+				$sitefile = new KIMBdbf( '/site/site_'.$allgsiteid.'.kimb' );
+			}
+			//Seite deaktiviert?
+			elseif( check_for_kimb_file( '/site/site_'.$allgsiteid.'_deak.kimb' ) ){
+				$sitefile = new KIMBdbf( '/site/site_'.$allgsiteid.'_deak.kimb' );
+			}
+			else{
+				//keine Seitendatei -> Fehler
+				$sitecontent->echo_error( $allgsys_trans['make_content']['err01'] , '404' );
+				$allgerr = '404';
+			}
+		}
+		else{
+			//keine Seitendatei -> Fehler
+			$sitecontent->echo_error( $allgsys_trans['make_content']['err01'] , '404' );
+			$allgerr = '404';
+		}		
 	}
 	else{
-		//keine Seitendatei -> Fehler
-		$sitecontent->echo_error( $allgsys_trans['make_content']['err01'] , '404' );
-		$allgerr = '404';
+		if( check_for_kimb_file( '/site/site_'.$allgsiteid.'.kimb' ) ){
+			$sitefile = new KIMBdbf( '/site/site_'.$allgsiteid.'.kimb' );
+		}
+		else{
+			//keine Seitendatei -> Fehler
+			$sitecontent->echo_error( $allgsys_trans['make_content']['err01'] , '404' );
+			$allgerr = '404';
+		}
 	}
 }
 

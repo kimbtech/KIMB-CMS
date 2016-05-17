@@ -311,6 +311,9 @@ class BEsites{
 		
 		$sitecontent->add_site_content('<h2>Seite bearbeiten</h2>');
 		
+		//Seite braucht erstmal keinen besodneren Vorschaulink
+		$prevtoken = false;
+		
 		//Wenn Seitendatei nicht geladen, laden dieser
 		if( !is_object( $sitef ) ){
 			//Seite aktiviert?
@@ -320,6 +323,8 @@ class BEsites{
 			//Seite deaktiviert?
 			elseif( check_for_kimb_file( '/site/site_'.$_GET['id'].'_deak.kimb' ) ){
 				$sitef = new KIMBdbf( '/site/site_'.$_GET['id'].'_deak.kimb' );
+				
+				$prevtoken = true;
 			}
 			//Seite nicht vorhanden -> Fehler
 			else{
@@ -418,6 +423,7 @@ class BEsites{
 	
 		if( $id == false ){
 			$sitecontent->echo_message( 'Achtung, diese Seite ist noch keinem Menü zugeordnet, daher ist sie im Frontend nicht auffindbar!' );
+			$prevtoken = true;
 		}
 		
 		//Editoren laden (Footer, Inhalt)
@@ -436,7 +442,22 @@ class BEsites{
 	
 		//Löschen und Seite ansehen Buttons
 		$sitecontent->add_site_content('<span onclick="var delet = del( '.$_GET['id'].' ); delet();"><span class="ui-icon ui-icon-trash" style="display:inline-block;" title="Diese Seite löschen."></span></span>');
-		$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/index.php?id='.$id.'" target="_blank"><span class="ui-icon ui-icon-newwin" style="display:inline-block;" title="Diese Seite anschauen."></span></a>');
+		if(  !$prevtoken ){
+			$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/index.php?id='.$id.'&langid='.$_GET['langid'].'" target="_blank"><span class="ui-icon ui-icon-newwin" style="display:inline-block;" title="Diese Seite anschauen."></span></a>');
+		}
+		else{
+			if( !is_array( $_SESSION['sites_preview'] ) ){
+				$_SESSION['sites_preview'] = array();
+			}
+			if( !isset( $_SESSION['sites_preview'][$_GET['id']] ) || empty( $_SESSION['sites_preview'][$_GET['id']] ) ){
+					$prevcode = makepassw( 20, '', 'numaz' );
+					$_SESSION['sites_preview'][$_GET['id']] = $prevcode;
+			}
+			else {
+				$prevcode = $_SESSION['sites_preview'][$_GET['id']];
+			}
+			$sitecontent->echo_message( 'Die Vorschau funktioniert nur, wenn der FullHTMLCache deaktiviert oder gerade geleert worden ist!<br />Außderdem sind die Menüs/ Add-ons in der Vorschau wie auf der Startseite.<br /><a href="'.$allgsysconf['siteurl'].'/index.php?siteprev='.$prevcode.'&amp;id=1&langid='.$_GET['langid'].'" target="_blank"><span class="ui-icon ui-icon-newwin" style="display:inline-block;" title="Diese Seite anschauen."></span></a>', 'Vorschau' );
+		}
 		
 		//Eingabefelder
 		$sitecontent->add_site_content('<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=edit&amp;id='.$_GET['id'].'&amp;langid='.$_GET['langid'].'" method="post"><br />');
