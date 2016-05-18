@@ -283,7 +283,7 @@ class BEsites{
 					$status = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=deakch&amp;id='.$id.'"><span class="ui-icon ui-icon-check" title="Diese Seite ist zu Zeit aktiviert, also sichtbar. ( click -> ändern )"></span></a>';
 				}
 				//Löschen Button anzeigen
-				$del = '<span onclick="var delet = del( '.$id.' ); delet();"><span class="ui-icon ui-icon-trash" title="Diese Seite löschen."></span></span>';
+				$del = '<span onclick="delete_site( '.$id.' );"><span class="ui-icon ui-icon-trash" title="Diese Seite löschen."></span></span>';
 				//Ist die Seite einem Menü zugeordned?
 				$zugeor = $idfile->search_kimb_xxxid( $id , 'siteid' );
 				if( $zugeor == false ){
@@ -405,6 +405,21 @@ class BEsites{
 			}
 	
 		}
+		//Übersetzung löschen gewünscht
+		//	auch nicht Standardsprache?
+		elseif( isset( $_GET['deletelang'] ) && $_GET['langid'] != 0 ){
+			
+			//Alle Tags dieser Sprache löschen
+			$sitef->write_kimb_delete( $dbftag['title'] );
+			$sitef->write_kimb_delete( $dbftag['keywords'] );
+			$sitef->write_kimb_delete( $dbftag['description']  );
+			$sitef->write_kimb_delete( $dbftag['inhalt'] );
+			$sitef->write_kimb_delete( $dbftag['footer'] );
+
+			//Standardsprache öffnen
+			open_url('/kimb-cms-backend/sites.php?todo=edit&id='.$_GET['id']);
+			die;
+		}
 		
 		//alle Daten lesen
 		$seite['title'] = $sitef->read_kimb_one( $dbftag['title'] );
@@ -440,22 +455,43 @@ class BEsites{
 		add_content_editor( 'inhalt', $mdhere );
 		add_content_editor( 'footer', $mdhere );
 	
-		//Löschen und Seite ansehen Buttons
-		$sitecontent->add_site_content('<span onclick="var delet = del( '.$_GET['id'].' ); delet();"><span class="ui-icon ui-icon-trash" style="display:inline-block;" title="Diese Seite löschen."></span></span>');
+		//Löschen Button
+		//	bei Standardsprache ganze Seite
+		if( $_GET['langid'] == 0 ){
+			$sitecontent->add_site_content('<span onclick="delete_all( '.$_GET['id'].' );"><span class="ui-icon ui-icon-trash" style="display:inline-block;" title="Diese ganze Seite löschen."></span></span>');
+		}
+		//	sonst nur Überstzung
+		else {
+			$sitecontent->add_site_content('<span onclick="delete_lang( '.$_GET['id'].', '.$_GET['langid'].' ); "><span class="ui-icon ui-icon-trash" style="display:inline-block;" title="Diese Übersetzung der Seite löschen."></span></span>');
+		}
+		
+		//Vorschau Buttons
+		//	Seite normal veröffentlicht?
+		//		Link nutzen
 		if(  !$prevtoken ){
 			$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/index.php?id='.$id.'&langid='.$_GET['langid'].'" target="_blank"><span class="ui-icon ui-icon-newwin" style="display:inline-block;" title="Diese Seite anschauen."></span></a>');
 		}
+		//	Seite noch nicht veröffentlicht?
 		else{
+			//Seitenvorschaulink machen
+			
+			//Array in Session erstellen, welches die Vorschaucodes verwaltet
 			if( !is_array( $_SESSION['sites_preview'] ) ){
 				$_SESSION['sites_preview'] = array();
 			}
+			//schon ein Vorschaucode für diese Seite im Array?
 			if( !isset( $_SESSION['sites_preview'][$_GET['id']] ) || empty( $_SESSION['sites_preview'][$_GET['id']] ) ){
-					$prevcode = makepassw( 20, '', 'numaz' );
-					$_SESSION['sites_preview'][$_GET['id']] = $prevcode;
+				//Code machen
+				$prevcode = makepassw( 20, '', 'numaz' );
+				//ins Array
+				$_SESSION['sites_preview'][$_GET['id']] = $prevcode;
 			}
 			else {
+				//wenn Code schon erstellt auslesen
 				$prevcode = $_SESSION['sites_preview'][$_GET['id']];
 			}
+			//Hinweise zur Vorschau
+			//	Link
 			$sitecontent->echo_message( 'Die Vorschau funktioniert nur, wenn der FullHTMLCache deaktiviert oder gerade geleert worden ist!<br />Außderdem sind die Menüs/ Add-ons in der Vorschau wie auf der Startseite.<br /><a href="'.$allgsysconf['siteurl'].'/index.php?siteprev='.$prevcode.'&amp;id=1&langid='.$_GET['langid'].'" target="_blank"><span class="ui-icon ui-icon-newwin" style="display:inline-block;" title="Diese Seite anschauen."></span></a>', 'Vorschau' );
 		}
 		

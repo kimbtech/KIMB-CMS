@@ -287,19 +287,19 @@ class JSforBE{
 		//Dialog mit Löschabfrage
 		//'Suche'
 		$sitecontent->add_html_header('<script>
-		var del = function( id ) {
+		function delete_site( id ) {
 			$( "#del-site" ).show( "fast" );
 			$( "#del-site" ).dialog({
 			resizable: false,
 			height:200,
 			modal: true,
 			buttons: {
-				"Delete": function() {
+				"Löschen": function() {
 					$( this ).dialog( "close" );
 					window.location = "'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=del&id="+id;
 					return true;
 				},
-				Cancel: function() {
+				"Abbrechen": function() {
 					$( this ).dialog( "close" );
 					return false;
 				}
@@ -324,19 +324,39 @@ class JSforBE{
 		//Dialog mit Löschabfrage
 		//Hinzufügen von JavaScript Header Platzhaltern
 		$sitecontent->add_html_header('<script>
-		var del = function( id ) {
+		function delete_all( id ) {
 			$( "#del-site" ).show( "fast" );
 			$( "#del-site" ).dialog({
 			resizable: false,
 			height:200,
 			modal: true,
 			buttons: {
-				"Delete": function() {
+				"Löschen": function() {
 					$( this ).dialog( "close" );
 					window.location = "'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=del&id="+id;
 					return true;
 				},
-				Cancel: function() {
+				"Abbrechen": function() {
+					$( this ).dialog( "close" );
+					return false;
+				}
+			}
+			});
+		}
+		
+		function delete_lang( id, langid ) {
+			$( "#del-lang" ).show( "fast" );
+			$( "#del-lang" ).dialog({
+			resizable: false,
+			height:200,
+			modal: true,
+			buttons: {
+				"Löschen": function() {
+					$( this ).dialog( "close" );
+					window.location = "'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=edit&id="+id+"&langid="+langid+"&deletelang";
+					return true;
+				},
+				"Abbrechen": function() {
 					$( this ).dialog( "close" );
 					return false;
 				}
@@ -361,7 +381,8 @@ class JSforBE{
 		</script>');
 		
 		//Dialoginhalt
-		$sitecontent->add_site_content('<div style="display:none;"><div id="del-site" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Möchten Sie die Seite wirklich löschen?</p></div></div>');
+		$sitecontent->add_site_content('<div style="display:none;"><div id="del-site" title="Seite Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Möchten Sie die <u>komplette</u> Seite wirklich löschen? <br /><small>(Ein zugeordnetes Menü wird nicht gelöscht!)</small></p></div></div>');
+		$sitecontent->add_site_content('<div style="display:none;"><div id="del-lang" title="Übersetzung Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Möchten Sie wirklich diese <u>Übersetzung</u> der Seite löschen?</p></div></div>');
 	}
 	
 	//User erstellen Passwortindikator (Stärkebalken)
