@@ -82,7 +82,11 @@ class JSforBE{
 			name = $( "input[name=name]" ).val();
 	
 			klein = name.toLowerCase();
-			umg = klein.replace( / /g , "-");
+			umg = klein.replace( / /g , "-")
+				.replace( /ü/g , "ue")
+				.replace( /ü/g , "oe")
+				.replace( /ä/g , "ae")
+				.replace( /ß/g , "ss");
 	
 			$( "input[name=pfad]" ).val( umg );
 			

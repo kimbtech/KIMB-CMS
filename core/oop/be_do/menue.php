@@ -64,11 +64,20 @@ class BEmenue{
 				$newm['name'] = $POST['name'];
 				//den Pfad wenn leer aus Namen erstellen
 				if( $POST['pfad'] == '' ){
-					$newm['pfad'] = preg_replace("/[^0-9A-Za-z_.-]/","", $POST['name']);
+					$prepfad = $POST['name'];
+					$prepfad = trim( $prepfad );
+					$prepfad = mb_strtolower( $prepfad );
+					$prepfad = str_replace(
+							array( ' ', 'ä', 'ö', 'ü', 'ß' ),
+							array( '-', 'ae', 'oe', 'ue', 'ss' ),
+							$prepfad
+						);
+					$POST['pfad'] = $prepfad;
 				}
-				else{
-					$newm['pfad'] = preg_replace("/[^0-9A-Za-z_.-]/","", $POST['pfad']);
-				}
+				
+				//Pfad unpassende Zeichen raus
+				$newm['pfad'] = preg_replace("/[^0-9A-Za-z_.-]/","", $POST['pfad']);
+				
 				//noch keine NextID
 				$newm['nextid'] = '---empty---';
 				//RequestID feststellen (erste leere ID in der IDfile)
