@@ -118,6 +118,10 @@ input, button{
 	color:#000000;
 }
 
+button[disabled=disabled]{
+	color:#cccccc;
+}
+
 /* jQuery UI Styles */
 label {
 	display: inline-block;

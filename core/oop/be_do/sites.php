@@ -254,54 +254,106 @@ class BEsites{
 		
 		//alle Seiten lesen
 		$sites = scan_kimb_dir('site/');
+		//zählen
+		$maxsitenum = count( $sites ) - 1;
 
-		//Tabelle und Link zum Seite erstellen; Suchbox
+		//Link zum Seite erstellen
 		$sitecontent->add_site_content('<span><a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=new"><span class="ui-icon ui-icon-plus" style="display:inline-block;" title="Eine neue Seite erstellen."></span></a>');
+		//Suchbox
 		$sitecontent->add_site_content('<input type="text" class="search" onkeydown="if(event.keyCode == 13){ search(); }" ><button onclick="search();" title="Nach Seitenamen suchen ( genauer Seitenname nötig ).">Suchen</button></span><hr />');
-		$sitecontent->add_site_content('<table width="100%"><tr><th width="40px;" >ID</th><th>Name</th><th width="20px;">Status</th><th width="20px;">Löschen</th></tr>');
 	
 		//IDfile lesen
 		$idfile = new KIMBdbf('menue/allids.kimb');
+		
+		//Langfile ist immer Index 0
+		//	weg damit
+		$sites = array_slice( $sites, 1 );
+		
+		//Seitenliste Bereich
+		//	Fallback und GET Vars testen sowie übernehmen
+		if( empty( $_GET['ab'] ) ||
+			!( is_numeric( $_GET['ab'] ) && $_GET['ab'] > 0 )
+		){
+			$ab = 0;
+		}
+		else{
+			$ab = $_GET['ab'];
+		}
+		if( empty( $_GET['anz'] ) ||
+			!( is_numeric( $_GET['anz'] ) && $_GET['anz'] > 0 )
+		){
+			$anz = 10;
+		}
+		else{
+			$anz = $_GET['anz'];
+		}
+		//	Bereich der Seiten im Array übernehmen
+		$sites = array_slice( $sites, $ab, $anz ); 
+		
+		//Tabelle
+		$sitecontent->add_site_content('<table width="100%"><tr><th width="40px;" >ID</th><th>Name</th><th width="20px;">Status</th><th width="20px;">Löschen</th></tr>');
 	
 		//alle Seiten durchgehen
 		foreach ( $sites as $site ){
-			//nicht die Sprachdatei?
-			if( $site != 'langfile.kimb'){
-				//Seitendatei lesen
-				$sitef = new KIMBdbf('site/'.$site);
-				//SeitenID herausfinden
-				$id = preg_replace("/[^0-9]/","", $site);
-				//Seitentitel
-				$title = $sitef->read_kimb_one('title');
-				//Link zum Seite bearbeiten
-				$name = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=edit&amp;id='.$id.'" title="Seite bearbeiten.">'.$title.'</a>';
-				//Seiten Status anzeigen -> Link zum ändern
-				if ( strpos( $site , 'deak' ) !== false ){
-					$status = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=deakch&amp;id='.$id.'"><span class="ui-icon ui-icon-close" title="Diese Seite ist zu Zeit deaktiviert, also nicht auffindbar. ( click -> ändern )"></span></a>';
-				}
-				else{
-					$status = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=deakch&amp;id='.$id.'"><span class="ui-icon ui-icon-check" title="Diese Seite ist zu Zeit aktiviert, also sichtbar. ( click -> ändern )"></span></a>';
-				}
-				//Löschen Button anzeigen
-				$del = '<span onclick="delete_site( '.$id.' );"><span class="ui-icon ui-icon-trash" title="Diese Seite löschen."></span></span>';
-				//Ist die Seite einem Menü zugeordned?
-				$zugeor = $idfile->search_kimb_xxxid( $id , 'siteid' );
-				if( $zugeor == false ){
-					//nein, dann Hinweis ausgeben					
-					$status .= '<span class="ui-icon ui-icon-alert" title="Achtung, diese Seite ist noch keinem Menü zugeordnet, daher ist sie im Frontend nicht auffindbar!"></span>';
-				}
-				//Tabellenzeile anzeigen
-				$sitecontent->add_site_content('<tr><td>'.$id.'</td><td id="'.$title.'">'.$name.'</td><td>'.$status.'</td><td>'.$del.'</td></tr>');
-		
-				$liste = 'yes';
+			//Seitendatei lesen
+			$sitef = new KIMBdbf('site/'.$site);
+			//SeitenID herausfinden
+			$id = preg_replace("/[^0-9]/","", $site);
+			//Seitentitel
+			$title = $sitef->read_kimb_one('title');
+			//Link zum Seite bearbeiten
+			$name = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=edit&amp;id='.$id.'" title="Seite bearbeiten.">'.$title.'</a>';
+			//Seiten Status anzeigen -> Link zum ändern
+			if ( strpos( $site , 'deak' ) !== false ){
+				$status = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=deakch&amp;id='.$id.'"><span class="ui-icon ui-icon-close" title="Diese Seite ist zu Zeit deaktiviert, also nicht auffindbar. ( click -> ändern )"></span></a>';
 			}
+			else{
+				$status = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=deakch&amp;id='.$id.'"><span class="ui-icon ui-icon-check" title="Diese Seite ist zu Zeit aktiviert, also sichtbar. ( click -> ändern )"></span></a>';
+			}
+			//Löschen Button anzeigen
+			$del = '<span onclick="delete_site( '.$id.' );"><span class="ui-icon ui-icon-trash" title="Diese Seite löschen."></span></span>';
+			//Ist die Seite einem Menü zugeordned?
+			$zugeor = $idfile->search_kimb_xxxid( $id , 'siteid' );
+			if( $zugeor == false ){
+				//nein, dann Hinweis ausgeben					
+				$status .= '<span class="ui-icon ui-icon-alert" title="Achtung, diese Seite ist noch keinem Menü zugeordnet, daher ist sie im Frontend nicht auffindbar!"></span>';
+			}
+			//Tabellenzeile anzeigen
+			$sitecontent->add_site_content('<tr><td>'.$id.'</td><td id="'.$title.'">'.$name.'</td><td>'.$status.'</td><td>'.$del.'</td></tr>');
+		
+			$liste = 'yes';
 		}
 		$sitecontent->add_site_content('</table>');
 	
 		//Hinweis, wenn keine Seiten vorhanden
 		if( $liste != 'yes' ){
-			$sitecontent->echo_error( 'Es wurden keine Seiten gefunden!' );
+			$sitecontent->echo_error( 'Es wurden keine Seiten im gewählten Bereich gefunden!' );
 		}
+		
+		//Seitenbereichsauswahl
+		$thisab = round($ab, -1);
+		$disable_vorr = ( ( $ab <= 0 ) ? 'disabled="disabled"' : '' );
+		$ab_vorr = ( $thisab - 10 );
+		$anz_vorr = 10;
+		$disable_nae = ( ( $ab_vorr < $maxsitenum ) ? 'disabled="disabled"' : '' );
+		$ab_nae = ( $thisab + 10 );
+		$anz_nae = 10;
+		$thissite = ( $thisab / 10 );
+		
+		$sitecontent->add_site_content('<hr /><center>');
+		//Vor, Zurück
+		$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=list&amp;ab='.$ab_vorr.'&amp;anz='.$anz_vorr.'"><button '.$disable_vorr.'>Vorrige Seite</button></a>');
+		$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=list&amp;ab='.$ab_nae.'&amp;anz='.$anz_nae.'"><button '.$disable_nae.'>Nächste Seite</button></a>');
+		//Seitenzahl eingeben
+		$sitecontent->add_site_content( '<br />' );
+		$sitecontent->add_site_content( '<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php" method="GET" onsubmit="return open_siteint();">' );
+		$sitecontent->add_site_content( '<input type="hidden" name="todo" value="list">' );
+		$sitecontent->add_site_content( '<input type="hidden" name="anz" value="10">' );
+		$sitecontent->add_site_content( '<input type="hidden" id="siteab" name="ab" value="0">' );
+		$sitecontent->add_site_content( '<input type="number" id="siteint" value="'.( $thissite + 1 ).'">' );
+		$sitecontent->add_site_content( '<input type="submit" value="Seite Öffnen">' );
+		$sitecontent->add_site_content( '</from>' );
+		$sitecontent->add_site_content('</center>');
 	}
 	
 	//Seiten bearbeiten

@@ -282,9 +282,8 @@ function open_url($url, $area = 'insystem', $code = 303 ){
 //	$datei => KIMB-Datei Name
 function check_for_kimb_file($datei){
 	//Dateinamen bereinigen
-	$datei = preg_replace('/[\r\n]+/', '', $datei);
 	$datei = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '..'),array('ae','oe','ue','ss','Ae','Oe','Ue', '', '.'), $datei);
-	$datei = preg_replace( '/[^A-Za-z0-9]_.-/' , '' , $datei );
+	$datei = preg_replace( '/([^A-Za-z0-9\_\.\-\/])/' , '' , $datei );
 	//Sicherheit des Dateisystems
 	if(strpos($datei, "..") !== false){
 		echo ('Do not hack me!!');
@@ -307,9 +306,8 @@ function justnum( $str ) { return preg_replace( "/[^0-9]/" , "" , $str ); }
 // $datei => Verzeichnis
 function scan_kimb_dir($datei){
 	//Dateinamen bereinigen
-	$datei = preg_replace('/[\r\n]+/', '', $datei);
 	$datei = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '..'),array('ae','oe','ue','ss','Ae','Oe','Ue', '', '.'), $datei);
-	$datei = preg_replace( '/[^A-Za-z0-9]_.-/' , '' , $datei );
+	$datei = preg_replace( '/([^A-Za-z0-9\_\.\-\/])/' , '' , $datei );
 	//Dateisystem schützen
 	if(strpos($datei, "..") !== false){
 		echo ('Do not hack me!!');
@@ -468,13 +466,11 @@ function check_backend_login( $number , $permiss = 'less', $die = true ){
 //wie PHP rename( $datei1, $datei2  );
 function rename_kimbdbf( $datei1 , $datei2 ){
 	//Dateinamen bereinigen
-	$datei1 = preg_replace('/[\r\n]+/', '', $datei1);
 	$datei1 = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '..'),array('ae','oe','ue','ss','Ae','Oe','Ue', '', '.'), $datei1);
-	$datei1 = preg_replace( '/[^A-Za-z0-9]_.-/' , '' , $datei1 );
+	$datei1 = preg_replace( '/([^A-Za-z0-9\_\.\-\/])/' , '' , $datei1 );
 
-	$datei2 = preg_replace('/[\r\n]+/', '', $datei2);
 	$datei2 = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '..'),array('ae','oe','ue','ss','Ae','Oe','Ue', '', '.'), $datei2);
-	$datei2 = preg_replace( '/[^A-Za-z0-9]_.-/' , '' , $datei2 );
+	$datei2 = preg_replace( '/([^A-Za-z0-9\_\.\-\/])/' , '' , $datei2 );
 
 	//Dateisystem schützen
 	if(strpos($datei2, "..") !== false || strpos($datei1, "..") !== false){

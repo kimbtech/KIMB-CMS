@@ -310,6 +310,17 @@ class JSforBE{
 			var search = $( "input.search" ).val();
 			window.location = "'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=list#" + search;
 		}
+		
+		function open_siteint(){
+			var siteint = $( "input#siteint" ).val();
+			siteint = parseInt( siteint ) - 1;
+			var siteza = ( siteint * 10 ); 
+			$( "input#siteab" ).val( siteza );
+			
+			console.log( [ siteint, site ] );
+			
+			return true;
+		}
 		</script>');
 
 		//Dialoginhalt
