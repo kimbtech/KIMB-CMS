@@ -306,10 +306,6 @@ class JSforBE{
 			}
 			});
 		}
-		function search(){
-			var search = $( "input.search" ).val();
-			window.location = "'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=list#" + search;
-		}
 		
 		function open_siteint(){
 			var siteint = $( "input#siteint" ).val();

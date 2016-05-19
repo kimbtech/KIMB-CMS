@@ -254,13 +254,16 @@ class BEsites{
 		
 		//alle Seiten lesen
 		$sites = scan_kimb_dir('site/');
-		//zählen
-		$maxsitenum = count( $sites ) - 1;
 
 		//Link zum Seite erstellen
-		$sitecontent->add_site_content('<span><a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=new"><span class="ui-icon ui-icon-plus" style="display:inline-block;" title="Eine neue Seite erstellen."></span></a>');
+		$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=new"><button title="Eine neue Seite erstellen."><span class="ui-icon ui-icon-plus" style="display:inline-block;"></span></button></a>');
 		//Suchbox
-		$sitecontent->add_site_content('<input type="text" class="search" onkeydown="if(event.keyCode == 13){ search(); }" ><button onclick="search();" title="Nach Seitenamen suchen ( genauer Seitenname nötig ).">Suchen</button></span><hr />');
+		$sitecontent->add_site_content( '<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php" method="GET">' );
+		$sitecontent->add_site_content( '<input type="hidden" name="todo" value="list">' );
+		$sitecontent->add_site_content('<input type="text" name="search" placeholder="Titel" value="'.(!empty( $_GET['search'] ) ? htmlentities( $_GET['search'], ENT_COMPAT | ENT_HTML401,'UTF-8' ) : '' ).'">' );
+		$sitecontent->add_site_content('<input type="submit" title="Nach Seitenamen suchen." value="Suchen">' );
+		$sitecontent->add_site_content('</form>');
+		$sitecontent->add_site_content('<hr />');
 	
 		//IDfile lesen
 		$idfile = new KIMBdbf('menue/allids.kimb');
@@ -268,6 +271,62 @@ class BEsites{
 		//Langfile ist immer Index 0
 		//	weg damit
 		$sites = array_slice( $sites, 1 );
+		
+		//Suche (durchsucht und verändert das Array $sites)
+		if( !empty( $_GET['search'] ) ){
+			
+			//Suchbegriff optimieren
+			//	einfacher String
+			$search = mb_strtolower( trim( $_GET['search'] ) );
+			
+			//Array für gefundene
+			$new_sites_sehr_gut = array();
+			$new_sites_gut = array();
+			
+			//für unten
+			if( strlen( $search ) < 1000 ){
+				$complex = true;
+			}
+			else{
+				$complex = false;
+			}
+			
+			//alle Seiten durchgehen
+			foreach ( $sites as $site ){
+				//Seitendatei lesen
+				$sitef = new KIMBdbf('site/'.$site);
+				//Seitentitel lesen
+				$title = $sitef->read_kimb_one('title');
+				//Titel passend zu Suchbergiff optimieren
+				$title = mb_strtolower( trim( $title ) );
+				
+				//Testen
+				//	einfach gleich?
+				if( $title == $search ){
+					$new_sites_sehr_gut[] = $site;
+				}
+				else{
+					
+					//auch die Ähnlichkeit prüfen (das kann aber dauern)
+					//	nur bei kurzen Suchbegriffen
+					if( strlen( $title ) < 1000 && $complex ){
+						//Strings Unterschiede bestimmen
+						similar_text( $search, $title, $aehnlichkeit );
+						
+						//Unterschiede herausfinden und zählen
+						if( round( $aehnlichkeit ) > 70 ){
+							$new_sites_gut[] = $site;
+						}
+					}
+				}
+			}
+			
+			//Array $sites überscheiben
+			$sites = array_merge( $new_sites_sehr_gut, $new_sites_gut );		
+		}
+		
+		//Seiten zählen (Seite Weiter Button)
+		$maxsitenum = count( $sites );
 		
 		//Seitenliste Bereich
 		//	Fallback und GET Vars testen sowie übernehmen
@@ -291,7 +350,7 @@ class BEsites{
 		$sites = array_slice( $sites, $ab, $anz ); 
 		
 		//Tabelle
-		$sitecontent->add_site_content('<table width="100%"><tr><th width="40px;" >ID</th><th>Name</th><th width="20px;">Status</th><th width="20px;">Löschen</th></tr>');
+		$sitecontent->add_site_content('<table width="100%"><tr><th width="40px;" >ID</th><th>Seitenname/ Titel</th><th width="20px;">Status</th><th width="20px;">Löschen</th></tr>');
 	
 		//alle Seiten durchgehen
 		foreach ( $sites as $site ){
@@ -327,33 +386,41 @@ class BEsites{
 	
 		//Hinweis, wenn keine Seiten vorhanden
 		if( $liste != 'yes' ){
-			$sitecontent->echo_error( 'Es wurden keine Seiten im gewählten Bereich gefunden!' );
+			if( empty( $_GET['search'] ) ){
+				$sitecontent->echo_error( 'Es wurden keine Seiten im gewählten Bereich gefunden!' );
+			}
+			else{
+				$sitecontent->echo_error( 'Die Suche nach dem Seitentitel "'.htmlentities( $_GET['search'], ENT_COMPAT | ENT_HTML401,'UTF-8' ).'" ergab keine Treffer!!' );
+			}
 		}
 		
-		//Seitenbereichsauswahl
-		$thisab = round($ab, -1);
-		$disable_vorr = ( ( $ab <= 0 ) ? 'disabled="disabled"' : '' );
-		$ab_vorr = ( $thisab - 10 );
-		$anz_vorr = 10;
-		$disable_nae = ( ( $ab_vorr < $maxsitenum ) ? 'disabled="disabled"' : '' );
-		$ab_nae = ( $thisab + 10 );
-		$anz_nae = 10;
-		$thissite = ( $thisab / 10 );
-		
-		$sitecontent->add_site_content('<hr /><center>');
-		//Vor, Zurück
-		$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=list&amp;ab='.$ab_vorr.'&amp;anz='.$anz_vorr.'"><button '.$disable_vorr.'>Vorrige Seite</button></a>');
-		$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=list&amp;ab='.$ab_nae.'&amp;anz='.$anz_nae.'"><button '.$disable_nae.'>Nächste Seite</button></a>');
-		//Seitenzahl eingeben
-		$sitecontent->add_site_content( '<br />' );
-		$sitecontent->add_site_content( '<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php" method="GET" onsubmit="return open_siteint();">' );
-		$sitecontent->add_site_content( '<input type="hidden" name="todo" value="list">' );
-		$sitecontent->add_site_content( '<input type="hidden" name="anz" value="10">' );
-		$sitecontent->add_site_content( '<input type="hidden" id="siteab" name="ab" value="0">' );
-		$sitecontent->add_site_content( '<input type="number" id="siteint" value="'.( $thissite + 1 ).'">' );
-		$sitecontent->add_site_content( '<input type="submit" value="Seite Öffnen">' );
-		$sitecontent->add_site_content( '</from>' );
-		$sitecontent->add_site_content('</center>');
+		//Nur wenn kein Suchbegriff
+		if( empty( $_GET['search'] ) ){
+			//Seitenbereichsauswahl
+			$thisab = intval( round($ab, -1) );
+			$disable_vorr = ( ( $ab <= 0 ) ? 'disabled="disabled"' : '' );
+			$ab_vorr = ( $thisab - 10 );
+			$anz_vorr = 10;
+			$disable_nae = ( ( ( intval( $ab ) + 10 ) < $maxsitenum ) ? '' : 'disabled="disabled"' );
+			$ab_nae = ( $thisab + 10 );
+			$anz_nae = 10;
+			$thissite = ( $thisab / 10 );
+			
+			$sitecontent->add_site_content('<hr /><center>');
+			//Vor, Zurück
+			$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=list&amp;ab='.$ab_vorr.'&amp;anz='.$anz_vorr.'"><button '.$disable_vorr.'>Vorrige Seite</button></a>');
+			$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=list&amp;ab='.$ab_nae.'&amp;anz='.$anz_nae.'"><button '.$disable_nae.'>Nächste Seite</button></a>');
+			//Seitenzahl eingeben
+			$sitecontent->add_site_content( '<br />' );
+			$sitecontent->add_site_content( '<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php" method="GET" onsubmit="return open_siteint();">' );
+			$sitecontent->add_site_content( '<input type="hidden" name="todo" value="list">' );
+			$sitecontent->add_site_content( '<input type="hidden" name="anz" value="10">' );
+			$sitecontent->add_site_content( '<input type="hidden" id="siteab" name="ab" value="0">' );
+			$sitecontent->add_site_content( '<input type="number" id="siteint" value="'.( $thissite + 1 ).'">' );
+			$sitecontent->add_site_content( '<input type="submit" value="Seite Öffnen">' );
+			$sitecontent->add_site_content( '</from>' );
+			$sitecontent->add_site_content('</center>');
+		}
 	}
 	
 	//Seiten bearbeiten
