@@ -699,7 +699,7 @@ function gen_menue( $allgrequestid , $filename = 'url/first.kimb' , $grpath = '/
 //Aufruf z.B. im Backend "Menue" -> "Auflisten"
 //Ausgabe eines Menuearrays
 // => Aufruf über "make_menue_array_helper()" empfohlen [erfüllt automatisch alle Abhängigkeiten]
-function make_menue_array( $filename = 'url/first.kimb' , $niveau = '1' , $fileid = 'first' , $oldfilelisti = 'none'){
+function make_menue_array( $filename = 'url/first.kimb' , $niveau = '1' , $fileid = 'first' , $oldfilelisti = 'none', $deeper = true ){
 	global $menuenames, $idfile, $menuearray, $fileidlist, $filelisti;
 
 	//für Array mit den URL-Dateien, welche die NextID enthalten, erstellen
@@ -725,7 +725,9 @@ function make_menue_array( $filename = 'url/first.kimb' , $niveau = '1' , $filei
 		$menuname = $menuenames->read_kimb_one( $requid );
 		$siteid = $idfile->read_kimb_id( $requid , 'siteid' );
 		$menueid = $idfile->read_kimb_id( $requid , 'menueid' );
-		$fileidbefore = $fileidlist[$oldfilelisti];
+		if( $oldfilelisti != 'none' ){
+			$fileidbefore = $fileidlist[$oldfilelisti];
+		}
 
 		//kein Path mehr definiert, also keine Menüpunkte des Menüs mehr!
 		if( $path == '' ){
@@ -740,10 +742,11 @@ function make_menue_array( $filename = 'url/first.kimb' , $niveau = '1' , $filei
 		$menuearray[] = array( 'niveau' => $niveau, 'path' => $path, 'nextid' => $nextid , 'requid' => $requid, 'status' => $status, 'menuname' => $menuname, 'siteid' => $siteid, 'menueid' => $menueid, 'fileid' => $fileid , 'fileidbefore' => $fileidbefore );
 
 		//Nextid des aktuellen Menüpunktes lesen (Untermenüs vorhanden?)
-		if( $nextid != '' ){
+		//	nur wenn für diesen Aufruf erlaubt!
+		if( $nextid != '' && $deeper ){
 			//wenn vorhanden, dann diese Funktion verschachtelt starten (mit passenden Parametern)
 			$newniveau = $niveau + 1;
-			make_menue_array( 'url/nextid_'.$nextid.'.kimb' , $newniveau , $nextid , $filelisti );
+			make_menue_array( 'url/nextid_'.$nextid.'.kimb' , $newniveau , $nextid , $filelisti, $deeper );
 		}
 		$id++;
 	}
@@ -1353,10 +1356,22 @@ function make_lang_dropdown( $openurl, $langid ){
 
 //Array mit allen Menüpunkten erstellen
 //Vereinfachter Zugriff für make_menue_array(); [erfüllt automatisch alle Abhängigekeiten]
+//	$start => Menüdatei, welche als Oberste genommen werden soll (0 = first, einfach ID der Datei)
+//	$deeper => Untermenüs mit Menüpunkten auslesen (Funktion verschachteln?)
 //	Rückgabe: Menuearray
-function make_menue_array_helper(){
+function make_menue_array_helper( $start = 0, $deeper = true ){
 	//Abhängigekeiten erfüllen
 	global $idfile, $menuenames, $menuearray, $fileidlist, $filelisti;
+	
+	//Zahl aus Start in MenuePathFile umschreiben
+	if( $start == 0 || !is_numeric( $start ) ){
+		$startfi = 'url/first.kimb';
+		$startint = 'first';
+	}
+	else {
+		$startfi = 'url/nextid_'.$start.'.kimb';
+		$startint = $start;
+	}
 
 	$menuearray = array();
 	$fileidlist = '';
@@ -1366,7 +1381,7 @@ function make_menue_array_helper(){
 	$menuenames = new KIMBdbf('menue/menue_names.kimb');
 	
 	//ausführen	
-	make_menue_array();
+	make_menue_array( $startfi, '1' , $startint ,  'none', $deeper );
 	
 	//Rückgabe
 	return $menuearray;

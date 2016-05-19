@@ -42,7 +42,7 @@ class BEmenue{
 		$this->menuenames = new KIMBdbf('menue/menue_names.kimb');
 		if( is_object( $this->sitecontent ) && $tabelle ){
 			//CSS für Tabellen im BE, bei ajax.php nicht nötig
-			$this->sitecontent->add_html_header('<style>td { border:1px solid #000000; padding:2px;} td a { text-decoration:none; }</style>');
+			$this->sitecontent->add_html_header('<style>td:not( [class="nobor"] ) { border:1px solid #000000; padding:2px;} td a { text-decoration:none; }</style>');
 		}
 	}
 	
@@ -231,7 +231,7 @@ class BEmenue{
 		}
 		else{
 			//wenn Aufruf ohne Wahl einer Stelle Hinweis -> Link zu erstellen eines Menüs auf Grundebene (www.cms.com/)
-			$sitecontent->echo_message( 'Bitte wählen Sie zuerste eine Stelle über Menue -> Anpassen! <br />( Rechts in der Spalte Neu )<br /><a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=list"><button>Los geht&apos;s!</button></a>' );
+			$sitecontent->echo_message( 'Bitte wählen Sie zuerste eine Stelle über Menue -> Anpassen! <br />(Rechts in der Spalte Neu)<br /><a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=list"><button>Los geht&apos;s!</button></a>' );
 			$sitecontent->add_site_content('<br /><br />');
 			$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=new&file=first&niveau=same"><button>ODER direkt neues Menue auf Grundebene erstellen!</button></a>');
 		}
@@ -347,19 +347,94 @@ class BEmenue{
 		$idfile = $this->idfile;
 		$menuenames = $this->menuenames;
 		
-		$sitecontent->add_site_content('<h2>Alle Menues auflisten</h2>');
+		$sitecontent->add_site_content('<h2>Menüs auflisten</h2>');
 
 		//JavaScript
 		$this->jsobject->for_menue_list();
+	
+		//Tiefe der Menüliste und Beginn aus GET
+		//	Beginn gegeben und Zahl?
+		if( !empty( $_GET['start'] ) && is_numeric( $_GET['start'] ) && $_GET['start'] >= 0 ){
+			$array_start = $_GET['start'];
+		}
+		//	sonst bei 0 anfangen
+		else{
+			$array_start = 0;
+		}
+		//	Tiefer gehen definiert
+		if( !empty( $_GET['deeper'] ) &&
+			//an oder aus?
+			( $_GET['deeper'] == 'true' || $_GET['deeper'] == 'false' )
+		){
+			//an merken
+			if( $_GET['deeper'] == 'true' ){
+				$array_deeper = true;
+				$array_deeper_str = 'true';
+				$array_deeper_str_geg = 'false';
+			}
+			//aus merken
+			else {
+				 $array_deeper = false;
+				 $array_deeper_str = 'false';
+				 $array_deeper_str_geg = 'true';
+			}
+		}
+		//nicht gegeben => aus
+		else{
+			$array_deeper = false;
+			$array_deeper_str = 'false';
+			$array_deeper_str_geg = 'true';
+		}
 	
 		//IDfile neu laden für make_menue_array_helper();
 		unset( $idfile );
 		$this->idfile = new KIMBdbf('menue/allids.kimb');
 		$idfile = $this->idfile;
-		$menuearray = make_menue_array_helper();
+		$menuearray = make_menue_array_helper( $array_start, $array_deeper );
+		
+		//Menüauflistung verändern Buttons
+		$sitecontent->add_site_content('<p></p>');
+		$sitecontent->add_site_content('<center>');
+		
+		//Hinweistext zu Ansicht
+		$sitecontent->add_site_content('<b> '.(($array_start != 0 ) ? 'Menü "'.$array_start.'"' : 'Hauptmenü' ).' '.( ( $array_deeper ) ? 'mit' : 'ohne' ).' Untermenüs</b><br />');
+		
+		//Menü zurück (deaktivert sich bei 0)
+		if( ( $array_start - 1 ) >= 0 ){
+			$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=list&amp;start='.( $array_start - 1 ).'&amp;deeper='.$array_deeper_str.'">&larr; Menü zurück &larr;</a>');
+		}
+		else{
+			$sitecontent->add_site_content('<a style="color:#ccc;">&larr; Menü zurück &larr;</a>');
+		}
+		//Hauptmenü
+		$sitecontent->add_site_content(' &nbsp;&nbsp;&nbsp; ');
+		$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=list&amp;start=0&amp;deeper='.$array_deeper_str.'">&uarr; Hauptmenü &uarr;</a>');
+		$sitecontent->add_site_content(' &nbsp;&nbsp;&nbsp; ');
+		//Untermenüs on/off
+		$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=list&amp;start='.$array_start.'&amp;deeper='.$array_deeper_str_geg.'">&orarr; '.( ( $array_deeper ) ? 'ohne' : 'mit' ).' Untermenüs &olarr;</a>');
+		$sitecontent->add_site_content(' &nbsp;&nbsp;&nbsp; ');
+		//Menü vor
+		//	Anzahl bestimmen
+		$mens = scan_kimb_dir( 'url/' );
+		$menuescount = 0;
+		foreach ($mens as $value) {
+			if( preg_match( '/nextid_([0-9]*).kimb/', $value ) ){
+				$menuescount++;
+			}
+		}
+		//	noch ein Menü weiter möglich?
+		if( ( $array_start + 1 ) <= $menuescount ){
+			$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=list&amp;start='.( $array_start + 1 ).'&amp;deeper='.$array_deeper_str.'">&rarr; Menü vor &rarr;</a>');
+		}
+		else{
+			$sitecontent->add_site_content('<a style="color:#ccc;">&rarr; Menü vor &rarr;</a>');
+		}
+		
+		$sitecontent->add_site_content('</center>');
+		$sitecontent->add_site_content('<p></p>');
 		
 		//Tabelle beginnen
-		$sitecontent->add_site_content('<table width="100%"><tr> <th title="Jedes Menü hat eine Tiefe, ein Niveau. ( ein ==> ist eine Tiefe tiefer ) ">Niveau</th> <th></th> <th title="Dieser Name wird Besuchern im Frontend angezeigt">Menue Name</th> <th title="Pfad-Teil des Menues für URL-Rewriting">Pfad</th> <th title="ID für Aufruf /index.php?id=XXX">RequestID</th> <th>Status</th> <th title="ID der zugeordnenten Seite">SiteID</th> <th title="ID des Menüs ( Systemintern )">MenueID</th> <th>Löschen</th> <th>Neu</th> </tr>');
+		$sitecontent->add_site_content('<table width="100%"><tr> <th title="Jedes Menü hat eine Tiefe, ein Niveau. (ein ==> ist eine Tiefe tiefer) ">Niveau<span class="ui-icon ui-icon-info" title="Relativ zum ersten Menüpunkt dieser Ansicht, nicht zum Hauptmenü!" style="display:inline-block;"></small></th> <th></th> <th title="Dieser Name wird Besuchern im Frontend angezeigt">Menue Name</th> <th title="Pfad-Teil des Menues für URL-Rewriting">Pfad</th> <th title="ID für Aufruf /index.php?id=XXX">RequestID</th> <th>Status</th> <th title="ID der zugeordnenten Seite">SiteID</th> <th title="ID des Menüs ( Systemintern )">MenueID</th> <th>Löschen</th> <th>Neu</th> </tr>');
 		
 		//Link zum direkten Bearbeiten? 
 		//	nur wenn Rechte dazu
@@ -412,6 +487,12 @@ class BEmenue{
 	
 			//Tabellenzeile ausgeben
 			$sitecontent->add_site_content('<tr> <td>'.$menuear['niveau'].'</td> <td>'.$versch.'</td> <td>'.$menuename.'</td> <td>'.breakable( $menuear['path'], 2 ).'</td> <td>'.$requid.'</td> <td>'.$menuear['status'].'</td> <td>'.$siteid_and_link.'</td> <td>'.breakable( $menuear['menueid'], 2 ).'</td> <td>'.$del.'</td> <td>'.$newmenue.'</td> </tr>');
+			
+			if( !$array_deeper ){
+				if( !empty( $menuear['nextid'] ) ){
+					$sitecontent->add_site_content('<tr> <td class="nobor"></td> <td colspan="9" class="nobor"><a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=list&amp;start='.$menuear['nextid'].'&amp;deeper=false" title="Das hier gelegene Untermenü anzeigen."><span class="ui-icon ui-icon-arrowreturnthick-1-e" style="display:inline-block;"></span> Untermenü</a></td> </tr>');
+				}	
+			}
 	
 			$liste = 'yes';
 		}
