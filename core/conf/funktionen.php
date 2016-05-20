@@ -1363,25 +1363,66 @@ function make_menue_array_helper( $start = 0, $deeper = true ){
 	//Abhängigekeiten erfüllen
 	global $idfile, $menuenames, $menuearray, $fileidlist, $filelisti;
 	
+	$menuearray = array();
+	$fileidlist = array();
+	$filelisti;
+	
 	//Zahl aus Start in MenuePathFile umschreiben
 	if( $start == 0 || !is_numeric( $start ) ){
 		$startfi = 'url/first.kimb';
 		$startint = 'first';
+		$filebefore = 'none';
+		$oldfileidlisti;
 	}
 	else {
 		$startfi = 'url/nextid_'.$start.'.kimb';
 		$startint = $start;
+		
+		$filelisti = 0;
+		
+		//URL Datei finden, deren Untermenü hier gelesen wird!
+		//	Zuerst in first gucken, dann allen anderen Datein anschauen
+		$menfi = new KIMBdbf( 'url/first.kimb' );
+		$fid = $menfi->search_kimb_xxxid( $start, 'nextid' );
+		
+		//	gefunden in first?
+		if( $fid !== false ){
+			//first war vorher
+			$fileidlist[0] =  'first';
+			$oldfileidlisti = '0';
+		}
+		else{
+			//nicht gefunden
+			
+			//alle URL-Dateien lesen
+			$mens = scan_kimb_dir( 'url/' );
+			//und durchgehen
+			foreach ($mens as $value) {
+				//nur vom Namen her passende nutzen
+				if( preg_match( '/nextid_([0-9]*).kimb/', $value ) ){
+					//Datei einlesen
+					$menfi = new KIMBdbf( 'url/'.$value );
+					//Gucken ob Überdatei von Startdatei
+					$fid = $menfi->search_kimb_xxxid( $start, 'nextid' );
+					
+					//Gefunden?
+					if( $fid !== false ){
+						//ID merken
+						$fileidlist[0] = preg_replace(  '/[^0-9]/', '' ,$value );
+						$oldfileidlisti = '0';
+						//fertig
+						break;
+					}
+				}
+			}
+		}
 	}
-
-	$menuearray = array();
-	$fileidlist = '';
-	$filelisti = '';
 
 	$idfile = new KIMBdbf('menue/allids.kimb');
 	$menuenames = new KIMBdbf('menue/menue_names.kimb');
 	
 	//ausführen	
-	make_menue_array( $startfi, '1' , $startint ,  'none', $deeper );
+	make_menue_array( $startfi, '1' , $startint , $oldfileidlisti , $deeper );
 	
 	//Rückgabe
 	return $menuearray;

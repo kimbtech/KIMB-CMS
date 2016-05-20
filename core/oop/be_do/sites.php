@@ -364,13 +364,13 @@ class BEsites{
 			$name = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=edit&amp;id='.$id.'" title="Seite bearbeiten.">'.$title.'</a>';
 			//Seiten Status anzeigen -> Link zum ändern
 			if ( strpos( $site , 'deak' ) !== false ){
-				$status = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=deakch&amp;id='.$id.'"><span class="ui-icon ui-icon-close" title="Diese Seite ist zu Zeit deaktiviert, also nicht auffindbar. ( click -> ändern )"></span></a>';
+				$status = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=deakch&amp;id='.$id.'&amp;ab='.$ab.'"><span class="ui-icon ui-icon-close" title="Diese Seite ist zu Zeit deaktiviert, also nicht auffindbar. (click -> ändern)"></span></a>';
 			}
 			else{
-				$status = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=deakch&amp;id='.$id.'"><span class="ui-icon ui-icon-check" title="Diese Seite ist zu Zeit aktiviert, also sichtbar. ( click -> ändern )"></span></a>';
+				$status = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=deakch&amp;id='.$id.'&amp;ab='.$ab.'"><span class="ui-icon ui-icon-check" title="Diese Seite ist zu Zeit aktiviert, also sichtbar. (click -> ändern)"></span></a>';
 			}
 			//Löschen Button anzeigen
-			$del = '<span onclick="delete_site( '.$id.' );"><span class="ui-icon ui-icon-trash" title="Diese Seite löschen."></span></span>';
+			$del = '<span onclick="delete_site( '.$id.', '.$ab.' );"><span class="ui-icon ui-icon-trash" title="Diese Seite löschen."></span></span>';
 			//Ist die Seite einem Menü zugeordned?
 			$zugeor = $idfile->search_kimb_xxxid( $id , 'siteid' );
 			if( $zugeor == false ){

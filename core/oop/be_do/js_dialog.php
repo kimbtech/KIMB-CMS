@@ -112,19 +112,19 @@ class JSforBE{
 		//Abbruch des Löschvorgangs mit Hinweis bei vorhandenem Untermenü
 		//verschieben des Menüs nach oben oder unten per AJAX und reload oder Fehlerdialog
 		$sitecontent->add_html_header('<script>
-		var del = function( fileid , requid , fileidbefore) {
+		function del( fileid , requid , fileidbefore) {
 			$( "#del-menue" ).show( "fast" );
 			$( "#del-menue" ).dialog({
 			resizable: false,
 			height:200,
 			modal: true,
 			buttons: {
-				"Delete": function() {
+				"Löschen": function() {
 					$( this ).dialog( "close" );
 					window.location = "'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=del&file=" + fileid + "&reqid=" + requid + "&fileidbefore=" + fileidbefore;
 					return true;
 				},
-				Cancel: function() {
+				"Abbrechen": function() {
 					$( this ).dialog( "close" );
 					return false;
 				}
@@ -145,7 +145,7 @@ class JSforBE{
 			}
 			});
 		}
-		var updown = function( fileid , updo , requid ){
+		function updown( fileid , updo , requid ){
 			
 			var over = \'<div class="updown_over" style="position:absolute; top:0; right:0; width:100%; height:100%; background-color:gray; opacity:0.6;"></div>\';
 			over += \'<div class="updown_over" style="position:absolute; top:60px; left:60px; width:50px; height:50px; background-color:white; border:2px solid black; border-radius:15px;"><img width="50px" height="50px" src="'.$allgsysconf['siteurl'].'/load/system/spin_load.gif"></div>\';
@@ -153,7 +153,7 @@ class JSforBE{
 			
 			$.get( "'.$allgsysconf['siteurl'].'/ajax.php?file=menue.php&fileid=" + fileid + "&updo=" + updo + "&requid=" + requid , function( data ) {
 				if( data == "ok" ){
-					location.reload();
+					window.location = "'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=list";
 				}
 				else{
 					$( "#updown" ).show( "fast" );
@@ -287,7 +287,7 @@ class JSforBE{
 		//Dialog mit Löschabfrage
 		//'Suche'
 		$sitecontent->add_html_header('<script>
-		function delete_site( id ) {
+		function delete_site( id, ab ) {
 			$( "#del-site" ).show( "fast" );
 			$( "#del-site" ).dialog({
 			resizable: false,
@@ -296,7 +296,7 @@ class JSforBE{
 			buttons: {
 				"Löschen": function() {
 					$( this ).dialog( "close" );
-					window.location = "'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=del&id="+id;
+					window.location = "'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=del&id="+id+"&ab="+ab;
 					return true;
 				},
 				"Abbrechen": function() {

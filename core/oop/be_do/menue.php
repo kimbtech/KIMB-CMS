@@ -188,7 +188,7 @@ class BEmenue{
 		$idfile = $this->idfile;
 		$menuenames = $this->menuenames;
 		
-		$sitecontent->add_site_content('<h2>Ein neues Menue erstellen</h2>');
+		$sitecontent->add_site_content('<h2>Ein neues Menü erstellen</h2>');
 
 		//Überprüfung des Aufrufs (Wahl der Stelle durch Link aus Menüliste)
 		if( ( is_numeric( $_GET['file'] ) || $_GET['file'] == 'first' )  && ( $_GET['niveau'] == 'same' || $_GET['niveau'] == 'deeper' ) && ( is_numeric( $_GET['requid'] ) || !isset( $_GET['requid'] ) || $_GET['requid'] == '' ) ){
@@ -273,7 +273,7 @@ class BEmenue{
 			//Seitenarray
 			$allsites = list_sites_array();
 		
-			$sitecontent->add_site_content('<h2>Ein Menue einer Seite zuordnen</h2>');
+			$sitecontent->add_site_content('<h2>Ein Menü einer Seite zuordnen</h2>');
 			
 			//Menünavigation
 			$mennav = $this->menue_navigation( 'connect' );
@@ -414,7 +414,7 @@ class BEmenue{
 			//NextID vorhanden?
 			if( $menuear['nextid'] == ''){
 				//löschen möglich	
-				$del = '<span onclick="var delet = del( \''.$menuear['fileid'].'\' , '.$menuear['requid'].' , \''.$menuear['fileidbefore'].'\' ); delet();"><span class="ui-icon ui-icon-trash" title="Dieses Menue löschen."></span></span>';
+				$del = '<span onclick="del( \''.$menuear['fileid'].'\' , '.$menuear['requid'].' , \''.$menuear['fileidbefore'].'\' );"><span class="ui-icon ui-icon-trash" title="Dieses Menue löschen."></span></span>';
 			}
 			else{
 				//Löschen erst wenn kein Untermenü mehr
@@ -428,8 +428,8 @@ class BEmenue{
 			}
 	
 			//JavaScript Buttons zum verschieben
-			$versch = '<span onclick="var updo = updown( \''.$menuear['fileid'].'\' , \'up\' , '.$menuear['requid'].' ); updo();"><span class="ui-icon ui-icon-arrowthick-1-n" title="Dieses Menue nach oben schieben."></span></span>';
-			$versch .= '<span onclick="var updo = updown( \''.$menuear['fileid'].'\' , \'down\' , '.$menuear['requid'].' ); updo();"><span class="ui-icon ui-icon-arrowthick-1-s" title="Dieses Menue nach unten schieben."></span></span>';
+			$versch = '<span onclick=" updown( \''.$menuear['fileid'].'\' , \'up\' , '.$menuear['requid'].' );"><span class="ui-icon ui-icon-arrowthick-1-n" title="Dieses Menue nach oben schieben."></span></span>';
+			$versch .= '<span onclick="updown( \''.$menuear['fileid'].'\' , \'down\' , '.$menuear['requid'].' );"><span class="ui-icon ui-icon-arrowthick-1-s" title="Dieses Menue nach unten schieben."></span></span>';
 	
 			//Tabellenzeile ausgeben
 			$sitecontent->add_site_content('<tr> <td>'.$menuear['niveau'].'</td> <td>'.$versch.'</td> <td>'.$menuename.'</td> <td>'.breakable( $menuear['path'], 2 ).'</td> <td>'.$requid.'</td> <td>'.$menuear['status'].'</td> <td>'.$siteid_and_link.'</td> <td>'.breakable( $menuear['menueid'], 2 ).'</td> <td>'.$del.'</td> <td>'.$newmenue.'</td> </tr>');
@@ -456,6 +456,15 @@ class BEmenue{
 	protected function menue_navigation( $todo ){
 		$allgsysconf = $this->allgsysconf;
 		$sitecontent = $this->sitecontent;
+		
+		//kein GET start und deeper definiert?
+		//	evtl. Info in Session?
+		if( empty( $_GET['start'] ) && empty( $_GET['deeper']) ){
+			if( !empty( $_SESSION['menueview']['start'] ) && !empty( $_SESSION['menueview']['deeper'] ) ){
+				$_GET['start'] = $_SESSION['menueview']['start'];
+				$_GET['deeper'] = $_SESSION['menueview']['deeper'];
+			}
+		}
 		
 		//Tiefe der Menüliste und Beginn aus GET
 		//	Beginn gegeben und Zahl?
@@ -490,6 +499,10 @@ class BEmenue{
 			$array_deeper_str = 'false';
 			$array_deeper_str_geg = 'true';
 		}
+		
+		//In der Session ablegen
+		$_SESSION['menueview']['start'] = $array_start;
+		$_SESSION['menueview']['deeper'] = $array_deeper_str ;
 		
 		//Menüauflistung verändern Buttons
 		$sitecontent->add_site_content('<p></p>');
@@ -640,11 +653,12 @@ class BEmenue{
 		
 		//richtige URL-Datei lesen
 		if( $GET['file'] == 'first' ){
-			$file = new KIMBdbf( 'url/first.kimb' );
+			$file_name = 'url/first.kimb';
 		}
 		else{
-			$file = new KIMBdbf( 'url/nextid_'.$GET['file'].'.kimb' );
+			$file_name = 'url/nextid_'.$GET['file'].'.kimb';
 		}
+		$file = new KIMBdbf( $file_name );
 		//ID in der URL-Datei feststellen
 		$id = $file->search_kimb_xxxid( $GET['reqid'] , 'requestid');
 		//NextID lesen
@@ -685,6 +699,12 @@ class BEmenue{
 			$i = 1;
 			//erstmal Datei löschen
 			$file->delete_kimb_file();
+			//	komplett
+			unset( $file );
+			
+			//neu laden
+			$file = new KIMBdbf( $file_name );
+			
 			//alles eben gespeichertes wieder in die neue Datei einfügen
 			foreach( $newmenuefile as $newmenue ){
 				$file->write_kimb_id( $i , 'add' , 'path' , $newmenue['path'] );
@@ -763,11 +783,12 @@ class BEmenue{
 		
 			//URL-Datei lesen
 			if( $GET['fileid'] == 'first' ){
-				$file = new KIMBdbf( 'url/first.kimb' );
+				$file_name = 'url/first.kimb';
 			}
 			else{
-				$file = new KIMBdbf( 'url/nextid_'.$GET['fileid'].'.kimb' );
+				$file_name =  'url/nextid_'.$GET['fileid'].'.kimb';
 			}
+			$file = new KIMBdbf( $file_name );
 			//ID des Menüpunktes feststellen
 			$id = $file->search_kimb_xxxid( $GET['requid'] , 'requestid');
 			if( $id  != false ){
@@ -821,6 +842,12 @@ class BEmenue{
 				$i = 1;
 				//erstmal die URL-Datei leeren
 				$file->delete_kimb_file();
+				//	komplett
+				unset( $file );
+				
+				//und neu laden
+				$file = new KIMBdbf( $file_name );
+				
 				while( true ){
 					
 					//zu schreibenden ID in der neuen URL-Datei entsrpricht der neuen ID des Eintrags?
@@ -848,7 +875,7 @@ class BEmenue{
 					if( $data['requid'] == $GET['requid'] && $GET['updo'] == 'up' ){
 						$data = $newmenuefile[$i-1];
 					}
-	
+
 					//keine Daten mehr 
 					if( !isset( $data['path'] ) ){
 						//fertig -> verlassen

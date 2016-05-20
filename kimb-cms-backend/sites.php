@@ -65,7 +65,7 @@ elseif( $_GET['todo'] == 'del' && is_numeric( $_GET['id'] ) ){
 	//Methode ausführen
 	if( $besites->make_site_del( $_GET['id'] ) ){
 		//wenn erfolgreich auf Liste weiterleiten
-		open_url('/kimb-cms-backend/sites.php?todo=list');
+		open_url('/kimb-cms-backend/sites.php?todo=list&ab='.intval( $_GET['ab']));
 	}
 	else{
 		//sonst Fehler
@@ -84,7 +84,7 @@ elseif( $_GET['todo'] == 'deakch' && is_numeric( $_GET['id'] ) ){
 	//Methode ausführen
 	if( $besites->make_site_deakch( $_GET['id'] ) ){
 		//wenn erfolgreich auf Liste weiterleiten
-		open_url('/kimb-cms-backend/sites.php?todo=list');
+		open_url('/kimb-cms-backend/sites.php?todo=list&ab='.intval( $_GET['ab']) );
 	}
 	else{
 		//sonst Fehler
