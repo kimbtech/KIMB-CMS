@@ -386,10 +386,10 @@ class BEaddinst{
 			//je nach Status X oder V anzeigen
 			//	Link um Status zu ändern
 			if ( check_addon_status( $addon, $addoninclude ) ){
-				$status = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_inst.php?todo=chdeak&amp;addon='.$addon.'"><span class="ui-icon ui-icon-check" style="display:inline-block;" title="Dieses Add-on ist zu Zeit aktiviert. ( click -> ändern )"></span></a>';
+				$status = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_inst.php?todo=chdeak&amp;addon='.$addon.'"><span class="ui-icon ui-icon-check" style="display:inline-block;" title="Dieses Add-on ist zu Zeit aktiviert. (click -> ändern)"></span></a>';
 			}
 			else{
-				$status = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_inst.php?todo=chdeak&amp;addon='.$addon.'"><span class="ui-icon ui-icon-close" style="display:inline-block;" title="Dieses Add-on ist zu Zeit deaktiviert. ( click -> ändern )"></span></a>';
+				$status = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_inst.php?todo=chdeak&amp;addon='.$addon.'"><span class="ui-icon ui-icon-close" style="display:inline-block;" title="Dieses Add-on ist zu Zeit deaktiviert. (click -> ändern)"></span></a>';
 			}
 	
 			//Updateinfos lesen

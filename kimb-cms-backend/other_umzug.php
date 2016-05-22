@@ -56,6 +56,12 @@ if( $_GET['todo'] == 'add' && !empty( $_POST['url'] ) && !empty( $_POST['id'] ) 
 	if( substr( $_POST['url'], 0, 1 ) != '/' ){
 		$_POST['url'] = '/'.$_POST['url'];
 	}
+	
+	//Hinten auch einen / anfügen
+	//	wenn nicht schon geschehen
+	if( substr( $_POST['url'], -1, 1 ) != '/' ){
+		$_POST['url'] = $_POST['url'].'/';
+	}
 
 	//Seite auf die Weitergeleitet werden soll spiechern
 	$oldurlfile->write_kimb_id( $newid, 'add', 'id', $_POST['id'] );

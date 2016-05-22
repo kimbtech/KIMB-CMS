@@ -179,7 +179,7 @@ if( isset( $_GET['do'] ) && $allgsysconf['lang'] == 'on' ){
 	
 	//Tabellenzeile Standardsprache
 	$sitecontent->add_site_content('<tr> 
-		<td>0 <span class="ui-icon ui-icon-info" title="Standard ( Sprache des ersten Contents )" style="display:inline-block;"></span></td> 
+		<td>0 <span class="ui-icon ui-icon-info" title="Standard (Sprache des ersten Contents)" style="display:inline-block;"></span></td> 
 		<td><input style="width:95%;" type="text" name="stdtag" id="autocstd" class="stdtag" placeholder="Geben Sie einen Tag für eine Sprache an ( nach ISO 639; z.B.: de, en )" title="Geben Sie einen Tag für eine Sprache an ( nach ISO 639; z.B.: de, en )" onblur="setnameflag( \'stdflag\', \'stdtag\', \'stdlangnam\' );" value="'.$vals['tag'].'"></td> 
 		<td><input style="width:95%;" type="text" readonly="readonly" onfocus="make_editable( \'stdlangnam\' );" onblur="make_uneditable( \'stdlangnam\' );" name="stdlangname" title="Klicken zum Ändern!" id="stdlangnam" value="'.$vals['name'].'"></td>
 		');

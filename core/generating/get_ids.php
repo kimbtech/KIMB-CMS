@@ -51,13 +51,21 @@ if( isset($_GET['url']) && $allgsysconf['urlrewrite'] == 'on' && !isset($_GET['i
 	//Lesen der KIMBdbf
 	$oldurlfile = new KIMBdbf( 'menue/oldurl.kimb' );
 
+	//zu prüfende URL
+	$umzugurl = $_GET['url'];
+
 	//ist die aufgerufenen URL für eine Weiterleitung reserviert?
-	if (substr($_GET['url'], 0, 1) != '/') {
-		$umzugurl = '/'.$_GET['url'];
+	//	in KIMBdbf mit / vorne und hinten
+	//		vornen ran machen
+	if (substr($umzugurl, 0, 1) != '/') {
+		$umzugurl = '/'.$umzugurl;
 	}
-	else{
-		$umzugurl = $_GET['url'];
+	//		hinten ran machen
+	if (substr($umzugurl, -1, 1) != '/') {
+		$umzugurl = $umzugurl.'/';
 	}
+	
+	//suchen, ob vorhanden?
 	$oldurl = $oldurlfile->search_kimb_xxxid( $umzugurl , 'url' );
 
 	//sofern ja, dann machen
