@@ -699,11 +699,6 @@ class BEmenue{
 			$i = 1;
 			//erstmal Datei löschen
 			$file->delete_kimb_file();
-			//	komplett
-			unset( $file );
-			
-			//neu laden
-			$file = new KIMBdbf( $file_name );
 			
 			//alles eben gespeichertes wieder in die neue Datei einfügen
 			foreach( $newmenuefile as $newmenue ){
@@ -842,11 +837,6 @@ class BEmenue{
 				$i = 1;
 				//erstmal die URL-Datei leeren
 				$file->delete_kimb_file();
-				//	komplett
-				unset( $file );
-				
-				//und neu laden
-				$file = new KIMBdbf( $file_name );
 				
 				while( true ){
 					

@@ -38,7 +38,7 @@ class KIMBdbf {
 	protected $datei;
 	protected $encryptkey;
 	protected $dateicont;
-	protected $dateicontanfang;
+	protected $dateiconthash;
 	protected $dateidel = 'no';
 	protected $handle = false;
 	public $last_written_id;
@@ -119,6 +119,8 @@ class KIMBdbf {
 	
 	protected function file_write($inhalt, $art) {
 		
+		//Jetzt Datei sperren, denn Änderungen durch einen anderen Prozess
+		//dürfen erste gemacht werden, wenn hier alles wieder okay (geschrieben)!!
 		$this->file_lock();
 		
 		if( $this->dateicont == 'none' ){
@@ -166,51 +168,76 @@ class KIMBdbf {
 
 		$ok = false;
 
+		//Dateiinhalte verändert?
 		if( $this->dateiconthash != $nowhash && $this->dateidel == 'no' ){
+			//aufräumen
 			$this->dateicont = preg_replace( "/[\r\n]+[\s\t]*[\r\n]+/", "\r\n", $this->dateicont );
 			
+			//datei schon geladen? (und gesperrt)
 			if( !$this->handle ){
+				//machen
 				$this->file_lock();
 			}
+			//schreiben
 			$ok = fwrite($this->handle, $this->dateicont);
 			
+			//wenn okay, Hash anpassen
 			if( $ok ){
 				$this->dateiconthash = hash( 'sha256', $this->dateicont );
 			}
 		}
-		
-		if( $this->handle != false ){
-			//Datei wieder freigeben
-			flock( $this->handle, LOCK_UN );
-			fclose($this->handle);
-			$this->handle = false;
+		//Datei gelöscht
+		elseif( $this->dateiconthash == $nowhash && $this->dateidel == 'yes'){
+			$ok = unlink($this->path.'/kimb-data/'.$this->datei);
 		}
+		else{ 
+			//hier nur aus Datei gelesen, kein Schreiben auf die Platte notwendig
+			$ok = true;
+		}	
+		
+		//Datei entsperren
+		$this->file_unlock();
 		
 		return $ok;
 	}
 	
 	protected function file_lock(){
 		//Datei öffnen
+		
+		//vielleicht Datei schon geöffnet und dann auch schon gesperrt!
 		if( !$this->handle ){
+			//öffnen
 			$this->handle = fopen($this->path.'/kimb-data/'.$this->datei , 'w+');
-		}
-		//Versuche Datei zu sperren
-		//	bei Fehler, warte 1 Sec und versuche erneut
-		$i = 1;
-		while (!flock( $this->handle, LOCK_EX | LOCK_NB ) ) {
-			//Zu lange gewartet?
-			if( $i > 10 ){
-				echo "Can't lock and write KIMBdbf file!";
-				die;
+			
+			//Versuche Datei zu sperren
+			//	bei Fehler, warte 0.75 Sec und versuche erneut
+			$i = 1;
+			while (!flock( $this->handle, LOCK_EX | LOCK_NB ) ) {
+				//Zu lange gewartet?
+				if( $i > 10 ){
+					echo "Can't lock and write KIMBdbf file!";
+					die;
+				}
+				usleep( 750000 );
+				$i++;
 			}
-			usleep( 750000 );
-			$i++;
 		}
 		return;
 	}
+	
+	protected function file_unlock(){
+		//überhaupt gesperrt?
+		if( $this->handle != false ){
+			//Datei wieder freigeben
+			flock( $this->handle, LOCK_UN );
+			fclose($this->handle);
+			$this->handle = false;
+		}
+		return true;
+	}
 
 	public function __destruct() {
-
+		//Objekt wurde zerstört, also Änderungen abspeichern!!
 		return $this->write_file_to_disk();
 	}
 	
@@ -314,7 +341,7 @@ class KIMBdbf {
 
 	//KIMB-Dateien schreiben protected
 	protected function write_kimb_new_pr($teil, $inhalt){
-		if( $this->dateicont == 'none' ){
+		if( $this->dateicont == 'none' || $this->dateicont == '' ){
 			$writetext .= '<[about:doc]>KIMB dbf V'.self::DATEIVERSION.' - KIMB-technologies<[about:doc]>';
 		}
 		$writetext .= "\r\n".'<['.$teil.']>'.$inhalt.'<['.$teil.']>';
@@ -435,14 +462,20 @@ class KIMBdbf {
 	
 	//kimb datei loeschen
 	public function delete_kimb_file(){
-		if(unlink($this->path.'/kimb-data/'.$this->datei)){
-			$this->dateicont = 'none';
-			$this->dateidel = 'yes';
-			return true;
-		}
-		else{
-			return false;
-		}
+		
+		//Datei für andere sperren
+		$this->file_lock();
+
+		//Das Sperren und Entsperren ist hier nötig,
+		//damit die Datei im gleichen Objekt wieder
+		//neu geschrieben werden kann.  
+		
+		//Datei löschen
+		//	noch nicht auf Festplatte, nur vormerken
+		$this->dateicont = 'none';
+		$this->dateiconthash = hash( 'sha256', $this->dateicont );
+		$this->dateidel = 'yes';
+		return true;
 	}
 	
 	//gesamte kimb datei ausgaben
