@@ -45,7 +45,7 @@ if( !is_object( $levellist ) ){
 
 //Erstellung eines neuen Levels gewünscht?
 if( $_GET['todo'] == 'new' ){
-	$sitecontent->add_site_content('<h2>Neues Userlevel Backend erstellen</h2>');
+	$sitecontent->add_site_content('<h1>Neues Userlevel Backend erstellen</h1>');
 	//Link zur Liste aller Level
 	$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/other_level.php">&larr; Alle Level</a><br /><br />');
 
@@ -91,7 +91,7 @@ if( $_GET['todo'] == 'new' ){
 
 	//oder erstmal das Formular
 	$sitecontent->add_site_content('<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/other_level.php?todo=new" method="post" >');
-	$sitecontent->add_site_content('<input type="text" name="name"> <i title="Pflichtfeld , a-z">( Levelname * )</i><br />');
+	$sitecontent->add_site_content('<input type="text" name="name"> <i title="Pflichtfeld, a-z">(Levelname *)</i><br />');
 	$sitecontent->add_site_content('<input type="submit" value="Erstellen" >');
 	$sitecontent->add_site_content('</form>');
 
@@ -99,7 +99,7 @@ if( $_GET['todo'] == 'new' ){
 }
 //Levelbearbeitung
 elseif( $_GET['todo'] == 'edit' && isset( $_GET['level'] ) ){
-	$sitecontent->add_site_content('<h2>Userlevel Backend bearbeiten</h2>');
+	$sitecontent->add_site_content('<h1>Userlevel Backend bearbeiten</h1>');
 	//Link zur Liste aller Level
 	$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/other_level.php">&larr; Alle Level</a><br /><br />');
 
@@ -164,6 +164,11 @@ elseif( $_GET['todo'] == 'edit' && isset( $_GET['level'] ) ){
 		$sitecontent->add_site_content('<input type="text" name="name" readonly="readonly" value="'.$_GET['level'].'"> <i title="Nicht zu ändern.">(Levelname *)</i><br />');
 		$sitecontent->add_site_content('<span class="ui-icon ui-icon-info" title="Klicken Sie alle Menuepunkte an, auf die ein User der Gruppe Zugriff haben soll! (Es dürfen nicht alle Felder deaktiviert sein!)"></span><br />');
 
+
+		//Zugriffe auf Backendseiten
+		$sitecontent->add_site_content('<h2>Backendseiten</h2>');
+		$sitecontent->add_site_content('Wählen Sie aus auf welche Seiten im Backend die User zugreifen können.<br />');
+		
 		//Checkbox für jedes mögliche Recht
 		//	neuen Backendseiten müssen hier hinzugefügt werden
 		//	außerdem auch in die 'level.kimb'' unter 'all''
@@ -191,7 +196,26 @@ elseif( $_GET['todo'] == 'edit' && isset( $_GET['level'] ) ){
 		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'sixteen\' );" value="twentyone"'.$checks['twentyone'].'> Mehrsprachige Seite (twentyone) <br />');
 		$sitecontent->add_site_content('==><input type="checkbox" name="numbers[]" onclick="set_on( \'sixteen\' );" value="twentytwo"'.$checks['twentytwo'].'> Easy Menue (twentytwo) <br />');
 
-		$sitecontent->add_site_content('<input type="submit" value="Ändern" >');
+		$sitecontent->add_site_content('<p><input type="submit" value="Änderungen Speichern" ></p>');
+
+		//Zugriffe auf Untergruppen
+		$sitecontent->add_site_content('<h2>Untergruppen</h2>');
+		$sitecontent->add_site_content('Schränken Sie den Zugriff/ die Bearbeitung für einen User dieser Usergruppe auf bestimmte Seiten, Add-ons oder Menüs ein.<br />');
+		$sitecontent->add_site_content('<small>Diese Funktion macht nur Sinn sofern der User überhaupt Zugriff auf die entsprechende Backendseite hat!</small><br />');
+		$sitecontent->add_site_content('<small>Sie können jeweils wählen ob nur bestimmte gesperrt werden sollen und alle anderen erlaubt oder ob nur bestimmte erlaubt und alle anderen gesperrt sein sollen!</small>');
+		$sitecontent->add_site_content('<small>Neue erstellte Seiten/ Add-ons/ Menüs fallen immer in die Gruppe "alle andere"!</small><br />');
+		
+		$sitecontent->add_site_content('<h3>Seiten</h3>');
+		$sitecontent->add_site_content('Stellen Sie den Zugriff des Users auf die Seiten des CMS ein.<br />');
+	
+		$sitecontent->add_site_content('<h3>Add-ons</h3>');
+		$sitecontent->add_site_content('Stellen Sie den Zugriff des Users auf Add-ons des CMS ein.<br />');
+		$sitecontent->add_site_content('<small>Die Einstellungen gelten für Add-ons Nutzung sowie Konfiguration, wobei hier auch der Seitenzuriff oben zum tragen kommt!</small><br />');
+		
+		$sitecontent->add_site_content('<h3>Menüs</h3>');
+		$sitecontent->add_site_content('Sie können nicht jeden Menüpunkt einzeln einstellen, sondern nur ganze Menüs!<br />');
+
+		$sitecontent->add_site_content('<p><input type="submit" value="Änderungen Speichern" ></p>');
 		$sitecontent->add_site_content('</form>');
 	}
 	else{
@@ -252,7 +276,7 @@ elseif( $_GET['todo'] == 'del' && isset( $_GET['level'] ) ){
 //nichts besonderes gewünscht
 else{
 	//Übersicht über alle Level
-	$sitecontent->add_site_content('<h2>Userlevel Backend Liste</h2>');
+	$sitecontent->add_site_content('<h1>Userlevel Backend Liste</h1>');
 
 	//JavaScript für Löschen Dialog
 	$sitecontent->add_html_header('<script>

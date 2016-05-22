@@ -462,6 +462,35 @@ function check_backend_login( $number , $permiss = 'less', $die = true ){
 	}
 }
 
+//Diese Funktion ergänzt check_backend_login: Beim CMS ist es möglich für bestimmte User 
+//Seiten/ Add-ons/ Menüs getrennt zur Bearbeitung freizugeben oder auch zu sperren.
+//Diese Funktion prüft ob ein User auf eine Seite/ Add-on/ Menü zugreifen darf oder nicht!
+//	Die Sperrungen sind nur für Systemspezifische Gruppen verfügbar! (nicht more bzw. less)
+//	Die Sperrungen können unter Other -> Userlevel Backend für jede Gruppe definiert werden.
+//
+//	$art => s(Seite)/ a(Add-on)/ m(Menü)
+//	$id => ID der  Seite/ Add-on/ Menü für welche die Zugriffe abgefragt werden sollen
+//		Seite: SiteID
+//		Add-on: NameID
+//		Menü: NextID des Menüs (Menüdatei ID (first = 0))
+//	Rückgabe: Boolean (true => Zugriff erlaubt, false => kein Zugriff)
+//
+//	-> Die Funktion überprüft nicht den allgemeinen Loginstatus oder ob eine Gruppe/
+//	     ein User überhaupt einen Zugriff auf die entsprechende Backendseite hat.
+//	-> Die Funktion beendet außerdem das Skript nicht und gibt keine
+//	     Fehlermeldungen aus!
+function check_backend_permission( $art, $id ){
+	//less und more dürfen immer
+	if( $_SESSION['permission'] == 'more' || $_SESSION['permission'] == 'less' ){
+		return true;
+	}
+	else{
+		//Leveldatei für BE User lesen
+		$levellist = new KIMBdbf( 'backend/users/level.kimb' );
+		
+	}
+}
+
 //KIMB-Datei umbenennen/verschieben
 //wie PHP rename( $datei1, $datei2  );
 function rename_kimbdbf( $datei1 , $datei2 ){

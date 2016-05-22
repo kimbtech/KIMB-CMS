@@ -177,13 +177,13 @@ class KIMBdbf {
 			if( !$this->handle ){
 				//machen
 				$this->file_lock();
-			}
+			}			
 			//schreiben
 			$ok = fwrite($this->handle, $this->dateicont);
 			
 			//wenn okay, Hash anpassen
 			if( $ok ){
-				$this->dateiconthash = hash( 'sha256', $this->dateicont );
+				$this->dateiconthash = $nowhash;
 			}
 		}
 		//Datei gelöscht
@@ -206,8 +206,10 @@ class KIMBdbf {
 		
 		//vielleicht Datei schon geöffnet und dann auch schon gesperrt!
 		if( !$this->handle ){
+			
 			//öffnen
-			$this->handle = fopen($this->path.'/kimb-data/'.$this->datei , 'w+');
+			//	c+ wie w+ (nur Datei wird nicht schon geleert!) 
+			$this->handle = fopen($this->path.'/kimb-data/'.$this->datei , 'c+');
 			
 			//Versuche Datei zu sperren
 			//	bei Fehler, warte 0.75 Sec und versuche erneut
