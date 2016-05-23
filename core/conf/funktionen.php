@@ -488,7 +488,81 @@ function check_backend_permission( $art, $id ){
 		//Leveldatei für BE User lesen
 		$levellist = new KIMBdbf( 'backend/users/level.kimb' );
 		
+		//BE Usergruppe/ Level bestimmen
+		$level = $_SESSION['permission'];
+		
+		//Level des Users überhaupt vorhanden?
+		if( !empty( $levellist->read_kimb_one( $level ) ) ){
+		
+			//Tag der Art in der dbf feststellen
+			$artna = backend_untergrlevelarten();
+			$artna = $artna[$art];
+			
+			//Tags bestimmen
+			$allgteil = $level.'_'.$artna.'_allg';
+			$listteil = $level.'_'.$artna.'_list';
+			
+			//Daten laden
+			$allg = $levellist->read_kimb_one( $allgteil );
+			$list = $levellist->read_kimb_one( $listteil );
+			
+			//überhaupt was dazu angegeben
+			if( empty ( $allg ) && empty( $list ) ){
+				//keine Angabe => okay
+				return true;
+			}
+			else{
+				//welche ausgewählt?
+				if( !empty( $list ) ){
+					//	zu Array
+					$list = explode( ',', $list );
+				
+				
+					//ID schonmal im Array suchen
+					$in_array = in_array( $id, $list );
+				}
+				//sonst immer nicht gefunden
+				else{
+					$in_array = false;
+				}
+				
+				//Möglichkeiten abfragen und Rückgabe
+				if(
+					$allg == 'verbieten' &&
+					$in_array
+				){
+					return false;
+				}
+				elseif(
+					$allg == 'verbieten' &&
+					!$in_array
+				){
+					return true;
+				}
+				elseif(
+					$allg == 'erlauben' &&
+					$in_array
+				){
+					return true;
+				}
+				elseif(
+					$allg == 'erlauben' &&
+					!$in_array
+				){
+					return false;
+				}
+				
+			}
+		}
+		else{
+			return false;
+		}
 	}
+}
+
+//Untergruppenarten für die BE Level hier als Array vermerken
+function backend_untergrlevelarten(){
+	return array( 's' => 'seiten', 'a' => 'addon', 'm' => 'menues' );
 }
 
 //KIMB-Datei umbenennen/verschieben
@@ -819,8 +893,9 @@ function id_dropdown( $name, $id = 'siteid' ){
 }
 
 //Array mit allen installierten Add-on Namen (ID-Name) erstellen
+//	$name => true (nicht NameID sondern benutzerfreundlichen Namen und NameID [im Array] zurückgeben)/ false (nur NameID im Array)
 //	Rückgabe: Array
-function listaddons(){
+function listaddons( $name = false ){
 
 	//Add-on Verzeichnis lesen
 	$files = scandir(__DIR__.'/../addons/');
@@ -830,6 +905,21 @@ function listaddons(){
 		if( $file != '.' && $file != '..' &&  is_dir(__DIR__.'/../addons/'.$file) ){
 			//Array füllen
 			$read[] = $file;
+		}
+	}
+	
+	//richtiger Name statt NameID?
+	if( $name ){
+		//NameID backup
+		$read_back = $read;
+		//Ausgabe wieder leeren
+		$read = array();
+		//Names rausfinden
+		foreach( $read_back as $nameid ){
+			//INI lesen
+			$ini = parse_ini_file( __DIR__.'/../addons/'.$nameid.'/add-on.ini' , true);
+			//zur Ausgabe
+			$read[] = array( $ini['about']['name'], $nameid );
 		}
 	}
 	

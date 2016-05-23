@@ -90,7 +90,8 @@ class BEaddconf{
 		foreach( $addons as $addon ){
 			
 			//BE Conf okay?
-			if( $this->be_conffile_okay( $addon, $way ) ){
+			//Rechte des Users okay?
+			if( $this->be_conffile_okay( $addon, $way ) && check_backend_permission( 'a', $addon ) ){
 
 				$ret .= '<tr>';
 				$ret .= '<td>';
@@ -122,32 +123,39 @@ class BEaddconf{
 		if( isset( $_GET['addon'] ) ){
 			//Konfigurationsdialog
 			
-			$addonname = $this->get_addon_name( $_GET['addon'] );
-	
-			$sitecontent->add_site_content('<h2>Add-on "'.$addonname.'" nutzen</h2>');
-			$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=less">&larr; Alle Add-ons</a>');
-			
-			if(
-				//wenn auch Rechte für more, Link dorthin zeigen
-				check_backend_login( 'fourteen' , 'more', false) &&
-				//Datei more überhaupt vorhanden?
-				$this->be_conffile_okay( $_GET['addon'], 'more' )
-			){
-				$sitecontent->add_site_content('<a style="position:absolute; right:12px;" href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=more&addon='.$_GET['addon'].'">Zur Add-on Konfiguration &rarr;</a>');
-			}
-			$sitecontent->add_site_content('<hr />');
-			
-			//Meldung wenn Add-on nicht aktivert
-			if( check_addon( $_GET['addon'] ) == array( true, false ) ){
-				$sitecontent->echo_error( 'Dieses Add-on ist aktuell nicht aktivert!', 'unknown', 'Add-on nicht aktiv' );
-			}
-	
-			//Add-on Konfigurationsdatei laden
-			if( file_exists(__DIR__.'/../../addons/'.$_GET['addon'].'/conf_less.php') ){
-				require_once( __DIR__.'/../../addons/'.$_GET['addon'].'/conf_less.php' );
+			//Rechte okay?
+			if( check_backend_permission( 'a', $_GET['addon'] ) ) {
+				
+				$addonname = $this->get_addon_name( $_GET['addon'] );
+		
+				$sitecontent->add_site_content('<h2>Add-on "'.$addonname.'" nutzen</h2>');
+				$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=less">&larr; Alle Add-ons</a>');
+				
+				if(
+					//wenn auch Rechte für more, Link dorthin zeigen
+					check_backend_login( 'fourteen' , 'more', false) &&
+					//Datei more überhaupt vorhanden?
+					$this->be_conffile_okay( $_GET['addon'], 'more' )
+				){
+					$sitecontent->add_site_content('<a style="position:absolute; right:12px;" href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=more&addon='.$_GET['addon'].'">Zur Add-on Konfiguration &rarr;</a>');
+				}
+				$sitecontent->add_site_content('<hr />');
+				
+				//Meldung wenn Add-on nicht aktivert
+				if( check_addon( $_GET['addon'] ) == array( true, false ) ){
+					$sitecontent->echo_error( 'Dieses Add-on ist aktuell nicht aktivert!', 'unknown', 'Add-on nicht aktiv' );
+				}
+		
+				//Add-on Konfigurationsdatei laden
+				if( file_exists(__DIR__.'/../../addons/'.$_GET['addon'].'/conf_less.php') ){
+					require_once( __DIR__.'/../../addons/'.$_GET['addon'].'/conf_less.php' );
+				}
+				else{
+					$sitecontent->echo_error( 'Das gewählte Add-on wurde nicht gefunden!' , 'unknown');
+				}
 			}
 			else{
-				$sitecontent->echo_error( 'Das gewählte Add-on wurde nicht gefunden!' , 'unknown');
+				$sitecontent->echo_error( 'Sie haben keine Rechte um auf dieses Add-ons zuzugreifen!' , 'unknown');	
 			}
 		}
 		else{
@@ -169,33 +177,40 @@ class BEaddconf{
 		if( isset( $_GET['addon'] ) ){
 			//Konfigurationsdialog
 			
-			$addonname = $this->get_addon_name( $_GET['addon'] );
+			//Rechte okay?
+			if( check_backend_permission( 'a', $_GET['addon'] ) ) {
+			
+				$addonname = $this->get_addon_name( $_GET['addon'] );
 
-			$sitecontent->add_site_content('<h2>Add-on "'.$addonname.'" konfigurieren</h2>');
-			$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=more">&larr; Alle Add-ons</a>');
-			
-			if(
-				//wenn auch Rechte für less, Link dorthin zeigen
-				check_backend_login( 'thirteen' , 'less', false) &&
-				//Datei more überhaupt vorhanden?
-				$this->be_conffile_okay( $_GET['addon'], 'less' )
-			){
-				$sitecontent->add_site_content('<a style="position:absolute; right:12px;" href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=less&addon='.$_GET['addon'].'">Zur Add-on Nutzung &rarr;</a>');
-			}
-			
-			$sitecontent->add_site_content('<hr />');
-	
-			//Meldung wenn Add-on nicht aktivert
-			if( check_addon( $_GET['addon'] ) == array( true, false ) ){
-				$sitecontent->echo_error( 'Dieses Add-on ist aktuell nicht aktivert!', 'unknown', 'Add-on nicht aktiv' );
-			}
-	
-			//Add-on Konfigurationsdatei laden
-			if( file_exists(__DIR__.'/../../addons/'.$_GET['addon'].'/conf_more.php') ){
-				require_once( __DIR__.'/../../addons/'.$_GET['addon'].'/conf_more.php' );
+				$sitecontent->add_site_content('<h2>Add-on "'.$addonname.'" konfigurieren</h2>');
+				$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=more">&larr; Alle Add-ons</a>');
+				
+				if(
+					//wenn auch Rechte für less, Link dorthin zeigen
+					check_backend_login( 'thirteen' , 'less', false) &&
+					//Datei more überhaupt vorhanden?
+					$this->be_conffile_okay( $_GET['addon'], 'less' )
+				){
+					$sitecontent->add_site_content('<a style="position:absolute; right:12px;" href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=less&addon='.$_GET['addon'].'">Zur Add-on Nutzung &rarr;</a>');
+				}
+				
+				$sitecontent->add_site_content('<hr />');
+		
+				//Meldung wenn Add-on nicht aktivert
+				if( check_addon( $_GET['addon'] ) == array( true, false ) ){
+					$sitecontent->echo_error( 'Dieses Add-on ist aktuell nicht aktivert!', 'unknown', 'Add-on nicht aktiv' );
+				}
+		
+				//Add-on Konfigurationsdatei laden
+				if( file_exists(__DIR__.'/../../addons/'.$_GET['addon'].'/conf_more.php') ){
+					require_once( __DIR__.'/../../addons/'.$_GET['addon'].'/conf_more.php' );
+				}
+				else{
+					$sitecontent->echo_error( 'Das gewählte Add-on wurde nicht gefunden!' , 'unknown');
+				}
 			}
 			else{
-				$sitecontent->echo_error( 'Das gewählte Add-on wurde nicht gefunden!' , 'unknown');
+				$sitecontent->echo_error( 'Sie haben keine Rechte um auf dieses Add-ons zuzugreifen!' , 'unknown');	
 			}
 		}
 		else{

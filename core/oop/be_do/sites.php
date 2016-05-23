@@ -360,17 +360,30 @@ class BEsites{
 			$id = preg_replace("/[^0-9]/","", $site);
 			//Seitentitel
 			$title = $sitef->read_kimb_one('title');
-			//Link zum Seite bearbeiten
-			$name = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=edit&amp;id='.$id.'" title="Seite bearbeiten.">'.$title.'</a>';
-			//Seiten Status anzeigen -> Link zum ändern
-			if ( strpos( $site , 'deak' ) !== false ){
-				$status = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=deakch&amp;id='.$id.'&amp;ab='.$ab.'"><span class="ui-icon ui-icon-close" title="Diese Seite ist zu Zeit deaktiviert, also nicht auffindbar. (click -> ändern)"></span></a>';
+			//Rechte für diese Seite?
+			if( check_backend_permission( 's', $id ) ){
+				//Link zum Seite bearbeiten
+				$name = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=edit&amp;id='.$id.'" title="Seite bearbeiten.">'.$title.'</a>';
+				
+				//Seiten Status anzeigen -> Link zum ändern
+				if ( strpos( $site , 'deak' ) !== false ){
+					$status = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=deakch&amp;id='.$id.'&amp;ab='.$ab.'"><span class="ui-icon ui-icon-close" title="Diese Seite ist zu Zeit deaktiviert, also nicht auffindbar. (click -> ändern)"></span></a>';
+				}
+				else{
+					$status = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=deakch&amp;id='.$id.'&amp;ab='.$ab.'"><span class="ui-icon ui-icon-check" title="Diese Seite ist zu Zeit aktiviert, also sichtbar. (click -> ändern)"></span></a>';
+				}
+				
+				//Löschen Button anzeigen
+				$del = '<span onclick="delete_site( '.$id.', '.$ab.' );"><span class="ui-icon ui-icon-trash" title="Diese Seite löschen."></span></span>';
 			}
+			//keine Rechte Link dunkel färben
 			else{
-				$status = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=deakch&amp;id='.$id.'&amp;ab='.$ab.'"><span class="ui-icon ui-icon-check" title="Diese Seite ist zu Zeit aktiviert, also sichtbar. (click -> ändern)"></span></a>';
+				$name= '<a style="color:#ccc;" title="Sie haben keine Rechte diese Seite zu bearbeiten!">'.$title.'</a>';
+				$status = ( strpos( $site , 'deak' ) !== false ? '<span class="ui-icon ui-icon-close ui-state-disabled" title="Diese Seite ist zu Zeit deaktiviert, also nicht auffindbar."></span>' : '<span class="ui-icon ui-icon-check ui-state-disabled" title="Diese Seite ist zu Zeit aktiviert, also sichtbar."></span>' );
+				$del = '<span class="ui-icon ui-icon-trash ui-state-disabled" title="Diese Seite löschen."></span>';
 			}
-			//Löschen Button anzeigen
-			$del = '<span onclick="delete_site( '.$id.', '.$ab.' );"><span class="ui-icon ui-icon-trash" title="Diese Seite löschen."></span></span>';
+			
+			
 			//Ist die Seite einem Menü zugeordned?
 			$zugeor = $idfile->search_kimb_xxxid( $id , 'siteid' );
 			if( $zugeor == false ){
@@ -430,256 +443,274 @@ class BEsites{
 		
 		$sitecontent->add_site_content('<h2>Seite bearbeiten</h2>');
 		
-		//Seite braucht erstmal keinen besodneren Vorschaulink
-		$prevtoken = false;
+		//Rechte für diese Seite?
+		if( check_backend_permission( 's', $_GET['id'] ) ){
 		
-		//Wenn Seitendatei nicht geladen, laden dieser
-		if( !is_object( $sitef ) ){
-			//Seite aktiviert?
-			if( check_for_kimb_file( '/site/site_'.$_GET['id'].'.kimb' ) ){
-				$sitef = new KIMBdbf( '/site/site_'.$_GET['id'].'.kimb' );
+			//Seite braucht erstmal keinen besodneren Vorschaulink
+			$prevtoken = false;
+			
+			//Wenn Seitendatei nicht geladen, laden dieser
+			if( !is_object( $sitef ) ){
+				//Seite aktiviert?
+				if( check_for_kimb_file( '/site/site_'.$_GET['id'].'.kimb' ) ){
+					$sitef = new KIMBdbf( '/site/site_'.$_GET['id'].'.kimb' );
+				}
+				//Seite deaktiviert?
+				elseif( check_for_kimb_file( '/site/site_'.$_GET['id'].'_deak.kimb' ) ){
+					$sitef = new KIMBdbf( '/site/site_'.$_GET['id'].'_deak.kimb' );
+					
+					$prevtoken = true;
+				}
+				//Seite nicht vorhanden -> Fehler
+				else{
+					$sitecontent->echo_error('Die Seite wurde nicht gefunden' , '404');
+					$sitecontent->output_complete_site();
+					die;
+				}
 			}
-			//Seite deaktiviert?
-			elseif( check_for_kimb_file( '/site/site_'.$_GET['id'].'_deak.kimb' ) ){
-				$sitef = new KIMBdbf( '/site/site_'.$_GET['id'].'_deak.kimb' );
+			
+			//Sprache
+			if( $allgsysconf['lang'] == 'on' && $_GET['langid'] != 0 && is_numeric( $_GET['langid'] ) ){
+				//andere Tags wenn nicht Standardsprache
+				$dbftag['title'] = 'title-'.$_GET['langid'];
+				$dbftag['keywords'] = 'keywords-'.$_GET['langid'];
+				$dbftag['description'] = 'description-'.$_GET['langid'];
+				$dbftag['inhalt'] = 'inhalt-'.$_GET['langid'];
+				$dbftag['footer'] = 'footer-'.$_GET['langid'];
 				
-				$prevtoken = true;
+				//wurde diese Sprache schon geladen?
+				if( empty( $sitef->read_kimb_one( $dbftag['title'] ) ) && empty( $sitef->read_kimb_one( $dbftag['inhalt'] ) ) ){
+					//wenn nicht die Sprachdatei vorbereiten
+					$sitef->write_kimb_one( $dbftag['title'] , 'Title' );
+					$sitef->write_kimb_one( $dbftag['keywords'] , '' );
+					$sitef->write_kimb_one( $dbftag['description'] , '' );
+					$sitef->write_kimb_one( $dbftag['inhalt'] , '<h1>Inhalt</h1>' );
+					$sitef->write_kimb_one( $dbftag['footer'] , '' );				
+				}
 			}
-			//Seite nicht vorhanden -> Fehler
 			else{
-				$sitecontent->echo_error('Die Seite wurde nicht gefunden' , '404');
-				$sitecontent->output_complete_site();
+				//Standardtags
+				$dbftag['title'] = 'title';
+				$dbftag['keywords'] = 'keywords';
+				$dbftag['description'] = 'description';
+				$dbftag['inhalt'] = 'inhalt';
+				$dbftag['footer'] = 'footer';
+				
+				$_GET['langid'] = 0;				
+			}
+			
+			//wenn Sprache aktiviert, Dropdown für Sprachwahl
+			if( $allgsysconf['lang'] == 'on'){
+				make_lang_dropdown( '"'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=edit&id='.$_GET['id'].'&langid=" + val', $_GET['langid'] );
+			}
+		
+			//JavaScript
+			$this->jsobject->for_site_edit();	
+		
+			//wurden Daten übermittelt?
+			if( isset( $_POST['title'] ) || isset( $_POST['inhalt'] ) ){
+				
+				//den URL-Placeholder einsetzen
+				$_POST['inhalt'] = str_replace( $allgsysconf['siteurl'],  '<!--SYS-SITEURL-->', $_POST['inhalt'] );
+				$_POST['footer'] = str_replace( $allgsysconf['siteurl'],  '<!--SYS-SITEURL-->', $_POST['footer'] );
+				$_POST['header'] = str_replace( $allgsysconf['siteurl'],  '<!--SYS-SITEURL-->', $_POST['header'] );
+		
+				//Daten in die dbf schreiben
+				$sitef->write_kimb_replace( $dbftag['title'] , $_POST['title'] );
+				$sitef->write_kimb_replace( 'header' , $_POST['header'] );
+				$sitef->write_kimb_replace( $dbftag['keywords'] , $_POST['keywords'] );
+				$sitef->write_kimb_replace( $dbftag['description'] , $_POST['description'] );
+				$sitef->write_kimb_replace( $dbftag['inhalt'] , $_POST['inhalt'] );
+				$sitef->write_kimb_replace( $dbftag['footer'] , $_POST['footer'] );
+				$sitef->write_kimb_replace( 'time' , time() );
+				$sitef->write_kimb_replace( 'made_user' , $_SESSION['name'] );
+				if( !empty( $_POST['markdown'] ) ){
+					$sitef->write_kimb_one( 'markdown', $_POST['markdown'] );
+				}
+				
+				
+				//Seiten Cache leeren gewünscht?
+				if( $allgsysconf['cache'] == 'on' && isset( $_POST['delcache'] ) ){
+					//Cache OBJ machen
+					$ca = new cacheCMS($allgsysconf, $sitecontent);
+					//Cache leeren (nur diese Seite und aktuelle Sprache)
+					$ca->del_cache_site( $_GET['id'] , $_GET['langid'] );
+					//OBJ wieder weg
+					unset( $ca );
+				}
+		
+			}
+			//Übersetzung löschen gewünscht
+			//	auch nicht Standardsprache?
+			elseif( isset( $_GET['deletelang'] ) && $_GET['langid'] != 0 ){
+				
+				//Alle Tags dieser Sprache löschen
+				$sitef->write_kimb_delete( $dbftag['title'] );
+				$sitef->write_kimb_delete( $dbftag['keywords'] );
+				$sitef->write_kimb_delete( $dbftag['description']  );
+				$sitef->write_kimb_delete( $dbftag['inhalt'] );
+				$sitef->write_kimb_delete( $dbftag['footer'] );
+
+				//Standardsprache öffnen
+				open_url('/kimb-cms-backend/sites.php?todo=edit&id='.$_GET['id']);
 				die;
 			}
-		}
+			
+			//alle Daten lesen
+			$seite['title'] = $sitef->read_kimb_one( $dbftag['title'] );
+			$seite['header'] = $sitef->read_kimb_one( 'header' );
+			$seite['keywords'] = $sitef->read_kimb_one( $dbftag['keywords'] );
+			$seite['description'] = $sitef->read_kimb_one( $dbftag['description'] );
+			$seite['inhalt'] = $sitef->read_kimb_one( $dbftag['inhalt'] );
+			$seite['footer'] = $sitef->read_kimb_one( $dbftag['footer'] );
+			$seite['time'] = $sitef->read_kimb_one( 'time' );
+			$seite['time'] = date( "d.m.Y \u\m H:i" , $seite['time'] );
+			$seite['markdown'] = $sitef->read_kimb_one( 'markdown' );
 		
-		//Sprache
-		if( $allgsysconf['lang'] == 'on' && $_GET['langid'] != 0 && is_numeric( $_GET['langid'] ) ){
-			//andere Tags wenn nicht Standardsprache
-			$dbftag['title'] = 'title-'.$_GET['langid'];
-			$dbftag['keywords'] = 'keywords-'.$_GET['langid'];
-			$dbftag['description'] = 'description-'.$_GET['langid'];
-			$dbftag['inhalt'] = 'inhalt-'.$_GET['langid'];
-			$dbftag['footer'] = 'footer-'.$_GET['langid'];
-			
-			//wurde diese Sprache schon geladen?
-			if( empty( $sitef->read_kimb_one( $dbftag['title'] ) ) && empty( $sitef->read_kimb_one( $dbftag['inhalt'] ) ) ){
-				//wenn nicht die Sprachdatei vorbereiten
-				$sitef->write_kimb_one( $dbftag['title'] , 'Title' );
-				$sitef->write_kimb_one( $dbftag['keywords'] , '' );
-				$sitef->write_kimb_one( $dbftag['description'] , '' );
-				$sitef->write_kimb_one( $dbftag['inhalt'] , '<h1>Inhalt</h1>' );
-				$sitef->write_kimb_one( $dbftag['footer'] , '' );				
-			}
-		}
-		else{
-			//Standardtags
-			$dbftag['title'] = 'title';
-			$dbftag['keywords'] = 'keywords';
-			$dbftag['description'] = 'description';
-			$dbftag['inhalt'] = 'inhalt';
-			$dbftag['footer'] = 'footer';
-			
-			$_GET['langid'] = 0;				
-		}
+			//Überprüfung ob Seite einen Menüpunkt hat, wenn nicht Hinweis
+			$idfile = new KIMBdbf('menue/allids.kimb');
+			$id = $idfile->search_kimb_xxxid( $_GET['id'] , 'siteid' );
 		
-		//wenn Sprache aktiviert, Dropdown für Sprachwahl
-		if( $allgsysconf['lang'] == 'on'){
-			make_lang_dropdown( '"'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=edit&id='.$_GET['id'].'&langid=" + val', $_GET['langid'] );
-		}
-	
-		//JavaScript
-		$this->jsobject->for_site_edit();	
-	
-		//wurden Daten übermittelt?
-		if( isset( $_POST['title'] ) || isset( $_POST['inhalt'] ) ){
-			
-			//den URL-Placeholder einsetzen
-			$_POST['inhalt'] = str_replace( $allgsysconf['siteurl'],  '<!--SYS-SITEURL-->', $_POST['inhalt'] );
-			$_POST['footer'] = str_replace( $allgsysconf['siteurl'],  '<!--SYS-SITEURL-->', $_POST['footer'] );
-			$_POST['header'] = str_replace( $allgsysconf['siteurl'],  '<!--SYS-SITEURL-->', $_POST['header'] );
-	
-			//Daten in die dbf schreiben
-			$sitef->write_kimb_replace( $dbftag['title'] , $_POST['title'] );
-			$sitef->write_kimb_replace( 'header' , $_POST['header'] );
-			$sitef->write_kimb_replace( $dbftag['keywords'] , $_POST['keywords'] );
-			$sitef->write_kimb_replace( $dbftag['description'] , $_POST['description'] );
-			$sitef->write_kimb_replace( $dbftag['inhalt'] , $_POST['inhalt'] );
-			$sitef->write_kimb_replace( $dbftag['footer'] , $_POST['footer'] );
-			$sitef->write_kimb_replace( 'time' , time() );
-			$sitef->write_kimb_replace( 'made_user' , $_SESSION['name'] );
-			if( !empty( $_POST['markdown'] ) ){
-				$sitef->write_kimb_one( 'markdown', $_POST['markdown'] );
+			if( $id == false ){
+				$sitecontent->echo_message( 'Achtung, diese Seite ist noch keinem Menü zugeordnet, daher ist sie im Frontend nicht auffindbar!' );
+				$prevtoken = true;
 			}
 			
-			
-			//Seiten Cache leeren gewünscht?
-			if( $allgsysconf['cache'] == 'on' && isset( $_POST['delcache'] ) ){
-				//Cache OBJ machen
-				$ca = new cacheCMS($allgsysconf, $sitecontent);
-				//Cache leeren (nur diese Seite und aktuelle Sprache)
-				$ca->del_cache_site( $_GET['id'] , $_GET['langid'] );
-				//OBJ wieder weg
-				unset( $ca );
+			//Editoren laden (Footer, Inhalt)
+			// MD beachten
+			if(
+				( $allgsysconf['markdown'] == 'custom' && $seite['markdown'] == 'on' ) ||
+				( $allgsysconf['markdown'] == 'on' )
+			){
+				$mdhere = true;
 			}
-	
-		}
-		//Übersetzung löschen gewünscht
-		//	auch nicht Standardsprache?
-		elseif( isset( $_GET['deletelang'] ) && $_GET['langid'] != 0 ){
-			
-			//Alle Tags dieser Sprache löschen
-			$sitef->write_kimb_delete( $dbftag['title'] );
-			$sitef->write_kimb_delete( $dbftag['keywords'] );
-			$sitef->write_kimb_delete( $dbftag['description']  );
-			$sitef->write_kimb_delete( $dbftag['inhalt'] );
-			$sitef->write_kimb_delete( $dbftag['footer'] );
-
-			//Standardsprache öffnen
-			open_url('/kimb-cms-backend/sites.php?todo=edit&id='.$_GET['id']);
-			die;
-		}
-		
-		//alle Daten lesen
-		$seite['title'] = $sitef->read_kimb_one( $dbftag['title'] );
-		$seite['header'] = $sitef->read_kimb_one( 'header' );
-		$seite['keywords'] = $sitef->read_kimb_one( $dbftag['keywords'] );
-		$seite['description'] = $sitef->read_kimb_one( $dbftag['description'] );
-		$seite['inhalt'] = $sitef->read_kimb_one( $dbftag['inhalt'] );
-		$seite['footer'] = $sitef->read_kimb_one( $dbftag['footer'] );
-		$seite['time'] = $sitef->read_kimb_one( 'time' );
-		$seite['time'] = date( "d.m.Y \u\m H:i" , $seite['time'] );
-		$seite['markdown'] = $sitef->read_kimb_one( 'markdown' );
-	
-		//Überprüfung ob Seite einen Menüpunkt hat, wenn nicht Hinweis
-		$idfile = new KIMBdbf('menue/allids.kimb');
-		$id = $idfile->search_kimb_xxxid( $_GET['id'] , 'siteid' );
-	
-		if( $id == false ){
-			$sitecontent->echo_message( 'Achtung, diese Seite ist noch keinem Menü zugeordnet, daher ist sie im Frontend nicht auffindbar!' );
-			$prevtoken = true;
-		}
-		
-		//Editoren laden (Footer, Inhalt)
-		// MD beachten
-		if(
-			( $allgsysconf['markdown'] == 'custom' && $seite['markdown'] == 'on' ) ||
-			( $allgsysconf['markdown'] == 'on' )
-		){
-			$mdhere = true;
-		}
-		else{
-			$mdhere = false;
-		}
-		add_content_editor( 'inhalt', $mdhere );
-		add_content_editor( 'footer', $mdhere );
-	
-		//Löschen Button
-		//	bei Standardsprache ganze Seite
-		if( $_GET['langid'] == 0 ){
-			$sitecontent->add_site_content('<span onclick="delete_all( '.$_GET['id'].' );"><span class="ui-icon ui-icon-trash" style="display:inline-block;" title="Diese ganze Seite löschen."></span></span>');
-		}
-		//	sonst nur Überstzung
-		else {
-			$sitecontent->add_site_content('<span onclick="delete_lang( '.$_GET['id'].', '.$_GET['langid'].' ); "><span class="ui-icon ui-icon-trash" style="display:inline-block;" title="Diese Übersetzung der Seite löschen."></span></span>');
-		}
-		
-		//Vorschau Buttons
-		//	Seite normal veröffentlicht?
-		//		Link nutzen
-		if(  !$prevtoken ){
-			$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/index.php?id='.$id.'&langid='.$_GET['langid'].'" target="_blank"><span class="ui-icon ui-icon-newwin" style="display:inline-block;" title="Diese Seite anschauen."></span></a>');
-		}
-		//	Seite noch nicht veröffentlicht?
-		else{
-			//Seitenvorschaulink machen
-			
-			//Array in Session erstellen, welches die Vorschaucodes verwaltet
-			if( !is_array( $_SESSION['sites_preview'] ) ){
-				$_SESSION['sites_preview'] = array();
+			else{
+				$mdhere = false;
 			}
-			//schon ein Vorschaucode für diese Seite im Array?
-			if( !isset( $_SESSION['sites_preview'][$_GET['id']] ) || empty( $_SESSION['sites_preview'][$_GET['id']] ) ){
-				//Code machen
-				$prevcode = makepassw( 20, '', 'numaz' );
-				//ins Array
-				$_SESSION['sites_preview'][$_GET['id']] = $prevcode;
+			add_content_editor( 'inhalt', $mdhere );
+			add_content_editor( 'footer', $mdhere );
+		
+			//Löschen Button
+			//	bei Standardsprache ganze Seite
+			if( $_GET['langid'] == 0 ){
+				$sitecontent->add_site_content('<span onclick="delete_all( '.$_GET['id'].' );"><span class="ui-icon ui-icon-trash" style="display:inline-block;" title="Diese ganze Seite löschen."></span></span>');
 			}
+			//	sonst nur Überstzung
 			else {
-				//wenn Code schon erstellt auslesen
-				$prevcode = $_SESSION['sites_preview'][$_GET['id']];
+				$sitecontent->add_site_content('<span onclick="delete_lang( '.$_GET['id'].', '.$_GET['langid'].' ); "><span class="ui-icon ui-icon-trash" style="display:inline-block;" title="Diese Übersetzung der Seite löschen."></span></span>');
 			}
-			//Hinweise zur Vorschau
-			//	Link
-			$sitecontent->echo_message( 'Die Vorschau funktioniert nur, wenn der FullHTMLCache deaktiviert oder gerade geleert worden ist!<br />Außderdem sind die Menüs/ Add-ons in der Vorschau wie auf der Startseite.<br /><a href="'.$allgsysconf['siteurl'].'/index.php?siteprev='.$prevcode.'&amp;id=1&langid='.$_GET['langid'].'" target="_blank"><span class="ui-icon ui-icon-newwin" style="display:inline-block;" title="Diese Seite anschauen."></span></a>', 'Vorschau' );
-		}
-		
-		//Eingabefelder
-		$sitecontent->add_site_content('<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=edit&amp;id='.$_GET['id'].'&amp;langid='.$_GET['langid'].'" method="post"><br />');
-		$sitecontent->add_site_content('<input type="text" value="'.$seite['title'].'" name="title" style="width:74%;"> <i>Seitentitel</i><br />');
-		$sitecontent->add_site_content('<div style="position:relative;" ><textarea name="header" style="width:74%; height:50px;">'.htmlentities( $seite['header'], ENT_COMPAT | ENT_HTML401,'UTF-8' ).'</textarea><span style="position:absolute; top:0; left: calc( 74% + 16px );"> <i>HTML Header</i>');
-			//JavaScript Bibilotheken einfach wählen für den Header
-			$sitecontent->add_site_content('<br /> <select id="libs">');
-			$sitecontent->add_site_content('<option value=""></option>');
-			//alle Bibliotheken aus KlassenArray laden
-			$out = new system_output( $allgsysconf );
-			foreach( array_keys( $out->jsapicodes ) as $lib ){
-				$sitecontent->add_site_content('<option value="'.htmlspecialchars( $lib ).'">'.substr( $lib, 5, ( strlen( $lib ) - 9 )  ).'</option>');	
+			
+			//Vorschau Buttons
+			//	Seite normal veröffentlicht?
+			//		Link nutzen
+			if(  !$prevtoken ){
+				$sitecontent->add_site_content('<a href="'.$allgsysconf['siteurl'].'/index.php?id='.$id.'&langid='.$_GET['langid'].'" target="_blank"><span class="ui-icon ui-icon-newwin" style="display:inline-block;" title="Diese Seite anschauen."></span></a>');
 			}
-			unset( $out );
-			$sitecontent->add_site_content('</select><span class="ui-icon ui-icon-info" style="display:inline-block;" title="Fügen Sie Ihrer Seite ganz einfach eine JavaScript-Bibilothek hinzu." ></span></span></div>');
-		$sitecontent->add_site_content('<input type="text" value="'.$seite['keywords'].'" name="keywords" style="width:74%;"> <i>Keywords</i><br />');
-		$sitecontent->add_site_content('<div style="position:relative;" ><textarea name="description" style="width:74%; height:50px;">'.$seite['description'].'</textarea><span style="position:absolute; top:0; left: calc( 74% + 16px );"> <i>Description</i></span></div>');
-		$sitecontent->add_site_content('<textarea name="inhalt" id="inhalt" style="width:99%; height:300px;">'.$seite['inhalt'].'</textarea> <i>Inhalt &uarr;</i> <br />');
-		$sitecontent->add_site_content('<textarea name="footer" id="footer" style="width:99%; height:75px;">'.$seite['footer'].'</textarea> <i>Footer &uarr;</i> <br />');
-		$sitecontent->add_site_content('<input type="text" readonly="readonly" value="'.$seite['time'].'" name="time" style="width:74%;"> <i>Zuletzt geändert</i><br />');
-		//MD seitenspezifisch?
-		if( $allgsysconf['markdown'] == 'custom' ){
-			//erstmal nichts gewählt
-			$md = array( 'on' => '', 'off' => '' );
-			//on oder off gewählt
-			if( $seite['markdown'] == 'on' || $seite['markdown'] == 'off' ){
-				//passend auf checked setzen
-				$md[$seite['markdown']] = ' checked="checked"';
+			//	Seite noch nicht veröffentlicht?
+			else{
+				//Seitenvorschaulink machen
+				
+				//Array in Session erstellen, welches die Vorschaucodes verwaltet
+				if( !is_array( $_SESSION['sites_preview'] ) ){
+					$_SESSION['sites_preview'] = array();
+				}
+				//schon ein Vorschaucode für diese Seite im Array?
+				if( !isset( $_SESSION['sites_preview'][$_GET['id']] ) || empty( $_SESSION['sites_preview'][$_GET['id']] ) ){
+					//Code machen
+					$prevcode = makepassw( 20, '', 'numaz' );
+					//ins Array
+					$_SESSION['sites_preview'][$_GET['id']] = $prevcode;
+				}
+				else {
+					//wenn Code schon erstellt auslesen
+					$prevcode = $_SESSION['sites_preview'][$_GET['id']];
+				}
+				//Hinweise zur Vorschau
+				//	Link
+				$sitecontent->echo_message( 'Die Vorschau funktioniert nur, wenn der FullHTMLCache deaktiviert oder gerade geleert worden ist!<br />Außderdem sind die Menüs/ Add-ons in der Vorschau wie auf der Startseite.<br /><a href="'.$allgsysconf['siteurl'].'/index.php?siteprev='.$prevcode.'&amp;id=1&langid='.$_GET['langid'].'" target="_blank"><span class="ui-icon ui-icon-newwin" style="display:inline-block;" title="Diese Seite anschauen."></span></a>', 'Vorschau' );
 			}
-			//Auswahlbuttons ausgeben
-			$sitecontent->add_site_content('<input type="radio" value="on" name="markdown"'.$md['on'].'>Aktiviert <input type="radio" value="off" name="markdown" '.$md['off'].'> Deaktiviert <i>Den Inhalt und den Footer dieser Seite als Markdown rendern?</i><br />');
+			
+			//Eingabefelder
+			$sitecontent->add_site_content('<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=edit&amp;id='.$_GET['id'].'&amp;langid='.$_GET['langid'].'" method="post"><br />');
+			$sitecontent->add_site_content('<input type="text" value="'.$seite['title'].'" name="title" style="width:74%;"> <i>Seitentitel</i><br />');
+			$sitecontent->add_site_content('<div style="position:relative;" ><textarea name="header" style="width:74%; height:50px;">'.htmlentities( $seite['header'], ENT_COMPAT | ENT_HTML401,'UTF-8' ).'</textarea><span style="position:absolute; top:0; left: calc( 74% + 16px );"> <i>HTML Header</i>');
+				//JavaScript Bibilotheken einfach wählen für den Header
+				$sitecontent->add_site_content('<br /> <select id="libs">');
+				$sitecontent->add_site_content('<option value=""></option>');
+				//alle Bibliotheken aus KlassenArray laden
+				$out = new system_output( $allgsysconf );
+				foreach( array_keys( $out->jsapicodes ) as $lib ){
+					$sitecontent->add_site_content('<option value="'.htmlspecialchars( $lib ).'">'.substr( $lib, 5, ( strlen( $lib ) - 9 )  ).'</option>');	
+				}
+				unset( $out );
+				$sitecontent->add_site_content('</select><span class="ui-icon ui-icon-info" style="display:inline-block;" title="Fügen Sie Ihrer Seite ganz einfach eine JavaScript-Bibilothek hinzu." ></span></span></div>');
+			$sitecontent->add_site_content('<input type="text" value="'.$seite['keywords'].'" name="keywords" style="width:74%;"> <i>Keywords</i><br />');
+			$sitecontent->add_site_content('<div style="position:relative;" ><textarea name="description" style="width:74%; height:50px;">'.$seite['description'].'</textarea><span style="position:absolute; top:0; left: calc( 74% + 16px );"> <i>Description</i></span></div>');
+			$sitecontent->add_site_content('<textarea name="inhalt" id="inhalt" style="width:99%; height:300px;">'.$seite['inhalt'].'</textarea> <i>Inhalt &uarr;</i> <br />');
+			$sitecontent->add_site_content('<textarea name="footer" id="footer" style="width:99%; height:75px;">'.$seite['footer'].'</textarea> <i>Footer &uarr;</i> <br />');
+			$sitecontent->add_site_content('<input type="text" readonly="readonly" value="'.$seite['time'].'" name="time" style="width:74%;"> <i>Zuletzt geändert</i><br />');
+			//MD seitenspezifisch?
+			if( $allgsysconf['markdown'] == 'custom' ){
+				//erstmal nichts gewählt
+				$md = array( 'on' => '', 'off' => '' );
+				//on oder off gewählt
+				if( $seite['markdown'] == 'on' || $seite['markdown'] == 'off' ){
+					//passend auf checked setzen
+					$md[$seite['markdown']] = ' checked="checked"';
+				}
+				//Auswahlbuttons ausgeben
+				$sitecontent->add_site_content('<input type="radio" value="on" name="markdown"'.$md['on'].'>Aktiviert <input type="radio" value="off" name="markdown" '.$md['off'].'> Deaktiviert <i>Den Inhalt und den Footer dieser Seite als Markdown rendern?</i><br />');
+			}
+			//Seiten Cache leeren automatisch ermöglichen
+			if( $allgsysconf['cache'] == 'on' ){
+				$sitecontent->add_site_content('<input type="checkbox" value="on" name="delcache" checked="checked"> Cache dieser Seite leeren?<br />');
+			}
+			$sitecontent->add_site_content('<input type="submit" value="Ändern"></form>');
+			$sitecontent->echo_message('<p>Wenn Sie auf eine Seite verweisen und dabei auf Nummer sicher gehen wollen, dass die Links auch bei einer Veränderung der Menüpfade noch gültig sind, können Sie für den Link den Platzhalter "<b>&lt;!--URLoutofID=123--&gt;</b>" verwenden. Setzen Sie für "123" einfach die RequestID<b title="Die RequestIDs finden Sie in der Tabelle unter Menue -> Auflisten">*</b> der Seite/ des Menüpunktes ein und der Rest erfolgt automatisch.</p>', 'Tipp');
 		}
-		//Seiten Cache leeren automatisch ermöglichen
-		if( $allgsysconf['cache'] == 'on' ){
-			$sitecontent->add_site_content('<input type="checkbox" value="on" name="delcache" checked="checked"> Cache dieser Seite leeren?<br />');
+		else{
+			$sitecontent->echo_error('Sie haben keine Rechte diese Seite zu bearbeiten!' , 'unknown');
 		}
-		$sitecontent->add_site_content('<input type="submit" value="Ändern"></form>');
-		$sitecontent->echo_message('<p>Wenn Sie auf eine Seite verweisen und dabei auf Nummer sicher gehen wollen, dass die Links auch bei einer Veränderung der Menüpfade noch gültig sind, können Sie für den Link den Platzhalter "<b>&lt;!--URLoutofID=123--&gt;</b>" verwenden. Setzen Sie für "123" einfach die RequestID<b title="Die RequestIDs finden Sie in der Tabelle unter Menue -> Auflisten">*</b> der Seite/ des Menüpunktes ein und der Rest erfolgt automatisch.</p>', 'Tipp');
-		
 	}
 	
 	//Seite Status ändern
 	public function make_site_deakch( $id ){
-		//Seite aktiviert?
-		if( check_for_kimb_file( '/site/site_'.$id.'.kimb' ) ){
-			//deaktivieren
-			rename_kimbdbf( '/site/site_'.$id.'.kimb' , '/site/site_'.$id.'_deak.kimb' );
-		}
-		//Seite deaktiviert?
-		elseif( !check_for_kimb_file('/site/site_'.$id.'.kimb') && check_for_kimb_file( '/site/site_'.$id.'_deak.kimb' )  ){
-			//aktivieren
-			rename_kimbdbf( '/site/site_'.$id.'_deak.kimb' , '/site/site_'.$id.'.kimb' );
+		//Rechte für diese Seite?
+		if( check_backend_permission( 's', $id ) ){
+			//Seite aktiviert?
+			if( check_for_kimb_file( '/site/site_'.$id.'.kimb' ) ){
+				//deaktivieren
+				return rename_kimbdbf( '/site/site_'.$id.'.kimb' , '/site/site_'.$id.'_deak.kimb' );
+			}
+			//Seite deaktiviert?
+			elseif( !check_for_kimb_file('/site/site_'.$id.'.kimb') && check_for_kimb_file( '/site/site_'.$id.'_deak.kimb' )  ){
+				//aktivieren
+				return rename_kimbdbf( '/site/site_'.$id.'_deak.kimb' , '/site/site_'.$id.'.kimb' );
+			}
+			else{
+				return false;
+			}
 		}
 		else{
 			return false;
 		}
-		
-		return true;
 	}
 	
 	//Seite löschen
 	public function make_site_del( $id ){
-		//wenn vorhanden, dann löschen
-		if( check_for_kimb_file( '/site/site_'.$id.'.kimb' ) ){
-			return delete_kimb_datei( '/site/site_'.$id.'.kimb' );				
+		//Rechte für diese Seite?
+		if( check_backend_permission( 's', $id ) ){
+			//wenn vorhanden, dann löschen
+			if( check_for_kimb_file( '/site/site_'.$id.'.kimb' ) ){
+				return delete_kimb_datei( '/site/site_'.$id.'.kimb' );				
+			}
+			else{
+				return false;
+			}
 		}
-		return false;
+		else{
+			return false;
+		}
 	}
 }
 ?>

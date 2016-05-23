@@ -177,7 +177,11 @@ class KIMBdbf {
 			if( !$this->handle ){
 				//machen
 				$this->file_lock();
-			}			
+			}
+			
+			//Dateizeiger an Anfang setzen/ Datei leeren
+			ftruncate( $this->handle , 0 );
+						
 			//schreiben
 			$ok = fwrite($this->handle, $this->dateicont);
 			

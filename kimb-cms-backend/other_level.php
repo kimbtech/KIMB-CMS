@@ -124,11 +124,30 @@ elseif( $_GET['todo'] == 'edit' && isset( $_GET['level'] ) ){
 		//wurden Daten zum abspeichern übergeben?
 		if( is_array( $_POST['numbers'] ) ){
 
-			//das Array zu einem String machen
+			//Seitenzugriffe
+			//	das Array zu einem String machen
 			$ges = implode( ',', $_POST['numbers'] );
-
-			//String schreiben
+			//	String schreiben
 			$levellist->write_kimb_replace( $_GET['level'] , $ges );
+
+			//Untergruppenzugriffe
+			$arten = backend_untergrlevelarten();
+			//	Daten der drei lesen
+			foreach( $arten as $art ){
+				//POST Daten holen
+				$allg = $_POST[$art.'_allg'];
+				$list = $_POST[$art.'_list'];
+				
+				//Tags für dbf machen
+				$allgteil = $_GET['level'].'_'.$art.'_allg';
+				$listteil = $_GET['level'].'_'.$art.'_list';
+				
+				//schreiben
+				$levellist->write_kimb_one( $allgteil, $allg );
+				//	Liste
+				$listdata = implode( ',', $list );
+				$levellist->write_kimb_one( $listteil, $listdata );
+			}
 
 			//Meldung
 			$sitecontent->echo_message( 'Das Level wurde angepasst!' );
@@ -201,19 +220,130 @@ elseif( $_GET['todo'] == 'edit' && isset( $_GET['level'] ) ){
 		//Zugriffe auf Untergruppen
 		$sitecontent->add_site_content('<h2>Untergruppen</h2>');
 		$sitecontent->add_site_content('Schränken Sie den Zugriff/ die Bearbeitung für einen User dieser Usergruppe auf bestimmte Seiten, Add-ons oder Menüs ein.<br />');
-		$sitecontent->add_site_content('<small>Diese Funktion macht nur Sinn sofern der User überhaupt Zugriff auf die entsprechende Backendseite hat!</small><br />');
+		
+		//aktuelle Daten lesen
+		//	Arten
+		$arten = backend_untergrlevelarten();
+		$untergrdata = array();
+		foreach( $arten as $art ){				
+			//Tags für dbf machen
+			$allgteil = $_GET['level'].'_'.$art.'_allg';
+			$listteil = $_GET['level'].'_'.$art.'_list';
+				
+			//lesen
+			$allg = $levellist->read_kimb_one( $allgteil );
+			$list = $levellist->read_kimb_one( $listteil );
+			
+			//bereiten
+			$untergrdata[$art] = array(
+				$allg,
+				explode( ',', $list )
+			);
+		}
+
+		//Tabs machen
+		$sitecontent->add_html_header( '<script>  $(function() { $( "#untergrtabs" ).tabs(); });</script>' );
+		$sitecontent->add_site_content('<div id="untergrtabs"><ul>');
+		$sitecontent->add_site_content('<li><a href="#seiten">Seiten</a></li>');
+		$sitecontent->add_site_content('<li><a href="#addon">Add-ons</a></li>');
+		$sitecontent->add_site_content('<li><a href="#menues">Menüs</a></li>');
+		$sitecontent->add_site_content('</ul>');
+		
+		//	Seiten
+		$sitecontent->add_site_content('<div id="seiten">');
+			$art = 'seiten';
+			$sitecontent->add_site_content('<h3>Seiten</h3>');
+			$sitecontent->add_site_content('Stellen Sie den Zugriff des Users auf die Seiten des CMS ein.<br />');
+			$sitecontent->add_site_content('<small></small><br />');
+			//allgemein (verbieten/ erlauben)
+			$sitecontent->add_site_content('<input type="radio" name="seiten_allg" value="erlauben" '.( ( $untergrdata[$art][0] == 'erlauben' ) ? 'checked="checked"' : '' ).'>Ausgewählte Seiten erlauben<br />');
+			$sitecontent->add_site_content('<input type="radio" name="seiten_allg" value="verbieten" '.( ( $untergrdata[$art][0] == 'verbieten' ) ? 'checked="checked"' : '' ).'>Ausgewählte Seiten verbieten<br />');
+			$sitecontent->add_site_content('<br />');
+			//Seitenliste
+			$sitecontent->add_site_content('<select multiple="multiple" name="seiten_list[]">');
+			//	alle IDs und Namen lesen
+			$sites = list_sites_array();
+			foreach ($sites as $site) {
+				//durchgehen
+				
+				//aktivert?
+				$selected = ( in_array( $site['id'], $untergrdata[$art][1] )  ? 'selected="selected"' : '' );
+				
+				$sitecontent->add_site_content('<option value="'.$site['id'].'" '.$selected.'>'.$site['site'].' ('.$site['id'].')</option>');
+			}
+			$sitecontent->add_site_content('</select>');
+			$sitecontent->add_site_content('<small>Ctrl. oder cmd für Mehrfachauswahl.</small>');
+				
+		//	Add-ons
+		$sitecontent->add_site_content('</div><div id="addon">');
+			$art = 'addon';
+			$sitecontent->add_site_content('<h3>Add-ons</h3>');
+			$sitecontent->add_site_content('Stellen Sie den Zugriff des Users auf Add-ons des CMS ein.<br />');
+			$sitecontent->add_site_content('<small>Die Einstellungen gelten für Add-ons Nutzung sowie Konfiguration, wobei hier auch der Seitenzuriff oben zum tragen kommt!</small><br />');
+			//allgemein (verbieten/ erlauben)
+			$sitecontent->add_site_content('<input type="radio" name="addon_allg" value="erlauben" '.( ( $untergrdata[$art][0] == 'erlauben' ) ? 'checked="checked"' : '' ).'>Ausgewählte Add-ons erlauben<br />');
+			$sitecontent->add_site_content('<input type="radio" name="addon_allg" value="verbieten"  '.( ( $untergrdata[$art][0] == 'verbieten' ) ? 'checked="checked"' : '' ).'>Ausgewählte Add-ons verbieten<br />');
+			$sitecontent->add_site_content('<br />');
+			//Add-onliste
+			$sitecontent->add_site_content('<select multiple="multiple" name="addon_list[]">');
+			//	alle Add-ons lesen
+			//		Name und NameID
+			$adds = listaddons( true );
+			foreach ($adds as $add) {
+				
+				//aktivert?
+				$selected = ( in_array( $add[1], $untergrdata[$art][1] )  ? 'selected="selected"' : '' );
+				
+				$sitecontent->add_site_content('<option value="'.$add[1].'" '.$selected.'>'.$add[0].'</option>');
+			}
+			$sitecontent->add_site_content('</select>');
+			$sitecontent->add_site_content('<small>Ctrl. oder cmd für Mehrfachauswahl.</small>');
+		
+		//	Menüs
+		$sitecontent->add_site_content('</div><div id="menues">');
+			$art = 'menues';
+			$sitecontent->add_site_content('<h3>Menüs</h3>');
+			$sitecontent->add_site_content('Sie können nicht jeden Menüpunkt einzeln einstellen, sondern nur ganze Menüs!<br />');
+			$sitecontent->add_site_content('<small></small><br />');
+			//allgemein (verbieten/ erlauben)
+			$sitecontent->add_site_content('<input type="radio" name="menues_allg" value="erlauben" '.( ( $untergrdata[$art][0] == 'erlauben' ) ? 'checked="checked"' : '' ).'>Ausgewählte Menüs erlauben<br />');
+			$sitecontent->add_site_content('<input type="radio" name="menues_allg" value="verbieten" '.( ( $untergrdata[$art][0] == 'verbieten' ) ? 'checked="checked"' : '' ).'>Ausgewählte Menüs verbieten<br />');
+			$sitecontent->add_site_content('<br />');
+			//Add-onliste
+			$sitecontent->add_site_content('<select multiple="multiple" name="menues_list[]">');
+			//	first immer adden
+			$sitecontent->add_site_content('<option value="0" '.( in_array( 0, $untergrdata[$art][1] )  ? 'selected="selected"' : '' ).'>Hauptmenü (0)</option>');
+			//	Liste mit Name
+			$namesfile = new KIMBdbf( 'menue/menue_names.kimb' );
+			//Alle Dateiene lesen
+			$mens = scan_kimb_dir( 'url/' );
+			foreach ($mens as $men) {
+				//nur passende Dateiene nehmen
+				if( preg_match( '/nextid_([0-9]*).kimb/', $men ) ){
+					
+					//dateiID
+					$meid = preg_replace( '/[^0-9]/', '', $men );
+					
+					//Namen herausfinden
+					$file = new KIMBdbf( 'url/' .$men );
+					$id = $file->read_kimb_one( '1-requestid' );
+					$name = $namesfile->read_kimb_one( $id );
+					
+					//aktivert?
+					$selected = ( in_array( $meid, $untergrdata[$art][1] )  ? 'selected="selected"' : '' );
+					
+					//Auswahlmöglichkeit
+					$sitecontent->add_site_content('<option value="'.$meid.'" '.$selected.'>'.$name.' ('.$meid.')</option>');
+				}
+			}
+			$sitecontent->add_site_content('</select>');
+			$sitecontent->add_site_content('<small>Ctrl. oder cmd für Mehrfachauswahl.</small>');
+
+		$sitecontent->add_site_content('</div></div>');
+
+  		$sitecontent->add_site_content('<small>Diese Funktion macht nur Sinn sofern der User überhaupt Zugriff auf die entsprechende Backendseite hat!</small><br />');
 		$sitecontent->add_site_content('<small>Sie können jeweils wählen ob nur bestimmte gesperrt werden sollen und alle anderen erlaubt oder ob nur bestimmte erlaubt und alle anderen gesperrt sein sollen!</small>');
 		$sitecontent->add_site_content('<small>Neue erstellte Seiten/ Add-ons/ Menüs fallen immer in die Gruppe "alle andere"!</small><br />');
-		
-		$sitecontent->add_site_content('<h3>Seiten</h3>');
-		$sitecontent->add_site_content('Stellen Sie den Zugriff des Users auf die Seiten des CMS ein.<br />');
-	
-		$sitecontent->add_site_content('<h3>Add-ons</h3>');
-		$sitecontent->add_site_content('Stellen Sie den Zugriff des Users auf Add-ons des CMS ein.<br />');
-		$sitecontent->add_site_content('<small>Die Einstellungen gelten für Add-ons Nutzung sowie Konfiguration, wobei hier auch der Seitenzuriff oben zum tragen kommt!</small><br />');
-		
-		$sitecontent->add_site_content('<h3>Menüs</h3>');
-		$sitecontent->add_site_content('Sie können nicht jeden Menüpunkt einzeln einstellen, sondern nur ganze Menüs!<br />');
 
 		$sitecontent->add_site_content('<p><input type="submit" value="Änderungen Speichern" ></p>');
 		$sitecontent->add_site_content('</form>');
@@ -237,11 +367,18 @@ elseif( $_GET['todo'] == 'del' && isset( $_GET['level'] ) ){
 	//Array mit allen Leveln machen
 	$alllev = explode( ',' , $alllev );
 
-	//existiert des Level?
+	//existiert das Level?
 	if( in_array( $_GET['level'] , $alllev ) ){
 		
 		//Level löschen
 		$levellist->write_kimb_delete( $_GET['level'] );
+		
+		//Untergruppenwahlen löschen
+		foreach( backend_untergrlevelarten() as $art ){
+			//Tags löschen
+			$levellist->write_kimb_delete( $_GET['level'].'_'.$art.'_allg' );
+			$levellist->write_kimb_delete( $_GET['level'].'_'.$art.'_list' );
+		}
 
 		//Liste mit allen Leveln anpassen
 		

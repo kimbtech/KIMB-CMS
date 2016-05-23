@@ -391,45 +391,89 @@ class BEmenue{
 	
 			//Niveau
 			$menuear['niveau'] = str_repeat( '==>' , $menuear['niveau'] );
-			//Status mit Link zum ändern
-			if ( $menuear['status'] == 'off' ){
-				$menuear['status'] = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=deakch&amp;file='.$menuear['fileid'].'&amp;reqid='.$menuear['requid'].'"><span class="ui-icon ui-icon-close" title="Dieses Menue ist zu Zeit deaktiviert, also nicht auffindbar. ( click -> ändern ) ((Eine Änderung wirkt sich nicht auf Untermenüs aus!))"></span></a>';
+			
+			//Rechte für dieses Menü?
+			$menue_rights = check_backend_permission( 'm', ( $menuear['fileid'] == 'first' ?  0 : $menuear['fileid'] ) );
+			
+			//Reechte okay?
+			if( $menue_rights ){
+				//Status mit Link zum ändern
+				if ( $menuear['status'] == 'off' ){
+					$menuear['status'] = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=deakch&amp;file='.$menuear['fileid'].'&amp;reqid='.$menuear['requid'].'"><span class="ui-icon ui-icon-close" title="Dieses Menue ist zu Zeit deaktiviert, also nicht auffindbar. (click -> ändern) ((Eine Änderung wirkt sich nicht auf Untermenüs aus!))"></span></a>';
+				}
+				else{
+					$menuear['status'] = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=deakch&amp;file='.$menuear['fileid'].'&amp;reqid='.$menuear['requid'].'"><span class="ui-icon ui-icon-check" title="Dieses Menue ist zu Zeit aktiviert, also sichtbar. (click -> ändern) ((Eine Änderung wirkt sich nicht auf Untermenüs aus!))"></span></a>';
+				}
 			}
 			else{
-				$menuear['status'] = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=deakch&amp;file='.$menuear['fileid'].'&amp;reqid='.$menuear['requid'].'"><span class="ui-icon ui-icon-check" title="Dieses Menue ist zu Zeit aktiviert, also sichtbar. ( click -> ändern ) ((Eine Änderung wirkt sich nicht auf Untermenüs aus!))"></span></a>';
+				$menuear['status'] = ( $menuear['status'] == 'off' ? '<span class="ui-icon ui-icon-close ui-state-disabled" title="Dieses Menue ist zu Zeit deaktiviert, also nicht auffindbar."></span>' : '<span class="ui-icon ui-icon-check ui-state-disabled" title="Dieses Menue ist zu Zeit aktiviert, also sichtbar."></span>' );
 			}
+			
 			//RequestID zeigen und Link zur Seitenansicht
 			$requid = $menuear['requid'].'<a href="'.$allgsysconf['siteurl'].'/index.php?id='.$menuear['requid'].'" target="_blank"><span class="ui-icon ui-icon-newwin" style="display:inline-block;" title="Diese Seite aufrufen."></span></a>';
 			
+			
 			//SiteID Link
-			if( $dis_sitelink ){
+			//	und Rechte für Seite!
+			if( $dis_sitelink && check_backend_permission( 's', $menuear['siteid'] ) ){
 				$siteid_and_link  = $menuear['siteid'].'<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=edit&id='.$menuear['siteid'].'"><span class="ui-icon ui-icon-pencil" style="display:inline-block;" title="Den Inhalt dieser Seite bearbeiten."></span></a>';
 			}
 			else{
 				$siteid_and_link = $menuear['siteid'];	
 			}
 			
-			$menuename = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=edit&amp;file='.$menuear['fileid'].'&amp;reqid='.$menuear['requid'].'" title="Dieses Menue bearbeiten." >'.$menuear['menuname'].'</a>';
-	
-			//NextID vorhanden?
-			if( $menuear['nextid'] == ''){
-				//löschen möglich	
-				$del = '<span onclick="del( \''.$menuear['fileid'].'\' , '.$menuear['requid'].' , \''.$menuear['fileidbefore'].'\' );"><span class="ui-icon ui-icon-trash" title="Dieses Menue löschen."></span></span>';
+			//Menüname
+			if( $menue_rights ){
+				$menuename = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=edit&amp;file='.$menuear['fileid'].'&amp;reqid='.$menuear['requid'].'" title="Dieses Menue bearbeiten." >'.$menuear['menuname'].'</a>';
 			}
 			else{
-				//Löschen erst wenn kein Untermenü mehr
-				$del = '<span onclick="delimp();"><span class="ui-icon ui-icon-trash" style="display:inline-block;" title="Dieses Menue löschen."></span></span>';
-			}
-			//neuen Menüpunkt erstellen Link
-			$newmenue = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=new&amp;file='.$menuear['fileid'].'&amp;niveau=same" ><span class="ui-icon ui-icon-plusthick" title="Auf diesem Niveau ein weiteres Menue erstellen."></span></a>';
-			if( $menuear['nextid'] == ''){
-				//kein Untermenü, erstellen Link
-				$newmenue .= '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=new&amp;file='.$menuear['fileid'].'&amp;niveau=deeper&amp;requid='.$menuear['requid'].'"><span class="ui-icon ui-icon-arrow-1-se" title="Unter diesem Menue ein Untermenue erstellen."></span></a>';
+				$menuename = '<a style="color:#ccc;" title="Sie haben keine Rechte für dieses Menü!">'.$menuear['menuname'].'</a>';
 			}
 	
-			//JavaScript Buttons zum verschieben
-			$versch = '<span onclick=" updown( \''.$menuear['fileid'].'\' , \'up\' , '.$menuear['requid'].' );"><span class="ui-icon ui-icon-arrowthick-1-n" title="Dieses Menue nach oben schieben."></span></span>';
-			$versch .= '<span onclick="updown( \''.$menuear['fileid'].'\' , \'down\' , '.$menuear['requid'].' );"><span class="ui-icon ui-icon-arrowthick-1-s" title="Dieses Menue nach unten schieben."></span></span>';
+			//Löschen
+			if( $menue_rights ){
+				//NextID vorhanden?
+				if( $menuear['nextid'] == ''){
+					//löschen möglich	
+					$del = '<span onclick="del( \''.$menuear['fileid'].'\' , '.$menuear['requid'].' , \''.$menuear['fileidbefore'].'\' );"><span class="ui-icon ui-icon-trash" title="Dieses Menue löschen."></span></span>';
+				}
+				else{
+					//Löschen erst wenn kein Untermenü mehr
+					$del = '<span onclick="delimp();"><span class="ui-icon ui-icon-trash" style="display:inline-block;" title="Dieses Menue löschen."></span></span>';
+				}
+			}
+			else{
+				$del = '<span class="ui-icon ui-icon-trash ui-state-disabled" style="display:inline-block;" title="Dieses Menue löschen."></span>';
+			}
+			
+			//Neu
+			if( $menue_rights ){
+				//neuen Menüpunkt erstellen Link
+				$newmenue = '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=new&amp;file='.$menuear['fileid'].'&amp;niveau=same" ><span class="ui-icon ui-icon-plusthick" title="Auf diesem Niveau ein weiteres Menue erstellen."></span></a>';
+				if( $menuear['nextid'] == ''){
+					//kein Untermenü, erstellen Link
+					$newmenue .= '<a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=new&amp;file='.$menuear['fileid'].'&amp;niveau=deeper&amp;requid='.$menuear['requid'].'"><span class="ui-icon ui-icon-arrow-1-se" title="Unter diesem Menue ein Untermenue erstellen."></span></a>';
+				}
+			}
+			else{
+				$newmenue = '<span class="ui-icon ui-icon-plusthick ui-state-disabled" title="Auf diesem Niveau ein weiteres Menue erstellen."></span>';
+				if( $menuear['nextid'] == ''){
+					//kein Untermenü, erstellen Link
+					$newmenue .= '<span class="ui-icon ui-icon-arrow-1-se ui-state-disabled" title="Unter diesem Menue ein Untermenue erstellen."></span>';
+				}
+			}
+	
+			//Verschieben
+			if( $menue_rights ){
+				//JavaScript Buttons zum verschieben
+				$versch = '<span onclick=" updown( \''.$menuear['fileid'].'\' , \'up\' , '.$menuear['requid'].' );"><span class="ui-icon ui-icon-arrowthick-1-n" title="Dieses Menue nach oben schieben."></span></span>';
+				$versch .= '<span onclick="updown( \''.$menuear['fileid'].'\' , \'down\' , '.$menuear['requid'].' );"><span class="ui-icon ui-icon-arrowthick-1-s" title="Dieses Menue nach unten schieben."></span></span>';
+			}
+			else{
+				$versch = '<span class="ui-icon ui-icon-arrowthick-1-n ui-state-disabled" title="Dieses Menue nach oben schieben."></span>';
+				$versch .= '<span class="ui-icon ui-icon-arrowthick-1-s ui-state-disabled" title="Dieses Menue nach unten schieben."></span>';
+			}
+			
 	
 			//Tabellenzeile ausgeben
 			$sitecontent->add_site_content('<tr> <td>'.$menuear['niveau'].'</td> <td>'.$versch.'</td> <td>'.$menuename.'</td> <td>'.breakable( $menuear['path'], 2 ).'</td> <td>'.$requid.'</td> <td>'.$menuear['status'].'</td> <td>'.$siteid_and_link.'</td> <td>'.breakable( $menuear['menueid'], 2 ).'</td> <td>'.$del.'</td> <td>'.$newmenue.'</td> </tr>');
@@ -437,7 +481,12 @@ class BEmenue{
 			//Untermenü öffnen (wenn Liste ohne Untermenüs gewählt)
 			if( !$array_deeper ){
 				if( !empty( $menuear['nextid'] ) ){
-					$sitecontent->add_site_content('<tr> <td class="nobor"></td> <td colspan="9" class="nobor"><a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=list&amp;start='.$menuear['nextid'].'&amp;deeper=false" title="Das hier gelegene Untermenü anzeigen."><span class="ui-icon ui-icon-arrowreturnthick-1-e" style="display:inline-block;"></span> Untermenü</a></td> </tr>');
+					if( check_backend_permission( 'm', $menuear['nextid'] ) ){
+						$sitecontent->add_site_content('<tr> <td class="nobor"></td> <td colspan="9" class="nobor"><a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=list&amp;start='.$menuear['nextid'].'&amp;deeper=false" title="Das hier gelegene Untermenü anzeigen."><span class="ui-icon ui-icon-arrowreturnthick-1-e" style="display:inline-block;"></span> Untermenü</a></td> </tr>');
+					}
+					else{
+						$sitecontent->add_site_content('<tr> <td class="nobor"></td> <td colspan="9" class="nobor"><a style="color:#ccc;"><span class="ui-icon ui-icon-arrowreturnthick-1-e ui-state-disabled" style="display:inline-block;"></span> Untermenü</a></td> </tr>');
+					}
 				}	
 			}
 	
@@ -563,83 +612,89 @@ class BEmenue{
 		
 		$sitecontent->add_site_content('<h2>Ein Menue bearbeiten</h2>');
 		
-		//Aufruf des Menüpunktes richtig?
-		if( ( $_GET['file'] == 'first' || is_numeric( $_GET['file'] ) ) && is_numeric( $_GET['reqid'] ) ){
-			//URL-Datei lesen
-			if( $_GET['file'] == 'first' ){
-				$file = new KIMBdbf( 'url/first.kimb' );
-			}
-			else{
-				$file = new KIMBdbf( 'url/nextid_'.$_GET['file'].'.kimb' );
-			}
-			//ID in der URL-Datei suchen
-			$id = $file->search_kimb_xxxid( $_GET['reqid'] , 'requestid');
-			if( $id  != false ){
-				//Menüpunkt vorhanden
-				
-				//mehrsprachige Seite?
-				//bestimmte Sprachdatei für Menünamen gewünscht?
-				if( $allgsysconf['lang'] == 'on' && $_GET['langid'] != 0 && is_numeric( $_GET['langid'] ) ){
-					//laden
-					$menuenames = new KIMBdbf('menue/menue_names_lang_'.$_GET['langid'].'.kimb');
+		//Rechte für dieses Menü?
+		if(check_backend_permission( 'm', ( $_GET['file'] == 'first' ?  0 : $_GET['file'] ) ) ){
+			//Aufruf des Menüpunktes richtig?
+			if( ( $_GET['file'] == 'first' || is_numeric( $_GET['file'] ) ) && is_numeric( $_GET['reqid'] ) ){
+				//URL-Datei lesen
+				if( $_GET['file'] == 'first' ){
+					$file = new KIMBdbf( 'url/first.kimb' );
 				}
 				else{
-					//Standardsprache
-					$_GET['langid'] = 0;
+					$file = new KIMBdbf( 'url/nextid_'.$_GET['file'].'.kimb' );
 				}
-				
-				//Name oder Pfad übergeben -> eintragen
-				if( isset( $_POST['name'] ) && isset( $_POST['pfad'] ) ){
-					//Pfad validieren
-					$_POST['pfad'] = preg_replace("/[^0-9A-Za-z_.-]/","", $_POST['pfad']);
-					//Pfad schon vorhaden?
-					$ok = $file->search_kimb_xxxid( $_POST['pfad'] , 'path');
-					if( $ok == false || $ok == $id ){
-						//unverändert oder nicht vergeben
-						
-						//Änderung nötig?
-						if( $file->read_kimb_id( $id , 'path') != $_POST['pfad'] ){
-							//ändern und Hinweis
-							$file->write_kimb_id( $id , 'add' , 'path' , $_POST['pfad'] );
-							$sitecontent->echo_message( 'Der Pfad wurde angepasst!' );
+				//ID in der URL-Datei suchen
+				$id = $file->search_kimb_xxxid( $_GET['reqid'] , 'requestid');
+				if( $id  != false ){
+					//Menüpunkt vorhanden
+					
+					//mehrsprachige Seite?
+					//bestimmte Sprachdatei für Menünamen gewünscht?
+					if( $allgsysconf['lang'] == 'on' && $_GET['langid'] != 0 && is_numeric( $_GET['langid'] ) ){
+						//laden
+						$menuenames = new KIMBdbf('menue/menue_names_lang_'.$_GET['langid'].'.kimb');
+					}
+					else{
+						//Standardsprache
+						$_GET['langid'] = 0;
+					}
+					
+					//Name oder Pfad übergeben -> eintragen
+					if( isset( $_POST['name'] ) && isset( $_POST['pfad'] ) ){
+						//Pfad validieren
+						$_POST['pfad'] = preg_replace("/[^0-9A-Za-z_.-]/","", $_POST['pfad']);
+						//Pfad schon vorhaden?
+						$ok = $file->search_kimb_xxxid( $_POST['pfad'] , 'path');
+						if( $ok == false || $ok == $id ){
+							//unverändert oder nicht vergeben
+							
+							//Änderung nötig?
+							if( $file->read_kimb_id( $id , 'path') != $_POST['pfad'] ){
+								//ändern und Hinweis
+								$file->write_kimb_id( $id , 'add' , 'path' , $_POST['pfad'] );
+								$sitecontent->echo_message( 'Der Pfad wurde angepasst!' );
+							}
+						}
+						//Name übergeben und auch zu ändern? 
+						if( !empty( $_POST['name'] ) && $menuenames->read_kimb_one( $_GET['reqid'] ) != $_POST['name'] ){
+							//machen und Hinweis
+							$menuenames->write_kimb_replace( $_GET['reqid'] , $_POST['name'] );
+							$sitecontent->echo_message( 'Der Name wurde angepasst!' );
 						}
 					}
-					//Name übergeben und auch zu ändern? 
-					if( !empty( $_POST['name'] ) && $menuenames->read_kimb_one( $_GET['reqid'] ) != $_POST['name'] ){
-						//machen und Hinweis
-						$menuenames->write_kimb_replace( $_GET['reqid'] , $_POST['name'] );
-						$sitecontent->echo_message( 'Der Name wurde angepasst!' );
+		
+					//aktuellen Menüpath für JS setzen (unverändert erkennbar)
+					$sitecontent->add_html_header('<script>var normpath = "'.$file->read_kimb_id( $id , 'path').'" </script>');
+					
+					//JavaScript
+					$this->jsobject->for_menue_edit( $_GET['file'] );
+		
+					//Formular beginnen
+					$sitecontent->add_site_content('<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=edit&amp;file='.$_GET['file'].'&amp;reqid='.$_GET['reqid'].'&amp;langid='.$_GET['langid'].'" method="post" onsubmit="if( document.getElementById(\'check\').value == \'nok\' ){ return false; } ">');
+					
+					//Sprachauswahl wenn nötig
+					if( $allgsysconf['lang'] == 'on'){
+						make_lang_dropdown( '"'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=edit&file='.$_GET['file'].'&reqid='.$_GET['reqid'].'&langid=" + val', $_GET['langid'] );
 					}
+					$sitecontent->add_site_content('<input type="text" value="'.$menuenames->read_kimb_one( $_GET['reqid'] ).'" name="name" > <i title="Name des Menues der im Frontend angezeigt wird." >(Menuename)</i><br />');
+					
+					$sitecontent->add_site_content('<input type="text" value="'.$file->read_kimb_id( $id , 'path').'" name="pfad" id="pfad" onkeyup="pfadreplace();" onchange="checkpath();" > <i id="pfadtext" title="Ein Menuepfad besteht aus Buchstaben, Zahlen, &apos;_&apos; und &apos;-&apos;.">(Menuepfad)</i><br />');
+					$sitecontent->add_site_content('<input type="text" value="'.$file->read_kimb_id( $id , 'status').'" name="status" readonly="readonly"> <i title="Veränderbar auf Seite Auflisten sowie Zuordnung." >(Status)</i><br />');
+					$sitecontent->add_site_content('<input type="text" value="'.$file->read_kimb_id( $id , 'requestid').'" name="requid" readonly="readonly"> <i title="Automatisch bei Erstellung des Menue generiert.">(RequestID)</i><br />');
+					$sitecontent->add_site_content('<input type="text" value="'.$idfile->read_kimb_id( $_GET['reqid'] , 'siteid' ).'" name="siteid" readonly="readonly"> <i title="Veränderbar auf Seite Zuordnen." >(SiteID)</i><br />');
+					$sitecontent->add_site_content('<input type="hidden" value="ok" id="check">');
+					$sitecontent->add_site_content('<input type="submit" value="Ändern" ><br />');
+					$sitecontent->add_site_content('</form>');
+		
 				}
-	
-				//aktuellen Menüpath für JS setzen (unverändert erkennbar)
-				$sitecontent->add_html_header('<script>var normpath = "'.$file->read_kimb_id( $id , 'path').'" </script>');
-				
-				//JavaScript
-				$this->jsobject->for_menue_edit( $_GET['file'] );
-	
-				//Formular beginnen
-				$sitecontent->add_site_content('<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=edit&amp;file='.$_GET['file'].'&amp;reqid='.$_GET['reqid'].'&amp;langid='.$_GET['langid'].'" method="post" onsubmit="if( document.getElementById(\'check\').value == \'nok\' ){ return false; } ">');
-				
-				//Sprachauswahl wenn nötig
-				if( $allgsysconf['lang'] == 'on'){
-					make_lang_dropdown( '"'.$allgsysconf['siteurl'].'/kimb-cms-backend/menue.php?todo=edit&file='.$_GET['file'].'&reqid='.$_GET['reqid'].'&langid=" + val', $_GET['langid'] );
-				}
-				$sitecontent->add_site_content('<input type="text" value="'.$menuenames->read_kimb_one( $_GET['reqid'] ).'" name="name" > <i title="Name des Menues der im Frontend angezeigt wird." >(Menuename)</i><br />');
-				
-				$sitecontent->add_site_content('<input type="text" value="'.$file->read_kimb_id( $id , 'path').'" name="pfad" id="pfad" onkeyup="pfadreplace();" onchange="checkpath();" > <i id="pfadtext" title="Ein Menuepfad besteht aus Buchstaben, Zahlen, &apos;_&apos; und &apos;-&apos;.">(Menuepfad)</i><br />');
-				$sitecontent->add_site_content('<input type="text" value="'.$file->read_kimb_id( $id , 'status').'" name="status" readonly="readonly"> <i title="Veränderbar auf Seite Auflisten sowie Zuordnung." >(Status)</i><br />');
-				$sitecontent->add_site_content('<input type="text" value="'.$file->read_kimb_id( $id , 'requestid').'" name="requid" readonly="readonly"> <i title="Automatisch bei Erstellung des Menue generiert.">(RequestID)</i><br />');
-				$sitecontent->add_site_content('<input type="text" value="'.$idfile->read_kimb_id( $_GET['reqid'] , 'siteid' ).'" name="siteid" readonly="readonly"> <i title="Veränderbar auf Seite Zuordnen." >(SiteID)</i><br />');
-				$sitecontent->add_site_content('<input type="hidden" value="ok" id="check">');
-				$sitecontent->add_site_content('<input type="submit" value="Ändern" ><br />');
-				$sitecontent->add_site_content('</form>');
-	
+			}
+			else{
+				//Fehler ausgeben, wenn Anfrage fehlerhaft
+				$sitecontent->echo_error( 'Ihre Anfrage war fehlerhaft!' , 'unknown');
 			}
 		}
 		else{
-			//Fehler ausgeben, wenn Anfrage fehlerhaft
-			$sitecontent->echo_error( 'Ihre Anfrage war fehlerhaft!' , 'unknown');
+			$sitecontent->echo_error( 'Sie haben keine Rechte für dieses Menü!' , 'unknown');
 		}
 		
 		
@@ -651,89 +706,96 @@ class BEmenue{
 		$idfile = $this->idfile;
 		$menuenames = $this->menuenames;
 		
-		//richtige URL-Datei lesen
-		if( $GET['file'] == 'first' ){
-			$file_name = 'url/first.kimb';
-		}
-		else{
-			$file_name = 'url/nextid_'.$GET['file'].'.kimb';
-		}
-		$file = new KIMBdbf( $file_name );
-		//ID in der URL-Datei feststellen
-		$id = $file->search_kimb_xxxid( $GET['reqid'] , 'requestid');
-		//NextID lesen
-		$nextid = $file->read_kimb_id( $id , 'nextid');
-		//NextID leer?
-		//ID gefunden?
-		if( $id  != false && $nextid == ''){
-			//Alle Menüpunkte der URL-Datei lesen
-			
-			$wid = 1;
-			while( true ){
-				//aber nur wenn nicht das zu löschende Menü
-				if( $wid != $id ){
-					$wpath = $file->read_kimb_id( $wid , 'path' );
-					$wnextid = $file->read_kimb_id( $wid , 'nextid' );
-					$wrequid = $file->read_kimb_id( $wid , 'requestid' );
-					$wstatus = $file->read_kimb_id( $wid , 'status');
-				}
-				if( $wpath == '' && $wid != $id ){
-					//keine Inhalte mehr -> alles gelesen
-					break;
-				}
-				//gelesenes speichern
-				if( $wid != $id ){
-					//NextID leer -> auch für dbf leer
-					if( $wnextid == '' ){
-						$wnextid = '---empty---';
+		//Rechte für dieses Menü?
+		if(check_backend_permission( 'm', ( $_GET['file'] == 'first' ?  0 : $_GET['file'] ) ) ){
+		
+			//richtige URL-Datei lesen
+			if( $GET['file'] == 'first' ){
+				$file_name = 'url/first.kimb';
+			}
+			else{
+				$file_name = 'url/nextid_'.$GET['file'].'.kimb';
+			}
+			$file = new KIMBdbf( $file_name );
+			//ID in der URL-Datei feststellen
+			$id = $file->search_kimb_xxxid( $GET['reqid'] , 'requestid');
+			//NextID lesen
+			$nextid = $file->read_kimb_id( $id , 'nextid');
+			//NextID leer?
+			//ID gefunden?
+			if( $id  != false && $nextid == ''){
+				//Alle Menüpunkte der URL-Datei lesen
+				
+				$wid = 1;
+				while( true ){
+					//aber nur wenn nicht das zu löschende Menü
+					if( $wid != $id ){
+						$wpath = $file->read_kimb_id( $wid , 'path' );
+						$wnextid = $file->read_kimb_id( $wid , 'nextid' );
+						$wrequid = $file->read_kimb_id( $wid , 'requestid' );
+						$wstatus = $file->read_kimb_id( $wid , 'status');
 					}
-					//in Array sichern
-					$newmenuefile[] = array( 'path' => $wpath, 'nextid' => $wnextid , 'requid' => $wrequid, 'status' => $wstatus );
+					if( $wpath == '' && $wid != $id ){
+						//keine Inhalte mehr -> alles gelesen
+						break;
+					}
+					//gelesenes speichern
+					if( $wid != $id ){
+						//NextID leer -> auch für dbf leer
+						if( $wnextid == '' ){
+							$wnextid = '---empty---';
+						}
+						//in Array sichern
+						$newmenuefile[] = array( 'path' => $wpath, 'nextid' => $wnextid , 'requid' => $wrequid, 'status' => $wstatus );
+					}
+					$wid++;
 				}
-				$wid++;
-			}
-			
-			//URL-Datei neu schreiben
-			
-			$inhalt = 'none';
-			$i = 1;
-			//erstmal Datei löschen
-			$file->delete_kimb_file();
-			
-			//alles eben gespeichertes wieder in die neue Datei einfügen
-			foreach( $newmenuefile as $newmenue ){
-				$file->write_kimb_id( $i , 'add' , 'path' , $newmenue['path'] );
-				$file->write_kimb_id( $i , 'add' , 'nextid' , $newmenue['nextid'] );
-				$file->write_kimb_id( $i , 'add' , 'requestid' , $newmenue['requid'] );
-				$file->write_kimb_id( $i , 'add' , 'status' , $newmenue['status'] );
-				$inhalt = 'something';
-				$i++;
-			}
-			//wurde etwas hinzugefügt?
-			if( $inhalt == 'none' && $GET['file'] != 'first'){
-				//nein, also wurde ein ganzes Untermenü gelöscht
-				//URL-Datei welche NextID auf gerade gelöschtes Untermenü enthält öffnen
-				if( $GET['fileidbefore'] == 'first' ){
-					$filebef = new KIMBdbf( 'url/first.kimb' );
+				
+				//URL-Datei neu schreiben
+				
+				$inhalt = 'none';
+				$i = 1;
+				//erstmal Datei löschen
+				$file->delete_kimb_file();
+				
+				//alles eben gespeichertes wieder in die neue Datei einfügen
+				foreach( $newmenuefile as $newmenue ){
+					$file->write_kimb_id( $i , 'add' , 'path' , $newmenue['path'] );
+					$file->write_kimb_id( $i , 'add' , 'nextid' , $newmenue['nextid'] );
+					$file->write_kimb_id( $i , 'add' , 'requestid' , $newmenue['requid'] );
+					$file->write_kimb_id( $i , 'add' , 'status' , $newmenue['status'] );
+					$inhalt = 'something';
+					$i++;
 				}
-				else{
-					$filebef = new KIMBdbf( 'url/nextid_'.$GET['fileidbefore'].'.kimb' );
+				//wurde etwas hinzugefügt?
+				if( $inhalt == 'none' && $GET['file'] != 'first'){
+					//nein, also wurde ein ganzes Untermenü gelöscht
+					//URL-Datei welche NextID auf gerade gelöschtes Untermenü enthält öffnen
+					if( $GET['fileidbefore'] == 'first' ){
+						$filebef = new KIMBdbf( 'url/first.kimb' );
+					}
+					else{
+						$filebef = new KIMBdbf( 'url/nextid_'.$GET['fileidbefore'].'.kimb' );
+					}
+					//ID, welche NextID enthält, in der URL-Datei suchen
+					$befid = $filebef->search_kimb_xxxid( $GET['file'] , 'nextid');
+					if( $befid  != false ){
+						//gefunden, setzen wir die NextID auf ""
+						$filebef->write_kimb_id( $befid , 'add' , 'nextid' , '---empty---' );
+					}				
 				}
-				//ID, welche NextID enthält, in der URL-Datei suchen
-				$befid = $filebef->search_kimb_xxxid( $GET['file'] , 'nextid');
-				if( $befid  != false ){
-					//gefunden, setzen wir die NextID auf ""
-					$filebef->write_kimb_id( $befid , 'add' , 'nextid' , '---empty---' );
-				}				
-			}
-			//ganz zum Schluss noch den Menünamen löschen
-			//	wenn bei anderen Sprachen der Name beleibt, kann dieser auch bei erneuter Vergabe der RequestID überschrieben werden 
-			$menuenames->write_kimb_id( $GET['reqid'] , 'del' );
-			//aus der ID file austragen
-			$idfile->write_kimb_id( $GET['reqid'] , 'del' );
-			
-			return true;
+				//ganz zum Schluss noch den Menünamen löschen
+				//	wenn bei anderen Sprachen der Name beleibt, kann dieser auch bei erneuter Vergabe der RequestID überschrieben werden 
+				$menuenames->write_kimb_id( $GET['reqid'] , 'del' );
+				//aus der ID file austragen
+				$idfile->write_kimb_id( $GET['reqid'] , 'del' );
+				
+				return true;
 
+			}
+			else{
+				return false;
+			}
 		}
 		else{
 			return false;
@@ -742,39 +804,48 @@ class BEmenue{
 	
 	//Menüpunkt Status ändern
 	public function make_menue_deakch_dbf( $GET ){
-		//URL-Datei lesen
-		if( $GET['file'] == 'first' ){
-			$file = new KIMBdbf( 'url/first.kimb' );
-		}
-		else{
-			$file = new KIMBdbf( 'url/nextid_'.$GET['file'].'.kimb' );
-		}
-		//ID des Menüpunktes in der URL-Datei suchen
-		$id = $file->search_kimb_xxxid( $GET['reqid'] , 'requestid');
-		if( $id  != false ){
-			//wenn gefunden erstmal aktuellen Status herausfinden
-			$status = $file->read_kimb_id( $id , 'status' );
-			//aktiviert? -> das muss deaktiviert werden
-			if( $status == 'on' ){
-				$file->write_kimb_id( $id , 'add' , 'status' , 'off' );
-				$stat = 'off';
+		//Rechte für dieses Menü?
+		if(check_backend_permission( 'm', ( $_GET['file'] == 'first' ?  0 : $_GET['file'] ) ) ){
+			//URL-Datei lesen
+			if( $GET['file'] == 'first' ){
+				$file = new KIMBdbf( 'url/first.kimb' );
 			}
-			//deaktiviert? -> das muss aktiviert werden
 			else{
-				$file->write_kimb_id( $id , 'add' , 'status' , 'on' );
-				$stat = 'on';
+				$file = new KIMBdbf( 'url/nextid_'.$GET['file'].'.kimb' );
 			}
+			//ID des Menüpunktes in der URL-Datei suchen
+			$id = $file->search_kimb_xxxid( $GET['reqid'] , 'requestid');
+			if( $id  != false ){
+				//wenn gefunden erstmal aktuellen Status herausfinden
+				$status = $file->read_kimb_id( $id , 'status' );
+				//aktiviert? -> das muss deaktiviert werden
+				if( $status == 'on' ){
+					$file->write_kimb_id( $id , 'add' , 'status' , 'off' );
+					$stat = 'off';
+				}
+				//deaktiviert? -> das muss aktiviert werden
+				else{
+					$file->write_kimb_id( $id , 'add' , 'status' , 'on' );
+					$stat = 'on';
+				}
 
-			return true;
+				return true;
 
+			}
+			else{
+				return false;
+			}
 		}
 		else{
-			return false;
+			return false;	
 		}
 	}
 	
 	//Menüpunkt verschieben
 	public function make_menue_versch( $GET ){
+		
+		//Rechte für dieses Menü?
+		if(check_backend_permission( 'm', ( $_GET['file'] == 'first' ?  0 : $_GET['file'] ) ) ){
 		
 			//URL-Datei lesen
 			if( $GET['fileid'] == 'first' ){
@@ -885,6 +956,10 @@ class BEmenue{
 			else{
 				return false;
 			}
+		}
+		else{
+			return false;	
+		}
 	}
 	
 	//next file finished
