@@ -391,6 +391,7 @@ elseif($_GET['step'] == '3'){
 	$bufile = new KIMBdbf( '/backend/users/list.kimb' );
 	//	aufräumen
 	$bufile->delete_kimb_file();
+	$bufile->write_kimb_new( 'userids1', '1' );
 	$bufile->write_kimb_id( '1', 'add', 'user', 'admin' );
 	$bufile->write_kimb_id( '1', 'add', 'permiss', 'more' );
 	$bufile->write_kimb_id( '1', 'add', 'passw', $_POST['pass'] );
