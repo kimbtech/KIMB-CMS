@@ -26,122 +26,159 @@
 //Fehler, Inhalt, Codierung
 error_reporting( 0 );
 header('Content-Type: text/html; charset=utf-8');
+define("KIMB_CMS", "Clean Request");
+
+//Klassen laden
+require_once __DIR__ . '/core/oop/all_oop.php';
+//Funktionen laden
+require_once __DIR__ . '/core/conf/funktionen.php';
 
 //Nur mit conf-enable Datei den Konfigurator erlauben, sonst unerlaubte Konfiguration möglich
-if(file_exists ('conf-enable') != 'true'){
+if( !file_exists ('conf-enable') ){
 	//User bitten den Konfigurator zu aktivieren
-	echo('<!DOCTYPE html><html><head><title>KIMB CMS - Installation</title><link rel="shortcut icon" href="load/system/KIMB.ico" type="image/x-icon; charset=binary"></head><body><h1>Error - 403</h1>Bitte schalten Sie den Configurator frei, erstellen Sie eine leere "conf-enable" Datei im CMS-Root-Verzeichnis.<br /> Please activate the configurator, create an empty "conf-enable" file in the CMS root folder.</body></html>'); die;
-}
-
-//sichere Zufallszahlen, neu seit PHP 7
-//	$a => Anfang
-//	$e => Ende
-//	Rückgabe: Nummer
-function gen_zufallszahl( $a, $e ){
-	
-	//neue Funktion von PHP 7 verfügbar?
-	if( function_exists( 'random_int') ){
-		//nutzen
-		return random_int( $a, $e );
-	}
-	else{
-		//alte Zufallszahl nutzen
-		return mt_rand( $a, $e );
-	}
-	
-}
-//Zufallsstrings erzeugen
-//	$laenge => Länge des zu erzeugenden Stings
-// 	$chars => Charakter des Stings
-function makepassw( $laenge , $chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'){	
-	//Anzahl der möglichen Charakter bestimmen
-	$anzahl = strlen($chars);
-	//mit dem ersten Charakter geht es los
-	$i = '1';
-	//noch keine Ausgabe
-	$output = '';
-	//solange weniger oder genausoviele Charakter wie gwünscht im Sting weiteren erstellen 
-	while($i <= $laenge){
-		//Charakter zufällig wählen (Zufallszahl als Stelle für $chars nutzen)
-		$stelle = gen_zufallszahl('0', $anzahl);
-		//Ausgabe erweitern 
-		$output .= $chars{$stelle};
-		$i++;
-	}
-	//Ausgeben
-	return $output;
+	echo('<!DOCTYPE html>
+<html>
+	<head>
+		<title>KIMB-CMS - Installation</title>
+		<link rel="shortcut icon" href="load/system/KIMB.ico" type="image/x-icon; charset=binary">
+		<link rel="icon" href="load/system/KIMB.ico" type="image/x-icon; charset=binary">
+	</head>
+	<body>
+		<h1>Error - 403</h1>
+		Bitte schalten Sie den Konfigurator frei,
+		erstellen Sie eine leere "conf-enable" Datei
+		im CMS-Root-Verzeichnis.
+	</body>
+</html>');
+	die;
 }
 
 //HTML des Konfigurators 
-//inkl. Warnung per JS wenn /core/ aufrufbar!
+//inkl. Warnung per JS wenn bestimmte Verzeichnisse aufrufbar!
 echo('
 <!DOCTYPE HTML >
-<html><head>
-<title>KIMB CMS - Installation</title>
-<link rel="shortcut icon" href="load/system/KIMB.ico" type="image/x-icon; charset=binary">
-<link rel="icon" href="load/system/KIMB.ico" type="image/x-icon; charset=binary">
-<style>
-body { 
-	background-color:#999999; 
-	font-family: Ubuntu, Arial;
-	color:#000000;
-}
-#main {
-  	width:800px;
-	margin:auto;
-	text-align:left;
-  	background-color:#ffffff;
-	border: 5px solid #55dd77;
-	border-radius:20px;
-	padding:20px;
-}
-#wichtig{
-	background-color:#ff0000;
-	color:#ffffff;
-	border-radius:10px;
-	padding:30px;
-	border:solid 2px orange;
+<html>
+	<head>
+		<title>KIMB-CMS - Installation</title>
+		<link rel="shortcut icon" href="load/system/KIMB.ico" type="image/x-icon; charset=binary">
+		<link rel="icon" href="load/system/KIMB.ico" type="image/x-icon; charset=binary">
+		<link rel="stylesheet" href="load/system/theme/fonts.min.css" type="text/css">
+		<style>
+			body { 
+				background-color:#999999; 
+				font-family: Ubuntu, sans-serif;
+				color:#000000;
+			}
+			input[readonly=readonly]{
+				background-color:#ccc;
+				border-radius:4px;
+				padding:2px;
+			}
+			input, button{
+				font-family: Ubuntu,sans-serif;
+				font-size:14px;
+				color:#000000;
+			}
+			button[disabled=disabled]{
+				color:#cccccc;
+			}
+			#main {
+			  	width:800px;
+				margin:auto;
+				text-align:left;
+			  	background-color:#ffffff;
+				border: 5px solid #55dd77;
+				border-radius:20px;
+				padding:20px;
+			}
+			.wichtig{
+				background-color:#ff0000;
+				color:#ffffff;
+				border-radius:10px;
+				padding:30px;
+				border:solid 2px orange;
 
-}
-ul{
-	list-style-type:none;
-}
-ul li{
-	padding: 5px;
-	margin:5px;
-	border-radius:15px;
-}
-.err{
-	background-color:red;
-}
-.war{
-	background-color:orange;
-}
-.okay{
-	background-color:lightgreen;
-}
-</style>
-<script language="javascript" src="load/system/jquery/jquery.min.js"></script>
-<script language="javascript" src="load/system/hash.js"></script>
-<script>
-$(function() {
-	var inhaltfile = "No clean Request";
+			}
+			ul{
+				list-style-type:none;
+			}
+			ul li{
+				padding: 5px;
+				margin:5px;
+				border-radius:15px;
+			}
+			.err{
+				background-color:red;
+			}
+			.war{
+				background-color:orange;
+			}
+			.okay{
+				background-color:lightgreen;
+			}
+		</style>
+		<script language="javascript" src="load/system/jquery/jquery.min.js"></script>
+		<script language="javascript" src="load/system/hash.js"></script>
+		<script>
+			$(function() {
+				var inhaltfile = "No clean Request";
 
-	$.get( "core/conf/funktionen.php", function( data ) {
-		if( data == inhaltfile){
-			$( "#wichtig" ).css( "display" , "block" );
-		}
-	});
-});
-</script>
-</head><body>
+				$.get( "core/conf/funktionen.php", function( data ) {
+					if( data == inhaltfile){
+						$( "div.wichtig" ).css( "display" , "block" );
+					}
+				});
+			});
+			
+			function submit_mainform(){
+				
+				var salt = $( "input#salt" ).val();
+				
+				var passw1 = $( "input#passw1" ).val();
+				var passw2 = $( "input#passw2" ).val();
 
-<div id="main">
-<h1 style="border-bottom:5px solid #55dd77;" >KIMB CMS - Installation</h1>
-<div style="display:none;" id="wichtig" >
-	<b>Achtung:</b><br />Das Verzeichnis /core/ und seine Unterverzeichnisse sind nicht gesch&uuml;tzt! <br /> Bitte sperren Sie diese Verzeichnisse f&uuml;r jegliche Browseraufrufe!!
-</div>
-<br />
+				if( passw1 != passw2 ){
+					alert( "Bitte geben Sie zwei identische Passwörter an!" );
+					return false;
+				}
+				
+				if( passw1 == "" || passw2 == "" ){
+					alert( "Das Passwort darf nicht leer sein!" );
+					return false;
+				}
+				
+				var hash = CryptoJS.SHA1( salt + passw1 ).toString();
+				
+				$( "input#passw1" ).val( "123456" );
+				$( "input#passw1" ).val( "123456" );
+				
+				$( "input#pass" ).val( hash );
+			
+				return true;
+			}
+			
+			function nouserbutt() {
+				if( $( "input#nouser" ).prop("checked") ){
+					$( "div#nouser" ).hide();
+				}
+				else{
+					$( "div#nouser" ).show();
+				}
+			}
+		</script>
+	</head>
+	<body>
+
+		<div id="main">
+			<h1 style="border-bottom:5px solid #55dd77;">KIMB-CMS - Installation</h1>
+			<div style="display:none;" class="wichtig" >
+				<b>Achtung:</b>
+				<br />
+				Das Verzeichnis /core/ ist nicht gesch&uuml;tzt!
+				<br />
+				Bitte sperren Sie dieses Verzeichnis f&uuml;r jegliche Browseraufrufe!
+			</div>
+			<br />
 ');
 
 //Ganz unten bei else{} gehts los!
@@ -149,146 +186,303 @@ $(function() {
 if($_GET['step'] == '2'){
 
 	//Zufallsgenerator Passwortsalt
-	$output = makepassw( 10 );
+	$output = makepassw( 10, '', 'numaz' );
 
 	//Formular für die Konfiguration
-	echo '<h2>Allgemeine Systemeinstellungen</h2>';
-	echo '<form method="post" action="configurator.php?step=3" onsubmit=" if( document.getElementById(\'passw\').value != \'\' ){ document.getElementById(\'passw\').value = SHA1( \''.$output.'\' + document.getElementById(\'passw\').value );} else{ alert( \'Bitte geben Sie ein Passwort für den Administrator an!\' ); return false; } " >';
-	echo '<input type="text" name="sitename" value="KIMB CMS" size="60"><br />(Name der Seite)<br /><br />';
-	echo '<input type="text" name="metades" value="CMS von KIMB-technologies" size="60"><br />(Meta Seitenbeschreibung)<br /><br />';
-	echo '<input type="text" name="sysadminmail" value="cmsadmin@example.com" size="60"><br />(E-Mail Adresse des Systemadministrators)<br /><br />';
-	echo '<input type="radio" name="urlrew" value="off">OFF <input type="radio" name="urlrew" value="on" checked="checked">ON (Aktivieren Sie URL-Rewriting f&uuml;r das System (Dazu muss Ihr Server die .htaccess im Rootverzeichnis verwenden k&ouml;nnen oder die Variable $SERVER[REQUEST_URI] setzen.))<br /><br />';
+	echo "\r\n\t\t\t".'<form method="post" action="configurator.php?step=3" onsubmit="return submit_mainform();" >';
+	
+	echo "\r\n\t\t\t".'<div id="nouser">';
+	
+	//	Pers
+	echo "\r\n\t\t\t".'<h2>Personalisierung</h2>';
+	echo "\r\n\t\t\t\t".'<input type="text" name="sitename" value="KIMB-CMS" size="60"><br /><small style="padding-left:5em;">(Name der Seite)</small><br /><br />';
+	echo "\r\n\t\t\t\t".'<input type="text" name="metades" value="CMS von KIMB-technologies" size="60"><br /><small style="padding-left:5em;">(Meta Seitenbeschreibung)</small><br /><br />';
+	echo "\r\n\t\t\t\t".'<input type="text" name="sysadminmail" value="webmaster@'.$_SERVER['HTTP_HOST'].'" size="60"><br /><small style="padding-left:5em;">(E-Mail Adresse des Systemadministrators)</small><br /><br />';
+	
+	//	Konf
+	echo "\r\n\t\t\t".'<h2>Allgemeine Systemeinstellungen</h2>';
+	echo "\r\n\t\t\t\t".'URL-Rewriting: <input type="radio" name="urlrew" value="on" checked="checked">Aktiviert'; 
+	echo "\r\n\t\t\t\t".'<input type="radio" name="urlrew" value="off">Deaktivert<br />';
+	echo "\r\n\t\t\t\t\t".'<small style="padding-left:5em;">(.htaccess (Apache Server) oder  $SERVER[REQUEST_URI] (andere Server))</small><br /><br />';
+	
+	echo "\r\n\t\t\t\t".'FullHTMLCache: <input type="radio" name="fullcache" value="on">Aktiviert'; 
+	echo "\r\n\t\t\t\t".'<input type="radio" name="fullcache" value="off" checked="checked">Deaktivert<br />';
+	echo "\r\n\t\t\t\t\t".'<small style="padding-left:5em;">(Leistungsstarker Cache, kann aber mit Add-ons Probleme bereiten)</small><br /><br />';
+	
+	echo "\r\n\t\t\t\t".'Menüübersicht: <input type="radio" name="overview_left" value="on" checked="checked">Aktiviert'; 
+	echo "\r\n\t\t\t\t".'<input type="radio" name="overview_left" value="off">Deaktivert<br />';
+	echo "\r\n\t\t\t\t\t".'<small style="padding-left:5em;">(Zu jeder Seite neben dem Hauptmenü eine Übersicht der aktuellen Menüpunkte ziegen.)</small><br /><br />';
+	
+	echo "\r\n\t\t\t\t".'Markdown: <input type="radio" name="markdown" value="on">Alle Seiten';
+	echo "\r\n\t\t\t\t".'<input type="radio" name="markdown" value="custom" checked="checked">Seitenspezifisch'; 
+	echo "\r\n\t\t\t\t".'<input type="radio" name="markdown" value="off">Deaktivert<br />';
+	echo "\r\n\t\t\t\t\t".'<small style="padding-left:5em;">(Seiteninhalte und -footer mit Markdown erstellen.)</small><br /><br />';
+	
+	echo "\r\n\t\t\t\t".'Mehrsprachige Seiten: <input type="radio" name="lang" value="on" checked="checked">Aktiviert';
+	echo "\r\n\t\t\t\t".'<input type="radio" name="lang" value="off">Deaktivert<br />';
+	echo "\r\n\t\t\t\t\t".'<small style="padding-left:5em;">(Seiteninhalte in verschiedenen Sprachen bereitstellen.)</small></small><br /><br />';
+	
+	echo "\r\n\t\t\t".'</div>';
 
-	echo '<h2>Ersten Administrator einrichten</h2>';
-	echo '<input type="text" name="user" value="admin" readonly="readonly" size="60"><br />(Username des Administrators)<br /><br />';
-	echo '<input type="password" name="passhash" placeholder="123456" id="passw" size="60"><input type="hidden" name="salt" value="'.$output.'"><br />(Passwort des Administrators)<br /><br />';
-	echo '<input type="text" name="name" value="Max Muster" size="60"><br />(Name des Administrators)<br /><br />';
-	echo '<input type="text" name="usermail" value="max.muster@example.com" size="60"><br />(E-Mail Adresse des Administrators)<br /><hr /><hr />';
-
-	echo '<input type="submit" value="Weiter"> <b>Alle Felder m&uuml;ssen gef&uuml;llt sein !!</b><br />';
+	//	User
+	echo "\r\n\t\t\t".'<h2>Administrator einrichten</h2>';
+	
+	echo "\r\n\t\t\t\t".'Nur Administrator <input type="checkbox" name="nouser" id="nouser" value="useronly" onclick="nouserbutt();"><br /><small style="padding-left:5em;">(Ist dieses CMS schon installiert und Sie wollen nur die Backenduser zurücksetzen? [Passwort vergessen])</small><br /><br />';
+	
+	echo "\r\n\t\t\t\t".'<input type="text" name="user" value="admin" readonly="readonly" size="60"><br /><small style="padding-left:5em;">(Username des Administrators)</small><br /><br />';
+	
+	echo "\r\n\t\t\t\t".'<input type="password" id="passw1" placeholder="123456" size="60"><br /><small style="padding-left:5em;">(Passwort des Administrators)</small><br /><br />';
+	echo "\r\n\t\t\t\t".'<input type="password" id="passw2" placeholder="123456" size="60"><br /><small style="padding-left:5em;">(Passwort wiederholen)</small><br /><br />';
+	
+	echo "\r\n\t\t\t\t".'<input type="hidden" name="salt" id="salt" value="'.$output.'">';
+	echo "\r\n\t\t\t\t".'<input type="hidden" name="pass" id="pass">';
+	
+	echo "\r\n\t\t\t\t".'<input type="text" name="name" value="Administrator" size="60"><br /><small style="padding-left:5em;">(Name des Administrators)</small><br /><br />';
+	echo "\r\n\t\t\t\t".'<input type="text" name="usermail" value="admin@'.$_SERVER['HTTP_HOST'].'" size="60"><br /><small style="padding-left:5em;">(E-Mail Adresse des Administrators)</small><br /><br />';
+	
+	echo "\r\n\t\t\t".'<input type="submit" value="Weiter"><br />';
+	echo "\r\n\t\t\t".'<b>Alle Felder m&uuml;ssen gef&uuml;llt sein!</b><br />';
+	echo "\r\n\t\t\t".'<i>Alle Einstellungen können später im Backend angepasst werden!</i>';
 	echo '</form>';
 }
 
 elseif($_GET['step'] == '3'){
+	
+	//evtl. nur BE User?
+	if( isset( $_POST['nouser'] ) && $_POST['nouser'] == 'useronly' ){
+		$useronly = true;
+	}
+	else{
+		$useronly = false;
+	}
+
+	//POST Values und Typen definieren
+	$postvalues = array(
+		'sitename' => 'text',
+		'metades' => 'text',
+		'sysadminmail' => 'mail',
+		'urlrew' => 'oo',
+		'fullcache' => 'oo',
+		'overview_left' => 'oo',
+		'markdown' => 'oco',
+		'lang' => 'oo',
+		'user'=> 'text',
+		'salt'=> 'text',
+		'pass'=> 'text',
+		'name'=> 'text',
+		'usermail'=> 'mail'
+	);
+	$postokays = array();
+	
+	if( $useronly ){
+		//Übergabewünsche Array anpassen
+		$postvalues = array_slice( $postvalues, 8 );
+	}
+	
+	//alle Post testen
+	foreach ($postvalues as $key => $type) {
+		//lesen
+		$value = $_POST[$key];
+		
+		//gefüllt?
+		if( !empty( $value ) ){
+			//je nach Typ
+			if( $type == 'text' ){
+				//okay, solange gefüllt
+				$ok = true;
+			}
+			elseif( $type == 'mail' ){
+				//Mail Syntax Check
+				if( filter_var($value, FILTER_VALIDATE_EMAIL) ){
+					$ok = true;
+				}
+				else{
+					$ok = false;
+				}
+				
+			}
+			elseif( $type == 'oo' ){
+				//on oder off?
+				if( $value == 'on' || $value == 'off' ){
+					$ok = true;
+				}
+				else{
+					$ok = false;
+				}
+			}
+			elseif( $type == 'oco' ){
+				//on, custom oder off?
+				if( $value == 'on' || $value == 'off' || $value = 'custom' ){
+					$ok = true;
+				}
+				else{
+					$ok = false;
+				}
+			}
+			else{
+				$ok = false;
+			}
+		}
+		else{
+			$ok = false;
+		}
+		
+		//Checkergebins merken
+		$postokays[] = $ok;
+	}
 
 	//Alle Felder richtig gefüllt
-	if( $_POST['sitename'] == '' || $_POST['metades'] == '' || $_POST['sysadminmail'] == '' || $_POST['passhash'] == '' || $_POST['name'] == '' || $_POST['usermail'] == '' ){
+	if( in_array( false, $postokays ) ){
 
-		echo( '<h1 style="color:red;">Alle Felder m&uuml;ssen gef&uuml;llt sein !!</h1><br /><br />' );
+		//Fehlermeldung
+		echo( '<h1 style="color:red;">Alle Felder m&uuml;ssen korrekt gef&uuml;llt sein!!</h1><br /><br />' );
+		
 		echo( '<a href="configurator.php?step=2" >Zur&uuml;ck</a>' );
+		
+		//Ende
+		echo( "\r\n\t\t".'</div>');
+		echo( "\r\n\t".'</div></body>');
+		echo( "\r\n".'</div></html>');
 		die;
 	}
 
-
-	//Request URL
+	//Werte für config.kimb
+	//	URL
 	if(isset($_SERVER['HTTPS'])){
 		$urlg = 'https://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
 	}
 	else{
 		$urlg = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
 	}
-	$url = substr($urlg, '0', '-'.strlen(strrchr($urlg, '/')));
-
-	//Zufallsgenerator Loginokay
-	$output = makepassw( 50 );
-
-	//Zufallsgenerator Cronkey
-	$cronkey = makepassw( 50 );
-
-	//Konfigurationsteile
-	//erster
-	$addconf = '<[001-sitename]>'.$_POST['sitename'].'<[001-sitename]>
-<[001-sitefavi]>'.$url.'/load/system/KIMB.ico<[001-sitefavi]>
-<[001-loginokay]>'.$output.'<[001-loginokay]>
-<[001-siteurl]>'.$url.'<[001-siteurl]>
-<[001-description]>'.$_POST['metades'].'<[001-description]>
-<[001-adminmail]>'.$_POST['sysadminmail'].'<[001-adminmail]>
-<[001-mailvon]>cms@'.$_SERVER['HTTP_HOST'].'<[001-mailvon]>
-<[001-urlrewrite]>'.$_POST['urlrew'].'<[001-urlrewrite]>
-<[001-cronkey]>'.$cronkey.'<[001-cronkey]>';
-
-	//Schreibe in Konfigurationsdatei
-	$handle = fopen(__DIR__.'/core/oop/kimb-data/config.kimb', 'a+');
-	fwrite($handle, $addconf);
-	fclose($handle);
-
-	//.htaccess für URL-Rewriting umbenennen
-	if( $_POST['urlrew'] == 'on' ){
-		rename( __DIR__.'/_.htaccess', __DIR__.'/.htaccess' );
+	$siteurl = substr($urlg, '0', '-'.strlen(strrchr($urlg, '/')));
+	//	Favicon
+	$sitefavi = $siteurl.'/load/system/KIMB.ico';
+	//	Sysabsender
+	$mailvon = 'cms@'.$_SERVER['HTTP_HOST'];
+	
+	//nicht nur User?
+	if( !$useronly ){
+		//schreiben
+		$cofile = new KIMBdbf( 'config.kimb' );
+		$cofile->write_kimb_id( '001', 'add', 'sitefavi', $sitefavi );
+		$cofile->write_kimb_id( '001', 'add', 'loginokay', makepassw( 100, null, 'numaz' ) );
+		$cofile->write_kimb_id( '001', 'add', 'siteurl', $siteurl );
+		$cofile->write_kimb_id( '001', 'add', 'mailvon', $mailvon );
+		$cofile->write_kimb_id( '001', 'add', 'cronkey', makepassw( 75, null, 'numaz' ) );
+		
+		$cofile->write_kimb_id( '001', 'add', 'sitename', $_POST['sitename'] );
+		$cofile->write_kimb_id( '001', 'add', 'description', $_POST['metades'] );
+		$cofile->write_kimb_id( '001', 'add', 'adminmail', $_POST['sysadminmail'] );
+		
+		
+		$cofile->write_kimb_id( '001', 'add', 'fullcache', $_POST['fullcache'] );
+		$cofile->write_kimb_id( '001', 'add', 'overview_left', $_POST['overview_left'] );
+		$cofile->write_kimb_id( '001', 'add', 'markdown', $_POST['markdown'] );
+		$cofile->write_kimb_id( '001', 'add', 'lang', $_POST['lang'] );
+		$cofile->write_kimb_id( '001', 'add', 'urlrewrite', $_POST['urlrew'] );
+		//	.htaccess für URL-Rewriting umbenennen
+		if( $_POST['urlrew'] == 'on' ){
+			rename( __DIR__.'/_.htaccess', __DIR__.'/.htaccess' );
+		}
+		unset( $cofile );
 	}
 
-	//zweiter
-	$adduser = '<[1-passw]>'.$_POST['passhash'].'<[1-passw]>
-<[1-salt]>'.$_POST['salt'].'<[1-salt]>
-<[1-name]>'.$_POST['name'].'<[1-name]>
-<[1-mail]>'.$_POST['usermail'].'<[1-mail]>';
-
-	//schreiben in Userdatei
-	$handle = fopen(__DIR__.'/core/oop/kimb-data/backend/users/list.kimb', 'a+');
-	fwrite($handle, $adduser);
-	fclose($handle);
+	// BE User KIMBdbf
+	$bufile = new KIMBdbf( '/backend/users/list.kimb' );
+	//	aufräumen
+	$bufile->delete_kimb_file();
+	$bufile->write_kimb_id( '1', 'add', 'user', 'admin' );
+	$bufile->write_kimb_id( '1', 'add', 'permiss', 'more' );
+	$bufile->write_kimb_id( '1', 'add', 'passw', $_POST['pass'] );
+	$bufile->write_kimb_id( '1', 'add', 'salt', $_POST['salt'] );
+	$bufile->write_kimb_id( '1', 'add', 'name', $_POST['name'] );
+	$bufile->write_kimb_id( '1', 'add', 'mail', $_POST['usermail'] );
+	unset( $bufile );
 
 	//fertig anzeigen
-	echo('Installation erfolgreich!<br /><br /> <a href="'.$url.'/" target="_blank"><button>Zur Seite</button></a><br />');
-	echo('<a href="'.$url.'/kimb-cms-backend/" target="_blank"><button>Zum Backend</button></a><br />');
+	echo( "\r\n\t\t\t".'<h2>Installation erfolgreich!</h2>
+			<br />
+			<a href="'.$siteurl.'/" target="_blank"><button>Zur <b>Seite</b></button></a>
+			<br />
+			<a href="'.$siteurl.'/kimb-cms-backend/" target="_blank"><button>Zum <b>Backend</b></button></a>
+			<br />');
 	
-	echo( '<hr />' );
-	echo( '<h2>KIMB-technologies Register</h2>' );
-	echo( 'Registrieren Sie sich im KIMB-technologies Register und bleiben Sie auf dem Laufenden.<br />' );
-	echo( '<a href="https://register.kimb-technologies.eu/" target="_blank">Zum Register</a>' );
-	echo( '<hr />' );
-
+	echo( "\r\n\t\t\t".'<hr />' );
+	echo( "\r\n\t\t\t".'<h2>KIMB-technologies Register</h2>' );
+	echo( "\r\n\t\t\t".'Registrieren Sie sich im KIMB-technologies Register und bleiben Sie auf dem Laufenden.<br />' );
+	echo( "\r\n\t\t\t".'<a href="https://register.kimb-technologies.eu/" target="_blank">Zum Register</a>' );
+	echo( "\r\n\t\t\t".'<hr />' );
+	echo( "\r\n\t\t\t".'<h2>KIMB-CMS Wiki</h2>' );
+	echo( "\r\n\t\t\t".'Anleitungen und Informarionen zum KIMB-CMS:<br />' );
+	echo( "\r\n\t\t\t".'<ul>
+				<li>
+					<a href="https://cmswiki.kimb-technologies.eu/home/" target="_blank">Wiki <strong>Startseite</strong></a>
+				</li>
+				<li>
+					<a href="https://cmswiki.kimb-technologies.eu/tutorials/installation/" target="_blank">Wiki <strong>Installation</strong></a>
+				</li>
+				<li>
+					<a href="https://cmswiki.kimb-technologies.eu/tutorials/erste-schritte/" target="_blank">Wiki <strong>Erste Schritte</strong></a>
+				</li>
+				<li>
+					<a href="https://cmswiki.kimb-technologies.eu/fragen/" target="_blank">Wiki <strong>Fragen</strong></a>
+				</li>
+				<li>
+					<a href="https://cmswiki.kimb-technologies.eu/addons/" target="_blank">Wiki <strong>Add-ons</strong></a>
+				</li>');
+	echo( "\r\n\t\t\t".'</ul>');
+	echo( "\r\n\t\t\t".'<hr />' );
+		
 	//Konfigurator sperren
 	unlink('conf-enable');
-
 }
 else{
 	
-	echo '<h2>Serverprüfung</h2>';
-	echo '<ul>';
+	echo "\r\n\t\t\t".'<h2>Serverprüfung</h2>';
+	echo "\r\n\t\t\t".'<ul>';
 	
 	//PHP - Version OK?
 	if (version_compare(PHP_VERSION, '7.0.0' ) >= 0 ) {
-    		echo '<li class="okay">Sie verwenden PHP 7</li>';
+    		echo "\r\n\t\t\t\t".'<li class="okay">Sie verwenden PHP 7</li>';
 		$okay[] = 'okay';
 	}
 	elseif (version_compare(PHP_VERSION, '5.5.0' ) >= 0 ) {
-    		echo '<li class="war">Sie verwenden PHP 5.5.0, aber noch nicht das neue PHP 7</li>';
+    		echo "\r\n\t\t\t\t".'<li class="war">Sie verwenden PHP 5.5.0, aber noch nicht das neue PHP 7</li>';
 		$okay[] = 'war';
 	}
 	else{
-		echo '<li class="err">Dieses System wurde f&uuml;r PHP 5.5.0 und h&ouml;her entwickelt, bitte f&uuml;hren Sie ein PHP-Update durch!</li>';
+		echo "\r\n\t\t\t\t".'<li class="err">Dieses System wurde f&uuml;r PHP 5.5.0 und h&ouml;her entwickelt, bitte f&uuml;hren Sie ein PHP-Update durch!</li>';
 		$okay[] = 'err';
 	}
 	
 	//url fopen okay?
 	if( ini_get( 'allow_url_fopen' ) ){
 		$okay[] = 'okay';
-		echo '<li class="okay">Ihr Server erlaubt PHP Requests per HTTP zu anderen Servern!</li>';
+		echo "\r\n\t\t\t\t".'<li class="okay">Ihr Server erlaubt PHP Requests per HTTP zu anderen Servern!</li>';
 	}
 	else{
 		$okay[] = 'war';
-		echo '<li class="war">Ihr Server erlaubt PHP keine Requests per HTTP zu anderen Servern!</li>';
+		echo "\r\n\t\t\t\t".'<li class="war">Ihr Server erlaubt PHP keine Requests per HTTP zu anderen Servern!</li>';
 	}
 
 	//cURL
 	if( function_exists('curl_version') ){
 		$okay[] = 'okay';
-		echo '<li class="okay">Ihr Server hat cURL!</li>';
+		echo "\r\n\t\t\t\t".'<li class="okay">Ihr Server hat cURL!</li>';
 	}
 	else{
 		$okay[] = 'war';
-		echo '<li class="war">Ihrem Server fehlt cURL!</li>';
+		echo "\r\n\t\t\t\t".'<li class="war">Ihrem Server fehlt cURL!</li>';
 	}
 	
 	//PHP GD
 	if (defined('GD_VERSION')) {   
 		$okay[] = 'okay';
-		echo '<li class="okay">Ihr Server hat PHP_GD!</li>';
+		echo "\r\n\t\t\t\t".'<li class="okay">Ihr Server hat PHP_GD!</li>';
 	}
 	else{
 		$okay[] = 'war';
-		echo '<li class="war">Ihrem Server fehlt PHP_GD!</li>';
+		echo "\r\n\t\t\t\t".'<li class="war">Ihrem Server fehlt PHP_GD!</li>';
 	}
 	//nötige schreibbare Verzeichnisse und Dateien
 	$checkfolders = array(
@@ -310,6 +504,8 @@ else{
 		'core/oop/kimb-data/backend/index.kimb',
 		'core/oop/kimb-data/backend/users',
 		'core/oop/kimb-data/backend/users/index.kimb',
+		'core/oop/full_cache/',
+		'core/oop/full_cache/index.txt',
 		'core/addons',
 		'core/secured',
 		'core/secured/logo.png',
@@ -330,40 +526,70 @@ else{
 			$count++;
 		}
 		else{
-			echo '<li class="err">"'.$folder.'" ist nicht schreibbar!</li>';
+			echo "\r\n\t\t\t\t".'<li class="err">"'.$folder.'" ist nicht schreibbar!</li>';
 		}
 	}
 	
 	//Hat count den richtigen Wert, dann alles okay
 	if($count == count( $checkfolders ) ){
-		echo '<li class="okay">Alle benötigten Verzeichnisse sind schreibbar!</li>';
+		echo "\r\n\t\t\t\t".'<li class="okay">Alle benötigten Verzeichnisse sind schreibbar!</li>';
 		$okay[] = 'okay';
 	}
 	else{
 		$okay[] = 'err';
 	}
 
-	echo '</ul>';
+	echo "\r\n\t\t\t".'</ul>';
 
 	//okay auswerten
 	//wiederholen oder weiter zu Schritt 2
 	if( array_search ('err' , $okay ) === false && array_search ('war' , $okay ) === false ){
-		echo('<ul><li class="okay">Alle Bedingungen für das KIMB-CMS sind erfüllt!<br /><br />');
+		echo( "\r\n\t\t\t".'<ul>
+				<li class="okay">
+					Alle Bedingungen für das KIMB-CMS sind erfüllt!
+					<br />
+					<br />');
 		
-		echo('<a href="configurator.php?step=2"><button>Weiter</button></a></li></ul>');
+		echo( "\r\n\t\t\t\t\t".'<a href="configurator.php?step=2">
+						<button>Weiter</button>
+					</a>
+				</li>
+			</ul>');
 	}
 	elseif( array_search ('err' , $okay ) === false ){
-		echo('<ul><li class="war">Die grundlegenden Bedingungen für das KIMB-CMS sind erfüllt, es könnte aber zu Problemen kommen!<br /><br />');
+		echo( "\r\n\t\t\t".'<ul>
+					<li class="war">
+						Die grundlegenden Bedingungen für das KIMB-CMS sind erfüllt, es könnte aber zu Problemen kommen!
+					<br />
+					<br />');
 		
-		echo('<a href="configurator.php?step=2"><button>Weiter</button></a></br />');
-		echo('<a href="configurator.php"><button>Neue Systemprüfung</button></a></li></ul>');
+		echo( "\r\n\t\t\t\t\t".'<a href="configurator.php?step=2">
+						<button>Weiter</button>
+					</a>
+					</br />');
+		echo( "\r\n\t\t\t\t\t".'<a href="configurator.php">
+						<button>Neue Systemprüfung</button>
+					</a>
+				</li>
+			</ul>');
 	}
 	else{
-		echo('<ul><li class="err">Die grundlegenden Bedingungen für das KIMB-CMS sind nicht erfüllt!<br /><br />');
+		echo( "\r\n\t\t\t".'<ul>
+				<li class="err">
+					Die grundlegenden Bedingungen für das KIMB-CMS sind nicht erfüllt!
+					<br />
+					<br />');
 		
-		echo('<a href="configurator.php"><button>Neue Systemprüfung</button></a></li></ul>');
+		echo( "\r\n\t\t\t\t\t".'<a href="configurator.php">
+						<button>Neue Systemprüfung</button>
+					</a>
+				</li>
+			</ul>');
 	}
 
+
 }
-echo('</div></body></html>');
+echo( "\r\n\t\t".'</div>
+	</body>
+</html>');
 ?>
