@@ -1,20 +1,59 @@
-#KIMB-CMS
->Das KIMB-CMS ist ein einfaches CMS mit vielen wichtigen Features. Bei der Entwicklung wurde auf Relevanz und Einfachheit geachtet.
->Es unterstützt Add-ons und Themes zur verbesserten Personalisierung. Auch auf URL-Rewriting wurde nicht verzichtet und das KIMB-CMS unterstützt echte, schöne URLs ohne IDs (im Gegensatz zu manch anderem CMS). Features wie ein Cache und ein Backend mit verschiedenen Userlevelen sind integriert. Visit on bitbucketAuch ein Dateiupload mit sicherem Download ist vorhanden. Version 2.0 erlaubt z.B. auch mehrsprachige Seiten. Informationen zu Add-ons und dem CMS im Allgemeinen finden Sie hier.
+# KIMB-CMS
+> Ein einfaches und leichtgewichtiges CMS von KIMB-technologies.eu mit allen wichtigen Features.    
+> Veröffentlicht unter der GPLv3.
 
->Das System benötigt keine Datenbank, nur einen Webserver mit PHP.
->Schauen Sie einfach mal auf die Demo! 
+## Features
+ - Personaliserung
+	- Add-ons
+	- Themes
+		- [Theme Designer](https://theme-designer.kimb-technologies.eu/)
+ - Backend
+ 	- Usergruppen
+	 	- Eigene Level erstellbar
+		- Seitengenaue Zugriffsrechte
+		- Vielfältige Sicherheitsmechanismen
+	- Mehrere Editoren zur Inhaltserstellung
+		- WYSIWYG
+		- HTML-Code
+		- Markdown
+	- Dateimanager für einfachen Upload (Bilder, PDFs, etc.)
+ - Modern 
+ 	- Responsive Design
+	- Mehrsprachige Seiten
+	- Markdown Seiten
+	- URL-Rewriting
+	- SEO Optimiert
+	- One-Click-Updates
+- Technisch
+	- Keine Datenbank (Dateibasiert)
+	- Leichtgewichtig
+	- OpenSource (GPLv3)
+	- Einfacher PHP Code
+		- Problemlos personalisierbar
 
-##Installation
-1. Laden Sie das Installpack unter "KIMB Software Download" herunter.
-2. Entpacken Sie die Datei auf Ihrem Webserver.
-3. Öffnen Sie die "configurator.php" im Browser.
   
-##Links
-[Homepage](https://www.kimb-technologies.eu/software/cms/)  
 [Demo](http://demo.kimb-technologies.eu/cms/)  
-[KIMB Software Download](https://download.kimb-technologies.eu/explorer/CMS)  
-  
 [Wiki & Dokumentation](https://cmswiki.kimb-technologies.eu/)  
-[GIT Bitbucket](https://bitbucket.org/kimbtech/kimb-cms/)  
+  
+[Bitbucket](https://bitbucket.org/kimbtech/kimb-cms/)  
+[GitHub](https://github.com/kimbtech/kimb-cms/)  
+  
+[Homepage](https://www.kimb-technologies.eu/software/cms/)  
+[Download](https://download.kimb-technologies.eu/explorer/CMS/Version-2/)  
+  
+
+### Installation
+Die Installation des KIMB-CMS ist sehr einfach und geht schnell!
+
+#### Weg A
+1. Laden Sie sich den [EasyInstaller](https://download.kimb-technologies.eu/getfile.php?file=%2FCMS%2Feasy-installer.php) herunter.
+2. Packen Sie ihn auf Ihren Webserver.
+3. Rufen Sie ihn im Browser auf.
+4. Der EasyInstaller lädt das KIMB-CMS herunter und führt Sie durch die Installation.
+
+#### Weg B
+1. Laden Sie das [Installationspaket](https://github.com/kimbtech/KIMB-CMS/releases) herunter.
+2. Packen Sie die Dateien auf Ihren Webserver.
+3. Rufen Sie den Ordner mit den Dateien im Browser auf.
+4. Der KOnfigurator führt Sie durch die Installation.
 
