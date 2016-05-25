@@ -24,7 +24,7 @@
 	- URL-Rewriting
 	- SEO Optimiert
 	- One-Click-Updates
-- Technisch
+ - Technisch
 	- Keine Datenbank (Dateibasiert)
 	- Leichtgewichtig
 	- OpenSource (GPLv3)
@@ -55,5 +55,5 @@ Die Installation des KIMB-CMS ist sehr einfach und geht schnell!
 1. Laden Sie das [Installationspaket](https://github.com/kimbtech/KIMB-CMS/releases) herunter.
 2. Packen Sie die Dateien auf Ihren Webserver.
 3. Rufen Sie den Ordner mit den Dateien im Browser auf.
-4. Der KOnfigurator führt Sie durch die Installation.
+4. Der Konfigurator führt Sie durch die Installation.
 
