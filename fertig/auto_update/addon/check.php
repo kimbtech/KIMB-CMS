@@ -1,4 +1,5 @@
 <?php
+
 /*************************************************/
 //KIMB CMS Add-on
 //KIMB ContentManagementSystem Add-on
@@ -24,5 +25,23 @@
 
 defined('KIMB_CMS') or die('No clean Request');
 
-//nichts zu tun, Datei nur damit Add-on geladen wird
+//Überprüfung der aktuellen Version mit der KIMB-API
+$newver = json_decode( file_get_contents( 'https://api.kimb-technologies.eu/cms/getcurrentversion.php' ) , true );
+
+//aktuelle Version mit der des CMS vergleichen
+if( compare_cms_vers( $allgsysconf['build'] , $newver['currvers'] ) == 'older' ){
+	//Update möglich -> Variablen setzen
+	$update = 'yes';
+	$updatearr['do'] = 'yes';
+	$updatearr['sysv'] = $allgsysconf['build'];
+	$updatearr['newv'] = $newver['currvers'];
+}
+else{
+	//kein Update -> auch Variablen setzen
+	$update = 'no';
+	$updatearr['do'] = 'no';
+	$updatearr['sysv'] = $allgsysconf['build'];
+	$updatearr['newv'] = $newver['currvers'];
+}
+
 ?>
