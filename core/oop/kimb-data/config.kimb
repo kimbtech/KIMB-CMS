@@ -2,7 +2,7 @@
 <[001]>sitename==sitefavi==loginokay==siteurl==description==urlweitermeth==adminmail==robots==mailvon==cache==fullcache==sitespr==systemversion==build==urlrewrite==cachelifetime==fullcachelifetime==use_request_url==show_siteinfos==theme==cronkey==lang==coolifetime==smime_cert_ini_folder==smime_cert_ini_name==mail_log==permalink_domain==overview_left==markdown<[001]>
 <[001-urlweitermeth]>1<[001-urlweitermeth]>
 <[001-robots]>index, follow<[001-robots]>
-<[001-cache]>on<[001-cache]>
+<[001-cache]>off<[001-cache]>
 <[001-sitespr]>auto<[001-sitespr]>
 <[001-systemversion]>2.5 Alpha<[001-systemversion]>
 <[001-build]>V2.5A<[001-build]>
@@ -10,22 +10,22 @@
 <[001-use_request_url]>ok<[001-use_request_url]>
 <[001-show_siteinfos]>on<[001-show_siteinfos]>
 <[001-theme]>norm<[001-theme]>
-<[001-lang]>off<[001-lang]>
+<[001-lang]>on<[001-lang]>
 <[001-coolifetime]>0<[001-coolifetime]>
 <[001-sitename]>KIMB-CMS<[001-sitename]>
-<[001-sitefavi]>/load/system/KIMB.ico<[001-sitefavi]>
-<[001-loginokay]><[001-loginokay]>
-<[001-siteurl]><[001-siteurl]>
-<[001-description]>KIMB-CMS - Einfaches und leichtgewichtiges CMS mit allen wichtigen Features. Veröffentlicht unter der GPLv3.<[001-description]>
-<[001-adminmail]>admin@example.com<[001-adminmail]>
-<[001-mailvon]>cms@example.com<[001-mailvon]>
+<[001-sitefavi]>http://cms.dev:8000/load/system/KIMB.ico<[001-sitefavi]>
+<[001-loginokay]>aooc7J600klbLOiyYscqyc2SVipMb5m9UkqVrgU6jKB1KMCeZxDJLM3CMQdWSsw50uzwJi9qy465Zeox57o8teerBmwFLCQlNjdu<[001-loginokay]>
+<[001-siteurl]>http://cms.dev:8000<[001-siteurl]>
+<[001-description]>CMS von KIMB-technologies<[001-description]>
+<[001-adminmail]>webmaster@cms.dev<[001-adminmail]>
+<[001-mailvon]>cms@cms.dev:8000<[001-mailvon]>
 <[001-urlrewrite]>on<[001-urlrewrite]>
-<[001-cronkey]><[001-cronkey]>
+<[001-cronkey]>hWOZ0aHwekEU5wPvw7l6cdWgqCPJJtIdJOrMf8btD1AsMxagNOlMCQNkqqMC4IVCyUxvKYAnY<[001-cronkey]>
 <[001-smime_cert_ini_folder]>pem<[001-smime_cert_ini_folder]>
 <[001-smime_cert_ini_name]><[001-smime_cert_ini_name]>
 <[001-mail_log]>on<[001-mail_log]>
 <[001-permalink_domain]>off<[001-permalink_domain]>
 <[001-overview_left]>on<[001-overview_left]>
-<[001-markdown]>on<[001-markdown]>
+<[001-markdown]>custom<[001-markdown]>
 <[001-fullcache]>off<[001-fullcache]>
 <[001-fullcachelifetime]>259200<[001-fullcachelifetime]>
