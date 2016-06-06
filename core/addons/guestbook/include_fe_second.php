@@ -231,7 +231,7 @@ if( $guestbook['file']->read_kimb_search_teilpl( 'siteid' , $allgsiteid ) && $al
 	//dem Header anfügen
 	$sitecontent->add_html_header( $header );
 	//die externe JavaScript Datei laden
-	$sitecontent->add_html_header('<script src="'.$allgsysconf['siteurl'].'/load/addondata/guestbook/guestbook.min.js" type="text/javascript" ></script>');
+	$sitecontent->add_html_header('<script src="'.$allgsysconf['siteurl'].'/load/addondata/guestbook/guestbook.dev.js" type="text/javascript" ></script>');
 	
 	//den Code, welcher oben nach der Auswertung der Eingaben vorgegeben wurde, ausgeben
 	$sitecontent->add_html_header('<script>'.$guestbook['showadd'].'</script>');
@@ -254,11 +254,11 @@ if( $guestbook['file']->read_kimb_search_teilpl( 'siteid' , $allgsiteid ) && $al
 		if( $guestbook['einer']['status'] == 'on' ){
 
 			//Beitrag der Ausgabe anfügen
-			$guestbook['output'] .= '<div id="guest" >'."\r\n";
+			$guestbook['output'] .= '<div class="guest" >'."\r\n";
 			//	Name		
-			$guestbook['output'] .= '<div id="guestname" >'.$guestbook['einer']['name']."\r\n";
+			$guestbook['output'] .= '<div class="guestname" >'.$guestbook['einer']['name']."\r\n";
 			//	Zeit
-			$guestbook['output'] .= '<span id="guestdate">'.date( 'd-m-Y H:i:s' , $guestbook['einer']['time'] ).'</span>'."\r\n";
+			$guestbook['output'] .= '<span class="guestdate">'.date( 'd-m-Y H:i:s' , $guestbook['einer']['time'] ).'</span>'."\r\n";
 			$guestbook['output'] .= '</div>'."\r\n";
 			//	Inhalt
 			$guestbook['output'] .= $guestbook['einer']['cont']."\r\n";
@@ -277,7 +277,7 @@ if( $guestbook['file']->read_kimb_search_teilpl( 'siteid' , $allgsiteid ) && $al
 			
 			$guestbook['output'] .= '</div>'."\r\n";
 			//divs, in welche die Antworten geladen werden, der Ausgabe hinzufügen 
-			$guestbook['output'] .= '<div class="answer_'.$i.' answer" style="display:none;" ><div id="answer_'.$i.'_dis" ></div><hr /><div id="answer_'.$i.'_add" ></div></div>'."\r\n\r\n";
+			$guestbook['output'] .= '<div class="answer_'.$i.' answer" style="display:none;" ><div id="answer_'.$i.'_dis" ></div><hr /><div id="answer_'.$i.'_add" class="answer_add" ></div></div>'."\r\n\r\n";
 
 			//Einträge vorhanden
 			$guestbook['eintr'] = 'yes';
@@ -287,7 +287,7 @@ if( $guestbook['file']->read_kimb_search_teilpl( 'siteid' , $allgsiteid ) && $al
 	//wenn keine Einträge:
 	if( !isset( $guestbook['eintr'] ) ){
 		//Meldung, dass keine Mitteilungen
-		$guestbook['output'] .= '<div id="guest" >'."\r\n";		
+		$guestbook['output'] .= '<div class="guest" >'."\r\n";		
 		$guestbook['output'] .= $allgsys_trans['addons']['guestbook']['nomitt'];
 		$guestbook['output'] .= '</div>'."\r\n\r\n";
 	}
@@ -298,7 +298,7 @@ if( $guestbook['file']->read_kimb_search_teilpl( 'siteid' , $allgsiteid ) && $al
 	//wenn hinzufügen erlaubt:
 	if( $guestbook['add'] ){
 
-		$sitecontent->add_site_content( '<div id="guest" >'."\r\n" );
+		$sitecontent->add_site_content( '<div class="guest" >'."\r\n" );
 		//Button um Formular zu hinzufügen zu laden
 		$sitecontent->add_site_content('<button onclick="add( \'new\' ); " id="guestbuttadd">'.$allgsys_trans['addons']['guestbook']['add'].'</button>'."\r\n" );
 		$sitecontent->add_site_content('<div style="display:none;" id="guestadd" >'."\r\n" );
@@ -309,7 +309,7 @@ if( $guestbook['file']->read_kimb_search_teilpl( 'siteid' , $allgsiteid ) && $al
 	}
 	else{
 		//Meldung, wenn keine Rechte einen neuen Beitrag hinzuzufügen
-		$sitecontent->add_site_content('<div id="guest"><button disabled="disabled">'.$allgsys_trans['addons']['guestbook']['add'].'</button> ('.$allgsys_trans['addons']['guestbook']['login'].') </div>'."\r\n" );
+		$sitecontent->add_site_content('<div class="guest"><button disabled="disabled">'.$allgsys_trans['addons']['guestbook']['add'].'</button> ('.$allgsys_trans['addons']['guestbook']['login'].') </div>'."\r\n" );
 	}	
 }
 

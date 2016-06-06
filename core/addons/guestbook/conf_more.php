@@ -29,7 +29,7 @@ defined('KIMB_CMS') or die('No clean Request');
 $addonurl = $allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=more&addon=guestbook';
 
 //CSS Style Vorschlag
-$cssallg = 'div#guestname{ position:relative; border-bottom:solid 1px #000000; font-weight:bold; } span#guestdate{ font-weight:normal; position:absolute; right:0px; } div#guest, div.answer{ border:solid 1px #000000; border-radius:15px; background-color:#dddddd; padding:10px; margin:5px;} div.answer{ margin-left:80px; }';
+$cssallg = 'div.guestname{ position:relative; border-bottom:solid 1px #000000; font-weight:bold; } span.guestdate{ font-weight:normal; position:absolute; right:0px; } div.guest, div.answer{ border:solid 1px #000000; border-radius:15px; background-color:#dddddd; padding:10px; margin:5px;} div.answer{ margin-left:80px; }';
 
 //Konfigurations dbf laden
 $guestfile = new KIMBdbf( 'addon/guestbook__conf.kimb' );
