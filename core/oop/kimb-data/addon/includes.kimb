@@ -1,3 +1,8 @@
 <[about:doc]>KIMB Datei V.4.5 KIMB CMS<[about:doc]>
 <[be1]>auto_update<[be1]>
 <[be2]>auto_update_addons<[be2]>
+<[ajax1]>captcha<[ajax1]>
+<[funcclass1]>captcha<[funcclass1]>
+<[ajax2]>guestbook<[ajax2]>
+<[funcclass2]>guestbook<[funcclass2]>
+<[fe1]>guestbook<[fe1]>
