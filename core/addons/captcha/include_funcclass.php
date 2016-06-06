@@ -59,8 +59,8 @@ if( !function_exists('hex2rgb') ) {
 function make_captcha_html(){
 	global $allgsysconf;
 
-	$ret = '<img src="'.$allgsysconf['siteurl'].'/ajax.php?addon=captcha" alt="Captcha Code" id="captcha_img"><br />';
-	$ret .= '<a href="#" onclick="document.getElementById( \'captcha_img\' ).src = \''.$allgsysconf['siteurl'].'/ajax.php?addon=captcha&n=\' + Math.random(); return false;">NEW?</a><br />';
+	$ret = '<img src="'.$allgsysconf['siteurl'].'/ajax.php?addon=captcha" alt="Captcha Code" class="captcha_img" id="captcha_img"><br />';
+	$ret .= '<a href="#" onclick="var newurl = \''.$allgsysconf['siteurl'].'/ajax.php?addon=captcha&n=\' + Math.floor((Math.random() * 999999) + 1);  var c = document.getElementsByClassName( \'captcha_img\' ); for( var i = 0; i < c.length; i++ ) { c[i].src = newurl; } return false;">NEW?</a><br />';
 	$ret .= '<input type="text" name="captcha_code" placeholder="Captcha Code" autocomplete="off"><br />';
 
 	return $ret;
