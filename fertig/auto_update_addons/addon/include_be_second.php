@@ -25,6 +25,11 @@
 
 defined('KIMB_CMS') or die('No clean Request');
 
-//nur damit second geladen wird
+//Hinweis auf Add-on für User
+if( !isset( $_GET['todo'] ) || $_GET['todo'] != 'addonnews' ){
+	//nur wenn nicht Seite mit Add-on Infos
+	$sitecontent->add_site_content( '<br />' );
+	$sitecontent->echo_message( 'Installieren Sie neue Add-ons und Updates mit nur einem Klick.<br /><a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=more&amp;addon=auto_update_addons"><button>Los geht&apos;s</button></a>', 'Add-on One-Click Installation &amp; Update' );
+}
 
 ?>
