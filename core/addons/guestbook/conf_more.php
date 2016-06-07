@@ -29,7 +29,7 @@ defined('KIMB_CMS') or die('No clean Request');
 $addonurl = $allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=more&addon=guestbook';
 
 //CSS Style Vorschlag
-$cssallg = 'div.guestname{ position:relative; border-bottom:solid 1px #000000; font-weight:bold; } span.guestdate{ font-weight:normal; position:absolute; right:0px; } div.guest, div.answer{ border:solid 1px #000000; border-radius:15px; background-color:#dddddd; padding:10px; margin:5px;} div.answer{ margin-left:80px; }';
+$cssallg = get_guestbook_css();
 
 //Konfigurations dbf laden
 $guestfile = new KIMBdbf( 'addon/guestbook__conf.kimb' );
@@ -45,6 +45,9 @@ if( isset( $_GET['new'] ) && is_numeric( $_POST['id'] ) ){
 		if( $guestfile->write_kimb_teilpl( 'siteid' , $_POST['id'] , 'add' ) ){
 			//Medlung
 			$sitecontent->echo_message( 'Ein Gästebuch wurde zur Seite "'.$_POST['id'].'" hinzugefügt!' );
+			
+			//Seiten geändert!
+			$siteschanged = true;
 		}
 
 	}
@@ -64,11 +67,32 @@ elseif( isset( $_GET['del'] ) && is_numeric( $_GET['id'] ) ){
 		if( $guestfile->write_kimb_teilpl( 'siteid' , $_GET['id'] , 'del' ) ){
 			//Meldung
 			$sitecontent->echo_message( 'Das Gästebuch der Seite "'.$_GET['id'].'" wurde entfernt!' );
+			
+			//Seiten geändert!
+			$siteschanged = true;
 		}
-		//existiert noch eine Datei mit Beiträgen des Gästebuchs?
+		//Beiträge und Antworten löschen!
+		
+		//Datei überhaupt erstellt?
 		if( check_for_kimb_file( 'addon/guestbook__id_'.$_GET['id'].'.kimb' ) ){
-			//Datei löschen
-			delete_kimb_datei( 'addon/guestbook__id_'.$_GET['id'].'.kimb' );
+			//Antworten
+			//	Datei lesen
+			$file = new KIMBdbf( 'addon/guestbook__id_'.$_GET['id'].'.kimb' );
+			//	alle IDs
+			$arr = $file->read_kimb_id_all();
+			//	durchgehen
+			foreach( $arr as $id => $val ){
+				//Antwort für ID vorhanden?
+				if( $val['antwo'] == 'yes' ){
+					//Datei vorhanden?
+					if( check_for_kimb_file( 'addon/guestbook__id_'.$_GET['id'].'_answer_'.$id.'.kimb' ) ){
+						//Datei löschen
+						delete_kimb_datei( 'addon/guestbook__id_'.$_GET['id'].'_answer_'.$id.'.kimb' );
+					}
+				}
+			}
+			//zum Ende Hauptdatei löschen
+			$file->delete_kimb_file();
 		}
 
 	}
@@ -92,6 +116,8 @@ elseif( isset( $_GET['settings'] , $_POST['feloginoo'] , $_POST['mailoo'] , $_PO
 		$arrays[] = array( 'teil' => 'mailoo' , 'trenner' => 'mailinfo' );
 		$arrays[] = array( 'teil' => 'nstatoo' , 'trenner' => 'newstatus' );
 		$arrays[] = array( 'teil' => 'ipoo' , 'trenner' => 'ipsave' );
+		
+		$message = '';
 
 		//zu Tuenden durchgehen
 		foreach( $arrays as $array ){
@@ -117,9 +143,13 @@ elseif( isset( $_GET['settings'] , $_POST['feloginoo'] , $_POST['mailoo'] , $_PO
 						$guestfile->write_kimb_replace( $trenner , $_POST[$teil] );
 					}
 					//Meldung
-					$sitecontent->echo_message( '"'.$trenner.'" wurde auf "'.$_POST[$teil].'" gesetzt!' );
+					$message .= '"'.$trenner.'" wurde auf "'.$_POST[$teil].'" gesetzt!<br />'."\r\n";
 				}
 			}
+		}
+		
+		if( $message != '' ){
+			$sitecontent->echo_message( $message );
 		}
 
 		//aktuelle Mail lesen
@@ -169,6 +199,43 @@ elseif( isset( $_GET['settings'] , $_POST['feloginoo'] , $_POST['mailoo'] , $_PO
 	}
 }
 
+//Seiten verändert (FullHTMLCache Wünsche anpassen)
+if( isset( $siteschanged ) && $siteschanged ){
+	
+	//Wish API Klasse laden
+	$api = new ADDonAPI( 'guestbook' );
+	
+	//für API vorbereiten
+	$data = array();
+	
+	//ID Zuordnungen
+	$idfile = new KIMBdbf('menue/allids.kimb');
+	
+	//alle aktuellen Seiten lesen
+	foreach( $guestfile->read_kimb_all_teilpl( 'siteid' ) as $id ){
+		
+		//SiteID zu requID
+		$requid = $idfile->search_kimb_xxxid( $id , 'siteid' );
+		
+		//Suche okay?
+		if( $requid != false ){
+			
+			//asd
+			$requid = intval( $requid );
+		
+			//für diese Seite komplett deaktivieren
+			$data[$requid] = array(
+				'off', array( 'POST' => array(), 'GET' => array(), 'COOKIE' => array() )
+			);
+			
+		}
+		
+	}
+	
+	//Array an API übergeben	
+	$api->full_html_cache_wish( 'set', $data ); 	
+}
+
 //Liste der Seiten mit Gästebuch
 $sitecontent->add_site_content('<h2>Seiten mit Gästebuch</h2>');
 
@@ -177,19 +244,22 @@ $sitecontent->add_html_header('<style>td { border:1px solid #000000; padding:2px
 
 //JavaScript für Löschen Dialog
 $sitecontent->add_html_header('<script>
-var del = function( id ) {
+function delete_gues( id, name ) {
+	
+	$( "div#del-guestbooksite p.inf" ).html( "<b>Gästebuch der Seite:</b><br />"+name );
+	
 	$( "#del-guestbooksite" ).show( "fast" );
 	$( "#del-guestbooksite" ).dialog({
 	resizable: false,
-	height:200,
+	height:240,
 	modal: true,
 	buttons: {
-		"Delete": function() {
+		"Löschen": function() {
 			$( this ).dialog( "close" );
 			window.location = "'.$addonurl.'&id=" + id + "&del";
 			return true;
 		},
-		Cancel: function() {
+		"Abbrechen": function() {
 			$( this ).dialog( "close" );
 			return false;
 		}
@@ -201,16 +271,22 @@ var del = function( id ) {
 //Info
 $sitecontent->add_site_content('<span class="ui-icon ui-icon-info" title="Hier können Sie allgemeine Einstellungen vornhemen und ein Gästebuch/ eine Kommentarmöglichkeit auf bestimmten Seite anzeigen. In der Liste werden die SiteIDs (Seiten -> Auflisten) angezeigt. Die Beiträge der Gästebücher können Sie unter Nutzung (Link oben rechts) verwalten."></span>');
 //Tabelle Beginn
-$sitecontent->add_site_content('<table width="100%"><tr><th>SiteID</th><th width="20px;">Löschen</th></tr>');
+$sitecontent->add_site_content('<table width="100%"><tr><th>Seitenname (SiteID)</th><th width="20px;">Löschen</th></tr>');
+
+//Array Seiten Name, ID
+//	passend erstellen
+foreach ( list_sites_array() as $v ){
+	$sitesnames[$v['id']] = $v['site'];
+}
 
 //alle SiteIDs mit Gästebuch lesen
 foreach( $guestfile->read_kimb_all_teilpl( 'siteid' ) as $id ){
 
 	//Mülleimer Button (löschen)
-	$del = '<span onclick="var delet = del( '.$id.' ); delet();"><span class="ui-icon ui-icon-trash" title="Dieses Gästebuch löschen. (inklusive aller Beiträge)"></span></span>';
+	$del = '<span onclick="delete_gues('.$id.', \''.$sitesnames[$id].' ('.$id.')\');"><span class="ui-icon ui-icon-trash" title="Dieses Gästebuch löschen. (inklusive aller Beiträge)"></span></span>';
 
 	//Tabellenzeile hinzufügen
-	$sitecontent->add_site_content('<tr><td>'.$id.'</td><td>'.$del.'</td></tr>');
+	$sitecontent->add_site_content('<tr><td>'.$sitesnames[$id].' ('.$id.')</td><td>'.$del.'</td></tr>');
 
 	//jetzt was in Tabelle
 	$gefunden = 'yes';
@@ -230,7 +306,7 @@ if( $gefunden != 'yes' ){
 $sitecontent->add_site_content('<form action="'.$addonurl.'&amp;new" method="post"><span class="ui-icon ui-icon-plus" title="Bei einer weiteren Seite erstellen." style="display:inline-block;"></span>'.id_dropdown( 'id', 'siteid' ).'<input type="submit" value="Erstellen" ></form>');
 
 //HTML-Code für Löschen Dialog
-$sitecontent->add_site_content('<div style="display:none;"><div id="del-guestbooksite" title="Löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Möchten Sie dieses Gästebuch und alle seine Beiträge wirklich löschen?</p></div></div>');
+$sitecontent->add_site_content('<div style="display:none;"><div id="del-guestbooksite" title="Gästebuch löschen?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Möchten Sie das Gästebuch und alle seine Beiträge wirklich löschen?</p><p class="inf"></p></div></div>');
 
 //Allgemeine Einstellungen
 $sitecontent->add_site_content('<hr /><h2>Allgemeine Einstellungen</h2>');
@@ -292,7 +368,7 @@ $sitecontent->add_site_content('<input type="radio" name="ipoo" value="on"'.$ch[
 //E-Mail-Adresse
 $sitecontent->add_site_content('<input type="text" name="mail" value="'.$mailinfo.'" > (E-Mail-Adresse)<br />');
 //CSS
-$sitecontent->add_site_content('<textarea name="css" style="width:99%; height:75px;">'.$css.'</textarea>(&uarr; CSS-Style  (leer == Zurücksetzen))<br />');
+$sitecontent->add_site_content('<textarea name="css" style="width:99%; height:75px;">'.$css.'</textarea>(&uarr; CSS-Style  <small><a href="#" onclick="$( \'textarea[name=css]\').val(\'\'); $(\'form\').submit();">Standard wiederherstellen</a></small>)<br />');
 
 //Button
 $sitecontent->add_site_content('<input type="submit" value="Ändern"></form>');

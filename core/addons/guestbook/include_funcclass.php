@@ -82,4 +82,24 @@ function make_guestbook_html( $cont, $name ){
 	return array( $cont, $name);
 }
 
+//Allg CSS Code
+function get_guestbook_css( $be = false ){
+	//immer
+	$css = 'div.guestname{ position:relative; border-bottom:solid 1px #000000; font-weight:bold; }';
+	$css .= 'span.guestdate{ font-weight:normal; position:absolute; right:0px; }';
+	$css .= 'div.guest, div.answer{ border:solid 1px #000000; border-radius:15px; background-color:#dddddd; padding:10px; margin:5px;}';
+	$css .= 'div.answer{ margin-left:80px; }';
+	$css .= 'div.guestcomment{ font-style:italic; font-size:0.9em; padding:4px; border-radius:2px; background-color:#FFD182; margin:4px; margin-left: 40px;}';
+	$css .= 'div.guestcomment span{ font-weight:bold; font-align:center; display: block; }';
+	
+	//nur für BE Übersicht
+	if( $be ){
+		$css .= 'div.guestinfo{ position:relative; border-top:solid 1px #000000; font-weight:bold; text-align:center; }';
+		$css .= 'span.guestlinks{ font-weight:normal; position:absolute; left:0px;}';
+		$css .= 'span.guestrechts{ font-weight:normal; position:absolute; right:0px;}';
+	}
+	
+	return $css;
+}
+
 ?>

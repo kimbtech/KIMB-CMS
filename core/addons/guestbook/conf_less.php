@@ -46,14 +46,7 @@ if( isset( $_GET['edit'] ) && is_numeric( $_GET['id'] ) ){
 		//Link zur Seitenauswahl
 		$sitecontent->add_site_content('<a href="'.$addonurl.'">&larr; Zurück zur Übersicht</a><br /><br />');
 		//CSS Design für Gästebuchbeiträge
-		$sitecontent->add_html_header('<style>div#guestinfo{ position:relative; border-top:solid 1px #000000; font-weight:bold; text-align:center; }
-span#guestlinks{ font-weight:normal; position:absolute; left:0px;}
-span#guestrechts{ font-weight:normal; position:absolute; right:0px;}
-div#guestname{ position:relative; border-bottom:solid 1px #000000; font-weight:bold; }
-span#guestdate{ font-weight:normal; position:absolute; right:0px; }
-div#guest, div.answer{ border:solid 1px #000000; border-radius:15px; background-color:#dddddd; padding:10px; margin:5px;}
-div.answer{ margin-left:80px; }
-</style>');
+		$sitecontent->add_html_header('<style>'.get_guestbook_css( true ).'</style>');
 
 		//Bearbeitung von Einträgen
 		//	löschen und Status ändern
@@ -210,16 +203,143 @@ div.answer{ margin-left:80px; }
 				$alles[$i]['id'] = $id;
 				$i++;
 			}
+			
+			//JS Funktion für Kommentare
+			$sitecontent->add_html_header('<script>
+			function guestbook_comment( art, commid, answid ){
+				
+				if( typeof answid == "undefined" ){
+					var data = {
+						"site": '.$_GET['id'].',
+						"id" : commid
+					}
+				}
+				else{
+					var data = {
+						"site": '.$_GET['id'].',
+						"id" : commid,
+						"aid" : answid
+					}
+				}
+				
+				if( art == 1 ){
+					var dialtit = "Adminkommentar verfassen";
+					var jetztval = "";
+				}
+				else{
+					var dialtit = "Adminkommentar bearbeiten";
+					if( typeof answid == "undefined" ){
+						var jetztval = $( "div#comm_"+commid ).html();
+					}
+					else{
+						var jetztval = $( "div#comm_"+commid+"_answ_"+answid ).html();
+					}
+					
+					jetztval = jetztval.replace( /<br>/g, "" );
+					jetztval = jetztval.replace( /<a href="(.*)" target="_blank">/g, "" );
+					jetztval = jetztval.replace( /<\/a>/g, "" );
+				}
+				
+				$( "body" ).append( \'<div id="guestbook_comment_dial"></div>\' );
+
+				var html = \'<textarea style="width:300px; height:150px;">\' + jetztval + \'</textarea><br />\';
+				html += \'<small>Es gelten die gleichen Einschränkungen wie im Frontend:<br />\';
+				html += \'<ul><li>Erlaubtes HTML: &lt;b&gt; &lt;/b&gt; &lt;u&gt; &lt;/u&gt; &lt;i&gt; &lt;/i&gt; &lt;center&gt; &lt;/center&gt;</li>\';
+				html += \'<li>URLs [http://example.com/] werden automatisch zu Links umgewandelt.</li></ul></small>\';
+				
+				if( art == 2 ){
+					html += \'<span class="ui-icon ui-icon-trash" title="Kommentar löschen"></span>\';
+				}
+				
+				$( "div#guestbook_comment_dial" ).html( html );
+				
+				if( art == 2 ){
+					$( "div#guestbook_comment_dial span.ui-icon-trash" ).click( function () {
+						
+						if( confirm( "Möchten Sie den Kommentar wirklich löschen?" ) ){
+						
+							data["del"] = true;
+						
+							$.post( "'.$allgsysconf['siteurl'].'/ajax.php?addon=guestbook", data , function( data ){
+							
+								if( data == "ok" ){
+							
+									$( "div#guestbook_comment_dial" ).dialog( "close" );
+									window.location.href = "";
+								}
+								else{
+									alert( "Konnte nicht löschen." );
+								}
+							});
+						}
+					});
+				}
+				
+				$( "div#guestbook_comment_dial" ).dialog( {
+					minWidth: 340,
+					minHeight: 400,
+					modal: true,
+					title: dialtit,
+					buttons: [
+						{
+							text: "Veröffentlichen",
+							click: function() {
+								push_dial();
+							}
+						},
+						{
+							text: "Abbrechen",
+							click: function() {
+								$( this ).dialog( "close" );
+							}
+						}
+					],
+					close: function( event, ui ) {
+						$( this ).remove();
+					}	
+				});
+				
+				function push_dial(){
+					var comm = $( "div#guestbook_comment_dial textarea" ).val();
+					if( comm != "" ){
+						
+						data["inh"] = comm;
+						
+						$.post( "'.$allgsysconf['siteurl'].'/ajax.php?addon=guestbook", data , function( data ){
+							
+							if( data == "ok" ){
+								$( "div#guestbook_comment_dial" ).dialog( "close" );
+								window.location.href = "";
+							}
+							else{
+								alert( "Kommentar konnte nicht übermittelt werden." );
+							}
+						});
+					}
+					else{
+						alert( "Sie müssen Text angeben." );
+					}
+				}
+			}
+			</script>');
 
 			//alle Beiträge ausgeben (Array von oben)
 			foreach( $alles as $einer ){
 				
-				//Je nach Status ein X oder ein V anzeigen (bei Click Status ändern)
-				if ( $einer['status'] == 'off' ){
-					$status = '<a href="'.$addonurl.'&amp;id='.$_GET['id'].'&amp;bid='.$einer['id'].'&amp;edit&amp;deakch"><span style="display:inline-block;" class="ui-icon ui-icon-close" title="Dieser Beitrag ist zur Zeit nicht sichtbar. (click -> ändern)"></span></a>';
+				//Adminkommentar
+				//	hinzufügen Button, wenn keins vorhanden
+				if( empty( $einer['comm'] ) ){
+					$status = '<span style="display:inline-block;" class="ui-icon ui-icon-comment" title="Kommentar hinzufügen" onclick="guestbook_comment( 1, '.$einer['id'].' );"></span>';
 				}
 				else{
-					$status = '<a href="'.$addonurl.'&amp;id='.$_GET['id'].'&amp;bid='.$einer['id'].'&amp;edit&amp;deakch"><span style="display:inline-block;" class="ui-icon ui-icon-check" title="Dieser Beitrag ist zur Zeit sichtbar. (click -> ändern)"></span></a>';
+					$status = '';
+				}
+				//Je nach Status ein X oder ein V anzeigen (bei Click Status ändern)
+				if ( $einer['status'] == 'off' ){
+					$status .= '<a href="'.$addonurl.'&amp;id='.$_GET['id'].'&amp;bid='.$einer['id'].'&amp;edit&amp;deakch"><span style="display:inline-block;" class="ui-icon ui-icon-close" title="Dieser Beitrag ist zur Zeit nicht sichtbar. (click -> ändern)"></span></a>';
+				}
+				else{
+					$status .= '<a href="'.$addonurl.'&amp;id='.$_GET['id'].'&amp;bid='.$einer['id'].'&amp;edit&amp;deakch"><span style="display:inline-block;" class="ui-icon ui-icon-check" title="Dieser Beitrag ist zur Zeit sichtbar. (click -> ändern)"></span></a>';
 				}
 				//Mülltonne für löschen
 				$status .= '<span id="bid'.$einer['id'].'" style="display:none; margin-left:20px;" ><a href="'.$addonurl.'&amp;id='.$_GET['id'].'&amp;bid='.$einer['id'].'&amp;edit&amp;del"><span style="display:inline-block;" class="ui-icon ui-icon-trash" title="Diesen Beitrag löschen! (erneut clicken)"></span></a></span>';
@@ -227,25 +347,35 @@ div.answer{ margin-left:80px; }
 
 				//Ausgabe des Beitrages
 				//	Beginn
-				$sitecontent->add_site_content( '<div id="guest" >' );
+				$sitecontent->add_site_content( '<div class="guest" >' );
 				//	obere Zeile
 				//		Name		
-				$sitecontent->add_site_content( '<div id="guestname" ><span title="Name des User" >'.$einer['name'].'</span>' );
+				$sitecontent->add_site_content( '<div class="guestname" ><span title="Name des User" >'.$einer['name'].'</span>' );
 				//		Zeit
-				$sitecontent->add_site_content( '<span id="guestdate" title="Tag und Zeit des Erstellens">'.date( 'd-m-Y H:i:s' , $einer['time'] ).'</span>' );
+				$sitecontent->add_site_content( '<span class="guestdate" title="Tag und Zeit des Erstellens">'.date( 'd-m-Y H:i:s' , $einer['time'] ).'</span>' );
 				$sitecontent->add_site_content( '</div>' );
 				//	Hauptteil
 				//		Inhalt
 				$sitecontent->add_site_content( $einer['cont'] );
 				//	untere Zeile
 				//		IP
-				$sitecontent->add_site_content( '<div id="guestinfo" >');
-				$sitecontent->add_site_content( '<span title="IP des Users (0.0.0.0 wenn Speicherung aus)" id="guestlinks">'.$einer['ip'].'</span>' );
-				//		Mülltonne und Status
+				$sitecontent->add_site_content( '<div class="guestinfo" >');
+				$sitecontent->add_site_content( '<span title="IP des Users (0.0.0.0 wenn Speicherung aus)" class="guestlinks">'.$einer['ip'].'</span>' );
+				//		Mülltonne, Status und Kommentar
 				$sitecontent->add_site_content( $status );
 				//		E-Mail-Adresse
-				$sitecontent->add_site_content( '<span title="E-Mail-Adresse des Users" id="guestrechts">'.$einer['mail'].'</span>' );
+				$sitecontent->add_site_content( '<span title="E-Mail-Adresse des Users" class="guestrechts">'.$einer['mail'].'</span>' );
 				$sitecontent->add_site_content( '</div>' );
+				//	Kommentar
+				if( !empty( $einer['comm'] ) ){
+					$sitecontent->add_site_content( '<div class="guestcomment">' );
+					$sitecontent->add_site_content( '<span>Adminkommentar' );
+					$sitecontent->add_site_content( '<span style="display:inline-block;" class="ui-icon ui-icon-pencil" title="Kommentar bearbeiten" onclick="guestbook_comment( 2, '.$einer['id'].' );"></span>' );
+					$sitecontent->add_site_content( '</span>' );
+					$sitecontent->add_site_content( '<div style="display:none;" id="comm_'.$einer['id'].'">'.$einer['comm'].'</div>' );
+					$sitecontent->add_site_content( $einer['comm'] );
+					$sitecontent->add_site_content( '</div>' );
+				}
 				$sitecontent->add_site_content( '</div>' );
 				
 				//gibt es Antworten?
@@ -265,12 +395,20 @@ div.answer{ margin-left:80px; }
 						//Daten der Antwort lesen
 						$eintr = $readfile->read_kimb_id( $id );
 						
-						//Je nach Status ein X oder ein V anzeigen (bei Click Status ändern)
-						if ( $eintr['status'] == 'off' ){
-							$status = '<a href="'.$addonurl.'&amp;id='.$_GET['id'].'&amp;bid='.$einer['id'].'&amp;edit&amp;deakch&amp;answer='.$id.'"><span style="display:inline-block;" class="ui-icon ui-icon-close" title="Dieser Beitrag ist zur Zeit nicht sichtbar. (click -> ändern)"></span></a>';
+						//Adminkommentar
+						//	hinzufügen Button, wenn keins vorhanden
+						if( empty( $eintr['comm']) ){
+							$status = '<span style="display:inline-block;" class="ui-icon ui-icon-comment" title="Kommentar hinzufügen" onclick="guestbook_comment( 1, '.$einer['id'].', '.$id.' );"></span>';
 						}
 						else{
-							$status = '<a href="'.$addonurl.'&amp;id='.$_GET['id'].'&amp;bid='.$einer['id'].'&amp;edit&amp;deakch&amp;answer='.$id.'"><span style="display:inline-block;" class="ui-icon ui-icon-check" title="Dieser Beitrag ist zur Zeit sichtbar. (click -> ändern)"></span></a>';
+							$status = '';
+						}
+						//Je nach Status ein X oder ein V anzeigen (bei Click Status ändern)
+						if ( $eintr['status'] == 'off' ){
+							$status .= '<a href="'.$addonurl.'&amp;id='.$_GET['id'].'&amp;bid='.$einer['id'].'&amp;edit&amp;deakch&amp;answer='.$id.'"><span style="display:inline-block;" class="ui-icon ui-icon-close" title="Dieser Beitrag ist zur Zeit nicht sichtbar. (click -> ändern)"></span></a>';
+						}
+						else{
+							$status .= '<a href="'.$addonurl.'&amp;id='.$_GET['id'].'&amp;bid='.$einer['id'].'&amp;edit&amp;deakch&amp;answer='.$id.'"><span style="display:inline-block;" class="ui-icon ui-icon-check" title="Dieser Beitrag ist zur Zeit sichtbar. (click -> ändern)"></span></a>';
 						}
 						
 						//Mülltonne für löschen
@@ -278,16 +416,26 @@ div.answer{ margin-left:80px; }
 						$status .= '<span onclick=" $(\'span#bid'.$einer['id'].'_'.$id.'\').css( \'display\' , \'inline-block\' ); $( this ).css( \'display\' , \'none\' ); " style="display:inline-block;" class="ui-icon ui-icon-trash" title="Diesen Beitrag löschen! (zweimal clicken)"></span>';
 						
 						//Ausgaben (wie normnalen Beitrag)
-						$sitecontent->add_site_content( '<div id="guest" >');		
-						$sitecontent->add_site_content( '<div id="guestname" title="Name des User" >'.$eintr['name'] );
-						$sitecontent->add_site_content( '<span id="guestdate" title="Tag und Zeit des Erstellens" >'.date( 'd-m-Y H:i:s' , $eintr['time'] ).'</span>' );
+						$sitecontent->add_site_content( '<div class="guest" >');		
+						$sitecontent->add_site_content( '<div class="guestname" title="Name des User" >'.$eintr['name'] );
+						$sitecontent->add_site_content( '<span class="guestdate" title="Tag und Zeit des Erstellens" >'.date( 'd-m-Y H:i:s' , $eintr['time'] ).'</span>' );
 						$sitecontent->add_site_content( '</div>' );
 						$sitecontent->add_site_content( $eintr['cont'] );
-						$sitecontent->add_site_content( '<div id="guestinfo" >');
-						$sitecontent->add_site_content( '<span title="IP des Users (0.0.0.0 wenn Speicherung aus)" id="guestlinks">'.$eintr['ip'].'</span>' );
+						$sitecontent->add_site_content( '<div class="guestinfo" >');
+						$sitecontent->add_site_content( '<span title="IP des Users (0.0.0.0 wenn Speicherung aus)" class="guestlinks">'.$eintr['ip'].'</span>' );
 						$sitecontent->add_site_content( $status );
-						$sitecontent->add_site_content( '<span title="E-Mail Adresse des Users" id="guestrechts">'.$eintr['mail'].'</span>' );
+						$sitecontent->add_site_content( '<span title="E-Mail Adresse des Users" class="guestrechts">'.$eintr['mail'].'</span>' );
 						$sitecontent->add_site_content( '</div>' );
+						//	Kommentar
+						if( !empty( $eintr['comm'] ) ){
+							$sitecontent->add_site_content( '<div class="guestcomment">' );
+							$sitecontent->add_site_content( '<span>Adminkommentar' );
+							$sitecontent->add_site_content( '<span style="display:inline-block;" class="ui-icon ui-icon-pencil" title="Kommentar bearbeiten" onclick="guestbook_comment( 2, '.$einer['id'].', '.$id.' );"></span>' );
+							$sitecontent->add_site_content( '<div style="display:none;" id="comm_'.$einer['id'].'_answ_'.$id.'">'.$eintr['comm'].'</div>' );
+							$sitecontent->add_site_content( '</span>' );
+							$sitecontent->add_site_content( $eintr['comm'] );
+							$sitecontent->add_site_content( '</div>' );
+						}
 						$sitecontent->add_site_content( '</div>' );
 
 					}
@@ -327,13 +475,19 @@ if( $list == 'yes' ){
 
 	//Info und Tabellenbeginn
 	$sitecontent->add_site_content('<span class="ui-icon ui-icon-info" title="Hier können Sie die Beiträge verwalten. Weiters finden Sie unter Konfiguration (oben rechts)."></span>');
-	$sitecontent->add_site_content('<table width="100%"><tr><th>SiteID</th></tr>');
+	$sitecontent->add_site_content('<table width="100%"><tr><th>Seitenname (SiteID)</th></tr>');
+	
+	//Array Seiten Name, ID
+	//	passend erstellen
+	foreach ( list_sites_array() as $v ){
+		$sitesnames[$v['id']] = $v['site'];
+	}
 
 	//alle SiteIDs auflisten
 	foreach( $guestfile->read_kimb_all_teilpl( 'siteid' ) as $id ){
 
 		//Tabellenzeile
-		$sitecontent->add_site_content('<tr><td><a href="'.$addonurl.'&amp;id='.$id.'&amp;edit">'.$id.'</a></td></tr>');
+		$sitecontent->add_site_content('<tr><td><a href="'.$addonurl.'&amp;id='.$id.'&amp;edit">'.$sitesnames[$id].' ('.$id.')</a></td></tr>');
 		//Liste nicht leer
 		$gefunden = 'yes';
 	}

@@ -231,7 +231,7 @@ if( $guestbook['file']->read_kimb_search_teilpl( 'siteid' , $allgsiteid ) && $al
 	//dem Header anfügen
 	$sitecontent->add_html_header( $header );
 	//die externe JavaScript Datei laden
-	$sitecontent->add_html_header('<script src="'.$allgsysconf['siteurl'].'/load/addondata/guestbook/guestbook.dev.js" type="text/javascript" ></script>');
+	$sitecontent->add_html_header('<script src="'.$allgsysconf['siteurl'].'/load/addondata/guestbook/guestbook.min.js" type="text/javascript" ></script>');
 	
 	//den Code, welcher oben nach der Auswertung der Eingaben vorgegeben wurde, ausgeben
 	$sitecontent->add_html_header('<script>'.$guestbook['showadd'].'</script>');
@@ -262,6 +262,14 @@ if( $guestbook['file']->read_kimb_search_teilpl( 'siteid' , $allgsiteid ) && $al
 			$guestbook['output'] .= '</div>'."\r\n";
 			//	Inhalt
 			$guestbook['output'] .= $guestbook['einer']['cont']."\r\n";
+			
+			//	Kommentar
+			if( !empty( $guestbook['einer']['comm'] ) ){
+				$guestbook['output'] .= '<div class="guestcomment">'."\r\n";
+				$guestbook['output'] .= '<span>'.$allgsys_trans['addons']['guestbook']['ajax']['adminkomm'].'</span>'."\r\n";
+				$guestbook['output'] .= $guestbook['einer']['comm']."\r\n";
+				$guestbook['output'] .= '</div>'."\r\n";
+			}
 			
 			//ID in $i
 			$i = $guestbook['einer']['file_id'];

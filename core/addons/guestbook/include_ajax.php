@@ -173,6 +173,13 @@ elseif( isset( $_GET['answer'] ) && is_numeric( $_GET['id'] ) && is_numeric( $_G
 					echo '</div>'."\r\n";
 					//	Inhalt
 					echo $eintr['cont']."\r\n";
+					//	Kommentar
+					if( !empty( $eintr['comm'] ) ){
+						echo '<div class="guestcomment">'."\r\n";
+						echo '<span>'.$allgsys_trans['addons']['guestbook']['ajax']['adminkomm'].'</span>'."\r\n";
+						echo $eintr['comm']."\r\n";
+						echo '</div>'."\r\n";
+					}
 					echo '</div>'."\r\n";
 					
 				}
@@ -186,6 +193,85 @@ elseif( isset( $_GET['answer'] ) && is_numeric( $_GET['id'] ) && is_numeric( $_G
 		//Fehler wenn keine Rechte
 		echo 'Keine Rechte - Not allowed!';
 	}
+	die;
+}
+//BE Adminkommentar
+elseif ( !empty( $_POST['site'] ) && !empty( $_POST['id'] ) ) {
+	
+	//Login testen
+	check_backend_login( 'thirteen' );
+	
+	//Werte testen
+	if(
+		//Gästebuch Seite
+		is_numeric( $_POST['site'] ) &&
+		//ID des zu kommentierden Eintrages
+		is_numeric( $_POST['id'] ) &&
+		//entweder Antwort, dann ID der zu kommentierende Antwort oder leer
+		(
+			is_numeric( $_POST['aid'] ) ||
+			empty( $_POST['aid'] )
+		) &&
+		//	neu/ verändern oder löschen?
+		(
+			//Inhalt gegeben?
+			!empty( $_POST['inh'] ) ||
+			$_POST['del'] == 'true'
+		)
+	){
+		//dbf Datei für Kommentar lesen
+		if( empty( $_POST['aid'] ) ){
+			//Dateiname
+			//	Hauptkommentar
+			$filena = 'addon/guestbook__id_'.$_POST['site'].'.kimb';
+			//ID zu welcher der Kommentar soll 
+			$addid = $_POST['id'];
+		}
+		else{
+			//Dateiname
+			//	Antwort
+			$filena = 'addon/guestbook__id_'.$_POST['site'].'_answer_'.$_POST['id'].'.kimb';
+			//ID zu welcher der Kommentar soll 
+			$addid = $_POST['aid'];
+		}
+		
+		// passende dbf lesen
+		$file = new KIMBdbf( $filena );
+		
+		//neu/ ändern?
+		if( !empty( !empty( $_POST['inh'] ) ) ){
+			// Inhalt vorbereiten
+			$inhalt = make_guestbook_html( $_POST['inh'], '' );
+			$inhalt = $inhalt[0];
+			
+			//schreiben
+			if( $file->write_kimb_id( $addid, 'add', 'comm', $inhalt ) ){
+				// true AJAX Rückgabe
+				echo "ok";
+			}
+			else{
+				// false AJAX Rückgabe
+				echo "nok";
+			}
+		}
+		//del?
+		else{
+			//schreiben
+			if( $file->write_kimb_id( $addid, 'del', 'comm' ) ){
+				// true AJAX Rückgabe
+				echo "ok";
+			}
+			else{
+				// false AJAX Rückgabe
+				echo "nok";
+			}
+		}
+	}
+	else{
+		//Fehler
+		echo "Der Zugriff war nicht korrekt! (Adminkommentar konnte nicht veröffentlicht werden.)";
+	}
+		
 	die;
 }
 
