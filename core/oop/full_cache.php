@@ -480,7 +480,7 @@ class FullHTMLCache{
 		$addoninclude = new KIMBdbf('addon/includes.kimb');
 		
 		//alle aktivierten Add-ons (auf dem FE)
-		$all = $addoninclude->read_kimb_all_teilpl( 'fe_first' );
+		$all = $addoninclude->read_kimb_all_teilpl( 'fe' );
 		
 		//alle IDs in der Wunschdatei lesen
 		$ids = $fullcache->read_kimb_all_teilpl( 'allidslist' );
