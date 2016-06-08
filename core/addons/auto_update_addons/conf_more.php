@@ -203,7 +203,7 @@ else{
 					//Add-on und CMS auf Kompatibilität testen
 					if( compare_cms_vers( $apiadd['von'], $allgsysconf['build'] ) == 'newer' || compare_cms_vers( $allgsysconf['build'], $apiadd['bis'] ) == 'newer' ){
 						//nicht kompatibel, Button Update auf disable setzen
-						$butt = '<td title="Ihrem CMS fehlen Updates oder das Add-on ist zu alt."><button disabled="disabled">Nicht kompatibel</button></td>';
+						$butt = '<td title="Ihrem CMS fehlen Updates oder das Add-on ist zu alt.">Nicht kompatibel</td>';
 					}
 					else{
 						//kompatibel, Button Update als Link zum Updatesystem
@@ -255,7 +255,7 @@ else{
 				//Add-on und CMS auf KLompatibilität testen
 				if( compare_cms_vers( $add['von'], $allgsysconf['build'] ) == 'newer' || compare_cms_vers( $allgsysconf['build'], $add['bis'] ) == 'newer' ){
 					//nicht kompatibel, Button Install auf disable setzen
-					$butt = '<td title="Ihrem CMS fehlen Updates oder das Add-on ist zu alt."><button disabled="disabled">Nicht kompatibel</button></td>';
+					$butt = '<td title="Ihrem CMS fehlen Updates oder das Add-on ist zu alt.">Nicht kompatibel</td>';
 				}
 				else{
 					//kompatibel, Button Install als Link zum Installsystem

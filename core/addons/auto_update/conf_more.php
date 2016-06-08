@@ -69,7 +69,7 @@ elseif( $_GET['task'] == 'update' ){
 
 	//Hinweis zu Gefahren von Updates
 	$sitecontent->add_site_content('<h3>Update durchführen</h3>');
-	$sitecontent->echo_message( 'Erstellen Sie vor jedem Update ein Backup um einem Datenverlust vorzubeugen!!<br />Add-ons werden nicht automatischt aktualisiert' );
+	$sitecontent->echo_message( 'Erstellen Sie vor jedem Update ein Backup um einem Datenverlust vorzubeugen!!<br />Add-ons müssen getrennt aktualisiert werden.', 'Hinweis' );
 	$sitecontent->add_site_content( '<br /><hr /><br />' );
 
 	//URL anpassen
@@ -86,6 +86,7 @@ else{
 	$sitecontent->add_site_content( '<br />');
 	$sitecontent->add_site_content( 'Hier können Sie die Aktualität Ihres CMS überprüfen und wenn möglich ein Update durchführen.');
 	$sitecontent->add_site_content( 'Alle 3 Tage wird bei einem Besuch des Backends automatisch eine Prüfung der Aktualität durchgeführt.');
+	$sitecontent->add_site_content( '<br /><br />');	
 
 	//Überprüfung nötig (alle 3 Tage) oder auf Wunsch des Users
 	if( $lasttime + 259200 < time() || isset( $_GET['updstat'] ) ){
@@ -114,26 +115,21 @@ else{
 	}
 
 	//Übersichtstabelle
-	$sitecontent->add_site_content('<ul>');
+	$sitecontent->add_site_content('<table style="line-height:20px;">');
 	//	CMS Version
-	$sitecontent->add_site_content('<li>Version des Systems: '.$updatearr['sysv'].'</li>');
+	$sitecontent->add_site_content('<tr><td>Installierte Version des CMS:</td><td>'.$updatearr['sysv'].'</td></tr>');
 	//	aktuell verfügbare Version
-	$sitecontent->add_site_content('<li>Aktuelle Version: '.$updatearr['newv'].'</li>');
+	$sitecontent->add_site_content('<tr><td>Aktuelle Version des CMS:</td><td>'.$updatearr['newv'].'</td></tr>');
 	//	Zeitpunkt der Überprüfung
-	$sitecontent->add_site_content('<li>Stand: '.date( 'd-m-Y H:i' , $lasttime).' <a href="'.$addonurl.'&updstat"><span class="ui-icon ui-icon-refresh" title="Status neu abfragen!" style="display:inline-block;"></span></a></li>');
-	$sitecontent->add_site_content('</ul>');
+	$sitecontent->add_site_content('<tr><td>Zeitpunkt:</td><td>'.date( 'd.m.Y H:i' , $lasttime).' <a href="'.$addonurl.'&updstat"><button title="Status neu abfragen!"><span class="ui-icon ui-icon-refresh" style="display:inline-block;"></span></button></a></td></td>');
+	//	Status
+	$sitecontent->add_site_content('<tr><td>Status:</td><td>'.( $update == 'yes' ? '<span style="color:red;">Update verfügbar</span>' : '<span style="color:green;">Kein Update verfügbar</span>' ).'</td></tr>');
+	$sitecontent->add_site_content('</table>');
 
 	//wenn Update möglich, Link zum Udate
 	if( $update == 'yes' ){
-		$sitecontent->add_site_content('<br /><br />');
-		$sitecontent->add_site_content('<a href="'.$addonurl.'&task=update"><button title="Führen Sie ein automatisches Update des CMS durch!" >Update starten</button></a>');
-		$sitecontent->add_site_content('<br /><br />');
-	}
-	else{
-		//kein Update verfügbar
-		$sitecontent->add_site_content('<br /><br />');
-		$sitecontent->add_site_content('<button disabled="disabled" onclick="return:false;">Kein Update verfügbar!</button>');
-		$sitecontent->add_site_content('<br /><br />');
+		$sitecontent->add_site_content('<br />');
+		$sitecontent->add_site_content('<p><a href="'.$addonurl.'&task=update"><button title="Führen Sie ein automatisches Update des CMS durch!" >Update starten!</button></a></p>');
 	}
 
 	//alte Update Dateien aus dem Temp-Ordner löschen
