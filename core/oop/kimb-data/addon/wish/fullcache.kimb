@@ -1,1 +1,10 @@
 <[about:doc]>KIMB dbf V4.15 - KIMB-technologies<[about:doc]>
+<[allidslist_okay]>yes<[allidslist_okay]>
+<[allidslist1]>1<[allidslist1]>
+<[1-addon]>guestbook<[1-addon]>
+<[1]>addon==array<[1]>
+<[1-array]>{"3":["off",{"POST":[],"GET":[],"COOKIE":[]}]}<[1-array]>
+<[allidslist2]>2<[allidslist2]>
+<[2-addon]>felogin<[2-addon]>
+<[2]>addon==array<[2]>
+<[2-array]>{"a":["off",{"POST":[],"GET":[],"COOKIE":[]}]}<[2-array]>

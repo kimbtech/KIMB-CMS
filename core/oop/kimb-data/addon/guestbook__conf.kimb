@@ -1,0 +1,8 @@
+<[about:doc]>KIMB dbf V4.5 - KIMB-technologies<[about:doc]>
+<[siteid1]>2<[siteid1]>
+<[nurfeloginuser]>on<[nurfeloginuser]>
+<[mailinfo]>on<[mailinfo]>
+<[newstatus]>on<[newstatus]>
+<[ipsave]>on<[ipsave]>
+<[mailinfoto]>webmaster@cms.dev<[mailinfoto]>
+<[css]>div.guestname{ position:relative; border-bottom:solid 1px #000000; font-weight:bold; }span.guestdate{ font-weight:normal; position:absolute; right:0px; }div.guest, div.answer{ border:solid 1px #000000; border-radius:15px; background-color:#dddddd; padding:10px; margin:5px;}div.answer{ margin-left:80px; }div.guestcomment{ font-style:italic; font-size:0.9em; padding:4px; border-radius:2px; background-color:#FFD182; margin:4px; margin-left: 40px;}div.guestcomment span{ font-weight:bold; font-align:center; display: block; }<[css]>
