@@ -1,13 +1,13 @@
 <[about:doc]>KIMB Datei V.4.5 KIMB CMS<[about:doc]>
 <[allidslist_okay]>yes<[allidslist_okay]>
-<[allidslist1]>1<[allidslist1]>
 <[1-addon]>guestbook<[1-addon]>
 <[1]>addon==stelle<[1]>
 <[1-stelle]>hinten<[1-stelle]>
-<[allidslist2]>2<[allidslist2]>
 <[2-addon]>captcha<[2-addon]>
 <[2]>addon==stelle<[2]>
 <[2-stelle]>vorn<[2-stelle]>
+<[allidslist1]>1<[allidslist1]>
+<[allidslist2]>2<[allidslist2]>
 <[allidslist3]>3<[allidslist3]>
 <[3-addon]>felogin<[3-addon]>
 <[3]>addon==stelle<[3]>
