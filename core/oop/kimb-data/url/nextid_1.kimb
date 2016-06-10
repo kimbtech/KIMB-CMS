@@ -12,3 +12,9 @@
 <[2-nextid]>2<[2-nextid]>
 <[2-requestid]>4<[2-requestid]>
 <[2-status]>on<[2-status]>
+<[allidslist3]>3<[allidslist3]>
+<[3-path]>daten-test<[3-path]>
+<[3]>path==nextid==requestid==status<[3]>
+<[3-nextid]><[3-nextid]>
+<[3-requestid]>6<[3-requestid]>
+<[3-status]>on<[3-status]>

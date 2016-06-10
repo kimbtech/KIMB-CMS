@@ -20,3 +20,7 @@
 <[5-siteid]>5<[5-siteid]>
 <[5]>siteid==menueid<[5]>
 <[5-menueid]>550<[5-menueid]>
+<[allidslist6]>6<[allidslist6]>
+<[6-siteid]>6<[6-siteid]>
+<[6]>siteid==menueid<[6]>
+<[6-menueid]>643<[6-menueid]>
