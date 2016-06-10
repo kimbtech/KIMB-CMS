@@ -27,9 +27,19 @@ li{
 }
 
 div.pathbar{
+	border-radius:10px;
+	padding:5px;
+	display: inline-block;
+}
+div.pathbarumg{
 	border:1px solid gray;
 	border-radius:10px;
 	padding:5px;
+}
+span.pathslash{
+	text-decoration: underline;
+	color:blue;
+	padding:1px;
 }
 
 div.for_file_kimbta{
@@ -44,4 +54,10 @@ small{
 	.ui-widget{
 		font-size:90% !important;
 	}
+}
+/* für ext. libs*/
+.dropzone{
+	border:2px solid orange;
+	background:#ffc966;
+	border-radius:5px
 }

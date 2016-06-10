@@ -1,7 +1,7 @@
 //Fehler anzeigen
 //	Titel, Inhalt, DOM Element für Fehler
 function show_error( tit, mes, dom ){
-	$( dom ).html( '<div class="ui-widget"><div class="ui-state-error ui-corner-all" style="padding: 5px;"><span class="ui-icon ui-icon-alert" style="float: left; margin-right: 6px;"></span><strong>'+tit+'</strong>&nbsp;&nbsp;&nbsp;'+mes+'</div></div>' );
+	$( dom ).html( '<div class="ui-widget"><div class="ui-state-error ui-corner-all" style="padding: 5px;"><span class="ui-icon ui-icon-alert" style="display:inline-block;"></span><span style="margin-left:10px;"><strong>'+tit+'</strong>&nbsp;&nbsp;&nbsp;'+mes+'</span></div></div>' );
 	 return true;
 }
 
@@ -81,7 +81,13 @@ var cssclass = "div.addon_daten_main ";
 function load_daten(){
 	
 	//Auswahlbuttons
-	$( cssclass ).html( '<h2>Dateiverwaltung</h2><div id="firstbutt"><input type="radio" name="firstbutt" id="my" checked="checked"><label for="my">Mein Verzeichnis</label><input type="radio" name="firstbutt" id="pu"><label for="pu">Für alle User</label><input type="radio" name="firstbutt" id="frei"><label for="frei">Freigaben</label></div><div class="main_files">Bitte wählen Sie einen Ort &uarr;</div>' );
+	$( cssclass ).html( '<h2>Dateiverwaltung</h2>'+
+		'<div id="firstbutt">'+
+			'<input type="radio" name="firstbutt" id="my" checked="checked"><label for="my">Mein Verzeichnis</label>'+
+			'<input type="radio" name="firstbutt" id="pu"><label for="pu">Für alle User</label>'+
+			'<input type="radio" name="firstbutt" id="frei"><label for="frei">Freigaben</label>'+
+		'</div>'+
+		'<div class="main_files">Bitte wählen Sie einen Ort &uarr;</div>' );
 	
 	//Buttons machen
 	$( "div#firstbutt" ).buttonset();
@@ -106,6 +112,7 @@ function set_vars( ort  ){
 	if( ort == 'my' ){
 		allgvars.folder = 'user';
 		allgvars.path = '/';
+		allgvars.proto = 'my:/'
 		
 		//Explorer öffnen
 		main_explorer();  
@@ -114,6 +121,8 @@ function set_vars( ort  ){
 	else if ( ort == 'pu' ){
 		allgvars.folder = 'public';
 		allgvars.path = '/';
+		allgvars.proto = 'pub:/'
+
 		
 		//Explorer öffnen
 		main_explorer(); 
@@ -139,11 +148,48 @@ function main_explorer(){
 	$.post( add_daten.siteurl+"/ajax.php?addon=daten", { "allgvars": allgvars, "todo": "filelist" } ).always( function( data ) {
 			
 			//Toolszeige
-			var html = '<div class="toolbar"><button id="add_table">Neue Tabelle</button><button id="add_file">Neue Datei</button><button id="add_folder">Neuer Ordner</button><br />';
-			html += '<span class="input" style="display:none;"><input type="text" id="new_name" placeholder="Name"><small>Enter zum Speichern; Ctrl zum Abbrechen; Dateien gleichen Namens werden überschrieben</small></span></div>';
+			var html = '<div class="toolbar">'+
+					'<button id="add_table">Neue Tabelle</button>'+
+					'<button id="add_file">Neue Datei</button>'+
+					'<button id="add_folder">Neuer Ordner</button>'+
+					'<br />'+
+					'<span class="input" style="display:none;">'+
+						'<input type="text" id="new_name" placeholder="Name">'+
+						'<small>Enter zum Speichern; Ctrl zum Abbrechen; Dateien gleichen Namens werden überschrieben</small>'+
+					'</span>'+
+				'</div>';
 			
+			html += '<div class="pathbarumg">';
+
+			//Ein Ordner hoch Button
+			html += '<button id="oneup"><span class="ui-icon ui-icon-arrowthick-1-w"></span></button>';
+
+			//Pathanzeige Pfade anklickbar
+			//	nötige vars
+			var pathbardata = '';
+			var path = '';
+			//	einfach nach jeden Slash teilen
+			var pathbardata_ar =  allgvars.path.split('/');
+			//	alle Teile durchgehen und je in einen "span.pathslash" packen
+			$.each( pathbardata_ar, function (k,v){
+				if( v != '' ){
+					path += '/'+v;		
+					pathbardata += '</span>/<span class="pathslash" path="'+path+'/">'; 
+					pathbardata += v;
+				}
+			});
+			//	Anfang säubern
+			pathbardata = pathbardata.substr( 7 );
+
+			//Leer => Grundordner
+			if( pathbardata == '' ){
+				pathbardata = '/';
+			}
+
 			//Pathanzeige
-			html += '<div class="pathbar">'+allgvars.path+'</div>';
+			html += '<div class="pathbar">'+allgvars.proto+pathbardata+'</div>';
+
+			html += '</div>';
 			
 			//nur Main nutzen (dev für Debugging)
 			data = data.main;
@@ -196,49 +242,48 @@ function main_explorer(){
 				//Liste beenden
 				html += '</ul>';
 				//Hinweis
-				html += '<small>Doppelklick auf Pfad zum Bearbeiten; Rechtsklick auf Datei oder Ordner zum Löschen</small>';
+				html += '<small>Rechtsklick auf Datei oder Ordner zum Löschen, Kopieren, Verschieben, Umbenennen oder Freigeben</small>';
 				
 				//Mehr als eine Element??
 				if( folder_ex ){
 					//Liste anzeigen
 					$( "div.main_files" ).html( html );
 					
-					//Pfad anpassen
-					$( 'div.pathbar' ).unbind('dblclick').dblclick( function() {
+					//Pfadbar Ordner anklickbar
+					$( 'span.pathslash' ).unbind('click').click( function() {
 						
-						//Inhalt
-						var val = $( this ).html();
-						
-						//Ist das Feld schon bearbeitbar gemacht (Input Element vorhanden)
-						if( val.indexOf( "<input" ) === -1 ){
-							//nein, also einblenden
-							
-							//Input Feld zeigen 
-							$( this ).html( '<input type="text" style="width:95%;" value="'+val+'">' );
-							
-							//Knopf gedrückt?
-							//	wenn Cursor in Input
-							$( this ).children("input").keyup( function( event ) {
-								//Enter?
-								if(event.keyCode == 13){
-									//neuen Wert lesen
-									var newval = $( this ).val();
-									
-									//Input Feld weg und neuen Wert wieder in Kästchen setzen
-									$( this ).parent().html( newval );
-									//Pfadwert anpassen
-									allgvars.path = newval;
-									//Explorer aktualisieren
-									main_explorer();
-								}
-								//STRG Taste (Ctrl)
-								else if( event.keyCode == 17 ){
-									//wieder den alten Wert setzen
-									//bearbeiten beenden
-									$( this ).parent().html( val );
-								}
-							});
+						//Pfad lesen
+						var path = $( this ).attr('path');
+						//Pfad setzen
+						allgvars.path = path;
+						//Explorer neu laden
+						main_explorer();  
+
+					});
+
+					//einen Ordner hoch Button
+					$( 'button#oneup' ).unbind('click').click( function() {
+						//letzten Slash am Ende weg (nur wenn vorhanden)
+						if( allgvars.path[(allgvars.path.length-1)] == '/' ){
+							//weg machen
+							allgvars.path = allgvars.path.substr(0, (allgvars.path.length-1));
 						}
+						//letzten Slash im Str suche
+						var slash = allgvars.path.lastIndexOf("/");
+
+						//keiner mehr da, oder ganz am Anfang?
+						if( slash == -1 || slash == 0 ){
+							//Grundordner
+							allgvars.path = '/';
+						}
+						else{
+							//Rest abschneiden
+							allgvars.path = allgvars.path.substr(0, slash );
+							allgvars.path += '/';
+						}
+
+						//Explorer neu laden
+						main_explorer();
 					});
 					
 					//auf Klicks auf Dateien hören
@@ -389,12 +434,22 @@ function main_explorer(){
 						//HTML für neuen Dialog DIV		
 						var dial = '<div class="delfile_explorer" title="Dateieinstellungen">'
 						dial += 'Möchten Sie "'+ name +'" löschen?<br />';
-						dial += '<span id="ja">Ja</span>';
+						dial += '<span id="ja">Löschen</span>';
 						dial += '<div class="delfile_explorer_satus" style="display:none;">Fehler</div>';
-						dial += '<div class="frei" style="display:none;"><hr />';
-						dial += 'Oder klicken Sie für eine Freigabe via Link auf "Freigeben"!<br />';
-						dial += '<span id="frei">Freigeben</span>';
-						dial += '</div></div>';
+						dial += '<hr />';
+						dial += 'Möchten Sie sich "'+ name +'" in der Zwischeablage merken?<br />';
+						dial += '<small>(Kopieren, Verschieben, Umbenennen)</small><br />';
+						dial += '<span id="merken">Merken</span>';
+						dial += '<div class="zwiabfile_explorer_satus" style="display:none;"></div>';
+						dial += '<hr />';
+						if( allgvars.folder == 'user' ){
+							dial += 'Oder möchten Sie "'+name+'" via Link freigeben?<br />';
+							dial += '<span id="frei">Freigeben</span>';
+						}
+						else{
+							dial += 'Sie können nur Inhalte aus "Mein Verzeichnis" per Link freigeben!';
+						}
+						dial +='</div>';
 						
 						//HTML dem DOM anfügen   
 						$( "body" ).prepend( dial );
@@ -410,11 +465,7 @@ function main_explorer(){
 							}
 						});
 						
-						if( ( ftype == 'file' || ftype == 'kt'  ) && allgvars.folder == 'user' ){
-							$( "div.delfile_explorer div.frei" ).css("display", "block");
-						}
-						
-						//Ja/Nein Buttons
+						//Dialog Buttons
 						$( "div.delfile_explorer span" ).button();
 
 						//Button Löschen Listener
@@ -442,10 +493,56 @@ function main_explorer(){
 									$( "div.delfile_explorer_satus" ).css( { "display":"block","background-color":"red", "padding": "5px", "border-radius":"2px", "color":"white"  } );
 								} 	
 							});
-						});	
+						});
+
+						//Button Merken Listener
+						$( "div.delfile_explorer span#merken" ).click( function () {
+
+							//Medlung ausblenden
+							$( "div.zwiabfile_explorer_satus" ).css( { "display":"none" });	
+
+							//alles Versuchen
+							try{
+								//Infos für die Datei holen
+								var about = {
+									'viewname' : name,
+									'filename' : url,
+									'filepath' : allgvars.path
+								};
+								
+								//ganze Zwischeablage lesen
+								var zwisch = localStorage.getItem( "daten_zwischenablage" );
+
+								//leer?
+								if( typeof zwisch == "undefined" ||  zwisch == '' ||  zwisch == null ){
+									//leeres Array
+									zwisch = new Array();
+								}
+								else{
+									//JSON Array einlesen
+									zwisch = JSON.parse( zwisch );
+								}
+
+								//neues hinzufügen
+								zwisch.push( about );
+								//wieder zu JSON
+								zwisch = JSON.stringify( zwisch );
+								//wieder ablegen
+								localStorage.setItem( "daten_zwischenablage", zwisch );
+
+								//Okay Medlung
+								$( "div.zwiabfile_explorer_satus" ).html( "Gemerkt" );
+								$( "div.zwiabfile_explorer_satus" ).css( { "display":"block","background-color":"green", "padding": "5px", "border-radius":"2px", "color":"white"  } );
+							}
+							catch (exception) {
+								//Fehlermeldung
+								$( "div.zwiabfile_explorer_satus" ).html( "Fehler" );
+								$( "div.zwiabfile_explorer_satus" ).css( { "display":"block","background-color":"red", "padding": "5px", "border-radius":"2px", "color":"white"  } );
+							}
+						});
 
 						//Buttons Freigabe Listener
-						$( "div.delfile_explorer div span#frei" ).click( function () {	
+						$( "div.delfile_explorer span#frei" ).click( function () {	
 							
 							//URL der Datei
 							allgvars.file = url;
@@ -1358,23 +1455,6 @@ $( function(){
 				
 				if( id == 'rec' ){
 					trigger_touchbedienung( 0, this );
-				}
-				
-				//Buttons wieder aktivieren
-				$( "#touchbed_butt" ).buttonset('enable');
-				//Touchbar deakiviert
-				touchbar_status = true;
-			});
-			
-			//Pathbar
-			$( ".pathbar" ).unbind('click').click( function(){
-				
-				if( id == 'enter' ){
-					var elem = $( this ).children('input');
-					trigger_touchbedienung( 2, elem, 13 );
-				}
-				else if( id == 'dopp' ){
-					trigger_touchbedienung( 1, this );
 				}
 				
 				//Buttons wieder aktivieren
