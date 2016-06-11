@@ -5,6 +5,18 @@ function show_error( tit, mes, dom ){
 	 return true;
 }
 
+//HTML SpecialChars
+function htmlspecialchars(str) {
+	if (typeof(str) == "string") {
+		str = str.replace(/&/g, "&amp;");
+		str = str.replace(/"/g, "&quot;");
+		str = str.replace(/'/g, "&#039;");
+		str = str.replace(/</g, "&lt;");
+		str = str.replace(/>/g, "&gt;");
+	}
+	return str;
+ }
+
 //Loading GIF bei AJAX Anfragen zeigen
 //	jQuery GET und POST Event listen
 $( function() {
@@ -97,21 +109,51 @@ function load_daten(){
 		set_vars( $( this ).attr( 'id' ) );
 	});
 	
-	//Immer meine Dateien anzeigen
-	set_vars( 'my' );
-	
+	//Kein Klick, also Standard oder nach URL ID (Hash)
+	var id = window.location.hash;
+	//keine Vorauswahl
+	if( id == '' ){
+		//My, Path /
+		set_vars( 'my' );
+	}
+	else{
+		//Parse Hash
+		if( id.substr(0, 7) == '#user:/'){
+			//User gewüncht, Ordner lesen
+			set_vars( 'my', id.substr(7) );
+		}
+		else if( id.substr(0, 9) == '#public:/'){
+			//Public gewüncht, Ordner lesen und firstbutt checked anpassen
+			set_vars( 'pu', id.substr(9) );
+			$( "#firstbutt input[type=radio]#pu" ).attr("checked","checked")
+			$( "div#firstbutt" ).buttonset( "refresh" );
+		}
+		else if( id == "#freig://list" ){
+			//Freigabe gewünscht
+			set_vars( 'frei' );
+		}
+		else{
+			//Hash fehlerhaft
+			set_vars( 'my' );
+		}
+	}
 }
 
 //wichtige Werte für System
 var allgvars = new Object;
 
 //Klicks des Systems verarbeiten
-function set_vars( ort  ){
-	
+function set_vars( ort, path  ){
+
+	//Pfad evtl. gewählt?
+	if( typeof path == "undefined" ){
+		path = '/';
+	}
+
 	//Meine Dateien
 	if( ort == 'my' ){
 		allgvars.folder = 'user';
-		allgvars.path = '/';
+		allgvars.path = path;
 		allgvars.proto = 'my:/'
 		
 		//Explorer öffnen
@@ -120,7 +162,7 @@ function set_vars( ort  ){
 	//Öffentlich
 	else if ( ort == 'pu' ){
 		allgvars.folder = 'public';
-		allgvars.path = '/';
+		allgvars.path = path;
 		allgvars.proto = 'pub:/'
 
 		
@@ -146,12 +188,17 @@ function main_explorer(){
 	//	allgvars mit Gruppe, Pfad
 	//	ToDo
 	$.post( add_daten.siteurl+"/ajax.php?addon=daten", { "allgvars": allgvars, "todo": "filelist" } ).always( function( data ) {
+
+			//aktuellen Pfad auch als ID in URL kenntlich machen
+			window.location.hash = allgvars.folder + ":/" + allgvars.path ;
 			
 			//Toolszeige
 			var html = '<div class="toolbar">'+
 					'<button id="add_table">Neue Tabelle</button>'+
 					'<button id="add_file">Neue Datei</button>'+
 					'<button id="add_folder">Neuer Ordner</button>'+
+					' &mdash; '+
+					'<button id="zwisch">Zwischenablage</button>'+
 					'<br />'+
 					'<span class="input" style="display:none;">'+
 						'<input type="text" id="new_name" placeholder="Name">'+
@@ -417,6 +464,96 @@ function main_explorer(){
 						});
 						
 					});
+					//Zwischenablage
+					$( "button#zwisch" ).unbind( 'click' ).click( makezwischenablagedial );
+
+					function makezwischenablagedial(){
+						//Daten lesen
+						var zwisch = localStorage.getItem( "daten_zwischenablage" );
+						//JSON parsen
+						zwisch = JSON.parse( zwisch );
+
+						 //wenn alter Dialog div noch im DOM diesen löschen
+						if ($( "div.zwischenablage" ).length ){
+							$( "div.zwischenablage" ).remove();
+						}
+						
+						//HTML für neuen Dialog DIV		
+						var dial = '<div class="zwischenablage" title="Zwischenablage">'
+						dial += '<table>';
+						dial += '<tr>';
+						dial += '<th>Art</th>';
+						dial += '<th>Name</th>';
+						dial += '<th>Einfügen</th>'
+						dial += '<th>Löschen</th>';
+						dial += '<th>Pfad</th>';
+						dial += '</tr>';
+
+						if( zwisch != null && typeof zwisch == "object" ){
+							//alle Werte durchgehen
+							$.each( zwisch, function (k,v){
+								dial += '<tr about="'+htmlspecialchars(JSON.stringify(v))+'" key="'+k+'">';
+								dial += '<td>'+(( v.type == 'dir' ) ? '<span class="ui-icon ui-icon-folder-collapsed"></span>' : ( ( v.type == 'kt' ) ? '<span class="ui-icon ui-icon-calculator"></span>' : '<span class="ui-icon ui-icon-document"></span>' ) ) +'</td>';
+								dial += '<td>'+v.viewname+'</td>';
+								dial += '<td><button class="pastezwisch" title="Hier einfügen"><span class="ui-icon ui-icon-pin-s"></span></button></td>'
+								dial += '<td><button class="delzwisch" title="Aus Zwischenablage löschen"><span class="ui-icon ui-icon-trash"></span></button></td>';
+								dial += '<td>'+(( v.platz == 'user' ) ? 'my:/' : 'pub:/' )+v.filepath+v.filename+'</td>';
+								dial += '</tr>';
+							});
+						}
+						else{
+							dial += '<td colspan="5" id="tabempt"></td>';
+						}
+
+						dial += '</table>';
+						dial +='<small>Wählen Sie eine Datei, einen Ordner aus, um diesen hierhin ('+allgvars.proto+allgvars.path+') zu kopieren oder zu verschieben.</small>'
+						dial +='</div>';
+						
+						//HTML dem DOM anfügen   
+						$( "body" ).prepend( dial );
+
+						//Fehlermeldung?
+						if( $( "td#tabempt" ).length > 0 ){
+							show_error( 'Leer', 'Die Zwischenablage ist leer!', "td#tabempt" );
+						}
+						
+						//Dialog öffnen	 
+						$( "div.zwischenablage" ).dialog({ 
+							modal:true,
+							responsive: true,
+							minWidth: 500,
+							buttons:{
+								"Zwischenablage leeren": function (){
+									localStorage.clear();
+									$( this ).dialog( 'close' );
+								},
+								"Schließen":function(){
+									$( this ).dialog( 'close' );
+								}
+							}
+						});
+
+						//Einfügen Button
+						$( "button.pastezwisch" ).unbind( 'click' ).click( function (){
+							var data = $( this ).parent('td').parent('tr').attr('about');
+							var key = $( this ).parent('td').parent('tr').attr('key');
+							data = JSON.parse( data );
+							console.log( [data, key] );
+						});
+							
+						//Löschen Button
+						$( "button.delzwisch" ).unbind( 'click' ).click( function (){
+							var key = $( this ).parent('td').parent('tr').attr('key');
+							del_elem( key );
+						});
+
+						//Element aus Zwischenablage löschen
+						function del_elem( key ){
+							alert(key);
+							makezwischenablagedial();
+						}
+								
+					};
 					
 					//Rechtsklick auf Datei => Löschen?
 					$(document).on("contextmenu", 'ul.files li', function(e){
@@ -425,6 +562,14 @@ function main_explorer(){
 						var name = $( this ).attr( 'name' );
 						var url = $( this ).attr( 'url' );
 						var ftype = $( this ).attr( 'ftype' );
+
+						if(
+							typeof name == "undefined" ||
+							typeof url == "undefined" ||
+							typeof ftype == "undefined"
+						){
+							return false;
+						}
 						
 						//wenn alter Dialog div noch im DOM diesen löschen
 						if ($( "div.delfile_explorer" ).length ){
@@ -437,7 +582,7 @@ function main_explorer(){
 						dial += '<span id="ja">Löschen</span>';
 						dial += '<div class="delfile_explorer_satus" style="display:none;">Fehler</div>';
 						dial += '<hr />';
-						dial += 'Möchten Sie sich "'+ name +'" in der Zwischeablage merken?<br />';
+						dial += 'Möchten Sie sich "'+ name +'" in der Zwischenablage merken?<br />';
 						dial += '<small>(Kopieren, Verschieben, Umbenennen)</small><br />';
 						dial += '<span id="merken">Merken</span>';
 						dial += '<div class="zwiabfile_explorer_satus" style="display:none;"></div>';
@@ -507,7 +652,9 @@ function main_explorer(){
 								var about = {
 									'viewname' : name,
 									'filename' : url,
-									'filepath' : allgvars.path
+									'type' : ftype,
+									'filepath' : allgvars.path,
+									'platz' : allgvars.folder
 								};
 								
 								//ganze Zwischeablage lesen
@@ -1090,7 +1237,7 @@ function import_json(){
 	//Infotext
 	menue += 'Bitte geben Sie hier den JSON Code für die Tabelle an:<br />';
 	//JSON Code Eingabe
-	menue += '<textarea id="json_impcode" placeholder=\'[[0,"Vorname","Name"],[1,"Max","Muster"],[2,"Maxa","Mustera"]]\' rows="5" cols="20"></textarea><br />'
+	menue += '<textarea id="json_impcode" placeholder=\'{"table":[[0,"Vorname","Name"],[1,"Max","Muster"],[2,"Maxa","Mustera"]],"nextid":3}\' rows="5" cols="20"></textarea><br />'
 	//Hiweis
 	menue += '<small>Der Import ersetzt die aktuelle Tabelle!</small>';
 	//Status
@@ -1225,6 +1372,9 @@ function make_freigabe(){
 
 //Freigaben Zeigen
 function show_freigaben(){
+
+	//aktuellen Pfad auch als ID in URL kenntlich machen
+	window.location.hash = "freig://list";
 	
 	$.post( add_daten.siteurl+"/ajax.php?addon=daten", { "todo": "freigabeliste" } ).always( function( data ) {
 		

@@ -25,7 +25,7 @@
 
 defined('KIMB_CMS') or die('No clean Request');
 
-//Freigegebene Dateien anzeigen
+//Freigegebene Dateien/ Ordner anzeigen
 function show_freig_file () {
 	global $allgsysconf;
 	
@@ -44,36 +44,52 @@ function show_freig_file () {
 			$path = $freigfile->read_kimb_id( $key_id , 'path' );
 			//	und den Dateinamen (sonst würde Datei beim Download immer "ajax.php" heißen)
 			$name = $freigfile->read_kimb_id( $key_id , 'name' );
+			//	Typ (Datei/ Ordner)
+			$type = $freigfile->read_kimb_id( $key_id , 'type' );
 			
 			//Pfad für Datei erstellen
 			$file = __DIR__.'/userdata/user/'.$_GET['user'].$path;
 			
-			//Datei vorhanden?
-			if( is_file( $file ) ){
+			//Datei? (und vorhanden)
+			if( is_file( $file ) && $type == 'file' ){
 			
-				//Tablle?
-				if( substr( $file, -11 ) != '.kimb_table' ){
-					//Größe
-					$filesize = filesize( $file );
-					//MIME
-					$finfo = finfo_open(FILEINFO_MIME_TYPE);
-					$mimetype = finfo_file($finfo, $file);
-					finfo_close($finfo);
-			
-					//Header
-					header( 'Content-type: '.$mimetype.'; charset=utf-8' );
-					header( 'Content-Disposition: inline; filename="'.$name.'"' );
-					header( 'Content-Length: '.$filesize);
-					//Ausgabe
-					readfile( $file );
+				//Datei passend anzeigen Funktion
+				open_freigfile( $file, $name );
+				
+			}
+			//Ordner ? (und vorhanden)
+			elseif( is_dir( $file ) && $type ==  'folder' ){
+
+				//Pfad prüfen
+				//	Root?
+				if( $_GET['path'] == '/' || $_GET['path'] == '' ){
+					$openfolder = $file.'/';
 				}
+				//	Unterverzeichnis okay?
 				else{
-					//Dateiinhalt
-					$filecont = file_get_contents( $file );
-					
-					//Name der Datei
-					$tabname = substr( $name,0,  -11 );
-					
+					//do not hack
+					if( strpos( $_GET['path'], '..') !== false ){
+						echo "Falscher Pfad!";
+						die;
+					}
+					else{
+						//Slashes richtig setzen (Anfang)
+						if( substr( $_GET['path'], 0, 1) == '/' ){
+							$openfolder = $file.$_GET['path'];
+						}
+						else{
+							$openfolder = $file.'/'.$_GET['path'];
+						}
+					}
+				}
+
+				//Ordner zu öffnen ?
+				if( is_dir( $openfolder ) ){
+					// Slash am Ende
+					if( substr( $_GET['path'], -1) != '/' ){
+						$_GET['path'] .= '/';
+					}
+
 					//HTML und JS um freigegebene Tabellen zu entschlüsseln
 					$html = '<!DOCTYPE html>'."\r\n";
 					$html .= '<html>'."\r\n";
@@ -84,26 +100,82 @@ function show_freig_file () {
 					$html .= '<meta name="robots" content="'.$allgsysconf['robots'].'">'."\r\n";
 					$html .= '<meta name="description" content="'.$allgsysconf['description'].'">'."\r\n";
 					$html .= '<meta charset="utf-8">'."\r\n";
-					$html .= '<script> var enctab = '. json_encode( $filecont ) .';</script>'."\r\n";
-					$html .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/daten/sjcl.min.js"></script>'."\r\n";
+					$html .= '<link rel="stylesheet" type="text/css" href="'.$allgsysconf['siteurl'].'/load/system/jquery/jquery-ui.min.css" >'."\r\n";
+					$html .= '<link rel="stylesheet" type="text/css" href="'.$allgsysconf['siteurl'].'/load/addondata/daten/ordner_freigabe.dev.css">'."\r\n";
 					$html .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/system/jquery/jquery.min.js"></script>'."\r\n";
-					$html .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/daten/tabellen_freigabe.min.js"></script>'."\r\n";
-					$html .= '<title>Tabelle: '. $tabname .'</title>'."\r\n";					
+					$html .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/system/jquery/jquery-ui.min.js"></script>'."\r\n";
+					$html .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/daten/ordner_freigabe.dev.js"></script>'."\r\n";
+					$html .= '<title>Freigabe Ordner: '. basename($path) .'/</title>'."\r\n";					
 					$html .= '</head>'."\r\n";
 					$html .= '<body>'."\r\n";
-					$html .= '<h1>Tabelle: '. $tabname .'</h1>'."\r\n";
-					$html .= '<input type="password" id="pass" placeholder="Passwort"><button onclick="start_table();">Tabelle laden</button><br />'."\r\n";
-					$html .= '<hr /><div style="width:80%; margin-left:10%;" class="tabelle">Bitte geben Sie das Passwort oben ein!</div><hr />'."\r\n";
-					$html .= '<small><a href="'.$allgsysconf['siteurl'].'" target="_blank">Zur Seite</a></small>'."\r\n";
+					$html .= '<div id="main">'."\r\n";
+					$html .= '<h1>Freigabe Ordner: '. basename($path) .'/</h1>'."\r\n";
+
+					//Linkgerüst
+					$linkger = $allgsysconf['siteurl'].'/ajax.php?addon=daten&amp;user='.$_GET['user'].'&amp;key='.$_GET['key'].'&amp;path=';
+					//Hoch Button
+					$html .= '<button onclick="ordner_hoch( \''.$_GET['path'].'\', \''.$linkger.'\' );"><span class="ui-icon ui-icon-arrowthick-1-w"></span></button>'."\r\n";
+
+					$html .= '<span>freig:/'.$_GET['path'].'</span>'."\r\n";
+
+					//Dateiliste
+					$html .= '<ul>'."\r\n";		
+
+					//noch leer
+					$added = false;
+						
+					//Ordner auslesen
+					foreach( scandir( $openfolder ) as $fi ){
+						//keine Steuerzeichen
+						if( $fi != '.' && $fi != '..' ){
+
+							//Unterorder?
+							if( is_dir( $openfolder.'/'.$fi ) ){
+
+								//Link
+								$link = $linkger.urlencode($_GET['path'].$fi.'/' );
+								//Listenelemnt
+								$html .= '<li class="dir"><a href="'.$link.'">'.$fi.'</a></li>'."\r\n";
+							}
+							else{
+								//Link
+								$link = $linkger.urlencode($_GET['path'].$fi );
+
+								//Tabelle oder Datei??
+								$class = ( ( substr( $fi, -11 ) == '.kimb_table' ) ? 'table' : 'file'  );
+
+								//Listenelement
+								$html .= '<li class="'.$class.'"><a href="#" onclick="open_file(\''.$link.'\');">'.$fi.'</a></li>'."\r\n";
+							}
+
+							//jetzt gefüllt
+							$added = true;
+						}
+					}
+
+					//Meldung, wenn leer
+					if( !$added ){
+						$html .= '<li>Der Ordner ist leer!</li>';
+					}
+
+					//Tabelle und Seite beenden
+					$html .= '</ul>'."\r\n";
+						
+					$html .= '</div>'."\r\n";
+					$html .= '<center><small><a href="'.$allgsysconf['siteurl'].'" target="_blank">Zur Seite</a></small></center>'."\r\n";
 					$html .= '</body>'."\r\n";
 					$html .= '</html>'."\r\n";
-					
+
 					//ausgeben
 					echo $html;
-					
 				}
-				
-			}
+				else{
+					//Dateiname
+					$name = basename( $openfolder );
+					//kein Ordner, also als Datei öffnen
+					open_freigfile( $openfolder, $name );
+				}
+			}	
 			else{
 				echo 'Diese Datei existiert nicht!';
 			}			
@@ -116,6 +188,65 @@ function show_freig_file () {
 		echo 'Syntax des Usernamens inkorrekt!';
 	}
 	
+	die;
+}
+
+//Freigegebene Datei öffnen (Download/ Tabelle)
+function open_freigfile( $file, $name ){
+	global $allgsysconf;
+	
+	//Tablle?
+	if( substr( $file, -11 ) != '.kimb_table' ){
+		//Größe
+		$filesize = filesize( $file );
+		//MIME
+		$finfo = finfo_open(FILEINFO_MIME_TYPE);
+		$mimetype = finfo_file($finfo, $file);
+		finfo_close($finfo);
+			
+		//Header
+		header( 'Content-type: '.$mimetype.'; charset=utf-8' );
+		header( 'Content-Disposition: inline; filename="'.$name.'"' );
+		header( 'Content-Length: '.$filesize);
+		//Ausgabe
+		readfile( $file );
+	}
+	else{
+		//Dateiinhalt
+		$filecont = file_get_contents( $file );
+				
+		//Name der Datei
+		$tabname = substr( $name,0,  -11 );
+					
+		//HTML und JS um freigegebene Tabellen zu entschlüsseln
+		$html = '<!DOCTYPE html>'."\r\n";
+		$html .= '<html>'."\r\n";
+		$html .= '<head>'."\r\n";
+		$html .= '<link rel="shortcut icon" href="'.$allgsysconf['sitefavi'].'" type="image/x-icon; charset=binary">'."\r\n";
+		$html .= '<link rel="icon" href="'.$allgsysconf['sitefavi'].'" type="image/x-icon; charset=binary">'."\r\n";
+		$html .= '<meta name="generator" content="KIMB-technologies CMS V. '.$allgsysconf['systemversion'].'" >'."\r\n";
+		$html .= '<meta name="robots" content="'.$allgsysconf['robots'].'">'."\r\n";
+		$html .= '<meta name="description" content="'.$allgsysconf['description'].'">'."\r\n";
+		$html .= '<meta charset="utf-8">'."\r\n";
+		$html .= '<script> var enctab = '. json_encode( $filecont ) .';</script>'."\r\n";
+		$html .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/daten/sjcl.min.js"></script>'."\r\n";
+		$html .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/system/jquery/jquery.min.js"></script>'."\r\n";
+		$html .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/daten/tabellen_freigabe.min.js"></script>'."\r\n";
+		$html .= '<title>Tabelle: '. $tabname .'</title>'."\r\n";					
+		$html .= '</head>'."\r\n";
+		$html .= '<body>'."\r\n";
+		$html .= '<h1>Tabelle: '. $tabname .'</h1>'."\r\n";
+		$html .= '<input type="password" id="pass" placeholder="Passwort"><button onclick="start_table();">Tabelle laden</button><br />'."\r\n";
+		$html .= '<hr /><div style="width:80%; margin-left:10%;" class="tabelle">Bitte geben Sie das Passwort oben ein!</div><hr />'."\r\n";
+		$html .= '<small><a href="'.$allgsysconf['siteurl'].'" target="_blank">Zur Seite</a></small>'."\r\n";
+		$html .= '</body>'."\r\n";
+		$html .= '</html>'."\r\n";
+					
+		//ausgeben
+		echo $html;
+					
+	}
+
 	die;
 }
 
@@ -399,7 +530,7 @@ if( check_felogin_login( '---session---', $sysfile->read_kimb_one( 'siteid' ), t
 				//Dateiname
 				$filena = $_POST['allgvars']['file'];
 				
-				if( is_file( __DIR__.'/userdata/user/'.$user.'/'.$file ) ){
+				if( file_exists( __DIR__.'/userdata/user/'.$user.'/'.$file ) ){
 					
 					//Datei für Keys öffnen
 					$freigfile = new KIMBdbf( 'addon/daten__user_'.$user.'.kimb' );
@@ -430,9 +561,19 @@ if( check_felogin_login( '---session---', $sysfile->read_kimb_one( 'siteid' ), t
 					$freigfile->write_kimb_id( $id , 'add' , 'path' , $file );
 					//	und den Dateinamen (sonst würde Datei beim Download immer "ajax.php" heißen)
 					$freigfile->write_kimb_id( $id , 'add' , 'name' , $filena );
+					//	Typ (Ordner/ Datei)
+					$type = ( is_file( __DIR__.'/userdata/user/'.$user.'/'.$file ) ? 'file' : 'folder' );
+					$freigfile->write_kimb_id( $id , 'add' , 'type' , $type );
 					
+					if( $type == 'file' ){
+						$link = htmlspecialchars( $allgsysconf['siteurl'].'/ajax.php?addon=daten&user='.$user.'&key='.$key ); 
+					}
+					else{
+						$link = htmlspecialchars( $allgsysconf['siteurl'].'/ajax.php?addon=daten&user='.$user.'&key='.$key.'&path=/' ); 
+					}
+
 					//Ausgabe
-					$all_output = array( 'okay' => true, 'link' => htmlspecialchars( $allgsysconf['siteurl'].'/ajax.php?addon=daten&user='.$user.'&key='.$key ) );
+					$all_output = array( 'okay' => true, 'link' => $link );
 					
 				}
 				
