@@ -518,7 +518,7 @@ if( check_felogin_login( '---session---', $sysfile->read_kimb_one( 'siteid' ), t
 			}
 			
 		}
-		elseif( $_POST['todo'] = 'newfreigabe' ){
+		elseif( $_POST['todo'] == 'newfreigabe' ){
 			
 			//keine .. im Pfad -  Dateisystemschutz
 			if( strpos( $_POST['allgvars']['file'], '..' ) === false ){
@@ -579,6 +579,64 @@ if( check_felogin_login( '---session---', $sysfile->read_kimb_one( 'siteid' ), t
 				
 			}
 			
+		}
+		//Zwischenablage (kopiere/ verschieben)
+		elseif( $_POST['todo'] == 'zwischenabl' ){
+
+			//Infos holen
+			$infos = $_POST['infos'];
+
+			//Infos testen
+			if(
+					$infos['art'] != 'rename' && $infos['art'] != 'copy'
+				||
+					$infos['verz'] != 'user' && $infos['verz'] != 'public' 
+				||
+					strpos( $infos['url'], '..') !== false
+				||
+					strpos( $infos['name'], '..') !== false
+			){
+				$all_output['versch'] = false;
+			}
+			else{
+			
+				//Dateisystem Pfad Quelle erstellen
+				$von = __DIR__.'/userdata/'.$infos['verz'].'/'.( ($infos['verz'] == 'user' ) ?  $_SESSION['felogin']['user'].'/' : '' ).$infos['url'];
+
+				//Neuen Namen erstellen
+				$newna = $infos['name'];
+				//	Umlaute und Leerezeichen
+				$newna = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '..'),array('ae','oe','ue','ss','Ae','Oe','Ue', '_', '.'), $newna);
+				//	Rest weg
+				$newna = preg_replace( '/([^A-Za-z0-9\_\.\-])/' , '' , $newna );
+
+				//Dateisystem Ziel erstellen
+				$nach = $filepath.'/'.$newna;
+
+				//Quelle vorhanden
+				//Zielordner okay?
+				if( file_exists( $von ) && is_dir( $filepath ) ){
+					//Vorgang durchführen
+					if( $infos['art'] == 'copy' ){
+						//kopieren
+						//	Ordner?
+						if( is_dir( $von ) ){
+							$all_output['versch'] = copy_r( $von, $nach );
+						}
+						//sonst Datei
+						else{
+							$all_output['versch'] = copy( $von, $nach );
+						}
+					}
+					else{
+						//verschieben
+						$all_output['versch'] = rename( $von, $nach );
+					}
+				}
+				else{
+					$all_output['versch'] = false;
+				}
+			}
 		}
 		
 		

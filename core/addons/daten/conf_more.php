@@ -90,8 +90,11 @@ if( !empty( $_GET['del'] ) ){
 	
 	//Löschen versuchen
 	if( rm_r( __DIR__.'/userdata/user/'.$user ) ){
-		//Medlung
+		//Meldung
 		$sitecontent->echo_message( 'Die Daten des Users wurden gelöscht!' );
+
+		//auch Freigaben löschen
+		delete_kimb_datei( 'addon/daten__user_'.$user.'.kimb' );
 	}
 	else{
 		//Medlung

@@ -535,22 +535,142 @@ function main_explorer(){
 
 						//Einfügen Button
 						$( "button.pastezwisch" ).unbind( 'click' ).click( function (){
+							//Key und Daten lesen
 							var data = $( this ).parent('td').parent('tr').attr('about');
 							var key = $( this ).parent('td').parent('tr').attr('key');
+							//Daten aus JSON zu Array
 							data = JSON.parse( data );
-							console.log( [data, key] );
+
+							//Fenster machen
+							 //wenn alter Dialog div noch im DOM diesen löschen
+							if ($( "div.zwischenablagepaste" ).length ){
+								$( "div.zwischenablagepaste" ).remove();
+							}
+						
+							//HTML für neuen Dialog DIV		
+							var dial = '<div class="zwischenablagepaste" title="Zwischenablage - Einfügen">';
+							dial += '<h3>Verschieben &amp; kopieren</h3>';
+							dial += '<input type="text" readonly="readonly" id="oldpath"> (Quelle)<br />';
+							dial += '<input type="text" readonly="readonly" id="newpath"> (Zielverzeichnis)<br />';
+							dial += '<input type="text" id="file"> ('+(( data.type == 'dir' ) ? 'Ordner' : 'Datei' ) +'name)<br />';
+							if( data.type == 'kt' ){
+								dial += '<i style="color:orange;"><span class="ui-icon ui-icon-alert" style="display:inline-block;"></span> Die Endung ".kimb_table" muss bestehen bleiben!</i><br />';
+							}
+							dial += '<i id="replaceatt" style="display:none; color:red;"><span class="ui-icon ui-icon-info"  title="Die Datei wird überschrieben, sofern Sie auf Los klicken!" style="display:inline-block;"></span> Dateiname schon vergeben</i><br />';
+							dial += '<input type="radio" name="art" value="rename" checked="checked">  (verschieben)<br />';
+							dial += '<input type="radio" name="art"  value="copy"> (kopieren) ';
+							dial += '</div>';
+
+							//HTML dem DOM anfügen   
+							$( "body" ).prepend( dial );
+
+							//Inhalte setzen
+							$("div.zwischenablagepaste input#oldpath").val( (( data.platz == 'user' ) ? 'my:/' : 'pub:/' )+data.filepath+data.filename );
+							$("div.zwischenablagepaste input#newpath").val( allgvars.proto+allgvars.path );
+							$("div.zwischenablagepaste input#file").val( data.filename );
+							//	Dateinamen prüfen
+							//		Listener
+							$("div.zwischenablagepaste input#file").unbind( 'change' ).change( finachanged );
+							$("div.zwischenablagepaste input#file").unbind( 'keyup' ).keyup( finachanged );
+							//		Funktion
+							function finachanged(){
+								var val = $("div.zwischenablagepaste input#file").val();
+
+								$("div.zwischenablagepaste  i#replaceatt" ).css( "display", "none" );
+
+								$( "div.main_files ul.files li" ).each( function (){
+									var name = $( this ).attr( 'url' );
+									if( name == val ){
+										$("div.zwischenablagepaste  i#replaceatt" ).css( "display", "block" );
+									}
+								});
+							}
+							//	immer einmal zu Anfang testen
+							finachanged();
+
+							//Dialog öffnen	 
+							$( "div.zwischenablagepaste" ).dialog({ 
+								modal:true,
+								responsive: true,
+								minWidth: 400,
+								buttons:{
+									"Los": function (){
+
+										var infos = {
+											'verz' : data.platz,
+											'url' : data.filepath+data.filename,
+											'name' : $("div.zwischenablagepaste input#file").val(),
+											'art' : $("div.zwischenablagepaste input[name=art]:checked").val(),
+										};
+
+										//machen
+										//	allgvars mit Gruppe, Pfad
+										//	ToDo
+										//	infos mit Quelle und neuem Dateinamen und art
+										$.post( add_daten.siteurl+"/ajax.php?addon=daten", { "allgvars": allgvars, "todo": "zwischenabl", "infos": infos } ).always( function( data ) {
+										
+											//Okay?
+											if( data != null && data.main != null && data.main.versch ){
+
+												//Explorer aktualisieren
+												main_explorer();
+											
+												//jetzt aus Zwischenablage löschen
+												del_elem( key );
+
+												//Dialog schließen
+												$( "div.zwischenablagepaste" ).dialog( 'close' );
+
+												//Zwischenablage schließen
+												$( "div.zwischenablage" ).dialog( 'close' );
+											}
+											else{
+												j_alert( "Konnte nicht einfügen!" );	
+											} 	
+										});										
+									},
+									"Abbrechen":function(){
+										//nur Dialog schließen
+										$( this ).dialog( 'close' );
+									}
+								}
+							});
 						});
 							
 						//Löschen Button
 						$( "button.delzwisch" ).unbind( 'click' ).click( function (){
+							//Key des Eintrags
 							var key = $( this ).parent('td').parent('tr').attr('key');
+							//löschen
 							del_elem( key );
+							//Fenster neu laden
+							makezwischenablagedial();
 						});
 
 						//Element aus Zwischenablage löschen
 						function del_elem( key ){
-							alert(key);
-							makezwischenablagedial();
+							//Daten lesen
+							var zwisch = localStorage.getItem( "daten_zwischenablage" );
+							//JSON parsen
+							zwisch = JSON.parse( zwisch );
+
+							//Daten okay
+							if( zwisch != null && typeof zwisch == "object" ){
+								//gewünschten Bereich löschen
+								zwisch.splice( key , 1);
+
+								//wieder zu JSON
+								var json = JSON.stringify( zwisch );
+								//leer?
+								if( json != "[]" && json != "" ){
+									//nicht leer, Daten speichern
+									localStorage.setItem( "daten_zwischenablage", json );
+								}
+								else{
+									//leer, löschen
+									localStorage.removeItem( "daten_zwischenablage" );
+								}
+							}
 						}
 								
 					};
@@ -604,7 +724,7 @@ function main_explorer(){
 							modal:true,
 							responsive: true,
 							buttons:{
-								"Abbrechen":function(){
+								"Schließen":function(){
 									$( this ).dialog( 'close' );
 								}
 							}
