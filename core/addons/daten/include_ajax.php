@@ -94,103 +94,85 @@ function show_freig_file () {
 
 					//Dateien hochgeladen?
 					if( $upload == 'yes' ){
-						//
 
-//neue Dateien hochladen?
-if ( !empty( $_FILES['userfile']['name'][0] ) ){
-	//Ein Dateiupload per multiple ist möglich, daher hier per Schleife
+						//für Ausgabe
+						$uploads = array();
+
+						//neue Dateien hochladen?
+						if ( !empty( $_FILES['files']['name'][0] ) ){
+							//Ein Dateiupload per multiple ist möglich, daher hier per Schleife
 	
-	//los geht's mit der ersten Datei'
-	$i = 0;
-	//	solange noch Dateinamen existieren diese verarbeiten
-	while( !empty( $_FILES['userfile']['name'][$i] ) ){
+							//los geht's mit der ersten Datei
+							$i = 0;
+							//	solange noch Dateinamen existieren diese verarbeiten
+							while( !empty( $_FILES['files']['name'][$i] ) ){
 
-		//keine .. im Pfad -  Dateisystemschutz
-			if( strpos( $_FILES['file']['name'], '..' ) === false ){
+								//keine .. im Pfad -  Dateisystemschutz
+								if( strpos( $_FILES['files']['name'][$i], '..' ) === false ){
 				
-				//neuen Dateinamen bereinigen
-				$newdateiname = $_FILES['file']['name'];
-				//	Umlaute und Leerezeichen
-				$newdateiname = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '..'),array('ae','oe','ue','ss','Ae','Oe','Ue', '_', '.'), $newdateiname);
-				//	Rest weg
-				$newdateiname = preg_replace( '/([^A-Za-z0-9\_\.\-])/' , '' , $newdateiname );
-				
-				//Pfad zum Ordner
-				$file = $filepath.'/'.$newdateiname;
-				
-				//Datei und löschen okay
-				if( move_uploaded_file( $_FILES['file']['tmp_name'] , $file ) ){
-					$all_output['wr'] = true;					
-				}
-				else{
-					$all_output['wr'] = false;
-				}
-			}
+									//neuen Dateinamen bereinigen
+									$newdateiname = $_FILES['files']['name'][$i];
+									//	Umlaute und Leerezeichen
+									$newdateiname = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '..'),array('ae','oe','ue','ss','Ae','Oe','Ue', '_', '.'), $newdateiname);
+									//	Rest weg
+									$newdateiname = preg_replace( '/([^A-Za-z0-9\_\.\-])/' , '' , $newdateiname );
 
-		//erstmal den Dateinamen aufbereiten
-		//	Umlaute, Leerzeichen usw. sind böse, sollten aber auch nicht einfach verschwinden (das verwirrt so machen User)
-		$finame = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '/', '<', '>', '|', '?', ':', '|', '*'),array('ae','oe','ue','ss','Ae','Oe','Ue', '_', '', '', '', '', '', '', '', ''), $_FILES['userfile']['name'][$i] );
-		//	alles was jetzt nicht passt muss dann aber weg 
-		$finame = preg_replace( "/[^A-Za-z0-9_.-]/" , "" , $finame );
-		//	wir wollen wirklich nur den Dateinamen
-		$finame = basename($finame);
-		//	nur den Dateinamen sauber halten für später
-		$filena = $finame;
-		//gibt es diesen Dateinamen schon im gewählten Verzeichnis?
-		if(file_exists($grpath.$_GET['path'].'/'.$finame)){
-			//also ja
-			
-			//vorne vor den Namen eine Zahl setzen
-			//	los geht's mit der 1
-			$ii = '1';
-			//das wäre der neue Name mit absolutem Pfad
-			$fileneu = $grpath.$_GET['path'].'/'.$finame;
-			//solange eine Datei existiert weiter einen Namen suchen
-			while(file_exists($fileneu)){
-				//wieder ein neuer absoluter Pfad zum Testen
-				$fileneu = $grpath.$_GET['path'].'/'.$ii.$finame;
-				//und ein neuer Pfad relativ zum gewählten Ordner (secured, offen)
-				$filedd = $_GET['path'].'/'.$ii.$finame;
-				//den Index erhöhen
-				$ii++;
-			}
-			//freier Dateiname gefunden :-)
-			$finame = $fileneu;
-		}
-		//den Dateinamen gibt es nicht
-		else{
-			//Pfade erstellen (absolut und relativ zum gewählten Ordner (secured, offen))
-			$filedd = $_GET['path'].'/'.$finame;
-			$finame = $grpath.$_GET['path'].'/'.$finame;
-		}
-		//veruchen die Datei an ihren neuen Platz zu kopieren
-		if(move_uploaded_file($_FILES["userfile"]["tmp_name"][$i] , $finame)){
-			//wenn okay Meldung
-			$sitecontent->echo_message( 'Upload erfolgreich' );
-		}
-		else{
-			//wenn fehlerhaft aber auch Meldung
-			$sitecontent->echo_error( 'Upload fehlerhaft!' , 'unknown' );
-		}
-		
-		//die nächte Datei speichern (multiple Upload)
-		$i++;
-	}
-}
+									//gibt es diesen Dateinamen schon im gewählten Verzeichnis?
+									if( file_exists( $openfolder.'/'.$newdateiname ) ){
+										//also ja
+										
+										//vorne vor den Namen eine Zahl setzen
+										//	los geht's mit der 1
+										$ii = '1';
+
+										//freien Namen suchen
+										do{
+											//wäre neuer Pfad
+											$fileneu = $openfolder.'/'.$ii.$newdateiname;
+											//Nummer fürs nächste Mal erhöhen
+											$ii++;
+											//	Datei vorhanden? (wenn ja neuen Versuch)
+										}while( file_exists( $fileneu ) );
+									}
+									else{
+										//gleich Dateinamen erstellen
+										$fileneu = $openfolder.'/'.$newdateiname;
+									}
+				
+									//Datei verschieben (mit passendem Namen)
+									if( move_uploaded_file( $_FILES['files']['tmp_name'][$i] , $fileneu ) ){
+										$uploads[] = '"<u>'.$newdateiname.'</u>" erfolgreich hochgeladen!';
+									}
+									else{
+										$uploads[] = '"<u>'.$newdateiname.'</u>" <b>nicht</b> hochgeladen!';
+									}
+								}
+
+								//die nächte Datei speichern (multiple Upload)
+								$i++;
+							}
+						}
+
+						if( $uploads != array() ){
+							$message = '<div id="message">'."\r\n";
+							$message .= implode( "<br />\r\n", $uploads );
+							$message .= '</div>'."\r\n";
+						}
 
 					}
 
-					//HTML und JS um freigegebene Tabellen zu entschlüsseln
+					//HTML um freigegebene Ordner zu zeigen
 					$html = '<!DOCTYPE html>'."\r\n";
 					$html .= '<html>'."\r\n";
 					$html .= '<head>'."\r\n";
 					$html .= '<link rel="shortcut icon" href="'.$allgsysconf['sitefavi'].'" type="image/x-icon; charset=binary">'."\r\n";
 					$html .= '<link rel="icon" href="'.$allgsysconf['sitefavi'].'" type="image/x-icon; charset=binary">'."\r\n";
 					$html .= '<meta name="generator" content="KIMB-technologies CMS V. '.$allgsysconf['systemversion'].'" >'."\r\n";
-					$html .= '<meta name="robots" content="'.$allgsysconf['robots'].'">'."\r\n";
+					$html .= '<meta name="robots" content="none">'."\r\n";
 					$html .= '<meta name="description" content="'.$allgsysconf['description'].'">'."\r\n";
 					$html .= '<meta charset="utf-8">'."\r\n";
 					$html .= '<link rel="stylesheet" type="text/css" href="'.$allgsysconf['siteurl'].'/load/system/jquery/jquery-ui.min.css" >'."\r\n";
+					$html .= '<link rel="stylesheet" type="text/css" href="'.$allgsysconf['siteurl'].'/load/system/theme/fonts.min.css">'."\r\n";
 					$html .= '<link rel="stylesheet" type="text/css" href="'.$allgsysconf['siteurl'].'/load/addondata/daten/ordner_freigabe.dev.css">'."\r\n";
 					$html .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/system/jquery/jquery.min.js"></script>'."\r\n";
 					$html .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/system/jquery/jquery-ui.min.js"></script>'."\r\n";
@@ -200,6 +182,9 @@ if ( !empty( $_FILES['userfile']['name'][0] ) ){
 					$html .= '<body>'."\r\n";
 					$html .= '<div id="main">'."\r\n";
 					$html .= '<h1>Freigabe Ordner: '. basename($path) .'/</h1>'."\r\n";
+
+					//Meldung?
+					$html .= ( isset( $message ) ? $message : '' );
 
 					//Linkgerüst
 					$linkger = $allgsysconf['siteurl'].'/ajax.php?addon=daten&amp;user='.$_GET['user'].'&amp;key='.$_GET['key'].'&amp;path=';
@@ -324,9 +309,11 @@ function open_freigfile( $file, $name ){
 		$html .= '<link rel="shortcut icon" href="'.$allgsysconf['sitefavi'].'" type="image/x-icon; charset=binary">'."\r\n";
 		$html .= '<link rel="icon" href="'.$allgsysconf['sitefavi'].'" type="image/x-icon; charset=binary">'."\r\n";
 		$html .= '<meta name="generator" content="KIMB-technologies CMS V. '.$allgsysconf['systemversion'].'" >'."\r\n";
-		$html .= '<meta name="robots" content="'.$allgsysconf['robots'].'">'."\r\n";
+		$html .= '<meta name="robots" content="none">'."\r\n";
 		$html .= '<meta name="description" content="'.$allgsysconf['description'].'">'."\r\n";
 		$html .= '<meta charset="utf-8">'."\r\n";
+		$html .= '<link rel="stylesheet" type="text/css" href="'.$allgsysconf['siteurl'].'/load/system/theme/fonts.min.css">'."\r\n";
+		$html .= '<style>body{font-family:Ubuntu,sans-serif;}</style>'."\r\n";
 		$html .= '<script> var enctab = '. json_encode( $filecont ) .';</script>'."\r\n";
 		$html .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/daten/sjcl.min.js"></script>'."\r\n";
 		$html .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/system/jquery/jquery.min.js"></script>'."\r\n";
