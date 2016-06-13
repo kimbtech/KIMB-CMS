@@ -710,6 +710,10 @@ function main_explorer(){
 						if( allgvars.folder == 'user' ){
 							dial += 'Oder möchten Sie "'+name+'" via Link freigeben?<br />';
 							dial += '<span id="frei">Freigeben</span>';
+							if( ftype == 'dir' ){
+								dial += '<br />';
+								dial += '<small><input id="freigupload" type="checkbox" checked="checked"> Upload von Dateien in den freigegebenen Ordner erlauben.</small>';
+							}
 						}
 						else{
 							dial += 'Sie können nur Inhalte aus "Mein Verzeichnis" per Link freigeben!';
@@ -813,9 +817,23 @@ function main_explorer(){
 							
 							//URL der Datei
 							allgvars.file = url;
+
+							//Ordner?
+							if(  ftype == 'dir' ){
+								//Button Status prüfen
+								if( $( "input#freigupload:checked" ).length == 1 ){
+									var freigabeupload = 'yes'; 
+								}
+								else{
+									var freigabeupload = 'no';
+								}
+							}
+							else{
+								var freigabeupload = 'no';
+							}
 							
 							//per AJAX freigeben
-							make_freigabe();
+							make_freigabe( freigabeupload );
 							
 							//Dialog schließen
 							$( "div.delfile_explorer" ).dialog( 'close' );
@@ -1470,13 +1488,14 @@ function save_new_table( data ){
 		});
 }
 
-function make_freigabe(){
+function make_freigabe( upload ){
 	
 	//Freigabeanfrage an Server senden
 	//	User
 	//	Pfad
 	//	URL
-	$.post( add_daten.siteurl+"/ajax.php?addon=daten", { "allgvars": allgvars, "todo": "newfreigabe" } ).always( function( data ) {
+	//	Upload okay? (nur für Ordner sinvoll)
+	$.post( add_daten.siteurl+"/ajax.php?addon=daten", { "allgvars": allgvars, "todo": "newfreigabe", "upload" : upload } ).always( function( data ) {
 		
 		if( data.main.okay ){
 			j_alert( 'Die Datei wurde freigegeben.<br /><br /><input readonly="readonly" onclick="this.focus();this.select();" style="border:1px solid black; background-color:gray; text:white; width:100%;" value="'+ data.main.link +'"><br /><br />Unter "Freigabe" sehen Sie alle Freigaben und können diese löschen!' );		
@@ -1500,42 +1519,49 @@ function show_freigaben(){
 		
 		if( data.main.okay && data.main.list != null ){
 			
-			 var liste = '<ul class="freigaben">';
+			 var liste = '<table class="freigaben" width="100%">';
+			 liste += '<tr>';
+			 liste += '<th>Art</th>';
+			 liste += '<th>Name</th>';
+			 liste += '<th colspan="3">Bearbeiten</th>';
+			 liste += '<th>Pfad</th>';
+			 liste += '</tr>';
 			
 			//Liste anzeigen
 			$.each( data.main.list, function ( k,v ){
 			
-				liste += '<li fid="'+v.id+'" path="'+v.path+'">';
-				liste += '<span class="ui-icon ui-icon-bullet" style="display:inline-block"></span>'
-				liste += '<span class="show_link" title="Link zur Datei anzeigen"><span class="ui-icon ui-icon-link" style="display:inline-block"></span></span>';
-				liste += '<a href="'+v.link+'" target="_blank" title="Datei über Freigabelink öffnen"><span class="ui-icon ui-icon-extlink" style="display:inline-block"></span></a>';
-				liste += '<span class="del_link" title="Freigabe löschen"><span class="ui-icon ui-icon-trash" style="display:inline-block"></span></span>';
-				liste += '<span class="open_folder" title="Ordner mit Datei anzeigen">'+v.name+'</span>';
-				liste += '</li>';	
+				liste += '<tr fid="'+v.id+'" path="'+v.path+'">';
+				liste += '<td><span class="ui-icon ui-icon-'+( v.type == 'folder' ? 'folder-collapsed' : 'document' )+'"></span>'+( v.upload == 'yes' ? '<span class="ui-icon ui-icon-arrowthickstop-1-n" title="Upload aktiviert"></span>' : '' )+'</td>';
+				liste += '<td><span class="open_folder" title="Ordner mit Datei anzeigen">'+v.name+'</span></td>';
+				liste += '<td><span class="show_link" title="Link zur Datei anzeigen"><span class="ui-icon ui-icon-link"></span></span></td>';
+				liste += '<td><a href="'+v.link+'" target="_blank" title="Datei über Freigabelink öffnen"><span class="ui-icon ui-icon-extlink" style="display:inline-block"></span></a></td>';
+				liste += '<td><span class="del_link" title="Freigabe löschen"><span class="ui-icon ui-icon-trash" style="display:inline-block"></span></span></td>';
+				liste += '<td>my:/'+v.path+'</td>';
+				liste += '</tr>';	
 				
 			});
 			
-			liste += '</ul>';
+			liste += '</table>';
 			
 			$( "div.main_files" ).html( liste );
 			
-			$( "ul.freigaben" ).tooltip();
+			$( "table.freigaben" ).tooltip();
 			
 			//Link zeigen
-			$( "ul.freigaben span.show_link" ).unbind('click').click( function (){
+			$( "table.freigaben span.show_link" ).unbind('click').click( function (){
 				
 				//Werte bekommen
-				var link = $( this ).parent().children('a').attr( 'href' );
+				var link = $( this ).parent().parent().find('td a').attr( 'href' );
 				
 				//Dialog mit Link
 				j_alert( 'Die Datei wurde freigegeben.<br /><br /><input readonly="readonly" onclick="this.focus();this.select();" style="border:1px solid black; background-color:gray; text:white; width:100%;" value="'+ link +'"><br /><br />Unter "Freigabe" sehen Sie alle Freigaben und können diese löschen!' );	
 			});
 			
 			//Freigabe löschen
-			$( "ul.freigaben span.del_link" ).unbind('click').click( function (){
+			$( "table.freigaben span.del_link" ).unbind('click').click( function (){
 				
 				//Wert bekommen
-				var id = $( this ).parent().attr( 'fid' );
+				var id = $( this ).parent().parent().attr( 'fid' );
 				
 				//Freigabe löschen
 				$.post( add_daten.siteurl+"/ajax.php?addon=daten", { "todo": "freigabedel", "id": id } ).always( function( data ) {
@@ -1558,7 +1584,7 @@ function show_freigaben(){
 			});
 			
 			//Ordner öffne
-			$( "ul.freigaben span.open_folder" ).unbind('click').click( function (){
+			$( "table.freigaben span.open_folder" ).unbind('click').click( function (){
 				
 				//Werte bekommen
 				var path = $( this ).parent().attr( 'path' );

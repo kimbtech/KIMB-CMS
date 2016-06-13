@@ -46,6 +46,8 @@ function show_freig_file () {
 			$name = $freigfile->read_kimb_id( $key_id , 'name' );
 			//	Typ (Datei/ Ordner)
 			$type = $freigfile->read_kimb_id( $key_id , 'type' );
+			//	Upload erlaubt (nur bei Ordnern)
+			$upload = $freigfile->read_kimb_id( $key_id , 'upload' );
 			
 			//Pfad für Datei erstellen
 			$file = __DIR__.'/userdata/user/'.$_GET['user'].$path;
@@ -88,6 +90,94 @@ function show_freig_file () {
 					// Slash am Ende
 					if( substr( $_GET['path'], -1) != '/' ){
 						$_GET['path'] .= '/';
+					}
+
+					//Dateien hochgeladen?
+					if( $upload == 'yes' ){
+						//
+
+//neue Dateien hochladen?
+if ( !empty( $_FILES['userfile']['name'][0] ) ){
+	//Ein Dateiupload per multiple ist möglich, daher hier per Schleife
+	
+	//los geht's mit der ersten Datei'
+	$i = 0;
+	//	solange noch Dateinamen existieren diese verarbeiten
+	while( !empty( $_FILES['userfile']['name'][$i] ) ){
+
+		//keine .. im Pfad -  Dateisystemschutz
+			if( strpos( $_FILES['file']['name'], '..' ) === false ){
+				
+				//neuen Dateinamen bereinigen
+				$newdateiname = $_FILES['file']['name'];
+				//	Umlaute und Leerezeichen
+				$newdateiname = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '..'),array('ae','oe','ue','ss','Ae','Oe','Ue', '_', '.'), $newdateiname);
+				//	Rest weg
+				$newdateiname = preg_replace( '/([^A-Za-z0-9\_\.\-])/' , '' , $newdateiname );
+				
+				//Pfad zum Ordner
+				$file = $filepath.'/'.$newdateiname;
+				
+				//Datei und löschen okay
+				if( move_uploaded_file( $_FILES['file']['tmp_name'] , $file ) ){
+					$all_output['wr'] = true;					
+				}
+				else{
+					$all_output['wr'] = false;
+				}
+			}
+
+		//erstmal den Dateinamen aufbereiten
+		//	Umlaute, Leerzeichen usw. sind böse, sollten aber auch nicht einfach verschwinden (das verwirrt so machen User)
+		$finame = str_replace(array('ä','ö','ü','ß','Ä','Ö','Ü', ' ', '/', '<', '>', '|', '?', ':', '|', '*'),array('ae','oe','ue','ss','Ae','Oe','Ue', '_', '', '', '', '', '', '', '', ''), $_FILES['userfile']['name'][$i] );
+		//	alles was jetzt nicht passt muss dann aber weg 
+		$finame = preg_replace( "/[^A-Za-z0-9_.-]/" , "" , $finame );
+		//	wir wollen wirklich nur den Dateinamen
+		$finame = basename($finame);
+		//	nur den Dateinamen sauber halten für später
+		$filena = $finame;
+		//gibt es diesen Dateinamen schon im gewählten Verzeichnis?
+		if(file_exists($grpath.$_GET['path'].'/'.$finame)){
+			//also ja
+			
+			//vorne vor den Namen eine Zahl setzen
+			//	los geht's mit der 1
+			$ii = '1';
+			//das wäre der neue Name mit absolutem Pfad
+			$fileneu = $grpath.$_GET['path'].'/'.$finame;
+			//solange eine Datei existiert weiter einen Namen suchen
+			while(file_exists($fileneu)){
+				//wieder ein neuer absoluter Pfad zum Testen
+				$fileneu = $grpath.$_GET['path'].'/'.$ii.$finame;
+				//und ein neuer Pfad relativ zum gewählten Ordner (secured, offen)
+				$filedd = $_GET['path'].'/'.$ii.$finame;
+				//den Index erhöhen
+				$ii++;
+			}
+			//freier Dateiname gefunden :-)
+			$finame = $fileneu;
+		}
+		//den Dateinamen gibt es nicht
+		else{
+			//Pfade erstellen (absolut und relativ zum gewählten Ordner (secured, offen))
+			$filedd = $_GET['path'].'/'.$finame;
+			$finame = $grpath.$_GET['path'].'/'.$finame;
+		}
+		//veruchen die Datei an ihren neuen Platz zu kopieren
+		if(move_uploaded_file($_FILES["userfile"]["tmp_name"][$i] , $finame)){
+			//wenn okay Meldung
+			$sitecontent->echo_message( 'Upload erfolgreich' );
+		}
+		else{
+			//wenn fehlerhaft aber auch Meldung
+			$sitecontent->echo_error( 'Upload fehlerhaft!' , 'unknown' );
+		}
+		
+		//die nächte Datei speichern (multiple Upload)
+		$i++;
+	}
+}
+
 					}
 
 					//HTML und JS um freigegebene Tabellen zu entschlüsseln
@@ -155,11 +245,20 @@ function show_freig_file () {
 
 					//Meldung, wenn leer
 					if( !$added ){
-						$html .= '<li>Der Ordner ist leer!</li>';
+						$html .= '<li>Der Ordner ist leer!</li>'."\r\n";
 					}
 
 					//Tabelle und Seite beenden
 					$html .= '</ul>'."\r\n";
+
+					//Dateien hochladen okay?
+					if( $upload == 'yes' ){
+						$html .= '<h3>Dateiupload</h3>'."\r\n";
+						$html .= '<form action="'.$linkger.urlencode($_GET['path']).'" method="post" enctype="multipart/form-data">'."\r\n";
+						$html .= '<input type="file" name="files[]" multiple="multiple"><br />'."\r\n";
+            						$html .= '<input type="submit" value="Upload"><br />'."\r\n";
+						$html .= '</form>'."\r\n";
+					}
 						
 					$html .= '</div>'."\r\n";
 					$html .= '<center><small><a href="'.$allgsysconf['siteurl'].'" target="_blank">Zur Seite</a></small></center>'."\r\n";
@@ -564,13 +663,21 @@ if( check_felogin_login( '---session---', $sysfile->read_kimb_one( 'siteid' ), t
 					//	Typ (Ordner/ Datei)
 					$type = ( is_file( __DIR__.'/userdata/user/'.$user.'/'.$file ) ? 'file' : 'folder' );
 					$freigfile->write_kimb_id( $id , 'add' , 'type' , $type );
-					
-					if( $type == 'file' ){
-						$link = htmlspecialchars( $allgsysconf['siteurl'].'/ajax.php?addon=daten&user='.$user.'&key='.$key ); 
+					//	Dateiupload erlaubt
+					if( $type == 'folder' ){
+						//nur bei Ordnern möglich
+						if( $_POST['upload'] == 'yes' ){
+							$freigfile->write_kimb_id( $id , 'add' , 'upload' , 'yes' );
+						}
+						else{
+							$freigfile->write_kimb_id( $id , 'add' , 'upload' , 'no' );
+						}
 					}
 					else{
-						$link = htmlspecialchars( $allgsysconf['siteurl'].'/ajax.php?addon=daten&user='.$user.'&key='.$key.'&path=/' ); 
+						$freigfile->write_kimb_id( $id , 'add' , 'upload' , 'no' );
 					}
+					
+					$link = htmlspecialchars( $allgsysconf['siteurl'].'/ajax.php?addon=daten&user='.$user.'&key='.$key ); 
 
 					//Ausgabe
 					$all_output = array( 'okay' => true, 'link' => $link );
@@ -663,7 +770,14 @@ if( check_felogin_login( '---session---', $sysfile->read_kimb_one( 'siteid' ), t
 				//Daten der Freigaben in Liste lesen
 				$data = $freigfile->read_kimb_id( $id );
 				
-				$list[] = array( 'id' => $id, 'name' => $data['name'], 'path' => $data['path'] ,'link' => htmlspecialchars( $allgsysconf['siteurl'].'/ajax.php?addon=daten&user='.$user.'&key='.$data['key'] ));
+				$list[] = array(
+					'id' => $id,
+					'name' => $data['name'],
+					'path' => $data['path'],
+					'link' => htmlspecialchars( $allgsysconf['siteurl'].'/ajax.php?addon=daten&user='.$user.'&key='.$data['key'] ),
+					'upload' => $data['upload'],
+					'type' => $data['type']
+				);
 			}
 			
 			//Ausgabe
