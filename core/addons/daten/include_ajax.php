@@ -48,6 +48,33 @@ function show_freig_file () {
 			$type = $freigfile->read_kimb_id( $key_id , 'type' );
 			//	Upload erlaubt (nur bei Ordnern)
 			$upload = $freigfile->read_kimb_id( $key_id , 'upload' );
+
+			//Tracking Array lesen
+			if( !is_array( $_SESSION['freigabeaufrufe'] ) || !in_array( $_GET['user'].$_GET['key'] ,$_SESSION['freigabeaufrufe'] ) ){
+				$track = $freigfile->read_kimb_id( $key_id , 'track' );
+				if( !is_array( $track ) ){
+					$track = array();
+				}
+				//Daten sammeln
+				$track[] = array(
+					//Zeitpunkt (erster Aufruf innerhalb der Session)
+					'time' => time(),
+					//Linkquelle
+					'ref' => ( filter_var( $_SERVER['HTTP_REFERER'] , FILTER_VALIDATE_URL ) ? $_SERVER['HTTP_REFERER'] : 'unknown' ),
+					//ID (letzte Stellen [ab .] mit xxx)
+					'ip' =>  ( filter_var( $_SERVER['REMOTE_ADDR'] , FILTER_VALIDATE_IP ) ? substr( $_SERVER['REMOTE_ADDR'], 0, strrpos( $_SERVER['REMOTE_ADDR'], '.' ) ).'.xxx' : 'unknown' ),
+					//Host 
+					'host' => ( !empty( gethostbyaddr( $_SERVER['REMOTE_ADDR'] ) ) ? gethostbyaddr( $_SERVER['REMOTE_ADDR'] ) : 'unknown' ),
+					//UserAgent
+					'ua' => ( !empty( $_SERVER['HTTP_USER_AGENT'] ) ? $_SERVER['HTTP_USER_AGENT'] : 'unknown' )
+				);
+
+				//Array ablegen
+				$freigfile->write_kimb_id( $key_id , 'add', 'track', $track );
+
+				//jetzt aber drin
+				$_SESSION['freigabeaufrufe'][] = $_GET['user'].$_GET['key'];
+			}
 			
 			//Pfad für Datei erstellen
 			$file = __DIR__.'/userdata/user/'.$_GET['user'].$path;
