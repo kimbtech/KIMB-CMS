@@ -524,7 +524,7 @@ function main_explorer(){
 							minWidth: 500,
 							buttons:{
 								"Zwischenablage leeren": function (){
-									localStorage.clear();
+									localStorage.removeItem( "daten_zwischenablage" );
 									$( this ).dialog( 'close' );
 								},
 								"Schließen":function(){
@@ -884,7 +884,7 @@ function open_table( url, name, adding ){
 }
 
 //Tabelle öffen Passwort abfragen
-function open_table_passw(){
+function open_table_passw( _nextfunc, data_okay, data, adding, name ){
 
 	//wenn alter Dialog div noch im DOM diesen löschen
 	if ($( "div.j_promt" ).length ){
@@ -901,6 +901,16 @@ function open_table_passw(){
 						
 	//HTML dem DOM anfügen   
 	$( "body" ).prepend( dial );
+
+	//Passwort im localStorage?
+	//	Gespeichertes Passwort holen
+	var locpass = localStorage.getItem( "global_table_passw");
+
+	//Passwort aus Speicherung okay?
+	if( typeof locpass != "undefined" && locpass != null && locpass != '' ){
+		$( "input#js_table_passw" ).val( locpass );
+		$( "input#js_table_passw_save" ).prop( 'checked', true );
+	}
 			
 	//Dialog öffnen	 
 	$( "div.j_promt" ).dialog({ 
@@ -925,9 +935,18 @@ function open_table_passw(){
 				if( $( "input#js_table_passw_save:checked" ).length == 1 ){
 					localStorage.setItem( "global_table_passw", global_table_passw );
 				}
+				else{
+					localStorage.removeItem( "global_table_passw");
+				}
 
 				//Dialog schließen
 				$( this ).dialog( 'close' );
+
+				//Callback gewüncht?
+				if( typeof _nextfunc == "function" ){
+					//weiter geht's
+					_nextfunc( data_okay, data, adding, name );
+				}
 			},
 			"Passwort zeigen": function(){
 				$( "input#js_table_passw" ).attr( "type", "text" );
@@ -939,6 +958,42 @@ function open_table_passw(){
 
 //Tabellen Inhalte bekommen
 function open_table_get( name, adding, data_okay ){
+
+	//Entschlüsselung versuchen und Tabelle anzeigen
+	function dec_anz( data, _callback ){
+
+		//Passwort noch inkorrekt
+		var passw = false;
+
+		//Entschlüsselung mit eing. Passwort versuchen
+		try{
+			//Daten mit SJCL entschlüsseln
+			//	Passwort aus Eingabe
+			data = sjcl.decrypt( global_table_passw, data );
+
+			//Okay
+			passw = true;
+
+		}
+		//Bei Fehler
+		catch (e){
+			//Callback gewüncht?
+			if( typeof _callback == "function" ){
+				_callback( e );
+			}					
+		}
+		
+		if( passw ){
+			//Entschlüsselte Daten parsen
+			data = JSON.parse( data );
+					
+			//Daten okay
+			data_okay = true;
+
+			//Tabelle öffnen
+			open_table_dialog( data_okay, data, adding, name );
+		}
+	}
 	
 	//neue Tabelle
 	if( adding ){
@@ -946,14 +1001,12 @@ function open_table_get( name, adding, data_okay ){
 		//Standarddaten laden
 		var data = {"table":[[0,"Name","Vorname"],[1,"Meier","Heinze"]],"nextid":2};
 
-		//Nach Passwort fragen
-		open_table_passw();
-		
 		//Daten okay
 		data_okay = true;
-		
-		//Tabelle anzeigen
-		open_table_dialog( data_okay, data, adding, name );
+
+		//Nach Passwort fragen
+		//	danach Tabelle öffnen [Callback]
+		open_table_passw( open_table_dialog, data_okay, data, adding, name );
 	}
 	else{
 		//Daten für Tabelle anfragen
@@ -969,15 +1022,9 @@ function open_table_get( name, adding, data_okay ){
 				
 				//JSON parsen
 				data = JSON.parse( data );
-					
-				//Entschlüsselung versuchen
-				try{
-					//Daten mit SJCL entschlüsseln
-					//	hier nur festes Passwort
-					data = sjcl.decrypt( global_table_passw, data );
-				}
-				//Bei Fehler
-				catch (e){
+				
+				//Entschlüsselung - festes Passwort
+				dec_anz( data, function(){
 
 					//Gespeichertes Passwort holen
 					var locpass = localStorage.getItem( "global_table_passw");
@@ -988,52 +1035,34 @@ function open_table_get( name, adding, data_okay ){
 						//als global setzen
 						global_table_passw = locpass;
 
-						//Entschlüsselung damit versuchen
-						try{
-							//Daten mit SJCL entschlüsseln
-							//	Passwort aus localStorage
-							data = sjcl.decrypt( global_table_passw, data );
-
-							//Paswort okay
-							var passwokay = true;
-						}
-						//Bei Fehler
-						catch (e){
-							var passwokay = false;							
-						}
+						//Entschlüsselung - Passwort aus localStorage
+						dec_anz( data, function(){
+							//Nach Passwort fragen
+							open_table_passw( dec_anz, data,
+								function ( e ){
+									//Zum Ende Fehlermeldung
+									j_alert( 'Die Tabelle konnte mit diesem Passwort nicht entschlüsselt werden!\r\n(Fehlermeldung:"' + e.message + '")' );
+								}
+							);
+						});
 					}
+					else{
+						//nichts im localStorage
 
-					//Passwort immernoch nicht okay?
-					if( passwokay != true ){
-						//Nach Passwort fragen
-						open_table_passw();
-
-						//Entschlüsselung mit eing. Passwort versuchen
-						try{
-							//Daten mit SJCL entschlüsseln
-							//	Passwort aus Eingabe
-							data = sjcl.decrypt( global_table_passw, data );
-
-						}
-						//Bei Fehler
-						catch (e){
-							//Zum Ende Fehlermeldung
-							 j_alert( 'Die Tabelle konnte mit diesem Passwort nicht entschlüsselt werden!\r\n(Fehlermeldung:"' + e.message + '")' );
-							return;					
-						}
-
-					}					
-				}
-					
-				//Entschlüsselte Daten parsen
-				data = JSON.parse( data );
-				
-				//Daten okay
-				data_okay = true;
+						//gleich nach PW fragen
+						open_table_passw( dec_anz, data,
+							function ( e ){
+								//Zum Ende Fehlermeldung
+								j_alert( 'Die Tabelle konnte mit diesem Passwort nicht entschlüsselt werden!\r\n(Fehlermeldung:"' + e.message + '")' );
+							}
+						);
+					}
+				});
 			}
-			
-			//Tabelle öffnen
-			open_table_dialog( data_okay, data, adding, name );
+			//AJAX Response inkorrekt
+			else{
+				j_alert( 'Konnte die Tabelle nicht korrekt vom Server laden!' );
+			}
 		});
 	}
 }

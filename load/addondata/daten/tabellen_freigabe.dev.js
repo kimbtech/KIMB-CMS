@@ -2,37 +2,67 @@
 //	nächste ID
 var table_next_id;
 
-//per Onlick (Button) starten
-function start_table(){
+//auch ohne Passwort verschlüsseln, aber immer mit dem Gleichen
+var global_table_passw = 'vqtxvpJJWiFJrNKcOQOjMgTHBxqGdiyuBhilfRktqfWLyHEw';
+//Tabllendaten
+var tabdata = JSON.parse( enctab );
 
-	//	Passwort
-	var global_table_passw;
-	
-	//Passwort lesen
-	var pass = $( "input#pass" ).val();
-	
-	//Tabllendaten
-	var data = JSON.parse( enctab );
-				
-	if ( pass != '' ) {
-		//als Passwort nehmen
-		global_table_passw = pass;
-	}
-	else{
-		//auch ohne Passwort verschlüsseln, aber immer mit dem Gleichen
-		global_table_passw = 'vqtxvpJJWiFJrNKcOQOjMgTHBxqGdiyuBhilfRktqfWLyHEw';
-	}
+//erstmal versuchen Tabelle alleine zu laden
+//	(Standardpasswort)
+$( function () {
+	//Tabellendaten
+	var data = tabdata;
 
 	//Entschlüsselung versuchen
 	try{
 		//Daten mit SJCL entschlüsseln
 		data = sjcl.decrypt( global_table_passw, data );
+
+		//Tabelle anzeigen
+		open_table( data );
+	}
+	//Fehler
+	catch (e){
+		//Passworteingabe anzeigen
+		$( "div#passinput" ).css( "display", "block" );
+		//Listener adden
+		$( "div#passinput button" ).click( function () {
+			start_table();
+		});
+		$( "div#passinput input" ).keyup( function( event ) {
+			//Enter?
+			if(event.keyCode == 13){
+				start_table();
+			}
+		});
+	}
+} )
+
+//per (Button Passworteingabe) starten
+function start_table(){
+
+	//Tabellendaten
+	var data = tabdata;
+	
+	//Passwort lesen
+	global_table_passw = $( "input#pass" ).val();
+
+	//Entschlüsselung versuchen
+	try{
+		//Daten mit SJCL entschlüsseln
+		data = sjcl.decrypt( global_table_passw, data );
+
+		//Tabelle anzeigen
+		open_table( data )
 	}
 	//Bei Fehler Fehlermeldung ausgeben
 	catch (e){
 		alert( 'Die Tabelle konnte mit diesem Passwort nicht entschlüsselt werden!\r\n(Fehlermeldung:"' + e.message + '")' );
 		return;
 	}
+}
+
+function open_table( data ){
 					
 	//Entschlüsselte Daten parsen
 	data = JSON.parse( data );

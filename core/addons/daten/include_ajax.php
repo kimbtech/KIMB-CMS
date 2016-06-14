@@ -317,12 +317,14 @@ function open_freigfile( $file, $name ){
 		$html .= '<script> var enctab = '. json_encode( $filecont ) .';</script>'."\r\n";
 		$html .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/daten/sjcl.min.js"></script>'."\r\n";
 		$html .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/system/jquery/jquery.min.js"></script>'."\r\n";
-		$html .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/daten/tabellen_freigabe.min.js"></script>'."\r\n";
+		$html .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/daten/tabellen_freigabe.dev.js"></script>'."\r\n";
 		$html .= '<title>Tabelle: '. $tabname .'</title>'."\r\n";					
 		$html .= '</head>'."\r\n";
 		$html .= '<body>'."\r\n";
 		$html .= '<h1>Tabelle: '. $tabname .'</h1>'."\r\n";
-		$html .= '<input type="password" id="pass" placeholder="Passwort"><button onclick="start_table();">Tabelle laden</button><br />'."\r\n";
+		$html .= '<div style="display:none;" id="passinput">'."\r\n";
+		$html .= '<input type="password" id="pass" placeholder="Passwort"><button>Tabelle laden</button>'."\r\n";
+		$html .= '</div>'."\r\n";
 		$html .= '<hr /><div style="width:80%; margin-left:10%;" class="tabelle">Bitte geben Sie das Passwort oben ein!</div><hr />'."\r\n";
 		$html .= '<small><a href="'.$allgsysconf['siteurl'].'" target="_blank">Zur Seite</a></small>'."\r\n";
 		$html .= '</body>'."\r\n";
