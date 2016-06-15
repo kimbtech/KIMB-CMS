@@ -65,3 +65,16 @@ small{
 	background:#ffc966;
 	border-radius:5px
 }
+
+div#kimb_enc_outer{
+	margin-top: 5px;
+	padding:5px; 
+	border:2px solid orange;
+	background:#ffc966;
+	border-radius:5px;
+}
+div#kimb_enc_div{
+	border-top:2px solid orange;
+	padding-top:2px;
+	margin-top:2px;
+}

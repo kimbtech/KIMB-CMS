@@ -306,23 +306,8 @@ function show_freig_file () {
 function open_freigfile( $file, $name ){
 	global $allgsysconf;
 	
-	//Tablle?
-	if( substr( $file, -11 ) != '.kimb_table' ){
-		//Größe
-		$filesize = filesize( $file );
-		//MIME
-		$finfo = finfo_open(FILEINFO_MIME_TYPE);
-		$mimetype = finfo_file($finfo, $file);
-		finfo_close($finfo);
-			
-		//Header
-		header( 'Content-type: '.$mimetype.'; charset=utf-8' );
-		header( 'Content-Disposition: inline; filename="'.$name.'"' );
-		header( 'Content-Length: '.$filesize);
-		//Ausgabe
-		readfile( $file );
-	}
-	else{
+	//Tabelle ?
+	if( substr( $file, -11 ) == '.kimb_table' ){
 		//Dateiinhalt
 		$filecont = file_get_contents( $file );
 				
@@ -360,6 +345,61 @@ function open_freigfile( $file, $name ){
 		//ausgeben
 		echo $html;
 					
+	}
+	//verschlüsselte Datei? (HTML-Code; nicht raw)
+	elseif( substr( $file, -9 ) == '.kimb_enc' && !isset( $_GET['raw'] ) ){
+		//Dateiname
+		$datname = substr( $name, 0, -9 );
+
+		//verschlüsselte Datei!
+		//HTML und JS um freigegebene Tabellen zu entschlüsseln
+		$html = '<!DOCTYPE html>'."\r\n";
+		$html .= '<html>'."\r\n";
+		$html .= '<head>'."\r\n";
+		$html .= '<link rel="shortcut icon" href="'.$allgsysconf['sitefavi'].'" type="image/x-icon; charset=binary">'."\r\n";
+		$html .= '<link rel="icon" href="'.$allgsysconf['sitefavi'].'" type="image/x-icon; charset=binary">'."\r\n";
+		$html .= '<meta name="generator" content="KIMB-technologies CMS V. '.$allgsysconf['systemversion'].'" >'."\r\n";
+		$html .= '<meta name="robots" content="none">'."\r\n";
+		$html .= '<meta name="description" content="'.$allgsysconf['description'].'">'."\r\n";
+		$html .= '<meta charset="utf-8">'."\r\n";
+		$html .= '<link rel="stylesheet" type="text/css" href="'.$allgsysconf['siteurl'].'/load/system/theme/fonts.min.css">'."\r\n";
+		$html .= '<style>body{font-family:Ubuntu,sans-serif;}</style>'."\r\n";
+		$html .= '<script> var enctab = '. json_encode( $filecont ) .';</script>'."\r\n";
+		$html .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/daten/sjcl.min.js"></script>'."\r\n";
+		$html .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/system/jquery/jquery.min.js"></script>'."\r\n";
+		$html .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/daten/FileSaver.min.js"></script>'."\r\n";
+		$html .= '<script> var filename = '. json_encode( $datname ) .';</script>'."\r\n";
+		$html .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/daten/verschl_freigabe.dev.js"></script>'."\r\n";
+		$html .= '<title>Verschlüsselte Datei: '. $datname .'</title>'."\r\n";				
+		$html .= '</head>'."\r\n";
+		$html .= '<body>'."\r\n";
+		$html .= '<h1>Verschlüsselte Datei: '. $datname .'</h1>'."\r\n";
+		$html .= '<input type="password" id="pass" placeholder="Passwort"><br />'."\r\n";
+		$html .= '<button id="dec">Datei entschlüsseln</button><br />'."\r\n";
+		$html .= '<img src="'.$allgsysconf['siteurl'].'/load/system/spin_load.gif" style="visibility:hidden">'."\r\n";
+		$html .= '<br /><br /><small><a href="'.$allgsysconf['siteurl'].'" target="_blank">Zur Seite</a></small>'."\r\n";
+		$html .= '</body>'."\r\n";
+		$html .= '</html>'."\r\n";
+					
+		//ausgeben
+		echo $html;
+	}
+	else{
+		//reine Datei?
+
+		//Größe
+		$filesize = filesize( $file );
+		//MIME
+		$finfo = finfo_open(FILEINFO_MIME_TYPE);
+		$mimetype = finfo_file($finfo, $file);
+		finfo_close($finfo);
+			
+		//Header
+		header( 'Content-type: '.$mimetype.'; charset=utf-8' );
+		header( 'Content-Disposition: inline; filename="'.$name.'"' );
+		header( 'Content-Length: '.$filesize);
+		//Ausgabe
+		readfile( $file );
 	}
 
 	die;

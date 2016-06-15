@@ -17,6 +17,31 @@ function htmlspecialchars(str) {
 	return str;
  }
 
+//Inline Datei URI zu Blob Obj.
+ function inline2Blob( inline ) {
+	var byte;
+	if ( inline.split(',')[0].indexOf('base64') >= 0 ){
+		byte = atob(
+			inline.split(',')[1]
+		);
+	}
+	else{
+		byte = unescape(
+			inline.split(',')[1]
+		);
+	}
+	var mime = inline.split(',')[0].split(':')[1].split(';')[0];
+	var array = new Uint8Array( byte.length );
+	for (var i = 0; i < byte.length; i++) {
+		array[i] = byte.charCodeAt( i );
+	}
+
+	return new Blob(
+		[array],
+		{type:mime}
+	);
+}
+
 //Loading GIF bei AJAX Anfragen zeigen
 //	jQuery GET und POST Event listen
 $( function() {
@@ -238,6 +263,12 @@ function main_explorer(){
 
 			html += '</div>';
 			
+			//AJHAX Daten okay?
+			if( typeof data.main == "undefined" ){
+				j_alert( "Der Sever antwortet nicht korrekt!" );
+				return;
+			}
+
 			//nur Main nutzen (dev für Debugging)
 			data = data.main;
 			
@@ -409,18 +440,151 @@ function main_explorer(){
 						html += '<input type="hidden" name="todo" value="uploadfile">';
 						html += '<img src="' + add_daten.siteurl + '/load/addondata/daten/upload.png" style="display: block; margin:auto;" title="Ziehen Sie zum Hochladen Dateien über dieses Feld oder klicken Sie!" class="dz-message">';
 						html += '</form>';
+						html += '<div id="kimb_enc_outer">';
+						html += '<input type="checkbox" id="kimb_enc_oo"> Dateien verschlüsseln';
+						html += '<div id="kimb_enc_div" style="display:none;">';
+						html += '<input type="password" id="kimb_enc_passw" placeholder="Passwort"><br />';
+						html += '<small><input type="checkbox" id="kimb_enc_klar"> Klartext</small><br />';
+						html += '<small>Geben Sie ein Passwort zu Verschlüsselung der Dateien an.</small><br />';
+						html += '<small>Alle verschlüsselten Dateien erhalten die Endung <code>.kimb_enc</code> und können nur mit Passwort heruntergeladen werden.</small>';
+						html += '</div>';
+						html += '</div>';
 						
 						//Dialog
 						j_alert( html, 600 );
+
+
+						//Verschlüsselung Input
+						$( "input#kimb_enc_oo" ).change( function (){
+							//jetzt aktiviert?
+							if( $( "input#kimb_enc_oo:checked" ).length == 1 ){
+								$( "div#kimb_enc_div" ).css( "display", "block" );
+							}
+							else{
+								$( "div#kimb_enc_div" ).css( "display", "none" );
+							}
+						});
+						//Verschlüsselung Input
+						$( "input#kimb_enc_klar" ).change( function (){
+							//jetzt aktiviert?
+							if( $( "input#kimb_enc_klar:checked" ).length == 1 ){
+								$( "input#kimb_enc_passw" ).attr( "type", "text" );
+							}
+							else{
+								$( "input#kimb_enc_passw" ).attr( "type", "password" );
+							}
+						});
 						
 						//Dropzone init
+						//	Dateinamen bei Verschlüsselung anpassen 
 						var ExplorerDropzone = new Dropzone("form#dropzone");
 						//wenn fertig
 						ExplorerDropzone.on( "queuecomplete", function( file ){
 							//Explorer aktualisieren
 							main_explorer();
 						});
-						
+						//Dateien wenn gewünscht verschlüsseln
+						//	immer kurz vor Upload
+						ExplorerDropzone.on( "addedfile", function ( file ){
+							//Verschlüsselung an?
+							if( $( "input#kimb_enc_oo:checked" ).length == 1 ){
+								//Passwort holen 
+								var pass = $( "input#kimb_enc_passw" ).val();
+								//Passwort okay?
+								if( pass !=  "" ){
+									//machen!!
+
+									//ID bauen
+									var id = btoa( file.name );
+									id = id.replace( /([^A-Za-z])/g, '' ); 
+
+									//marks
+									var successmark = '<div class="dz-success-mark"><svg width="54px" height="54px" viewBox="0 0 54 54" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns"><title>Check</title><defs></defs><g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage"><path d="M23.5,31.8431458 L17.5852419,25.9283877 C16.0248253,24.3679711 13.4910294,24.366835 11.9289322,25.9289322 C10.3700136,27.4878508 10.3665912,30.0234455 11.9283877,31.5852419 L20.4147581,40.0716123 C20.5133999,40.1702541 20.6159315,40.2626649 20.7218615,40.3488435 C22.2835669,41.8725651 24.794234,41.8626202 26.3461564,40.3106978 L43.3106978,23.3461564 C44.8771021,21.7797521 44.8758057,19.2483887 43.3137085,17.6862915 C41.7547899,16.1273729 39.2176035,16.1255422 37.6538436,17.6893022 L23.5,31.8431458 Z M27,53 C41.3594035,53 53,41.3594035 53,27 C53,12.6405965 41.3594035,1 27,1 C12.6405965,1 1,12.6405965 1,27 C1,41.3594035 12.6405965,53 27,53 Z" id="Oval-2" stroke-opacity="0.198794158" stroke="#747474" fill-opacity="0.816519475" fill="#FFFFFF" sketch:type="MSShapeGroup"></path></g></svg></div>';
+									var errormark = '<div class="dz-error-mark"><svg width="54px" height="54px" viewBox="0 0 54 54" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns"><title>Error</title><defs></defs><g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage"><g id="Check-+-Oval-2" sketch:type="MSLayerGroup" stroke="#747474" stroke-opacity="0.198794158" fill="#FFFFFF" fill-opacity="0.816519475"><path d="M32.6568542,29 L38.3106978,23.3461564 C39.8771021,21.7797521 39.8758057,19.2483887 38.3137085,17.6862915 C36.7547899,16.1273729 34.2176035,16.1255422 32.6538436,17.6893022 L27,23.3431458 L21.3461564,17.6893022 C19.7823965,16.1255422 17.2452101,16.1273729 15.6862915,17.6862915 C14.1241943,19.2483887 14.1228979,21.7797521 15.6893022,23.3461564 L21.3431458,29 L15.6893022,34.6538436 C14.1228979,36.2202479 14.1241943,38.7516113 15.6862915,40.3137085 C17.2452101,41.8726271 19.7823965,41.8744578 21.3461564,40.3106978 L27,34.6568542 L32.6538436,40.3106978 C34.2176035,41.8744578 36.7547899,41.8726271 38.3137085,40.3137085 C39.8758057,38.7516113 39.8771021,36.2202479 38.3106978,34.6538436 L32.6568542,29 Z M27,53 C41.3594035,53 53,41.3594035 53,27 C53,12.6405965 41.3594035,1 27,1 C12.6405965,1 1,12.6405965 1,27 C1,41.3594035 12.6405965,53 27,53 Z" id="Oval-2" sketch:type="MSShapeGroup"></path></g></g></svg></div>';
+
+									//Binary Daten Leser
+									var reader  = new FileReader();
+
+									//wenn Daten gelsen
+									reader.addEventListener("load", function () {
+
+										//Daten holen
+										var data = reader.result;
+
+										//verschlüsseln
+										data = sjcl.encrypt( pass, data );
+
+										//zu neuer Datei (Blob)
+										data = new Blob( [data], {type : 'application/json'} );
+
+										//Formular bauen (für Dateiupload auf PHP Server)
+										var formd = new FormData();
+
+										//alle Vars an Form setzen
+										//	normales POST
+										formd.append( "allgvars[folder]", allgvars.folder );
+										formd.append( "allgvars[path]", allgvars.path );
+										formd.append( "todo", "uploadfile" );
+										//	Datei
+										formd.set("file", data, file.name+".kimb_enc");
+
+										//Upload machen
+										$.ajax({
+											url: add_daten.siteurl + '/ajax.php?addon=daten',  
+											dataType: 'json',
+											cache: false,
+											contentType: false,
+											processData: false,
+											data: formd,                         
+											type: 'post'
+										}).always( function ( data ){
+											//erfolgreich?
+											if(
+												typeof data == "object"
+												&&
+												typeof data.main != "undefined"
+												&&
+												typeof data.main.wr != "undefined"
+												&&
+												data.main.wr == true 
+											){
+												//Okay
+												$( "div#"+id ).find( "img" ).removeAttr( "src" );
+												$( "div#"+id ).find( "div.marks" ).html( successmark  );
+												$( "div#"+id ).find( "div.dz-success-mark" ).css( "opacity", "1"  );
+											}
+											else{
+												//Fehler
+												$( "div#"+id ).find( "img" ).removeAttr( "src" );
+												$( "div#"+id ).find( "div.marks" ).html( errormark  );
+												$( "div#"+id ).find( "div.dz-error-mark" ).css( "opacity", "1"  );
+											}
+
+											if( typeof data.main != "undefined" ){
+												//Explorer aktualisieren
+												main_explorer();
+											}
+										});
+									}, false);
+
+									//Daten lesen
+									reader.readAsDataURL( file );
+
+									//Datei hier weg
+									ExplorerDropzone.removeFile(file);
+
+									//aber trotzdem Datei anzeigen
+									$( "form#dropzone" ).append( '<div class="dz-preview dz-file-preview" id="'+id+'">'+
+										'<div class="dz-image"><img data-dz-thumbnail src="'+add_daten.siteurl+'/load/system/spin_load.gif" /></div>'+
+										'<div class="dz-details">'+
+										'<div class="dz-filename"><span data-dz-name>'+file.name+'</span></div>'+
+										'</div>'+
+										'<div class="marks"></div>'+
+										'</div>'
+									);
+								}
+							}
+						});
 					});
 					//neuer Ordner
 					$( "button#add_folder").unbind( 'click' ).click( function (){
@@ -555,6 +719,9 @@ function main_explorer(){
 							dial += '<input type="text" id="file"> ('+(( data.type == 'dir' ) ? 'Ordner' : 'Datei' ) +'name)<br />';
 							if( data.type == 'kt' ){
 								dial += '<i style="color:orange;"><span class="ui-icon ui-icon-alert" style="display:inline-block;"></span> Die Endung ".kimb_table" muss bestehen bleiben!</i><br />';
+							}
+							else if( data.filename.substr( data.filename.length - 9 ) == '.kimb_enc' ){
+								dial += '<i style="color:orange;"><span class="ui-icon ui-icon-alert" style="display:inline-block;"></span> Die Endung ".kimb_enc" muss bestehen bleiben!</i><br />';
 							}
 							dial += '<i id="replaceatt" style="display:none; color:red;"><span class="ui-icon ui-icon-info"  title="Die Datei wird überschrieben, sofern Sie auf Los klicken!" style="display:inline-block;"></span> Dateiname schon vergeben</i><br />';
 							dial += '<input type="radio" name="art" value="rename" checked="checked">  (verschieben)<br />';
@@ -1103,12 +1270,87 @@ function open_table_dialog( data_okay, data, adding, name ){
 
 //Datei öffen
 function open_file( url ){
-	
+
 	//Link zur Datei erstellen
 	var link = add_daten.siteurl+"/ajax.php?addon=daten&folder="+ encodeURI( allgvars.folder ) +"&path="+ encodeURI( allgvars.path + url );
 	
-	//Datei in PopUp öffnen
-	window.open( link, "_blank", "width=900px,height=500px,top=20px,left=20px");
+	//Datei verschlüsselt?
+	if( url.substr( url.length - 9 ) == '.kimb_enc'  ){
+		//Datei erstmal entschlüsseln
+		//und dann öffnen
+
+		//holen
+		$.get( link, function ( data ){
+
+			//Datei da?
+			if( data != "" ){
+
+				//Passwort Dialog
+				var dial = '<div id="passw_file_prompt" title="Passwort!">';
+				dial += '<input type="password" placeholder="Passwort" id="kimb_enc_passw"><br />'
+				dial += '<small><input type="checkbox" id="kimb_enc_klar"> Klartext</small><br />';
+				dial += '<small>Bitte geben Sie das Passwort für diese Datei an!</small';
+				dial += '</div>';
+
+				$( "body" ).append( dial );
+
+				//Verschlüsselung Input
+				$( "input#kimb_enc_klar" ).change( function (){
+					//jetzt aktiviert?
+					if( $( "input#kimb_enc_klar:checked" ).length == 1 ){
+						$( "input#kimb_enc_passw" ).attr( "type", "text" );
+					}
+					else{
+						$( "input#kimb_enc_passw" ).attr( "type", "password" );
+					}
+				});
+
+				$( "div#passw_file_prompt" ).dialog({
+					modal: true,
+					responsive: true,
+					buttons:{
+						"Los" : function(){
+
+							//Passwort lesen
+							var pass = $( "input#kimb_enc_passw" ).val();
+
+							try{
+								//entschlüsseln
+								var file = sjcl.decrypt( pass, data );
+
+								//Datei speichern
+								saveAs( inline2Blob( file ) , url.substr( 0, url.length - 9 ) );
+
+								//Dialog schließen
+								$(this).dialog( 'close' );
+							}
+							catch( e ){
+								j_alert( 'Konnte die Datei nicht entschlüsseln:<br />(' + e.message + ')' );
+								return;
+							}
+						},
+						"Schließen":function(){
+							$(this).dialog( 'close' );
+						}
+					},
+					beforeClose: function( event, ui ) {
+						$( this ).remove();
+					}
+				});
+
+					
+			}
+			else{
+				//Fehlermeldung
+				j_alert( "Fehler beim Laden der Datei!" );
+			}
+
+		});
+	}
+	else{
+		//Datei gleich in PopUp öffnen
+		window.open( link, "_blank", "width=900px,height=500px,top=20px,left=20px");
+	}
 }
 
 //KIMB Tabelle HTML erzeugen
@@ -1605,6 +1847,12 @@ function show_freigaben(){
 	window.location.hash = "freig://list";
 	
 	$.post( add_daten.siteurl+"/ajax.php?addon=daten", { "todo": "freigabeliste" } ).always( function( data ) {
+
+		//AJHAX Daten okay?
+		if( typeof data.main == "undefined" ){
+			j_alert( "Der Sever antwortet nicht korrekt!" );
+			return;
+		}
 		
 		if( data.main.okay && data.main.list != null ){
 			
