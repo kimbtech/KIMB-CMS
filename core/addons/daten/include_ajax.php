@@ -200,10 +200,10 @@ function show_freig_file () {
 					$html .= '<meta charset="utf-8">'."\r\n";
 					$html .= '<link rel="stylesheet" type="text/css" href="'.$allgsysconf['siteurl'].'/load/system/jquery/jquery-ui.min.css" >'."\r\n";
 					$html .= '<link rel="stylesheet" type="text/css" href="'.$allgsysconf['siteurl'].'/load/system/theme/fonts.min.css">'."\r\n";
-					$html .= '<link rel="stylesheet" type="text/css" href="'.$allgsysconf['siteurl'].'/load/addondata/daten/ordner_freigabe.dev.css">'."\r\n";
+					$html .= '<link rel="stylesheet" type="text/css" href="'.$allgsysconf['siteurl'].'/load/addondata/daten/ordner_freigabe.min.css">'."\r\n";
 					$html .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/system/jquery/jquery.min.js"></script>'."\r\n";
 					$html .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/system/jquery/jquery-ui.min.js"></script>'."\r\n";
-					$html .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/daten/ordner_freigabe.dev.js"></script>'."\r\n";
+					$html .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/daten/ordner_freigabe.min.js"></script>'."\r\n";
 					$html .= '<title>Freigabe Ordner: '. basename($path) .'/</title>'."\r\n";					
 					$html .= '</head>'."\r\n";
 					$html .= '<body>'."\r\n";
@@ -329,7 +329,7 @@ function open_freigfile( $file, $name ){
 		$html .= '<script> var enctab = '. json_encode( $filecont ) .';</script>'."\r\n";
 		$html .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/daten/sjcl.min.js"></script>'."\r\n";
 		$html .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/system/jquery/jquery.min.js"></script>'."\r\n";
-		$html .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/daten/tabellen_freigabe.dev.js"></script>'."\r\n";
+		$html .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/daten/tabellen_freigabe.min.js"></script>'."\r\n";
 		$html .= '<title>Tabelle: '. $tabname .'</title>'."\r\n";					
 		$html .= '</head>'."\r\n";
 		$html .= '<body>'."\r\n";
@@ -369,7 +369,7 @@ function open_freigfile( $file, $name ){
 		$html .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/system/jquery/jquery.min.js"></script>'."\r\n";
 		$html .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/daten/FileSaver.min.js"></script>'."\r\n";
 		$html .= '<script> var filename = '. json_encode( $datname ) .';</script>'."\r\n";
-		$html .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/daten/verschl_freigabe.dev.js"></script>'."\r\n";
+		$html .= '<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/daten/verschl_freigabe.min.js"></script>'."\r\n";
 		$html .= '<title>Verschlüsselte Datei: '. $datname .'</title>'."\r\n";				
 		$html .= '</head>'."\r\n";
 		$html .= '<body>'."\r\n";

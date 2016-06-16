@@ -25,19 +25,13 @@
 
 defined('KIMB_CMS') or die('No clean Request');
 
-//
-//
-//	Minifie JS und CSS Files!!!
-//
-//
-
 //Rechte für diese Seite??
 if( check_felogin_login( '---session---', '---allgsiteid---', true ) ){
 	
 	//CSS für Dropzone.js
 	$sitecontent->add_html_header('<link rel="stylesheet" type="text/css" href="'.$allgsysconf['siteurl'].'/load/addondata/daten/dropzone.min.css" media="all">');
 	//CSS für System
-	$sitecontent->add_html_header('<link rel="stylesheet" type="text/css" href="'.$allgsysconf['siteurl'].'/load/addondata/daten/explorer.dev.css" media="all">');
+	$sitecontent->add_html_header('<link rel="stylesheet" type="text/css" href="'.$allgsysconf['siteurl'].'/load/addondata/daten/explorer.min.css" media="all">');
 	//jQuery und Hash werden benötigt
 	$sitecontent->add_html_header('<!-- jQuery UI -->');
 	//Verschlüsselung
@@ -49,7 +43,7 @@ if( check_felogin_login( '---session---', '---allgsiteid---', true ) ){
 	//Dialog
 	$sitecontent->add_html_header('<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/daten/jquerydialog_responsive.min.js"></script>');
 	//JS für System
-	$sitecontent->add_html_header('<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/daten/explorer.dev.js"></script>');
+	$sitecontent->add_html_header('<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/daten/explorer.min.js"></script>');
 	//Vars
 	$sitecontent->add_html_header('<script language="javascript">var add_daten = {siteurl:"'.$allgsysconf['siteurl'].'"};</script>');
 	
