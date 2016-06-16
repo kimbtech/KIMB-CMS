@@ -1,0 +1,80 @@
+div.addon_daten_main{
+	margin:auto;
+	padding:10px;
+	border:1px solid #5d7;
+	border-radius:10px;
+	box-shadow: 5px 5px 5px gray;
+	text-align:center;
+	margin-bottom:20px;
+}
+
+div.main_files{
+	margin:auto;
+	width:95%;
+	min-height: 150px;
+	border: 1px solid gray;
+	border-radius:10px;
+	padding:10px;
+	margin-top:15px;
+	text-align: left;
+}
+
+div.addon_daten_main ul{
+	list-style-type: none;	
+}
+div.addon_daten_main ul li, table.freigaben td{
+	color:blue;
+}
+table.freigaben, table.freigaben tr {
+	border:1px solid black;
+	border-collapse: collapse;
+}
+
+div.pathbar{
+	border-radius:10px;
+	padding:5px;
+	display: inline-block;
+}
+div.pathbarumg{
+	border:1px solid gray;
+	border-radius:10px;
+	padding:5px;
+}
+span.pathslash{
+	text-decoration: underline;
+	color:blue;
+	padding:1px;
+}
+
+div.for_file_kimbta{
+	display: none;
+}
+
+small{
+	font-size:0.7em;
+}
+
+@media (orientation: portrait), (max-width:750px){
+	.ui-widget{
+		font-size:90% !important;
+	}
+}
+/* für ext. libs*/
+.dropzone{
+	border:2px solid orange;
+	background:#ffc966;
+	border-radius:5px
+}
+
+div#kimb_enc_outer{
+	margin-top: 5px;
+	padding:5px; 
+	border:2px solid orange;
+	background:#ffc966;
+	border-radius:5px;
+}
+div#kimb_enc_div{
+	border-top:2px solid orange;
+	padding-top:2px;
+	margin-top:2px;
+}
