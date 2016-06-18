@@ -156,6 +156,9 @@ function load_daten(){
 		else if( id == "#freig://list" ){
 			//Freigabe gewünscht
 			set_vars( 'frei' );
+			//firstbutt checked anpassen
+			$( "#firstbutt input[type=radio]#frei" ).attr("checked","checked")
+			$( "div#firstbutt" ).buttonset( "refresh" );
 		}
 		else{
 			//Hash fehlerhaft
@@ -441,7 +444,7 @@ function main_explorer(){
 						html += '<img src="' + add_daten.siteurl + '/load/addondata/daten/upload.png" style="display: block; margin:auto;" title="Ziehen Sie zum Hochladen Dateien über dieses Feld oder klicken Sie!" class="dz-message">';
 						html += '</form>';
 						html += '<div id="kimb_enc_outer">';
-						html += '<input type="checkbox" id="kimb_enc_oo"> Dateien verschlüsseln';
+						html += '<input type="checkbox" id="kimb_enc_oo"> Dateien verschlüsseln <sup>BETA</sup>';
 						html += '<div id="kimb_enc_div" style="display:none;">';
 						html += '<input type="password" id="kimb_enc_passw" placeholder="Passwort"><br />';
 						html += '<small><input type="checkbox" id="kimb_enc_klar"> Klartext</small><br />';
@@ -453,6 +456,17 @@ function main_explorer(){
 						//Dialog
 						j_alert( html, 600 );
 
+						//Verschlüsselung nur auf Chrome und Firefox möglich!
+						if(
+							//Firefox??
+							typeof InstallTrigger === 'undefined' &&
+							//Chrome??
+							typeof window.chrome === 'undefined'
+						){
+							//Passwort Input weg und gegen Warnung tauschen!
+							$( "div#kimb_enc_div" ).html( "Für die Verschlüsselung wird Mozilla Firefox oder Google Chrome benötigt! Die Entschlüsselung funktioniert aber auch in anderen Browsern." );
+							$( "div#kimb_enc_div" ).css( "color", "red")
+						}
 
 						//Verschlüsselung Input
 						$( "input#kimb_enc_oo" ).change( function (){
@@ -491,7 +505,7 @@ function main_explorer(){
 								//Passwort holen 
 								var pass = $( "input#kimb_enc_passw" ).val();
 								//Passwort okay?
-								if( pass !=  "" ){
+								if( typeof pass != "undefined" && pass !=  "" ){
 									//machen!!
 
 									//ID bauen
