@@ -15,4 +15,8 @@ foreach ( array(
 	}
 }
 
+
+//Add-on API wish
+$a = new ADDonAPI( 'blog' );
+$a->set_fe( 'vorn', 'a' , 'no' );
 ?>

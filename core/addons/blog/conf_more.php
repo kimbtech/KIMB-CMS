@@ -46,6 +46,10 @@ if(
 		!empty( $_POST['hauptseite'] )
 	&&
 		!empty( $_POST['menue'] )
+	&&
+		!empty( $_POST['addonarea'] )
+	&&
+		!empty( $_POST['aktuelle_menge'] )
 ){
 
 	//überhaupt verändert?
@@ -65,6 +69,26 @@ if(
 			$emessage .= 'Keine korrekte Hauptseite angegeben!<br />';
 		}
 	}
+
+	//überhaupt verändert?
+	if( $cffile->read_kimb_one( 'aktuelle_menge' ) != $_POST['aktuelle_menge'] ){
+		//okay?
+		if(
+			//Zahl?
+			is_numeric( $_POST['aktuelle_menge'] )
+		){
+			if( $cffile->write_kimb_one( 'aktuelle_menge', $_POST['aktuelle_menge'] ) ){
+				$omessage .= 'Anzahl aktueller Atrikel übernommen!<br />';
+			}
+			else{
+				$emessage .= 'Konnte Anzahl aktueller Atrikel nicht speichern!<br />';
+			}
+		}
+		else{
+			$emessage .= 'Keine korrekte Anzahl aktueller Atrikel angegeben!<br />';
+		}
+	}
+
 
 	//überhaupt verändert?
 	if( $cffile->read_kimb_one( 'menue' ) != $_POST['menue'] ){
@@ -137,6 +161,12 @@ $sitecontent->add_site_content( '<tr>' );
 $sitecontent->add_site_content( '<td>Hauptseite:</td>' );
 $sitecontent->add_site_content( '<td>'.id_dropdown( 'hauptseite' , 'siteid' ).'</td>' );
 $sitecontent->add_site_content( '<td>Seite auf der die Übersicht aktueller Artikel angezeit wird<br /><i>(Startseite)</i></td>' );
+$sitecontent->add_site_content( '</tr>' );
+
+$sitecontent->add_site_content( '<tr>' );
+$sitecontent->add_site_content( '<td>Anzahl aktueller Artikel:</td>' );
+$sitecontent->add_site_content( '<td><input type="number" name="aktuelle_menge" value="'.$cffile->read_kimb_one( 'aktuelle_menge' ).'"></td>' );
+$sitecontent->add_site_content( '<td>Anzahl der der aktuellen Artikel, die auf der Startseite angezeit werden.</td>' );
 $sitecontent->add_site_content( '</tr>' );
 
 $sitecontent->add_site_content( '<tr>' );

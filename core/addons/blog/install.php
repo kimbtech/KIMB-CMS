@@ -19,8 +19,5 @@ foreach ( array(
 
 //Add-on API wish
 $a = new ADDonAPI( 'blog' );
-$a->set_fe( 'vorn', 's1' , 'no' );
-$a->set_be( 'vorn', 's1' , 'no' );
-$a->set_funcclass( 'vorn' );
-
+$a->set_fe( 'vorn', 'a' , 'no' );
 ?>
