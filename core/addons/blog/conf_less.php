@@ -31,33 +31,120 @@ $addonurl = $allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=less&
 //Add-on nötig Datei laden
 require_once( __DIR__.'/required_addons.php' );
 
-//neuen Artikel schreiben?
-if( isset( $_GET['new'] ) ){
-
-	//Menü machen
-
-	//Seite machen
-
-	//Gästebuch anfügen
-
-	// => Seite füllen Link (ext)
-	// => veröffentlichen Link
-
+//Konf Datei laden
+$cffile = new KIMBdbf( 'addon/blog__conf.kimb' );
+//	Werte lesen
+$menue = $cffile->read_kimb_one( 'menue' );
+//	Werte prüfen
+if( empty( $menue ) || !is_numeric( $menue ) ){
+	$sitecontent->echo_error( 'Die Konfiguration des Add-ons ist fehlerhaft! (menue)' );
 }
-//Seite veröffentlichen
-elseif( !empty( $_GET['newpub'] ) && is_numeric( $_GET['newpub'] ) ){
-
-	//Seite und Menü
-	//	Status "on"
-
-	//Cache leeren
-
-}
-//
 else{
 
-	//Neuen Artikel Button
-	$sitecontent->add_site_content( '<center><a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=less&amp;addon=blog&amp;new"><button><h3>Artikel schreiben</h3></button></a></center>' );
+	//Seiten Klasse laden
+	$o_site = new BEsites($allgsysconf, $sitecontent, false );
 
+	//neuen Artikel schreiben?
+	if( isset( $_GET['new'] ) && !empty( $_POST['titel'] ) ){
+
+		//Seite machen
+		//=> Klasse oben geladen!
+		//	Vars vorbreiten
+		$POST = array(
+			//Inhalte
+			'title' => $_POST['titel'], 
+			'inhalt' => '<h1>'.$_POST['titel'].'</h1>',
+			//kein EasyMenü
+			'menue' => 'none',
+			'untermenue' => 'none',
+			//Rest leer
+			'header' => '',
+			'keywords' => '',
+			'description' => '',
+			'footer' => ''
+		);
+		//machen
+		$sit = $o_site->make_site_new_dbf( $POST );
+		//	gleich deaktivern
+		$o_site->make_site_deakch( $sit );
+
+		//Menü machen
+		//	Menü Klasse laden
+		$o_menue = new BEmenue($allgsysconf, $sitecontent, false );
+		//	Vars vorbereiten
+		$GET = array( 
+			//Menü des Blogteils wählen
+			'file' => $menue,
+			//geleiche Ebene
+			'niveau' => 'same',
+			//unwichtig, da geleiche Ebene
+			'requid' => '1'
+		);
+		$POST = array( 
+			//nach Eingabe
+			'name' => $_POST['titel'],
+			//passende SeitID
+			'siteid' => $sit
+		);
+		//machen
+		$men = $o_menue->make_menue_new_dbf( $GET, $POST, 'off' );
+
+		//Gästebuch anfügen
+		//	konf Datei laden
+		$guestfile = new KIMBdbf( 'addon/guestbook__conf.kimb' );
+		//	neue Seite anfügen
+		$guestfile->write_kimb_teilpl( 'siteid' , $sit , 'add' );
+		/* Ich weiß, dies ist nicht gerade schön, einfach die Konfiguration abzuändern, aber es funktioniert. */
+
+		//FullHTMLCache auf dieser Seite aus
+		//	aktuelle Daten lesen
+		$data = $api->full_html_cache_wish( 'read' );
+		if( is_array( $data['a'] ) ){
+			$data = array();
+		} 	
+		//	für neue Seite auch komplett deaktivieren
+		$data[$men['requestid']] = array(
+			'off', array( 'POST' => array(), 'GET' => array(), 'COOKIE' => array() )
+		);
+		//	neues Array an API übergeben
+		$api->full_html_cache_wish( 'set', $data ); 			
+
+		//Ausgabe
+		$sitecontent->echo_message( 'Es wurde ein neuer Blogartikel erstellt!', 'Erfolgeich');
+		// => Seite füllen Link (ext)
+		$sitecontent->add_site_content( '<p><a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/sites.php?todo=edit&amp;id='.$sit.'" target="_blank">Artikel schreiben</a></p>' );
+		// => veröffentlichen Link
+		$sitecontent->add_site_content( '<p><a href="'.$addonurl.'&amp;newpub='.$sit.'">Artikel veröffentlichen</a></p>' );
+
+	}
+	//Seite veröffentlichen
+	elseif( !empty( $_GET['newpub'] ) && is_numeric( $_GET['newpub'] ) ){
+
+		//Seitenstatus auf aktiviert setzen!
+		if( $o_site->make_site_deakch( $_GET['newpub'] ) ){
+			//Ausgabe
+			$sitecontent->echo_message( 'Der neue Blogartikel wurde veröffentlicht!', 'Erfolgeich');
+			//=> Cache leeren Link
+			$sitecontent->add_site_content( '<p><a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/syseinst.php?todo=purgecache">Und jetzt den Cache leeren?</a></p>' );
+		}
+		else{
+			//Ausgabe
+			$sitecontent->echo_error( 'Der neue Blogartikel konnte nicht veröffentlicht werden!' );
+			// => veröffentlichen Link
+			$sitecontent->add_site_content( '<p><a href="'.$addonurl.'&amp;newpub='.$sit.'">Artikel veröffentlichen</a></p>' );
+		}
+
+	}
+	//
+	else{
+
+		//Neuen Artikel Button
+		$sitecontent->add_site_content( '<h3>Artikel schreiben</h3>');
+		$sitecontent->add_site_content( '<form action="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=less&amp;addon=blog&amp;new" method="POST">' );
+		$sitecontent->add_site_content( '<p><input type="text" name="titel" placeholder="Titel"></p>');
+		$sitecontent->add_site_content( '<p><input type="submit" value="Anfangen"></p>');
+		$sitecontent->add_site_content( '</form>');
+
+	}
 }
 ?>

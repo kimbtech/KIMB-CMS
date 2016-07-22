@@ -1,19 +1,10 @@
 <[about:doc]>KIMB Datei V.4.5 KIMB CMS<[about:doc]>
 <[be1]>auto_update<[be1]>
 <[be2]>auto_update_addons<[be2]>
-<[ajax1]>felogin<[ajax1]>
-<[ajax2]>daten<[ajax2]>
-<[funcclass1]>felogin<[funcclass1]>
-<[funcclass2]>daten<[funcclass2]>
-<[fe1]>felogin<[fe1]>
-<[fe2]>daten<[fe2]>
-<[ajax3]>captcha<[ajax3]>
-<[funcclass3]>captcha<[funcclass3]>
-<[ajax4]>guestbook<[ajax4]>
-<[funcclass4]>guestbook<[funcclass4]>
-<[fe3]>guestbook<[fe3]>
-<[fe4]>search_sitemap<[fe4]>
-<[ajax5]>blog<[ajax5]>
-<[funcclass5]>blog<[funcclass5]>
-<[be3]>blog<[be3]>
-<[fe5]>blog<[fe5]>
+<[ajax1]>captcha<[ajax1]>
+<[ajax2]>guestbook<[ajax2]>
+<[funcclass1]>captcha<[funcclass1]>
+<[funcclass2]>guestbook<[funcclass2]>
+<[fe1]>guestbook<[fe1]>
+<[fe2]>search_sitemap<[fe2]>
+<[fe3]>blog<[fe3]>

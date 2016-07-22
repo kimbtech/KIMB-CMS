@@ -2,8 +2,7 @@
 
 foreach ( array(
 		'captcha' => 'CAPTCHA API',
-		'guestbook' => 'Gästebuch/ Kommentare',
-		'search_sitemap' => 'Search & Sitemap'
+		'guestbook' => 'Gästebuch/ Kommentare'
 	) as $nameid => $name ){
 
 	//Abhängikeiten
@@ -15,8 +14,7 @@ foreach ( array(
 	}
 }
 
-
 //Add-on API wish
-$a = new ADDonAPI( 'blog' );
-$a->set_fe( 'vorn', 'a' , 'no' );
+$api = new ADDonAPI( 'blog' );
+$api->set_fe( 'vorn', 'a' , 'no' );
 ?>

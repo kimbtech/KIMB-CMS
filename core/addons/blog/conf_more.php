@@ -33,7 +33,7 @@ require_once( __DIR__.'/required_addons.php' );
 
 //wenn Rechte für less, Link für neuen Artikel erstellen anzeigen
 if( check_backend_login( 'thirteen' , 'less', false) ){
-	$sitecontent->add_site_content( '<center><a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=less&amp;addon=blog&amp;new"><button><h3>Artikel schreiben</h3></button></a></center>' );
+	$sitecontent->add_site_content( '<center><a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=less&amp;addon=blog"><button><h3>Artikel schreiben</h3></button></a></center>' );
 }
 
 $sitecontent->add_site_content( '<h3>Allgemeine Einstellungen</h3>' );
