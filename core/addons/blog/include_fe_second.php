@@ -40,7 +40,7 @@ $men = $cffile->read_kimb_one( 'menue' );
 if( !empty( $hs ) && !empty( $men ) && is_numeric( $men ) ){
 
 	//CSS Blog
-	$sitecontent->add_html_header( '<link rel="stylesheet" type="text/css" href="'.$allgsysconf['siteurl'].'/load/addondata/blog/main.dev.css" media="all">' );
+	$sitecontent->add_html_header( '<link rel="stylesheet" type="text/css" href="'.$allgsysconf['siteurl'].'/load/addondata/blog/main.min.css" media="all">' );
 
 	//Alle Blogartikel (Seite mit Blog bestimmen)
 	$seiten = make_menue_array_helper($men , false );
