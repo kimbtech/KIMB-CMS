@@ -45,6 +45,8 @@ $cffile = new KIMBdbf( 'addon/blog__conf.kimb' );
 if(
 		!empty( $_POST['hauptseite'] )
 	&&
+		!empty( $_POST['allesseite'] )
+	&&
 		!empty( $_POST['menue'] )
 	&&
 		!empty( $_POST['addonarea'] )
@@ -67,6 +69,24 @@ if(
 		}
 		else{
 			$emessage .= 'Keine korrekte Hauptseite angegeben!<br />';
+		}
+	}
+
+	//überhaupt verändert?
+	if( $cffile->read_kimb_one( 'allesseite' ) != $_POST['allesseite'] ){
+		//Seiten IDs Array
+		$sites = array_column( list_sites_array(), 'id'  );
+		//Seite korrekt
+		if( in_array( $_POST['allesseite'], $sites ) ){
+			if( $cffile->write_kimb_one( 'allesseite', $_POST['allesseite'] ) ){
+				$omessage .= 'Allesseite übernommen!<br />';
+			}
+			else{
+				$emessage .= 'Konnte Allesseite nicht speichern!<br />';
+			}
+		}
+		else{
+			$emessage .= 'Keine korrekte Allesseite angegeben!<br />';
 		}
 	}
 
@@ -148,6 +168,7 @@ if(
 //Form Felder wie in Konf setzen
 $sitecontent->add_html_header('<script>$(function(){
 	$( "select[name=hauptseite]" ).val( '.$cffile->read_kimb_one( 'hauptseite' ).' );
+	$( "select[name=allesseite]" ).val( '.$cffile->read_kimb_one( 'allesseite' ).' );
 	$( "select[name=menue]" ).val( '.$cffile->read_kimb_one( 'menue' ).' );
 	$( "input[name=addonarea][value='.$cffile->read_kimb_one( 'addonarea' ).']" ).prop( "checked", true );
 });</script>');
@@ -160,7 +181,13 @@ $sitecontent->add_site_content( '<table>' );
 $sitecontent->add_site_content( '<tr>' );
 $sitecontent->add_site_content( '<td>Hauptseite:</td>' );
 $sitecontent->add_site_content( '<td>'.id_dropdown( 'hauptseite' , 'siteid' ).'</td>' );
-$sitecontent->add_site_content( '<td>Seite auf der die Übersicht aktueller Artikel angezeit wird<br /><i>(Startseite)</i></td>' );
+$sitecontent->add_site_content( '<td>Seite auf der die Übersicht aktueller Artikel angezeigt wird<br /><i>(Startseite)</i></td>' );
+$sitecontent->add_site_content( '</tr>' );
+
+$sitecontent->add_site_content( '<tr>' );
+$sitecontent->add_site_content( '<td>Allesseite:</td>' );
+$sitecontent->add_site_content( '<td>'.id_dropdown( 'allesseite' , 'siteid' ).'</td>' );
+$sitecontent->add_site_content( '<td>Seite auf der die Übersicht aller Artikel angezeigt wird<br /><i>(Archiv)</i></td>' );
 $sitecontent->add_site_content( '</tr>' );
 
 $sitecontent->add_site_content( '<tr>' );
@@ -172,7 +199,7 @@ $sitecontent->add_site_content( '</tr>' );
 $sitecontent->add_site_content( '<tr>' );
 $sitecontent->add_site_content( '<td>Blogartikelmenü:</td>' );
 $sitecontent->add_site_content( '<td>'.id_dropdown( 'menue' , 'fileid' ).'</td>' );
-$sitecontent->add_site_content( '<td>Menüebene in der alle Blogartikel erscheinen sollen<br /><i>(muss ein Untermenü und schon vorhanden sein)</i></td>' );
+$sitecontent->add_site_content( '<td>Menüebene in der alle Blogartikel erscheinen sollen<br /><i>(kann nicht die Grundebene sein und muss schon vorhanden sein)</i></td>' );
 $sitecontent->add_site_content( '</tr>' );
 
 $sitecontent->add_site_content( '<tr>' );
