@@ -1,0 +1,82 @@
+div.hauptseite.blog{
+	background-color: #ccc;
+	border-radius: 20px;
+	padding: 20px;
+}
+
+div.hauptseite.blog dt.title{
+	font-size: 1.2em;
+	font-weight: bold;
+	text-decoration: underline;
+	margin-bottom: 5px;
+	margin-top: 10px;
+}
+div.hauptseite.blog dt.title a{ 
+	text-decoration: none;
+	color: inherit;
+}
+
+div.hauptseite.blog dd.about{
+	border: 1px solid #000;
+	border-radius: 5px;
+	padding:5px;
+}
+
+div.hauptseite.blog dd span.tags,
+div.blogseite.navigation span.tags{
+	padding:5px;
+	border-radius:3px;
+	margin:0 7px;
+	background-color: #add8e6;
+	display: inline-block;
+}
+div.hauptseite.blog dd span.tags:first-child,
+div.blogseite.navigation span.tags:first-child{
+	margin-left:0;
+}
+
+div.hauptseite.blog dd span.link a,
+div.hauptseite.blog dd span.link a:visited{
+	color:#00f;
+	background-color:#ccc;
+	padding: 5px;
+	border-radius: 2px;
+	display: inline-block;
+}
+div.hauptseite.blog dd span.link a:hover,
+div.hauptseite.blog dd span.link a:active{
+	color:#000;
+	background-color:#F4A460;
+	padding: 5px;
+	border-radius: 2px;
+}
+
+div.hauptseite.blog dd span.time{
+	float:right;
+	padding: 5px;
+}
+
+
+div.hauptseite.blog div.navigation{
+	border-top:1px solid #000;
+	text-align: center;
+	padding:5px;
+}
+
+div.blogseite.navigation{
+	border-top:1px solid #000;
+	border-bottom:1px solid #000;
+	padding:5px;
+}
+
+div.blogseite.navigation .deak{
+	color:#aaa;
+	text-decoration: underline;
+}
+div.blogseite.navigation .right{
+	float:right;
+}
+
+div.blogseite.tags{
+	padding-bottom: 10px;
+}
