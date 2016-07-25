@@ -124,14 +124,17 @@ else{
 		if( $o_site->make_site_deakch( $_GET['newpub'] ) ){
 			//Ausgabe
 			$sitecontent->echo_message( 'Der neue Blogartikel wurde veröffentlicht!', 'Erfolgeich');
-			//=> Cache leeren Link
-			$sitecontent->add_site_content( '<p><a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/syseinst.php?todo=purgecache">Und jetzt den Cache leeren?</a></p>' );
+			
+			//Backend System Klasse laden
+			$besys = new BEsyseinst( $allgsysconf, $sitecontent, new KIMBdbf( 'config.kimb' ) );
+			//alle Caches leeren
+			$besys->make_syseinst_cachedel();
 		}
 		else{
 			//Ausgabe
 			$sitecontent->echo_error( 'Der neue Blogartikel konnte nicht veröffentlicht werden!' );
 			// => veröffentlichen Link
-			$sitecontent->add_site_content( '<p><a href="'.$addonurl.'&amp;newpub='.$sit.'">Artikel veröffentlichen</a></p>' );
+			$sitecontent->add_site_content( '<p><a href="'.$addonurl.'&amp;newpub='.$_GET['newpub'].'">Artikel veröffentlichen</a></p>' );
 		}
 
 	}

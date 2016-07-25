@@ -25,7 +25,7 @@
 <[001-smime_cert_ini_name]><[001-smime_cert_ini_name]>
 <[001-mail_log]>on<[001-mail_log]>
 <[001-permalink_domain]>off<[001-permalink_domain]>
-<[001-overview_left]>on<[001-overview_left]>
+<[001-overview_left]>off<[001-overview_left]>
 <[001-markdown]>custom<[001-markdown]>
 <[001-fullcache]>off<[001-fullcache]>
 <[001-fullcachelifetime]>259200<[001-fullcachelifetime]>

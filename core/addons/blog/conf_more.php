@@ -74,12 +74,53 @@ if(
 
 	//überhaupt verändert?
 	if( $cffile->read_kimb_one( 'allesseite' ) != $_POST['allesseite'] ){
+		//alte Seite merken
+		$alteseite = $cffile->read_kimb_one( 'allesseite' );
+
 		//Seiten IDs Array
 		$sites = array_column( list_sites_array(), 'id'  );
 		//Seite korrekt
 		if( in_array( $_POST['allesseite'], $sites ) ){
 			if( $cffile->write_kimb_one( 'allesseite', $_POST['allesseite'] ) ){
 				$omessage .= 'Allesseite übernommen!<br />';
+
+				//FullHTMLCache auf der Allesseite nach GET richten
+				//	aktuelle Daten lesen
+				$data = $api->full_html_cache_wish( 'read' );
+				if( is_array( $data['a'] ) ){
+					$data = array();
+				} 
+				//RequestID aus Site ID errechnen
+				//	ID Zuordnungen Datei laden
+				$idfile = new KIMBdbf('menue/allids.kimb');
+				//	machen neue
+				$requid = $idfile->search_kimb_xxxid( $_POST['allesseite'] , 'siteid' );
+				//	machen alte
+				$alterequid = $idfile->search_kimb_xxxid( $alteseite , 'siteid' );
+				
+				//altes aufräumen möglich?
+				if( $alterequid != false ){
+					//zu Int
+					$alterequid = intval( $alterequid );
+					//alter Eintrag ??
+					if( isset( $data[$alterequid] ) ){
+						//löschen !!
+						unset( $data[$alterequid] );
+					}
+				}
+
+				//Suche okay?
+				if( $requid != false ){
+					
+					//zu Int
+					$requid = intval( $requid );
+					//nach GET richten
+					$data[$requid] = array(
+						'on', array( 'POST' => array(), 'GET' => array('anzahl'), 'COOKIE' => array() )
+					);
+				} 
+				//neues Array an API übergeben
+				$api->full_html_cache_wish( 'set', $data );	
 			}
 			else{
 				$emessage .= 'Konnte Allesseite nicht speichern!<br />';

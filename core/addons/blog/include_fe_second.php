@@ -42,49 +42,80 @@ if( !empty( $hs ) && !empty( $men ) && is_numeric( $men ) ){
 	//CSS Blog
 	$sitecontent->add_html_header( '<link rel="stylesheet" type="text/css" href="'.$allgsysconf['siteurl'].'/load/addondata/blog/main.min.css" media="all">' );
 
-	//Alle Blogartikel (Seite mit Blog bestimmen)
-	$seiten = make_menue_array_helper($men , false );
-	//Seiten durchgehen, alles wichtige holen
-	//	für Daten
-		$blogsum = array();
-	foreach ($seiten as $site ) {
-		//Seite verfügbar?
-		if( check_for_kimb_file( 'site/site_'.$site['siteid'].'.kimb' ) ){
-			$dbf = new KIMBdbf( 'site/site_'.$site['siteid'].'.kimb' );
+	//Cache aktiviert?
+	if( is_object( $sitecache ) ){
 
-			//wichtiges lesen
-			$zeit = $dbf->read_kimb_one( 'time' );
-			$user = $dbf->read_kimb_one( 'made_user' );
-			$title = $dbf->read_kimb_one( 'title' );
-			//	Tags!!
-			$key = array_map(
-				"trim",
-				array_filter(
-					explode(
-						',',
-						$dbf->read_kimb_one( 'keywords' )
-					),
-					function ($va) {
-						return !empty( $va );
-					}
-				)
-			);
-			$desc = $dbf->read_kimb_one( 'description' );
+		//versuche zu laden
+		$blogdata = $sitecache->get_cached_addon( $allgsiteid , 'blog_array' );
 
-			$blogsum[] = array(
-				'time' => $zeit,
-				'author' => $user,
-				'title' => $title,
-				'tags' => $key,
-				'about' => $desc,
-				'requid' => $site['requid']
+		//Daten okay?
+		if( $blogdata != false ){
+			//Array laden
+			$blogsum = $blogdata[0];
+			$cache_loaded = true;
+		}
+		else{
+			$cache_loaded = false;
+		}
+
+		$cache_use = true;
+	}
+	else{
+		$cache_use = false;
+	}
+
+	//nicht aus Cache geladen?
+	if( !$cache_loaded ){
+
+		//Alle Blogartikel (Seite mit Blog bestimmen)
+		$seiten = make_menue_array_helper($men , false );
+		//Seiten durchgehen, alles wichtige holen
+		//	für Daten
+			$blogsum = array();
+		foreach ($seiten as $site ) {
+			//Seite verfügbar?
+			if( check_for_kimb_file( 'site/site_'.$site['siteid'].'.kimb' ) ){
+				$dbf = new KIMBdbf( 'site/site_'.$site['siteid'].'.kimb' );
+
+				//wichtiges lesen
+				$zeit = $dbf->read_kimb_one( 'time' );
+				$user = $dbf->read_kimb_one( 'made_user' );
+				$title = $dbf->read_kimb_one( 'title' );
+				//	Tags!!
+				$key = array_map(
+					"trim",
+					array_filter(
+						explode(
+							',',
+							$dbf->read_kimb_one( 'keywords' )
+						),
+						function ($va) {
+							return !empty( $va );
+						}
+					)
+				);
+				$desc = $dbf->read_kimb_one( 'description' );
+
+				$blogsum[] = array(
+					'time' => $zeit,
+					'author' => $user,
+					'title' => $title,
+					'tags' => $key,
+					'about' => $desc,
+					'requid' => $site['requid']
+				);
+			}
+
+			//chronologisch absteigend
+			array_multisort( $blogsum, SORT_DESC, SORT_NUMERIC,
+				array_column( $blogsum, 'time' ), SORT_DESC, SORT_NUMERIC
 			);
 		}
 
-		//chronologisch absteigend
-		array_multisort( $blogsum, SORT_DESC, SORT_NUMERIC,
-			array_column( $blogsum, 'time' ), SORT_DESC, SORT_NUMERIC
-		);
+		//im Cache ablegen
+		if( $cache_use ){
+			$sitecache->cache_addon( $allgsiteid , $blogsum , 'blog_array');
+		}
 	}
 
 	//aktuelle Seite auch Blogseite??
@@ -102,65 +133,102 @@ if( !empty( $hs ) && !empty( $men ) && is_numeric( $men ) ){
 		//aktuelle Seite auch Blogseite??
 		if( $is_blogsite ){
 
-			//aktuelle Artikel - wie auf Startseite 
-			$html = '<h2>Aktuelle Artikel</h2>';
-			$html .= '<ul>';
-			foreach ( array_slice( $blogsum, 0, 3 ) as $artikel ) {
-				$html .= '<li>';
-				$html .= '<a href="'.$allgsysconf['siteurl'].make_path_outof_reqid( $artikel['requid'] ).'">'.$artikel['title'].'</a>';
-				$html .= '</li>';
-			}
-			$html .= '</ul>';
+			//nicht aus Cache geladen?
+			if( !$cache_loaded ){
 
+				//aktuelle Artikel - wie auf Startseite 
+				$html = '<h2>Aktuelle Artikel</h2>';
+				$html .= '<ul>';
+				foreach ( array_slice( $blogsum, 0, 3 ) as $artikel ) {
+					$html .= '<li>';
+					$html .= '<a href="'.$allgsysconf['siteurl'].make_path_outof_reqid( $artikel['requid'] ).'">'.$artikel['title'].'</a>';
+					$html .= '</li>';
+				}
+				$html .= '</ul>';
+				
+				//im Cache ablegen
+				if( $cache_use ){
+					$sitecache->cache_addon( $allgsiteid , $html , 'blog_addon_aktuell');
+				}
+			}
+			else{
+				//aus Cache laden
+				$html = $sitecache->get_cached_addon( $allgsiteid , 'blog_addon_aktuell' );
+				$html = $html[0];
+			}
+			//rein in die Seite
 			$sitecontent->add_addon_area( $html, '', 'blog' );
 
-			// aehnliche Artikel (Tags)
-			//	Array
-			$blogaeh = array();
-			//	Tags auslesen
-			$tagsarray = array_column( array_slice( $blogsum, 0, 100 ), 'tags');
-			$thistags = $blogsum[$int_blogsite]['tags'];
-			//	alles Tags durchgehen
-			foreach( $tagsarray as $key => $tags ){
-				//leer?
-				//aktueller Artikel ?
-				if(
-					$tags != array()
-					&&
-					$key != $int_blogsite
-				){
-					//Anzahl der Übereinstimmungen bestimmen
-					$aehn = count( array_intersect( $thistags, $tags ) );
-					//mindesten eine !
-					if( $aehn > 0 ){
-						$blogaeh[$key] = $aehn;
+			//nicht aus Cache geladen?
+			if( !$cache_loaded ){
+
+				// aehnliche Artikel (Tags)
+				//	Array
+				$blogaeh = array();
+				//	Tags auslesen
+				$tagsarray = array_column( array_slice( $blogsum, 0, 100 ), 'tags');
+				$thistags = $blogsum[$int_blogsite]['tags'];
+				//	alles Tags durchgehen
+				foreach( $tagsarray as $key => $tags ){
+					//leer?
+					//aktueller Artikel ?
+					if(
+						$tags != array()
+						&&
+						$key != $int_blogsite
+					){
+						//Anzahl der Übereinstimmungen bestimmen
+						$aehn = count( array_intersect( $thistags, $tags ) );
+						//mindesten eine !
+						if( $aehn > 0 ){
+							$blogaeh[$key] = $aehn;
+						}
 					}
 				}
-			}
 
-			//Trefferanzahl absteigend
-			arsort( $blogaeh, SORT_NUMERIC );
-			//Ausgabe
-			$html = '<h2>Ähnliche Artikel</h2>';
-			$html .= '<ul>';
-			$i = 1;
-			foreach ( $blogaeh as $key => $aehn ) {
-				//Anzhal einschränken
-				if( $i > 4 ){
-					break;
+				//Trefferanzahl absteigend
+				arsort( $blogaeh, SORT_NUMERIC );
+				//Ausgabe
+				$html = '<h2>Ähnliche Artikel</h2>';
+				$html .= '<ul>';
+				$i = 1;
+				foreach ( $blogaeh as $key => $aehn ) {
+					//Anzahl einschränken
+					if( $i > 4 ){
+						break;
+					}
+
+					$html .= '<li>';
+					$html .= '<a href="'.$allgsysconf['siteurl'].make_path_outof_reqid( $blogsum[$key]['requid'] ).'">'.$blogsum[$key]['title'].'</a>';
+					$html .= '</li>';
+
+					$i++;
+				}
+				$html .= '</ul>';
+
+				//überhaupt was gefunden??
+				if( $i > 1 ){
+					$sitecontent->add_addon_area( $html, '', 'blog' );
+				}
+				else{
+					$html = '++nichts++';
 				}
 
-				$html .= '<li>';
-				$html .= '<a href="'.$allgsysconf['siteurl'].make_path_outof_reqid( $blogsum[$key]['requid'] ).'">'.$blogsum[$key]['title'].'</a>';
-				$html .= '</li>';
-
-				$i++;
+				//im Cache ablegen
+				if( $cache_use ){
+					$sitecache->cache_addon( $allgsiteid , $html , 'blog_addon_tags');
+				}
 			}
-			$html .= '</ul>';
-
-			//überhaupt was gefunden??
-			if( $i > 1 ){
-				$sitecontent->add_addon_area( $html, '', 'blog' );
+			else{
+				//aus Cache laden
+				$html = $sitecache->get_cached_addon( $allgsiteid , 'blog_addon_tags' );
+				$html = $html[0];
+			
+				//Inhalt okay??
+				if( $html != '++nichts++' ){
+					//rein in die Seite
+					$sitecontent->add_addon_area( $html, '', 'blog' );
+				}
 			}
 		}		
 	}
