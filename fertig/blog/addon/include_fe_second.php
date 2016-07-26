@@ -46,7 +46,7 @@ if( !empty( $hs ) && !empty( $men ) && is_numeric( $men ) ){
 	if( is_object( $sitecache ) ){
 
 		//versuche zu laden
-		$blogdata = $sitecache->get_cached_addon( $allgsiteid , 'blog_array' );
+		$blogdata = $sitecache->get_cached_addon( $hs , 'blog_array' );
 
 		//Daten okay?
 		if( $blogdata != false ){
@@ -114,7 +114,7 @@ if( !empty( $hs ) && !empty( $men ) && is_numeric( $men ) ){
 
 		//im Cache ablegen
 		if( $cache_use ){
-			$sitecache->cache_addon( $allgsiteid , $blogsum , 'blog_array');
+			$sitecache->cache_addon( $hs , $blogsum , 'blog_array');
 		}
 	}
 
@@ -338,23 +338,33 @@ if( !empty( $hs ) && !empty( $men ) && is_numeric( $men ) ){
 		}
 
 		$sitecontent->add_site_content( '</dl>' );
-		
+
+		//Seiten IDs in RequestIDs umrechnen
+		//	ID Zuordnungen Datei laden
+		$idfile = new KIMBdbf('menue/allids.kimb');
+		//	rechnen
+		$hs_req = $idfile->search_kimb_xxxid( $hs , 'siteid' );
+		$as_req = $idfile->search_kimb_xxxid( $as , 'siteid' );
+		//	wenn Fehler, Medlung 
+		$hs_req = ( ( $hs_req == false ) ? 'error' : $hs_req );
+		$as_req = ( ( $as_req == false ) ? 'error' : $as_req );
+
 		//mehr Button ?
 		if( $hs == $allgsiteid ){
 			$sitecontent->add_site_content( '<div class="navigation">' );
-			$sitecontent->add_site_content( '<a href="'.$allgsysconf['siteurl'].make_path_outof_reqid( $as ).'"><button>Mehr anzeigen</button></a>' );
+			$sitecontent->add_site_content( '<a href="'.$allgsysconf['siteurl'].make_path_outof_reqid( $as_req ).'"><button>Mehr anzeigen</button></a>' );
 			$sitecontent->add_site_content( '</div>' );
 		}
 		else{
 			//Allesseite!
 			$sitecontent->add_site_content( '<div class="navigation">' );
 			$sitecontent->add_site_content( '<form action="'.$allgsysconf['siteurl'].'/index.php" method="GET">' );
-			$sitecontent->add_site_content( '<input type="hidden" name="id" value="'.$as.'">' );
+			$sitecontent->add_site_content( '<input type="hidden" name="id" value="'.$as_req.'">' );
 			$sitecontent->add_site_content( 'Maximale Artikelanzahl: <input type="number" step="10" min="0" name="anzahl" value="'.$anzahl.'">' );
 			$sitecontent->add_site_content( '<br />' );
 			$sitecontent->add_site_content( '<input type="submit" value="Anzahl ändern">' );
 			$sitecontent->add_site_content( '</form>' );
-			$sitecontent->add_site_content( '<a href="'.$allgsysconf['siteurl'].make_path_outof_reqid( $hs ).'"><button>Haupseite</button></a>' );
+			$sitecontent->add_site_content( '<a href="'.$allgsysconf['siteurl'].make_path_outof_reqid( $hs_req ).'"><button>Haupseite</button></a>' );
 			$sitecontent->add_site_content( '</div>' );
 		}
 
