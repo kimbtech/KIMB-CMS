@@ -1,8 +1,45 @@
 //Fehler anzeigen
 //	Titel, Inhalt, DOM Element für Fehler
 function show_error( tit, mes, dom ){
-	$( dom ).html( '<div class="ui-widget"><div class="ui-state-error ui-corner-all" style="padding: 5px;"><span class="ui-icon ui-icon-alert" style="float: left; margin-right: 6px;"></span><strong>'+tit+'</strong>&nbsp;&nbsp;&nbsp;'+mes+'</div></div>' );
+	$( dom ).html( '<div class="ui-widget"><div class="ui-state-error ui-corner-all" style="padding: 5px;"><span class="ui-icon ui-icon-alert" style="display:inline-block;"></span><span style="margin-left:10px;"><strong>'+tit+'</strong>&nbsp;&nbsp;&nbsp;'+mes+'</span></div></div>' );
 	 return true;
+}
+
+//HTML SpecialChars
+function htmlspecialchars(str) {
+	if (typeof(str) == "string") {
+		str = str.replace(/&/g, "&amp;");
+		str = str.replace(/"/g, "&quot;");
+		str = str.replace(/'/g, "&#039;");
+		str = str.replace(/</g, "&lt;");
+		str = str.replace(/>/g, "&gt;");
+	}
+	return str;
+ }
+
+//Inline Datei URI zu Blob Obj.
+ function inline2Blob( inline ) {
+	var byte;
+	if ( inline.split(',')[0].indexOf('base64') >= 0 ){
+		byte = atob(
+			inline.split(',')[1]
+		);
+	}
+	else{
+		byte = unescape(
+			inline.split(',')[1]
+		);
+	}
+	var mime = inline.split(',')[0].split(':')[1].split(';')[0];
+	var array = new Uint8Array( byte.length );
+	for (var i = 0; i < byte.length; i++) {
+		array[i] = byte.charCodeAt( i );
+	}
+
+	return new Blob(
+		[array],
+		{type:mime}
+	);
 }
 
 //Loading GIF bei AJAX Anfragen zeigen
@@ -81,7 +118,13 @@ var cssclass = "div.addon_daten_main ";
 function load_daten(){
 	
 	//Auswahlbuttons
-	$( cssclass ).html( '<h2>Dateiverwaltung</h2><div id="firstbutt"><input type="radio" name="firstbutt" id="my" checked="checked"><label for="my">Mein Verzeichnis</label><input type="radio" name="firstbutt" id="pu"><label for="pu">Für alle User</label><input type="radio" name="firstbutt" id="frei"><label for="frei">Freigaben</label></div><div class="main_files">Bitte wählen Sie einen Ort &uarr;</div>' );
+	$( cssclass ).html( '<h2>Dateiverwaltung</h2>'+
+		'<div id="firstbutt">'+
+			'<input type="radio" name="firstbutt" id="my" checked="checked"><label for="my">Mein Verzeichnis</label>'+
+			'<input type="radio" name="firstbutt" id="pu"><label for="pu">Für alle User</label>'+
+			'<input type="radio" name="firstbutt" id="frei"><label for="frei">Freigaben</label>'+
+		'</div>'+
+		'<div class="main_files">Bitte wählen Sie einen Ort &uarr;</div>' );
 	
 	//Buttons machen
 	$( "div#firstbutt" ).buttonset();
@@ -91,21 +134,55 @@ function load_daten(){
 		set_vars( $( this ).attr( 'id' ) );
 	});
 	
-	//Immer meine Dateien anzeigen
-	set_vars( 'my' );
-	
+	//Kein Klick, also Standard oder nach URL ID (Hash)
+	var id = window.location.hash;
+	//keine Vorauswahl
+	if( id == '' ){
+		//My, Path /
+		set_vars( 'my' );
+	}
+	else{
+		//Parse Hash
+		if( id.substr(0, 7) == '#user:/'){
+			//User gewüncht, Ordner lesen
+			set_vars( 'my', id.substr(7) );
+		}
+		else if( id.substr(0, 9) == '#public:/'){
+			//Public gewüncht, Ordner lesen und firstbutt checked anpassen
+			set_vars( 'pu', id.substr(9) );
+			$( "#firstbutt input[type=radio]#pu" ).attr("checked","checked")
+			$( "div#firstbutt" ).buttonset( "refresh" );
+		}
+		else if( id == "#freig://list" ){
+			//Freigabe gewünscht
+			set_vars( 'frei' );
+			//firstbutt checked anpassen
+			$( "#firstbutt input[type=radio]#frei" ).attr("checked","checked")
+			$( "div#firstbutt" ).buttonset( "refresh" );
+		}
+		else{
+			//Hash fehlerhaft
+			set_vars( 'my' );
+		}
+	}
 }
 
 //wichtige Werte für System
 var allgvars = new Object;
 
 //Klicks des Systems verarbeiten
-function set_vars( ort  ){
-	
+function set_vars( ort, path  ){
+
+	//Pfad evtl. gewählt?
+	if( typeof path == "undefined" ){
+		path = '/';
+	}
+
 	//Meine Dateien
 	if( ort == 'my' ){
 		allgvars.folder = 'user';
-		allgvars.path = '/';
+		allgvars.path = path;
+		allgvars.proto = 'my:/'
 		
 		//Explorer öffnen
 		main_explorer();  
@@ -113,7 +190,9 @@ function set_vars( ort  ){
 	//Öffentlich
 	else if ( ort == 'pu' ){
 		allgvars.folder = 'public';
-		allgvars.path = '/';
+		allgvars.path = path;
+		allgvars.proto = 'pub:/'
+
 		
 		//Explorer öffnen
 		main_explorer(); 
@@ -137,14 +216,62 @@ function main_explorer(){
 	//	allgvars mit Gruppe, Pfad
 	//	ToDo
 	$.post( add_daten.siteurl+"/ajax.php?addon=daten", { "allgvars": allgvars, "todo": "filelist" } ).always( function( data ) {
+
+			//aktuellen Pfad auch als ID in URL kenntlich machen
+			window.location.hash = allgvars.folder + ":/" + allgvars.path ;
 			
 			//Toolszeige
-			var html = '<div class="toolbar"><button id="add_table">Neue Tabelle</button><button id="add_file">Neue Datei</button><button id="add_folder">Neuer Ordner</button><br />';
-			html += '<span class="input" style="display:none;"><input type="text" id="new_name" placeholder="Name"><small>Enter zum Speichern; Ctrl zum Abbrechen; Dateien gleichen Namens werden überschrieben</small></span></div>';
+			var html = '<div class="toolbar">'+
+					'<button id="add_table">Neue Tabelle</button>'+
+					'<button id="add_file">Neue Datei</button>'+
+					'<button id="add_folder">Neuer Ordner</button>'+
+					' &mdash; '+
+					'<button id="zwisch">Zwischenablage</button>'+
+					'<br />'+
+					'<span class="input" style="display:none;">'+
+						'<input type="text" id="new_name" placeholder="Name">'+
+						'<small>Enter zum Speichern; Ctrl zum Abbrechen; Dateien gleichen Namens werden überschrieben</small>'+
+					'</span>'+
+				'</div>';
 			
+			html += '<div class="pathbarumg">';
+
+			//Ein Ordner hoch Button
+			html += '<button id="oneup"><span class="ui-icon ui-icon-arrowthick-1-w"></span></button>';
+
+			//Pathanzeige Pfade anklickbar
+			//	nötige vars
+			var pathbardata = '';
+			var path = '';
+			//	einfach nach jeden Slash teilen
+			var pathbardata_ar =  allgvars.path.split('/');
+			//	alle Teile durchgehen und je in einen "span.pathslash" packen
+			$.each( pathbardata_ar, function (k,v){
+				if( v != '' ){
+					path += '/'+v;		
+					pathbardata += '</span>/<span class="pathslash" path="'+path+'/">'; 
+					pathbardata += v;
+				}
+			});
+			//	Anfang säubern
+			pathbardata = pathbardata.substr( 7 );
+
+			//Leer => Grundordner
+			if( pathbardata == '' ){
+				pathbardata = '/';
+			}
+
 			//Pathanzeige
-			html += '<div class="pathbar">'+allgvars.path+'</div>';
+			html += '<div class="pathbar">'+allgvars.proto+pathbardata+'</div>';
+
+			html += '</div>';
 			
+			//AJHAX Daten okay?
+			if( typeof data.main == "undefined" ){
+				j_alert( "Der Sever antwortet nicht korrekt!" );
+				return;
+			}
+
 			//nur Main nutzen (dev für Debugging)
 			data = data.main;
 			
@@ -196,49 +323,48 @@ function main_explorer(){
 				//Liste beenden
 				html += '</ul>';
 				//Hinweis
-				html += '<small>Doppelklick auf Pfad zum Bearbeiten; Rechtsklick auf Datei oder Ordner zum Löschen</small>';
+				html += '<small>Rechtsklick auf Datei oder Ordner zum Löschen, Kopieren, Verschieben, Umbenennen oder Freigeben</small>';
 				
 				//Mehr als eine Element??
 				if( folder_ex ){
 					//Liste anzeigen
 					$( "div.main_files" ).html( html );
 					
-					//Pfad anpassen
-					$( 'div.pathbar' ).unbind('dblclick').dblclick( function() {
+					//Pfadbar Ordner anklickbar
+					$( 'span.pathslash' ).unbind('click').click( function() {
 						
-						//Inhalt
-						var val = $( this ).html();
-						
-						//Ist das Feld schon bearbeitbar gemacht (Input Element vorhanden)
-						if( val.indexOf( "<input" ) === -1 ){
-							//nein, also einblenden
-							
-							//Input Feld zeigen 
-							$( this ).html( '<input type="text" style="width:95%;" value="'+val+'">' );
-							
-							//Knopf gedrückt?
-							//	wenn Cursor in Input
-							$( this ).children("input").keyup( function( event ) {
-								//Enter?
-								if(event.keyCode == 13){
-									//neuen Wert lesen
-									var newval = $( this ).val();
-									
-									//Input Feld weg und neuen Wert wieder in Kästchen setzen
-									$( this ).parent().html( newval );
-									//Pfadwert anpassen
-									allgvars.path = newval;
-									//Explorer aktualisieren
-									main_explorer();
-								}
-								//STRG Taste (Ctrl)
-								else if( event.keyCode == 17 ){
-									//wieder den alten Wert setzen
-									//bearbeiten beenden
-									$( this ).parent().html( val );
-								}
-							});
+						//Pfad lesen
+						var path = $( this ).attr('path');
+						//Pfad setzen
+						allgvars.path = path;
+						//Explorer neu laden
+						main_explorer();  
+
+					});
+
+					//einen Ordner hoch Button
+					$( 'button#oneup' ).unbind('click').click( function() {
+						//letzten Slash am Ende weg (nur wenn vorhanden)
+						if( allgvars.path[(allgvars.path.length-1)] == '/' ){
+							//weg machen
+							allgvars.path = allgvars.path.substr(0, (allgvars.path.length-1));
 						}
+						//letzten Slash im Str suche
+						var slash = allgvars.path.lastIndexOf("/");
+
+						//keiner mehr da, oder ganz am Anfang?
+						if( slash == -1 || slash == 0 ){
+							//Grundordner
+							allgvars.path = '/';
+						}
+						else{
+							//Rest abschneiden
+							allgvars.path = allgvars.path.substr(0, slash );
+							allgvars.path += '/';
+						}
+
+						//Explorer neu laden
+						main_explorer();
 					});
 					
 					//auf Klicks auf Dateien hören
@@ -317,18 +443,162 @@ function main_explorer(){
 						html += '<input type="hidden" name="todo" value="uploadfile">';
 						html += '<img src="' + add_daten.siteurl + '/load/addondata/daten/upload.png" style="display: block; margin:auto;" title="Ziehen Sie zum Hochladen Dateien über dieses Feld oder klicken Sie!" class="dz-message">';
 						html += '</form>';
+						html += '<div id="kimb_enc_outer">';
+						html += '<input type="checkbox" id="kimb_enc_oo"> Dateien verschlüsseln <sup>BETA</sup>';
+						html += '<div id="kimb_enc_div" style="display:none;">';
+						html += '<input type="password" id="kimb_enc_passw" placeholder="Passwort"><br />';
+						html += '<small><input type="checkbox" id="kimb_enc_klar"> Klartext</small><br />';
+						html += '<small>Geben Sie ein Passwort zu Verschlüsselung der Dateien an.</small><br />';
+						html += '<small>Alle verschlüsselten Dateien erhalten die Endung <code>.kimb_enc</code> und können nur mit Passwort heruntergeladen werden.</small>';
+						html += '</div>';
+						html += '</div>';
 						
 						//Dialog
 						j_alert( html, 600 );
+
+						//Verschlüsselung nur auf Chrome und Firefox möglich!
+						if(
+							//Firefox??
+							typeof InstallTrigger === 'undefined' &&
+							//Chrome??
+							typeof window.chrome === 'undefined'
+						){
+							//Passwort Input weg und gegen Warnung tauschen!
+							$( "div#kimb_enc_div" ).html( "Für die Verschlüsselung wird Mozilla Firefox oder Google Chrome benötigt! Die Entschlüsselung funktioniert aber auch in anderen Browsern." );
+							$( "div#kimb_enc_div" ).css( "color", "red")
+						}
+
+						//Verschlüsselung Input
+						$( "input#kimb_enc_oo" ).change( function (){
+							//jetzt aktiviert?
+							if( $( "input#kimb_enc_oo:checked" ).length == 1 ){
+								$( "div#kimb_enc_div" ).css( "display", "block" );
+							}
+							else{
+								$( "div#kimb_enc_div" ).css( "display", "none" );
+							}
+						});
+						//Verschlüsselung Input
+						$( "input#kimb_enc_klar" ).change( function (){
+							//jetzt aktiviert?
+							if( $( "input#kimb_enc_klar:checked" ).length == 1 ){
+								$( "input#kimb_enc_passw" ).attr( "type", "text" );
+							}
+							else{
+								$( "input#kimb_enc_passw" ).attr( "type", "password" );
+							}
+						});
 						
 						//Dropzone init
+						//	Dateinamen bei Verschlüsselung anpassen 
 						var ExplorerDropzone = new Dropzone("form#dropzone");
 						//wenn fertig
 						ExplorerDropzone.on( "queuecomplete", function( file ){
 							//Explorer aktualisieren
 							main_explorer();
 						});
-						
+						//Dateien wenn gewünscht verschlüsseln
+						//	immer kurz vor Upload
+						ExplorerDropzone.on( "addedfile", function ( file ){
+							//Verschlüsselung an?
+							if( $( "input#kimb_enc_oo:checked" ).length == 1 ){
+								//Passwort holen 
+								var pass = $( "input#kimb_enc_passw" ).val();
+								//Passwort okay?
+								if( typeof pass != "undefined" && pass !=  "" ){
+									//machen!!
+
+									//ID bauen
+									var id = btoa( file.name );
+									id = id.replace( /([^A-Za-z])/g, '' ); 
+
+									//marks
+									var successmark = '<div class="dz-success-mark"><svg width="54px" height="54px" viewBox="0 0 54 54" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns"><title>Check</title><defs></defs><g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage"><path d="M23.5,31.8431458 L17.5852419,25.9283877 C16.0248253,24.3679711 13.4910294,24.366835 11.9289322,25.9289322 C10.3700136,27.4878508 10.3665912,30.0234455 11.9283877,31.5852419 L20.4147581,40.0716123 C20.5133999,40.1702541 20.6159315,40.2626649 20.7218615,40.3488435 C22.2835669,41.8725651 24.794234,41.8626202 26.3461564,40.3106978 L43.3106978,23.3461564 C44.8771021,21.7797521 44.8758057,19.2483887 43.3137085,17.6862915 C41.7547899,16.1273729 39.2176035,16.1255422 37.6538436,17.6893022 L23.5,31.8431458 Z M27,53 C41.3594035,53 53,41.3594035 53,27 C53,12.6405965 41.3594035,1 27,1 C12.6405965,1 1,12.6405965 1,27 C1,41.3594035 12.6405965,53 27,53 Z" id="Oval-2" stroke-opacity="0.198794158" stroke="#747474" fill-opacity="0.816519475" fill="#FFFFFF" sketch:type="MSShapeGroup"></path></g></svg></div>';
+									var errormark = '<div class="dz-error-mark"><svg width="54px" height="54px" viewBox="0 0 54 54" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns"><title>Error</title><defs></defs><g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage"><g id="Check-+-Oval-2" sketch:type="MSLayerGroup" stroke="#747474" stroke-opacity="0.198794158" fill="#FFFFFF" fill-opacity="0.816519475"><path d="M32.6568542,29 L38.3106978,23.3461564 C39.8771021,21.7797521 39.8758057,19.2483887 38.3137085,17.6862915 C36.7547899,16.1273729 34.2176035,16.1255422 32.6538436,17.6893022 L27,23.3431458 L21.3461564,17.6893022 C19.7823965,16.1255422 17.2452101,16.1273729 15.6862915,17.6862915 C14.1241943,19.2483887 14.1228979,21.7797521 15.6893022,23.3461564 L21.3431458,29 L15.6893022,34.6538436 C14.1228979,36.2202479 14.1241943,38.7516113 15.6862915,40.3137085 C17.2452101,41.8726271 19.7823965,41.8744578 21.3461564,40.3106978 L27,34.6568542 L32.6538436,40.3106978 C34.2176035,41.8744578 36.7547899,41.8726271 38.3137085,40.3137085 C39.8758057,38.7516113 39.8771021,36.2202479 38.3106978,34.6538436 L32.6568542,29 Z M27,53 C41.3594035,53 53,41.3594035 53,27 C53,12.6405965 41.3594035,1 27,1 C12.6405965,1 1,12.6405965 1,27 C1,41.3594035 12.6405965,53 27,53 Z" id="Oval-2" sketch:type="MSShapeGroup"></path></g></g></svg></div>';
+
+									//Binary Daten Leser
+									var reader  = new FileReader();
+
+									//wenn Daten gelsen
+									reader.addEventListener("load", function () {
+
+										//Daten holen
+										var data = reader.result;
+
+										//verschlüsseln
+										data = sjcl.encrypt( pass, data );
+
+										//zu neuer Datei (Blob)
+										data = new Blob( [data], {type : 'application/json'} );
+
+										//Formular bauen (für Dateiupload auf PHP Server)
+										var formd = new FormData();
+
+										//alle Vars an Form setzen
+										//	normales POST
+										formd.append( "allgvars[folder]", allgvars.folder );
+										formd.append( "allgvars[path]", allgvars.path );
+										formd.append( "todo", "uploadfile" );
+										//	Datei
+										formd.set("file", data, file.name+".kimb_enc");
+
+										//Upload machen
+										$.ajax({
+											url: add_daten.siteurl + '/ajax.php?addon=daten',  
+											dataType: 'json',
+											cache: false,
+											contentType: false,
+											processData: false,
+											data: formd,                         
+											type: 'post'
+										}).always( function ( data ){
+											//erfolgreich?
+											if(
+												typeof data == "object"
+												&&
+												typeof data.main != "undefined"
+												&&
+												typeof data.main.wr != "undefined"
+												&&
+												data.main.wr == true 
+											){
+												//Okay
+												$( "div#"+id ).find( "img" ).removeAttr( "src" );
+												$( "div#"+id ).find( "div.marks" ).html( successmark  );
+												$( "div#"+id ).find( "div.dz-success-mark" ).css( "opacity", "1"  );
+											}
+											else{
+												//Fehler
+												$( "div#"+id ).find( "img" ).removeAttr( "src" );
+												$( "div#"+id ).find( "div.marks" ).html( errormark  );
+												$( "div#"+id ).find( "div.dz-error-mark" ).css( "opacity", "1"  );
+											}
+
+											if( typeof data.main != "undefined" ){
+												//Explorer aktualisieren
+												main_explorer();
+											}
+										});
+									}, false);
+
+									//Daten lesen
+									reader.readAsDataURL( file );
+
+									//Datei hier weg
+									ExplorerDropzone.removeFile(file);
+
+									//aber trotzdem Datei anzeigen
+									$( "form#dropzone" ).append( '<div class="dz-preview dz-file-preview" id="'+id+'">'+
+										'<div class="dz-image"><img data-dz-thumbnail src="'+add_daten.siteurl+'/load/system/spin_load.gif" /></div>'+
+										'<div class="dz-details">'+
+										'<div class="dz-filename"><span data-dz-name>'+file.name+'</span></div>'+
+										'</div>'+
+										'<div class="marks"></div>'+
+										'</div>'
+									);
+								}
+							}
+						});
 					});
 					//neuer Ordner
 					$( "button#add_folder").unbind( 'click' ).click( function (){
@@ -372,6 +642,219 @@ function main_explorer(){
 						});
 						
 					});
+					//Zwischenablage
+					$( "button#zwisch" ).unbind( 'click' ).click( makezwischenablagedial );
+
+					function makezwischenablagedial(){
+						//Daten lesen
+						var zwisch = localStorage.getItem( "daten_zwischenablage" );
+						//JSON parsen
+						zwisch = JSON.parse( zwisch );
+
+						 //wenn alter Dialog div noch im DOM diesen löschen
+						if ($( "div.zwischenablage" ).length ){
+							$( "div.zwischenablage" ).remove();
+						}
+						
+						//HTML für neuen Dialog DIV		
+						var dial = '<div class="zwischenablage" title="Zwischenablage">'
+						dial += '<table>';
+						dial += '<tr>';
+						dial += '<th>Art</th>';
+						dial += '<th>Name</th>';
+						dial += '<th>Einfügen</th>'
+						dial += '<th>Löschen</th>';
+						dial += '<th>Pfad</th>';
+						dial += '</tr>';
+
+						if( zwisch != null && typeof zwisch == "object" ){
+							//alle Werte durchgehen
+							$.each( zwisch, function (k,v){
+								dial += '<tr about="'+htmlspecialchars(JSON.stringify(v))+'" key="'+k+'">';
+								dial += '<td>'+(( v.type == 'dir' ) ? '<span class="ui-icon ui-icon-folder-collapsed"></span>' : ( ( v.type == 'kt' ) ? '<span class="ui-icon ui-icon-calculator"></span>' : '<span class="ui-icon ui-icon-document"></span>' ) ) +'</td>';
+								dial += '<td>'+v.viewname+'</td>';
+								dial += '<td><button class="pastezwisch" title="Hier einfügen"><span class="ui-icon ui-icon-pin-s"></span></button></td>'
+								dial += '<td><button class="delzwisch" title="Aus Zwischenablage löschen"><span class="ui-icon ui-icon-trash"></span></button></td>';
+								dial += '<td>'+(( v.platz == 'user' ) ? 'my:/' : 'pub:/' )+v.filepath+v.filename+'</td>';
+								dial += '</tr>';
+							});
+						}
+						else{
+							dial += '<td colspan="5" id="tabempt"></td>';
+						}
+
+						dial += '</table>';
+						dial +='<small>Wählen Sie eine Datei, einen Ordner aus, um diesen hierhin ('+allgvars.proto+allgvars.path+') zu kopieren oder zu verschieben.</small>'
+						dial +='</div>';
+						
+						//HTML dem DOM anfügen   
+						$( "body" ).prepend( dial );
+
+						//Fehlermeldung?
+						if( $( "td#tabempt" ).length > 0 ){
+							show_error( 'Leer', 'Die Zwischenablage ist leer!', "td#tabempt" );
+						}
+						
+						//Dialog öffnen	 
+						$( "div.zwischenablage" ).dialog({ 
+							modal:true,
+							responsive: true,
+							minWidth: 500,
+							buttons:{
+								"Zwischenablage leeren": function (){
+									localStorage.removeItem( "daten_zwischenablage" );
+									$( this ).dialog( 'close' );
+								},
+								"Schließen":function(){
+									$( this ).dialog( 'close' );
+								}
+							}
+						});
+
+						//Einfügen Button
+						$( "button.pastezwisch" ).unbind( 'click' ).click( function (){
+							//Key und Daten lesen
+							var data = $( this ).parent('td').parent('tr').attr('about');
+							var key = $( this ).parent('td').parent('tr').attr('key');
+							//Daten aus JSON zu Array
+							data = JSON.parse( data );
+
+							//Fenster machen
+							 //wenn alter Dialog div noch im DOM diesen löschen
+							if ($( "div.zwischenablagepaste" ).length ){
+								$( "div.zwischenablagepaste" ).remove();
+							}
+						
+							//HTML für neuen Dialog DIV		
+							var dial = '<div class="zwischenablagepaste" title="Zwischenablage - Einfügen">';
+							dial += '<h3>Verschieben &amp; kopieren</h3>';
+							dial += '<input type="text" readonly="readonly" id="oldpath"> (Quelle)<br />';
+							dial += '<input type="text" readonly="readonly" id="newpath"> (Zielverzeichnis)<br />';
+							dial += '<input type="text" id="file"> ('+(( data.type == 'dir' ) ? 'Ordner' : 'Datei' ) +'name)<br />';
+							if( data.type == 'kt' ){
+								dial += '<i style="color:orange;"><span class="ui-icon ui-icon-alert" style="display:inline-block;"></span> Die Endung ".kimb_table" muss bestehen bleiben!</i><br />';
+							}
+							else if( data.filename.substr( data.filename.length - 9 ) == '.kimb_enc' ){
+								dial += '<i style="color:orange;"><span class="ui-icon ui-icon-alert" style="display:inline-block;"></span> Die Endung ".kimb_enc" muss bestehen bleiben!</i><br />';
+							}
+							dial += '<i id="replaceatt" style="display:none; color:red;"><span class="ui-icon ui-icon-info"  title="Die Datei wird überschrieben, sofern Sie auf Los klicken!" style="display:inline-block;"></span> Dateiname schon vergeben</i><br />';
+							dial += '<input type="radio" name="art" value="rename" checked="checked">  (verschieben)<br />';
+							dial += '<input type="radio" name="art"  value="copy"> (kopieren) ';
+							dial += '</div>';
+
+							//HTML dem DOM anfügen   
+							$( "body" ).prepend( dial );
+
+							//Inhalte setzen
+							$("div.zwischenablagepaste input#oldpath").val( (( data.platz == 'user' ) ? 'my:/' : 'pub:/' )+data.filepath+data.filename );
+							$("div.zwischenablagepaste input#newpath").val( allgvars.proto+allgvars.path );
+							$("div.zwischenablagepaste input#file").val( data.filename );
+							//	Dateinamen prüfen
+							//		Listener
+							$("div.zwischenablagepaste input#file").unbind( 'change' ).change( finachanged );
+							$("div.zwischenablagepaste input#file").unbind( 'keyup' ).keyup( finachanged );
+							//		Funktion
+							function finachanged(){
+								var val = $("div.zwischenablagepaste input#file").val();
+
+								$("div.zwischenablagepaste  i#replaceatt" ).css( "display", "none" );
+
+								$( "div.main_files ul.files li" ).each( function (){
+									var name = $( this ).attr( 'url' );
+									if( name == val ){
+										$("div.zwischenablagepaste  i#replaceatt" ).css( "display", "block" );
+									}
+								});
+							}
+							//	immer einmal zu Anfang testen
+							finachanged();
+
+							//Dialog öffnen	 
+							$( "div.zwischenablagepaste" ).dialog({ 
+								modal:true,
+								responsive: true,
+								minWidth: 400,
+								buttons:{
+									"Los": function (){
+
+										var infos = {
+											'verz' : data.platz,
+											'url' : data.filepath+data.filename,
+											'name' : $("div.zwischenablagepaste input#file").val(),
+											'art' : $("div.zwischenablagepaste input[name=art]:checked").val(),
+										};
+
+										//machen
+										//	allgvars mit Gruppe, Pfad
+										//	ToDo
+										//	infos mit Quelle und neuem Dateinamen und art
+										$.post( add_daten.siteurl+"/ajax.php?addon=daten", { "allgvars": allgvars, "todo": "zwischenabl", "infos": infos } ).always( function( data ) {
+										
+											//Okay?
+											if( data != null && data.main != null && data.main.versch ){
+
+												//Explorer aktualisieren
+												main_explorer();
+											
+												//jetzt aus Zwischenablage löschen
+												del_elem( key );
+
+												//Dialog schließen
+												$( "div.zwischenablagepaste" ).dialog( 'close' );
+
+												//Zwischenablage schließen
+												$( "div.zwischenablage" ).dialog( 'close' );
+											}
+											else{
+												j_alert( "Konnte nicht einfügen!" );	
+											} 	
+										});										
+									},
+									"Abbrechen":function(){
+										//nur Dialog schließen
+										$( this ).dialog( 'close' );
+									}
+								}
+							});
+						});
+							
+						//Löschen Button
+						$( "button.delzwisch" ).unbind( 'click' ).click( function (){
+							//Key des Eintrags
+							var key = $( this ).parent('td').parent('tr').attr('key');
+							//löschen
+							del_elem( key );
+							//Fenster neu laden
+							makezwischenablagedial();
+						});
+
+						//Element aus Zwischenablage löschen
+						function del_elem( key ){
+							//Daten lesen
+							var zwisch = localStorage.getItem( "daten_zwischenablage" );
+							//JSON parsen
+							zwisch = JSON.parse( zwisch );
+
+							//Daten okay
+							if( zwisch != null && typeof zwisch == "object" ){
+								//gewünschten Bereich löschen
+								zwisch.splice( key , 1);
+
+								//wieder zu JSON
+								var json = JSON.stringify( zwisch );
+								//leer?
+								if( json != "[]" && json != "" ){
+									//nicht leer, Daten speichern
+									localStorage.setItem( "daten_zwischenablage", json );
+								}
+								else{
+									//leer, löschen
+									localStorage.removeItem( "daten_zwischenablage" );
+								}
+							}
+						}
+								
+					};
 					
 					//Rechtsklick auf Datei => Löschen?
 					$(document).on("contextmenu", 'ul.files li', function(e){
@@ -380,6 +863,14 @@ function main_explorer(){
 						var name = $( this ).attr( 'name' );
 						var url = $( this ).attr( 'url' );
 						var ftype = $( this ).attr( 'ftype' );
+
+						if(
+							typeof name == "undefined" ||
+							typeof url == "undefined" ||
+							typeof ftype == "undefined"
+						){
+							return false;
+						}
 						
 						//wenn alter Dialog div noch im DOM diesen löschen
 						if ($( "div.delfile_explorer" ).length ){
@@ -389,12 +880,26 @@ function main_explorer(){
 						//HTML für neuen Dialog DIV		
 						var dial = '<div class="delfile_explorer" title="Dateieinstellungen">'
 						dial += 'Möchten Sie "'+ name +'" löschen?<br />';
-						dial += '<span id="ja">Ja</span>';
+						dial += '<span id="ja">Löschen</span>';
 						dial += '<div class="delfile_explorer_satus" style="display:none;">Fehler</div>';
-						dial += '<div class="frei" style="display:none;"><hr />';
-						dial += 'Oder klicken Sie für eine Freigabe via Link auf "Freigeben"!<br />';
-						dial += '<span id="frei">Freigeben</span>';
-						dial += '</div></div>';
+						dial += '<hr />';
+						dial += 'Möchten Sie sich "'+ name +'" in der Zwischenablage merken?<br />';
+						dial += '<small>(Kopieren, Verschieben, Umbenennen)</small><br />';
+						dial += '<span id="merken">Merken</span>';
+						dial += '<div class="zwiabfile_explorer_satus" style="display:none;"></div>';
+						dial += '<hr />';
+						if( allgvars.folder == 'user' ){
+							dial += 'Oder möchten Sie "'+name+'" via Link freigeben?<br />';
+							dial += '<span id="frei">Freigeben</span>';
+							if( ftype == 'dir' ){
+								dial += '<br />';
+								dial += '<small><input id="freigupload" type="checkbox" checked="checked"> Upload von Dateien in den freigegebenen Ordner erlauben.</small>';
+							}
+						}
+						else{
+							dial += 'Sie können nur Inhalte aus "Mein Verzeichnis" per Link freigeben!';
+						}
+						dial +='</div>';
 						
 						//HTML dem DOM anfügen   
 						$( "body" ).prepend( dial );
@@ -404,17 +909,13 @@ function main_explorer(){
 							modal:true,
 							responsive: true,
 							buttons:{
-								"Abbrechen":function(){
+								"Schließen":function(){
 									$( this ).dialog( 'close' );
 								}
 							}
 						});
 						
-						if( ( ftype == 'file' || ftype == 'kt'  ) && allgvars.folder == 'user' ){
-							$( "div.delfile_explorer div.frei" ).css("display", "block");
-						}
-						
-						//Ja/Nein Buttons
+						//Dialog Buttons
 						$( "div.delfile_explorer span" ).button();
 
 						//Button Löschen Listener
@@ -442,16 +943,78 @@ function main_explorer(){
 									$( "div.delfile_explorer_satus" ).css( { "display":"block","background-color":"red", "padding": "5px", "border-radius":"2px", "color":"white"  } );
 								} 	
 							});
-						});	
+						});
+
+						//Button Merken Listener
+						$( "div.delfile_explorer span#merken" ).click( function () {
+
+							//Medlung ausblenden
+							$( "div.zwiabfile_explorer_satus" ).css( { "display":"none" });	
+
+							//alles Versuchen
+							try{
+								//Infos für die Datei holen
+								var about = {
+									'viewname' : name,
+									'filename' : url,
+									'type' : ftype,
+									'filepath' : allgvars.path,
+									'platz' : allgvars.folder
+								};
+								
+								//ganze Zwischeablage lesen
+								var zwisch = localStorage.getItem( "daten_zwischenablage" );
+
+								//leer?
+								if( typeof zwisch == "undefined" ||  zwisch == '' ||  zwisch == null ){
+									//leeres Array
+									zwisch = new Array();
+								}
+								else{
+									//JSON Array einlesen
+									zwisch = JSON.parse( zwisch );
+								}
+
+								//neues hinzufügen
+								zwisch.push( about );
+								//wieder zu JSON
+								zwisch = JSON.stringify( zwisch );
+								//wieder ablegen
+								localStorage.setItem( "daten_zwischenablage", zwisch );
+
+								//Okay Medlung
+								$( "div.zwiabfile_explorer_satus" ).html( "Gemerkt" );
+								$( "div.zwiabfile_explorer_satus" ).css( { "display":"block","background-color":"green", "padding": "5px", "border-radius":"2px", "color":"white"  } );
+							}
+							catch (exception) {
+								//Fehlermeldung
+								$( "div.zwiabfile_explorer_satus" ).html( "Fehler" );
+								$( "div.zwiabfile_explorer_satus" ).css( { "display":"block","background-color":"red", "padding": "5px", "border-radius":"2px", "color":"white"  } );
+							}
+						});
 
 						//Buttons Freigabe Listener
-						$( "div.delfile_explorer div span#frei" ).click( function () {	
+						$( "div.delfile_explorer span#frei" ).click( function () {	
 							
 							//URL der Datei
 							allgvars.file = url;
+
+							//Ordner?
+							if(  ftype == 'dir' ){
+								//Button Status prüfen
+								if( $( "input#freigupload:checked" ).length == 1 ){
+									var freigabeupload = 'yes'; 
+								}
+								else{
+									var freigabeupload = 'no';
+								}
+							}
+							else{
+								var freigabeupload = 'no';
+							}
 							
 							//per AJAX freigeben
-							make_freigabe();
+							make_freigabe( freigabeupload );
 							
 							//Dialog schließen
 							$( "div.delfile_explorer" ).dialog( 'close' );
@@ -479,9 +1042,9 @@ var table_next_id;
 //	Passwort
 var global_table_passw;
 
-//Tabelle öffen
+//Tabelle öffnen
 function open_table( url, name, adding ){
-	
+
 	//Vars für Funktion
 	var data_okay = false;
 	
@@ -493,8 +1056,17 @@ function open_table( url, name, adding ){
 	
 	//URL zu Datei
 	allgvars.file = url;
-	
-	
+
+	//festes Passwort setzen
+	global_table_passw = 'vqtxvpJJWiFJrNKcOQOjMgTHBxqGdiyuBhilfRktqfWLyHEw';
+
+	//Fortsetzen
+	open_table_get( name, adding, data_okay );
+}
+
+//Tabelle öffen Passwort abfragen
+function open_table_passw( _nextfunc, data_okay, data, adding, name ){
+
 	//wenn alter Dialog div noch im DOM diesen löschen
 	if ($( "div.j_promt" ).length ){
 		$( "div.j_promt" ).remove();
@@ -504,11 +1076,22 @@ function open_table( url, name, adding ){
 	var dial = '<div class="j_promt" title="Passwort benötigt!">'
 	dial += 'Bitte geben Sie das Passwort für die Tabelle an!<br />';
 	dial += '<input type="password" placeholder="Passwort" id="js_table_passw"><br />';
+	dial += '<input type="checkbox" id="js_table_passw_save"> Passwort merken?<br />';
 	dial += '<small>Lassen Sie das Feld für unverschlüsselte Tabellen leer.</small>';
 	dial += '</div>';
 						
 	//HTML dem DOM anfügen   
 	$( "body" ).prepend( dial );
+
+	//Passwort im localStorage?
+	//	Gespeichertes Passwort holen
+	var locpass = localStorage.getItem( "global_table_passw");
+
+	//Passwort aus Speicherung okay?
+	if( typeof locpass != "undefined" && locpass != null && locpass != '' ){
+		$( "input#js_table_passw" ).val( locpass );
+		$( "input#js_table_passw_save" ).prop( 'checked', true );
+	}
 			
 	//Dialog öffnen	 
 	$( "div.j_promt" ).dialog({ 
@@ -528,11 +1111,23 @@ function open_table( url, name, adding ){
 					global_table_passw = 'vqtxvpJJWiFJrNKcOQOjMgTHBxqGdiyuBhilfRktqfWLyHEw';
 				}	
 				
+				//Passwort merken
+				//	gewählt?
+				if( $( "input#js_table_passw_save:checked" ).length == 1 ){
+					localStorage.setItem( "global_table_passw", global_table_passw );
+				}
+				else{
+					localStorage.removeItem( "global_table_passw");
+				}
+
 				//Dialog schließen
 				$( this ).dialog( 'close' );
-				
-				//Fortsetzen
-				open_table_get( name, adding, data_okay );
+
+				//Callback gewüncht?
+				if( typeof _nextfunc == "function" ){
+					//weiter geht's
+					_nextfunc( data_okay, data, adding, name );
+				}
 			},
 			"Passwort zeigen": function(){
 				$( "input#js_table_passw" ).attr( "type", "text" );
@@ -544,18 +1139,55 @@ function open_table( url, name, adding ){
 
 //Tabellen Inhalte bekommen
 function open_table_get( name, adding, data_okay ){
+
+	//Entschlüsselung versuchen und Tabelle anzeigen
+	function dec_anz( data, _callback ){
+
+		//Passwort noch inkorrekt
+		var passw = false;
+
+		//Entschlüsselung mit eing. Passwort versuchen
+		try{
+			//Daten mit SJCL entschlüsseln
+			//	Passwort aus Eingabe
+			data = sjcl.decrypt( global_table_passw, data );
+
+			//Okay
+			passw = true;
+
+		}
+		//Bei Fehler
+		catch (e){
+			//Callback gewüncht?
+			if( typeof _callback == "function" ){
+				_callback( e );
+			}					
+		}
+		
+		if( passw ){
+			//Entschlüsselte Daten parsen
+			data = JSON.parse( data );
+					
+			//Daten okay
+			data_okay = true;
+
+			//Tabelle öffnen
+			open_table_dialog( data_okay, data, adding, name );
+		}
+	}
 	
 	//neue Tabelle
 	if( adding ){
 		
 		//Standarddaten laden
 		var data = {"table":[[0,"Name","Vorname"],[1,"Meier","Heinze"]],"nextid":2};
-		
+
 		//Daten okay
 		data_okay = true;
-		
-		//Tabelle anzeigen
-		open_table_dialog( data_okay, data, adding, name );
+
+		//Nach Passwort fragen
+		//	danach Tabelle öffnen [Callback]
+		open_table_passw( open_table_dialog, data_okay, data, adding, name );
 	}
 	else{
 		//Daten für Tabelle anfragen
@@ -571,27 +1203,47 @@ function open_table_get( name, adding, data_okay ){
 				
 				//JSON parsen
 				data = JSON.parse( data );
-					
-				//Entschlüsselung versuchen
-				try{
-					//Daten mit SJCL entschlüsseln
-					data = sjcl.decrypt( global_table_passw, data );
-				}
-				//Bei Fehler Fehlermeldung ausgeben
-				catch (e){
-					 j_alert( 'Die Tabelle konnte mit diesem Passwort nicht entschlüsselt werden!\r\n(Fehlermeldung:"' + e.message + '")' );
-					return;
-				}
-					
-				//Entschlüsselte Daten parsen
-				data = JSON.parse( data );
 				
-				//Daten okay
-				data_okay = true;
+				//Entschlüsselung - festes Passwort
+				dec_anz( data, function(){
+
+					//Gespeichertes Passwort holen
+					var locpass = localStorage.getItem( "global_table_passw");
+
+					//Passwort aus Speicherung okay?
+					if( typeof locpass != "undefined" && locpass != null && locpass != '' ){
+
+						//als global setzen
+						global_table_passw = locpass;
+
+						//Entschlüsselung - Passwort aus localStorage
+						dec_anz( data, function(){
+							//Nach Passwort fragen
+							open_table_passw( dec_anz, data,
+								function ( e ){
+									//Zum Ende Fehlermeldung
+									j_alert( 'Die Tabelle konnte mit diesem Passwort nicht entschlüsselt werden!\r\n(Fehlermeldung:"' + e.message + '")' );
+								}
+							);
+						});
+					}
+					else{
+						//nichts im localStorage
+
+						//gleich nach PW fragen
+						open_table_passw( dec_anz, data,
+							function ( e ){
+								//Zum Ende Fehlermeldung
+								j_alert( 'Die Tabelle konnte mit diesem Passwort nicht entschlüsselt werden!\r\n(Fehlermeldung:"' + e.message + '")' );
+							}
+						);
+					}
+				});
 			}
-			
-			//Tabelle öffnen
-			open_table_dialog( data_okay, data, adding, name );
+			//AJAX Response inkorrekt
+			else{
+				j_alert( 'Konnte die Tabelle nicht korrekt vom Server laden!' );
+			}
 		});
 	}
 }
@@ -632,12 +1284,87 @@ function open_table_dialog( data_okay, data, adding, name ){
 
 //Datei öffen
 function open_file( url ){
-	
+
 	//Link zur Datei erstellen
 	var link = add_daten.siteurl+"/ajax.php?addon=daten&folder="+ encodeURI( allgvars.folder ) +"&path="+ encodeURI( allgvars.path + url );
 	
-	//Datei in PopUp öffnen
-	window.open( link, "_blank", "width=900px,height=500px,top=20px,left=20px");
+	//Datei verschlüsselt?
+	if( url.substr( url.length - 9 ) == '.kimb_enc'  ){
+		//Datei erstmal entschlüsseln
+		//und dann öffnen
+
+		//holen
+		$.get( link, function ( data ){
+
+			//Datei da?
+			if( data != "" ){
+
+				//Passwort Dialog
+				var dial = '<div id="passw_file_prompt" title="Passwort!">';
+				dial += '<input type="password" placeholder="Passwort" id="kimb_enc_passw"><br />'
+				dial += '<small><input type="checkbox" id="kimb_enc_klar"> Klartext</small><br />';
+				dial += '<small>Bitte geben Sie das Passwort für diese Datei an!</small';
+				dial += '</div>';
+
+				$( "body" ).append( dial );
+
+				//Verschlüsselung Input
+				$( "input#kimb_enc_klar" ).change( function (){
+					//jetzt aktiviert?
+					if( $( "input#kimb_enc_klar:checked" ).length == 1 ){
+						$( "input#kimb_enc_passw" ).attr( "type", "text" );
+					}
+					else{
+						$( "input#kimb_enc_passw" ).attr( "type", "password" );
+					}
+				});
+
+				$( "div#passw_file_prompt" ).dialog({
+					modal: true,
+					responsive: true,
+					buttons:{
+						"Los" : function(){
+
+							//Passwort lesen
+							var pass = $( "input#kimb_enc_passw" ).val();
+
+							try{
+								//entschlüsseln
+								var file = sjcl.decrypt( pass, data );
+
+								//Datei speichern
+								saveAs( inline2Blob( file ) , url.substr( 0, url.length - 9 ) );
+
+								//Dialog schließen
+								$(this).dialog( 'close' );
+							}
+							catch( e ){
+								j_alert( 'Konnte die Datei nicht entschlüsseln:<br />(' + e.message + ')' );
+								return;
+							}
+						},
+						"Schließen":function(){
+							$(this).dialog( 'close' );
+						}
+					},
+					beforeClose: function( event, ui ) {
+						$( this ).remove();
+					}
+				});
+
+					
+			}
+			else{
+				//Fehlermeldung
+				j_alert( "Fehler beim Laden der Datei!" );
+			}
+
+		});
+	}
+	else{
+		//Datei gleich in PopUp öffnen
+		window.open( link, "_blank", "width=900px,height=500px,top=20px,left=20px");
+	}
 }
 
 //KIMB Tabelle HTML erzeugen
@@ -993,7 +1720,7 @@ function import_json(){
 	//Infotext
 	menue += 'Bitte geben Sie hier den JSON Code für die Tabelle an:<br />';
 	//JSON Code Eingabe
-	menue += '<textarea id="json_impcode" placeholder=\'[[0,"Vorname","Name"],[1,"Max","Muster"],[2,"Maxa","Mustera"]]\' rows="5" cols="20"></textarea><br />'
+	menue += '<textarea id="json_impcode" placeholder=\'{"table":[[0,"Vorname","Name"],[1,"Max","Muster"],[2,"Maxa","Mustera"]],"nextid":3}\' rows="5" cols="20"></textarea><br />'
 	//Hiweis
 	menue += '<small>Der Import ersetzt die aktuelle Tabelle!</small>';
 	//Status
@@ -1106,13 +1833,14 @@ function save_new_table( data ){
 		});
 }
 
-function make_freigabe(){
+function make_freigabe( upload ){
 	
 	//Freigabeanfrage an Server senden
 	//	User
 	//	Pfad
 	//	URL
-	$.post( add_daten.siteurl+"/ajax.php?addon=daten", { "allgvars": allgvars, "todo": "newfreigabe" } ).always( function( data ) {
+	//	Upload okay? (nur für Ordner sinvoll)
+	$.post( add_daten.siteurl+"/ajax.php?addon=daten", { "allgvars": allgvars, "todo": "newfreigabe", "upload" : upload } ).always( function( data ) {
 		
 		if( data.main.okay ){
 			j_alert( 'Die Datei wurde freigegeben.<br /><br /><input readonly="readonly" onclick="this.focus();this.select();" style="border:1px solid black; background-color:gray; text:white; width:100%;" value="'+ data.main.link +'"><br /><br />Unter "Freigabe" sehen Sie alle Freigaben und können diese löschen!' );		
@@ -1128,47 +1856,63 @@ function make_freigabe(){
 
 //Freigaben Zeigen
 function show_freigaben(){
+
+	//aktuellen Pfad auch als ID in URL kenntlich machen
+	window.location.hash = "freig://list";
 	
 	$.post( add_daten.siteurl+"/ajax.php?addon=daten", { "todo": "freigabeliste" } ).always( function( data ) {
+
+		//AJHAX Daten okay?
+		if( typeof data.main == "undefined" ){
+			j_alert( "Der Sever antwortet nicht korrekt!" );
+			return;
+		}
 		
 		if( data.main.okay && data.main.list != null ){
 			
-			 var liste = '<ul class="freigaben">';
+			 var liste = '<table class="freigaben" width="100%">';
+			 liste += '<tr>';
+			 liste += '<th>Art</th>';
+			 liste += '<th>Name</th>';
+			 liste += '<th colspan="3">Bearbeiten</th>';
+			 liste += '<th>Pfad</th>';
+			 liste += '</tr>';
 			
 			//Liste anzeigen
 			$.each( data.main.list, function ( k,v ){
 			
-				liste += '<li fid="'+v.id+'" path="'+v.path+'">';
-				liste += '<span class="ui-icon ui-icon-bullet" style="display:inline-block"></span>'
-				liste += '<span class="show_link" title="Link zur Datei anzeigen"><span class="ui-icon ui-icon-link" style="display:inline-block"></span></span>';
-				liste += '<a href="'+v.link+'" target="_blank" title="Datei über Freigabelink öffnen"><span class="ui-icon ui-icon-extlink" style="display:inline-block"></span></a>';
-				liste += '<span class="del_link" title="Freigabe löschen"><span class="ui-icon ui-icon-trash" style="display:inline-block"></span></span>';
-				liste += '<span class="open_folder" title="Ordner mit Datei anzeigen">'+v.name+'</span>';
-				liste += '</li>';	
+				liste += '<tr fid="'+v.id+'" path="'+v.path+'">';
+				liste += '<td><span class="ui-icon ui-icon-'+( v.type == 'folder' ? 'folder-collapsed' : 'document' )+'"></span>'+( v.upload == 'yes' ? '<span class="ui-icon ui-icon-arrowthickstop-1-n" title="Upload aktiviert"></span>' : '' )+'</td>';
+				liste += '<td><span class="open_folder" title="Ordner mit Datei anzeigen">'+v.name+'</span></td>';
+				liste += '<td><span class="show_link" title="Link zur Datei anzeigen"><span class="ui-icon ui-icon-link"></span></span></td>';
+				liste += '<td><a href="'+v.link+'" target="_blank" title="Datei über Freigabelink öffnen"><span class="ui-icon ui-icon-extlink" style="display:inline-block"></span></a></td>';
+				liste += '<td><span class="del_link" title="Freigabe löschen"><span class="ui-icon ui-icon-trash" style="display:inline-block"></span></span></td>';
+				liste += '<td>my:/'+v.path+'</td>';
+				liste += '</tr>';	
 				
 			});
 			
-			liste += '</ul>';
+			liste += '</table>';
 			
 			$( "div.main_files" ).html( liste );
 			
-			$( "ul.freigaben" ).tooltip();
+			$( "table.freigaben" ).tooltip();
 			
 			//Link zeigen
-			$( "ul.freigaben span.show_link" ).unbind('click').click( function (){
+			$( "table.freigaben span.show_link" ).unbind('click').click( function (){
 				
 				//Werte bekommen
-				var link = $( this ).parent().children('a').attr( 'href' );
+				var link = $( this ).parent().parent().find('td a').attr( 'href' );
 				
 				//Dialog mit Link
 				j_alert( 'Die Datei wurde freigegeben.<br /><br /><input readonly="readonly" onclick="this.focus();this.select();" style="border:1px solid black; background-color:gray; text:white; width:100%;" value="'+ link +'"><br /><br />Unter "Freigabe" sehen Sie alle Freigaben und können diese löschen!' );	
 			});
 			
 			//Freigabe löschen
-			$( "ul.freigaben span.del_link" ).unbind('click').click( function (){
+			$( "table.freigaben span.del_link" ).unbind('click').click( function (){
 				
 				//Wert bekommen
-				var id = $( this ).parent().attr( 'fid' );
+				var id = $( this ).parent().parent().attr( 'fid' );
 				
 				//Freigabe löschen
 				$.post( add_daten.siteurl+"/ajax.php?addon=daten", { "todo": "freigabedel", "id": id } ).always( function( data ) {
@@ -1191,7 +1935,7 @@ function show_freigaben(){
 			});
 			
 			//Ordner öffne
-			$( "ul.freigaben span.open_folder" ).unbind('click').click( function (){
+			$( "table.freigaben span.open_folder" ).unbind('click').click( function (){
 				
 				//Werte bekommen
 				var path = $( this ).parent().attr( 'path' );
@@ -1358,23 +2102,6 @@ $( function(){
 				
 				if( id == 'rec' ){
 					trigger_touchbedienung( 0, this );
-				}
-				
-				//Buttons wieder aktivieren
-				$( "#touchbed_butt" ).buttonset('enable');
-				//Touchbar deakiviert
-				touchbar_status = true;
-			});
-			
-			//Pathbar
-			$( ".pathbar" ).unbind('click').click( function(){
-				
-				if( id == 'enter' ){
-					var elem = $( this ).children('input');
-					trigger_touchbedienung( 2, elem, 13 );
-				}
-				else if( id == 'dopp' ){
-					trigger_touchbedienung( 1, this );
 				}
 				
 				//Buttons wieder aktivieren

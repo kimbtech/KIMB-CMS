@@ -48,13 +48,19 @@ if( !empty( $_GET['los'] ) && is_file( __DIR__.'/temp/'.$_GET['los'].'.zip' ) ){
 		}
 
 		//Meldungen
-		$sitecontent->echo_message( 'Das Update wurde erfolgreich beendet!' );
-		$sitecontent->echo_message( 'Es wurden alle Add-ons deaktiviert!' );
-		$sitecontent->echo_message( 'Das Theme wurde auf "norm" gesetzt (Bitte installieren Sie Ihr Theme neu, sollte es nach dem Themewechsel zu Darstellungsproblemen kommen.)!' );
+		$sitecontent->echo_message( 'Das Update wurde erfolgreich beendet!', 'Super!!' );
+		$sitecontent->echo_message( 'Es wurden evtl. Add-ons deaktiviert oder auf das Standardtheme gewechselt!', 'Add-ons &amp; Themes' );
+		$sitecontent->echo_message( 'Bitte überprüfen Sie, ob alles noch zuverlässig funktioniert.', '<em>Prüfen?</em>' );
 
 		//Die letzte Überprüfung ist vielleicht noch jung, aber nach dem Update ungültig.
 		//	Zeitpunkt ändern 
 		$updatefile->write_kimb_replace( 'lasttime', '100' );
+		
+		//Build anpassen
+		$conffile = new KIMBdbf('config.kimb');
+		$conffile->write_kimb_id( '001', 'add', 'build', $_SESSION['update_zu'] );
+		//neu laden
+		$allgsysconf = $conffile->read_kimb_id('001');
 
 	}
 	else {
@@ -90,16 +96,20 @@ else{
 			else{
 				//sonst Zusammenfassung des Updates
 				//Warnhinweise
-				$sitecontent->add_site_content('<b>Zusammenfassung:</b>');
-				$sitecontent->add_site_content('<ul>');
-				$sitecontent->add_site_content('<li>Update von: '.$updinf['von'].'</li>');
-				$sitecontent->add_site_content('<li>Update zu: '.$updinf['zu'].'</li>');
-				$sitecontent->add_site_content('<li>Infos zum Update: <div style="background-color:gray; border-radius:10px; padding:5px; color:white;" >'.$updinf['hinw'].'</div></li>');
-				$sitecontent->add_site_content('</ul>');
-				$sitecontent->add_site_content('<b style="color:red;">Ein Update birgt ein gewisses Risiko (z.B. CMS nicht mehr funktionstüchtig), bitte halten Sie ein Backup für den Fehlerfall bereit!</b>');
+				$sitecontent->add_site_content('<h3>Zusammenfassung:</h3>');
+				$sitecontent->add_site_content('<table>');
+				$sitecontent->add_site_content('<tr><th>Update von:</th><th>Update zu:</th></tr>');
+				$sitecontent->add_site_content('<tr><td>'.$updinf['von'].'</td><td>'.$updinf['zu'].'</td></tr>');
+				$sitecontent->add_site_content('<tr> <td></td> <td></td> </tr>');
+				$sitecontent->add_site_content('<tr> <th>Infos zum Update: </th><td></td></tr>');
+				$sitecontent->add_site_content('<tr> <td colspan="2"><div style="background-color:gray; border-radius:10px; padding:5px; color:white;" >'.nl2br( $updinf['hinw'] ).'</div></td></tr>');
+				$sitecontent->add_site_content('</table>');
 				$sitecontent->add_site_content('<div style="background-color:yellow; padding:20px; border-radius:15px; text-align:center;">');
+				$sitecontent->add_site_content('<p><b style="color:red;">Ein Update birgt ein gewisses Risiko (z.B. CMS nicht mehr funktionstüchtig), bitte halten Sie ein Backup für den Fehlerfall bereit!</b></p>');
 				$sitecontent->add_site_content('<a href="'.$addonurl.'&los='.$ufile.'"><button>OK, trotzdem weiter!</button></a>');				
 				$sitecontent->add_site_content('</div>');
+				
+				$_SESSION['update_zu'] = $updinf['zu'];
 			}
 
 		}

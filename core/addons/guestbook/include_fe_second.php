@@ -254,14 +254,22 @@ if( $guestbook['file']->read_kimb_search_teilpl( 'siteid' , $allgsiteid ) && $al
 		if( $guestbook['einer']['status'] == 'on' ){
 
 			//Beitrag der Ausgabe anfügen
-			$guestbook['output'] .= '<div id="guest" >'."\r\n";
+			$guestbook['output'] .= '<div class="guest" >'."\r\n";
 			//	Name		
-			$guestbook['output'] .= '<div id="guestname" >'.$guestbook['einer']['name']."\r\n";
+			$guestbook['output'] .= '<div class="guestname" >'.$guestbook['einer']['name']."\r\n";
 			//	Zeit
-			$guestbook['output'] .= '<span id="guestdate">'.date( 'd-m-Y H:i:s' , $guestbook['einer']['time'] ).'</span>'."\r\n";
+			$guestbook['output'] .= '<span class="guestdate">'.date( 'd-m-Y H:i:s' , $guestbook['einer']['time'] ).'</span>'."\r\n";
 			$guestbook['output'] .= '</div>'."\r\n";
 			//	Inhalt
 			$guestbook['output'] .= $guestbook['einer']['cont']."\r\n";
+			
+			//	Kommentar
+			if( !empty( $guestbook['einer']['comm'] ) ){
+				$guestbook['output'] .= '<div class="guestcomment">'."\r\n";
+				$guestbook['output'] .= '<span>'.$allgsys_trans['addons']['guestbook']['ajax']['adminkomm'].'</span>'."\r\n";
+				$guestbook['output'] .= $guestbook['einer']['comm']."\r\n";
+				$guestbook['output'] .= '</div>'."\r\n";
+			}
 			
 			//ID in $i
 			$i = $guestbook['einer']['file_id'];
@@ -277,7 +285,7 @@ if( $guestbook['file']->read_kimb_search_teilpl( 'siteid' , $allgsiteid ) && $al
 			
 			$guestbook['output'] .= '</div>'."\r\n";
 			//divs, in welche die Antworten geladen werden, der Ausgabe hinzufügen 
-			$guestbook['output'] .= '<div class="answer_'.$i.' answer" style="display:none;" ><div id="answer_'.$i.'_dis" ></div><hr /><div id="answer_'.$i.'_add" ></div></div>'."\r\n\r\n";
+			$guestbook['output'] .= '<div class="answer_'.$i.' answer" style="display:none;" ><div id="answer_'.$i.'_dis" ></div><hr /><div id="answer_'.$i.'_add" class="answer_add" ></div></div>'."\r\n\r\n";
 
 			//Einträge vorhanden
 			$guestbook['eintr'] = 'yes';
@@ -287,7 +295,7 @@ if( $guestbook['file']->read_kimb_search_teilpl( 'siteid' , $allgsiteid ) && $al
 	//wenn keine Einträge:
 	if( !isset( $guestbook['eintr'] ) ){
 		//Meldung, dass keine Mitteilungen
-		$guestbook['output'] .= '<div id="guest" >'."\r\n";		
+		$guestbook['output'] .= '<div class="guest" >'."\r\n";		
 		$guestbook['output'] .= $allgsys_trans['addons']['guestbook']['nomitt'];
 		$guestbook['output'] .= '</div>'."\r\n\r\n";
 	}
@@ -298,7 +306,7 @@ if( $guestbook['file']->read_kimb_search_teilpl( 'siteid' , $allgsiteid ) && $al
 	//wenn hinzufügen erlaubt:
 	if( $guestbook['add'] ){
 
-		$sitecontent->add_site_content( '<div id="guest" >'."\r\n" );
+		$sitecontent->add_site_content( '<div class="guest" >'."\r\n" );
 		//Button um Formular zu hinzufügen zu laden
 		$sitecontent->add_site_content('<button onclick="add( \'new\' ); " id="guestbuttadd">'.$allgsys_trans['addons']['guestbook']['add'].'</button>'."\r\n" );
 		$sitecontent->add_site_content('<div style="display:none;" id="guestadd" >'."\r\n" );
@@ -309,7 +317,7 @@ if( $guestbook['file']->read_kimb_search_teilpl( 'siteid' , $allgsiteid ) && $al
 	}
 	else{
 		//Meldung, wenn keine Rechte einen neuen Beitrag hinzuzufügen
-		$sitecontent->add_site_content('<div id="guest"><button disabled="disabled">'.$allgsys_trans['addons']['guestbook']['add'].'</button> ('.$allgsys_trans['addons']['guestbook']['login'].') </div>'."\r\n" );
+		$sitecontent->add_site_content('<div class="guest"><button disabled="disabled">'.$allgsys_trans['addons']['guestbook']['add'].'</button> ('.$allgsys_trans['addons']['guestbook']['login'].') </div>'."\r\n" );
 	}	
 }
 

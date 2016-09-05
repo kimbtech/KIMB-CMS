@@ -1,1 +1,6 @@
 <[about:doc]>KIMB dbf V4.15 - KIMB-technologies<[about:doc]>
+<[allidslist_okay]>yes<[allidslist_okay]>
+<[allidslist1]>1<[allidslist1]>
+<[1-addon]>felogin<[1-addon]>
+<[1]>addon==array<[1]>
+<[1-array]>{"a":["off",{"POST":[],"GET":[],"COOKIE":[]}]}<[1-array]>

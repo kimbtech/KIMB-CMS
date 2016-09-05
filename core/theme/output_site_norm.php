@@ -141,7 +141,7 @@ echo "\t".'<body>'."\r\n";
 					$search_str = htmlentities( $_REQUEST['search'], ENT_COMPAT | ENT_HTML401,'UTF-8' );
 		
 					echo "\t\t\t\t\t".'<li>'."\r\n";
-					echo "\t\t\t\t\t\t".'<form method="post" action="'.$this->allgsysconf['siteurl'].'/index.php?id='.$search_sitemap['searchsiteid'].'">'."\r\n";
+					echo "\t\t\t\t\t\t".'<form method="post" action="'.$allgsysconf['siteurl'].'/index.php?id='.$search_sitemap['searchsiteid'].'">'."\r\n";
 					echo "\t\t\t\t\t\t\t".'<input size="11" id="menue_search" type="text" name="search" placeholder="Suchbegriff" value="'.$search_str.'">'."\r\n";
 					echo "\t\t\t\t\t\t".'</form>'."\r\n";	
 					echo "\t\t\t\t\t".'</li>'."\r\n";

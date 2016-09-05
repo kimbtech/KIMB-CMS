@@ -69,7 +69,7 @@ defined('KIMB_CMS') or die('No clean Request');
     );
 
     //Code zufällig erstellen
-    $captcha_config['code'] = makepassw( mt_rand(5, 7) , '', 'numaz');
+    $captcha_config['code'] = makepassw( 6 , 'abcdefghkmnopqrstuvwxyzABCDEFGHKMNOP23456789' );
     $_SESSION['captcha_code'] = $captcha_config['code'];
 
     srand(microtime() * 100);

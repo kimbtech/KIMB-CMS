@@ -78,7 +78,7 @@ $sitecontent->add_site_content(id_dropdown( 'id', 'siteid' ).' (SiteID <b title=
 $sitecontent->add_site_content('<br /><input type="submit" value="Speichern"></form>');
 
 //Userordner löschen
-$sitecontent->add_site_content('<h2>Nutzer für Dateiverwaltung</h2>');
+$sitecontent->add_site_content('<h2>Nutzer der Dateiverwaltung</h2>');
 
 //Ordner zu löschen?
 if( !empty( $_GET['del'] ) ){
@@ -90,26 +90,50 @@ if( !empty( $_GET['del'] ) ){
 	
 	//Löschen versuchen
 	if( rm_r( __DIR__.'/userdata/user/'.$user ) ){
-		//Medlung
-		$sitecontent->echo_message( 'Die Datend des Users wurden gelöscht!' );
+		//Meldung
+		$sitecontent->echo_message( 'Die Daten des Users wurden gelöscht!' );
+
+		//auch Freigaben löschen
+		delete_kimb_datei( 'addon/daten__user_'.$user.'.kimb' );
 	}
 	else{
 		//Medlung
-		$sitecontent->echo_error( 'Die Datend des Users konnten nicht gelöscht werden!' );
+		$sitecontent->echo_error( 'Die Daten des Users konnten nicht gelöscht werden!' );
 	}	
 }
 
-//alle Userordner als Liste laden
-$sitecontent->add_site_content('<ul>');
+//alle Userordner als Tabelle laden
+$sitecontent->add_html_header('<style>table, tr, td, th { border: 1px solid black; border-collapse:collapse; padding:2px;}</style>');
+$sitecontent->add_site_content('<table>');
+$sitecontent->add_site_content('<tr>
+		<th>Username</th>
+		<th>Ordnergröße</th>
+		<th>Löschen</th>
+		</tr>');
 foreach( scandir( __DIR__.'/userdata/user/' ) as $file ){
 
 	if( $file != '.' && $file != '..' ){
-		$sitecontent->add_site_content('<li>
-		'.$file.'
-		<a href="'.$addonurl.'&amp;del='.$file.'"><span class="ui-icon ui-icon-trash" style="display:inline-block;" title="Dateien des Users löschen. (Der User kann trotzdem neue Dateien anlegen.)"></span></a>
-		</li>');	
+		//Ordnergröße
+		$size = dir_size_comp( __DIR__.'/userdata/user/'.$file );
+
+		$sitecontent->add_site_content('<tr>
+		<td>'.$file.'</td>
+		<td>'.( ( $size == false || $size <= 0 ) ? '0 B' : $size  ).'</td>
+		<td><a href="'.$addonurl.'&amp;del='.$file.'"><span class="ui-icon ui-icon-trash" style="display:inline-block;" title="Dateien des Users löschen. (Der User kann trotzdem neue Dateien anlegen.)"></span></a></td>
+		</tr>');	
 	}
 }
-$sitecontent->add_site_content('</ul>');
+
+//Ordnergröße
+$size = dir_size_comp( __DIR__.'/userdata/public/' );
+$sitecontent->add_site_content('
+		<tr>
+			<td colspan="3"></td>
+		</tr>
+		<tr>
+		<th colspan="2">Gemeinsames Verzeichnis aller User</th>
+		<td>'.( ( $size == false || $size <= 0 ) ? '0 B' : $size  ).'</td>
+		</tr>');
+$sitecontent->add_site_content('</table>');
 
 ?>

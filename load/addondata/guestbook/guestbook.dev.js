@@ -33,6 +33,8 @@ function delsubmit(){
 }
 
 function add( place ){
+	
+	dis();
 
 	if( place == 'new'){
 		var loadto = 'div#guestadd';
@@ -47,7 +49,7 @@ function add( place ){
 	else{
 		$( loadto ).html( '<img src="' + siteurl + '/load/system/spin_load.gif" title="Loading ..." title="Loading ...">' );
 		
-		$.get( siteurl + "/ajax.php?addon=guestbook&loadadd&pl=" + place + "&lang=" + langfile )
+		$.get( siteurl + "/ajax.php?addon=guestbook&loadadd&pl=" + place )
 		 	.done(function( data ) {
 				$( loadto ).html( data );
 				
@@ -69,6 +71,12 @@ function dis(){
 	$( "div#guestadd" ).css( "display" , "none" );
 	$( "button#guestbuttdis" ).css( "display" , "none" );
 	$( "button#guestbuttadd" ).css( "display" , "block" );
+	
+	$( "div.answer_add" ).css( 'display', 'none' );
+	
+	$.each( guestbook_answerdata.none, function (k,v) {
+		$( "div.answer_" + v ).css( "display", "none" );		
+	} );
 }
 function preview( id ){
 	var cont = $( "textarea.cont_" + id ).val();
@@ -100,6 +108,8 @@ function preview( id ){
 	return false;
 }
 
+var guestbook_answerdata = { 'block' : [], 'none' : [] }
+
 function answer( id, file ){
 	
 	if( file != 'none' ){
@@ -109,18 +119,35 @@ function answer( id, file ){
 		
 		$.get( siteurl + "/ajax.php?addon=guestbook&answer&id=" + id + "&siteid=" + siteid )
 	 	.done(function( data ) {
-			$( loadto ).html( data );
-			
-			loadsumbit();
+			 if( data == '' ){
+				$( loadto ).html( unveroef );
+				if( guestbook_answerdata.none.indexOf( id ) == -1 ){
+					guestbook_answerdata.none.push( id );	
+				} 
+			 }
+			 else{
+				 $( loadto ).html( data );
+			 }
 		})
 		.fail(function() {
 			$( loadto ).html( answerr );
 		});
+		
+		if( guestbook_answerdata.block.indexOf( id ) == -1 ){
+			 guestbook_answerdata.block.push( id );	
+		}
+	}
+	else{
+		if( guestbook_answerdata.none.indexOf( id ) == -1 ){
+			 guestbook_answerdata.none.push( id );	
+		}
 	}
 	
 	add( id );
 	
 	$( "div.answer_" + id ).css( "display", "block" );
+	
+	$( "div#answer_" + id + "_add" ).css( 'display', 'block' );
 	
 	return true;
 }

@@ -25,13 +25,6 @@
 
 defined('KIMB_CMS') or die('No clean Request');
 
-//manchmal wird die Sprache des Users übertragen, diese darf nur en oder de sein, leer ist auch erlaubt
-if( !empty( $_GET['lang'] ) && $_GET['lang'] != 'de' && $_GET['lang'] != 'en'){
-	//Fehler wenn dies nicht der Fall
-	echo 'Error with Langfile - Fehler bei der Sprachdatei';
-	die;	
-}  
-
 //Sind POST Daten für die Vorschau gegeben?
 if( !empty( $_POST['vorschau_name'] ) && !empty( $_POST['vorschau_cont'] ) ){
 	//Vorschau
@@ -51,9 +44,9 @@ if( !empty( $_POST['vorschau_name'] ) && !empty( $_POST['vorschau_cont'] ) ){
 	$arr = make_guestbook_html( $_POST['vorschau_cont'], $_POST['vorschau_name'] );
 	
 	//Ausgeben wie einen Beitrag
-	echo '<div id="guest" >'."\r\n";		
-	echo '<div id="guestname" >'.$arr[1]."\r\n";
-	echo '<span id="guestdate">'.date( 'd-m-Y H:i:s' ).'</span>'."\r\n";
+	echo '<div class="guest" >'."\r\n";		
+	echo '<div class="guestname" >'.$arr[1]."\r\n";
+	echo '<span class="guestdate">'.date( 'd-m-Y H:i:s' ).'</span>'."\r\n";
 	echo '</div>'."\r\n";
 	echo $arr[0]."\r\n";
 	echo '</div>'."\r\n\r\n";
@@ -63,14 +56,10 @@ if( !empty( $_POST['vorschau_name'] ) && !empty( $_POST['vorschau_cont'] ) ){
 	die;
 }
 //Beitrag hinzufügen per AJAX laden
-//	hier muss die Sprache definiert sein!
-elseif( isset( $_GET['loadadd'] ) && !empty( $_GET['lang'] ) ){
+elseif( isset( $_GET['loadadd'] ) ){
 	
-	//INI Datei für Text der Mail laden (de oder en)
-	//	Übergabe wurde oben geprüft
-	$lang = parse_ini_file ( __DIR__.'/lang_'.$_GET['lang'].'.ini' , true );
-	//das Array AJAX aus der INI wählen
-	$lang = $lang['ajax'];
+	//Lang nehmen (von Add-on API)
+	$lang = $allgsys_trans['addons']['guestbook']['ajax'];
 	
 	//Gästebuchkonfiguration laden
 	$guestbook['file'] = new KIMBdbf( 'addon/guestbook__conf.kimb' );
@@ -94,9 +83,9 @@ elseif( isset( $_GET['loadadd'] ) && !empty( $_GET['lang'] ) ){
 	if( !function_exists( 'check_felogin_login' ) || !check_felogin_login( '---session---', '---none---', true ) ){
 		//nur wenn User nicht eingeloggt oder felogin nicht da nach Namen und E-Mail fragen
 		//	Input Name mit $pl ID
-		echo ('<input name="name" type="text" id = "name" class="name_'.$pl.'" placeholder="'.$lang['name'].'" > <!--[if lt IE 10]> ('.$lang['name'].') <![endif]--> <br />'."\r\n");
+		echo ('<input name="name" type="text" id="name" class="name_'.$pl.'" placeholder="'.$lang['name'].'" > <!--[if lt IE 10]> ('.$lang['name'].') <![endif]--> <br />'."\r\n");
 		//	Input Mail mit $pl ID
-		echo ('<input name="mail" type="text" id = "mail" placeholder="'.$lang['mail'].'" > ('.$lang['mail'].' - '.$lang['nopu'].') <br />'."\r\n");
+		echo ('<input name="mail" type="text" id="mail" placeholder="'.$lang['mail'].'" > ('.$lang['mail'].' - '.$lang['nopu'].') <br />'."\r\n");
 	}
 	//Textfeld für Mitteilung
 	echo ('<textarea name="cont" id="cont" class="cont_'.$pl.'" placeholder="'.$lang['cont'].'" style="width:75%; height:100px;" ></textarea> <!--[if lt IE 10]> ('.$lang['mail'].') <![endif]--> <br />'."\r\n");
@@ -176,14 +165,21 @@ elseif( isset( $_GET['answer'] ) && is_numeric( $_GET['id'] ) && is_numeric( $_G
 				if( $eintr['status'] == 'on' ){
 		
 					//Ausgabe wie normalen Beitrag
-					echo '<div id="guest" >'."\r\n";
+					echo '<div class="guest" >'."\r\n";
 					//	Name		
-					echo '<div id="guestname" >'.$eintr['name']."\r\n";
+					echo '<div class="guestname" >'.$eintr['name']."\r\n";
 					//	Zeit
-					echo '<span id="guestdate">'.date( 'd-m-Y H:i:s' , $eintr['time'] ).'</span>'."\r\n";
+					echo '<span class="guestdate">'.date( 'd-m-Y H:i:s' , $eintr['time'] ).'</span>'."\r\n";
 					echo '</div>'."\r\n";
 					//	Inhalt
 					echo $eintr['cont']."\r\n";
+					//	Kommentar
+					if( !empty( $eintr['comm'] ) ){
+						echo '<div class="guestcomment">'."\r\n";
+						echo '<span>'.$allgsys_trans['addons']['guestbook']['ajax']['adminkomm'].'</span>'."\r\n";
+						echo $eintr['comm']."\r\n";
+						echo '</div>'."\r\n";
+					}
 					echo '</div>'."\r\n";
 					
 				}
@@ -197,6 +193,85 @@ elseif( isset( $_GET['answer'] ) && is_numeric( $_GET['id'] ) && is_numeric( $_G
 		//Fehler wenn keine Rechte
 		echo 'Keine Rechte - Not allowed!';
 	}
+	die;
+}
+//BE Adminkommentar
+elseif ( !empty( $_POST['site'] ) && !empty( $_POST['id'] ) ) {
+	
+	//Login testen
+	check_backend_login( 'thirteen' );
+	
+	//Werte testen
+	if(
+		//Gästebuch Seite
+		is_numeric( $_POST['site'] ) &&
+		//ID des zu kommentierden Eintrages
+		is_numeric( $_POST['id'] ) &&
+		//entweder Antwort, dann ID der zu kommentierende Antwort oder leer
+		(
+			is_numeric( $_POST['aid'] ) ||
+			empty( $_POST['aid'] )
+		) &&
+		//	neu/ verändern oder löschen?
+		(
+			//Inhalt gegeben?
+			!empty( $_POST['inh'] ) ||
+			$_POST['del'] == 'true'
+		)
+	){
+		//dbf Datei für Kommentar lesen
+		if( empty( $_POST['aid'] ) ){
+			//Dateiname
+			//	Hauptkommentar
+			$filena = 'addon/guestbook__id_'.$_POST['site'].'.kimb';
+			//ID zu welcher der Kommentar soll 
+			$addid = $_POST['id'];
+		}
+		else{
+			//Dateiname
+			//	Antwort
+			$filena = 'addon/guestbook__id_'.$_POST['site'].'_answer_'.$_POST['id'].'.kimb';
+			//ID zu welcher der Kommentar soll 
+			$addid = $_POST['aid'];
+		}
+		
+		// passende dbf lesen
+		$file = new KIMBdbf( $filena );
+		
+		//neu/ ändern?
+		if( !empty( !empty( $_POST['inh'] ) ) ){
+			// Inhalt vorbereiten
+			$inhalt = make_guestbook_html( $_POST['inh'], '' );
+			$inhalt = $inhalt[0];
+			
+			//schreiben
+			if( $file->write_kimb_id( $addid, 'add', 'comm', $inhalt ) ){
+				// true AJAX Rückgabe
+				echo "ok";
+			}
+			else{
+				// false AJAX Rückgabe
+				echo "nok";
+			}
+		}
+		//del?
+		else{
+			//schreiben
+			if( $file->write_kimb_id( $addid, 'del', 'comm' ) ){
+				// true AJAX Rückgabe
+				echo "ok";
+			}
+			else{
+				// false AJAX Rückgabe
+				echo "nok";
+			}
+		}
+	}
+	else{
+		//Fehler
+		echo "Der Zugriff war nicht korrekt! (Adminkommentar konnte nicht veröffentlicht werden.)";
+	}
+		
 	die;
 }
 

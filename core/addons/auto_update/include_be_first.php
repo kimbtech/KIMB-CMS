@@ -100,5 +100,8 @@ if( ini_get('allow_url_fopen') ) {
 		$sitecontent->add_site_content('<div style="display:none;"><div id="auto_update" title="CMS Update verfügbar!"><p><span class="ui-icon ui-icon-info" style="float:left; margin:0 7px 50px 0;"></span>Es ist eine neue Version des KIMB-CMS verfügbar, möchten Sie das Update gleich durchführen?</p></div></div>');
 
 	}
+	
+	//Datei schleßen und Änderungen übernehmen!
+	unset( $updatefile );
 }
 ?>
