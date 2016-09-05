@@ -62,7 +62,9 @@ class BEsyseinst{
 		'mail_log' => 'Alle vom System versandten E-Mails loggen (on/ off) [Die Logdatei wird unter /core/conf/mail.log erstellt]',
 		'permalink_domain' => 'Geben Sie hier eine Domain bzw. eine Grundurl für die Permalinks an. [off/ URL](Es wird einfach die ID der Seite an den hier eingegebenen String angehängt und auf den Seiten angezeigt.;Sie müssen die Weiterleitung manuell einrichten. Siehe Beispiel im KIMB-CMS Wiki unter &apos;https://cmswiki.kimb-technologies.eu/tutorials/erste-schritte/konfiguration&apos;)',
 		'overview_left' => 'Links auf der Seite einen aktuellen Auschnitt des Menüs anzeigen. (on/off) [nicht auf Mobilgeräten; nur wenn vom Theme unterstützt]',
-		'markdown' => 'Soll für den Seiteninhalt und den seitenspezifischen Footer Markdown ermöglicht werden? (on[=> auf allen Seiten]/ off[=> auf keiner Seite]/ custom[=> für jede Seite einstellbar]) [MarkdownExtra von http://parsedown.org/]'
+		'markdown' => 'Soll für den Seiteninhalt und den seitenspezifischen Footer Markdown ermöglicht werden? (on[=> auf allen Seiten]/ off[=> auf keiner Seite]/ custom[=> für jede Seite einstellbar]) [MarkdownExtra von http://parsedown.org/]',
+		'gns_limit' => 'Wie viele KIMB-GNS Mitteilungen sollen maximal pro Session/ User gesendet werden. (Reset durch Logout, Browserneustart)(off, leer => kein Limit)',
+		'gns_extfile' => 'Pfad zur externen KIMB-GNS (https://www.kimb-technologies.eu/systeme/gns) PHP Datei (relativ zu Root [/] des CMS)(off, leer => kein GNS)'
 	);
 	
 	public function __construct( $allgsysconf, $sitecontent,$conffile ){
