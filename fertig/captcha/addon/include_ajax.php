@@ -122,6 +122,9 @@ defined('KIMB_CMS') or die('No clean Request');
     header('Cache-Control: post-check=0, pre-check=0', FALSE);
     header('Pragma: no-cache');
 
+    //CAPTCHA Image nicht in Suchergenisse
+    header('X-Robots-Tag: noindex');
+
     // Output image
     header("Content-type: image/png");
     imagepng($captcha);
