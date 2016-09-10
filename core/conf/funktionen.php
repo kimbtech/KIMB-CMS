@@ -130,6 +130,9 @@ function send_mail($to, $inhalt, $mime = 'plain', $gnsforce = 1, $gnsurl = array
 	if( strpos( $inhalt, "\n\r" ) !== false ){
 		$inhalt = str_replace( "\n\r", "\r\n", $inhalt );
 	}
+
+	//GNS Text separat
+	$inhaltgns = $inhalt;
 	
 	//nicht leer ?
 	if( empty( $inhalt ) || empty( $to ) ){
@@ -254,7 +257,7 @@ function send_mail($to, $inhalt, $mime = 'plain', $gnsforce = 1, $gnsurl = array
 	//	https://www.kimb-technologies.eu/systeme/gns
 
 	//nicht leer ?
-	if( empty( $inhalt ) || empty( $to ) ){
+	if( empty( $inhaltgns ) || empty( $to ) ){
 		$gns_ret = false;
 	}
 	//GNS machen?
@@ -308,7 +311,7 @@ function send_mail($to, $inhalt, $mime = 'plain', $gnsforce = 1, $gnsurl = array
 						$gns_data = array(
 							'an' => $to,
 							'titel' => $allgsysconf['sitename'],
-							'cont' => $inhalt, 
+							'cont' => $inhaltgns, 
 							'type' => $mime
 						);
 
@@ -351,7 +354,7 @@ function send_mail($to, $inhalt, $mime = 'plain', $gnsforce = 1, $gnsurl = array
 		$logdata .= 'To: '.$to."\r\n";
 		$logdata .= 'Subject: Nachricht von: '.$allgsysconf['sitename']."\r\n";
 		$logdata .= "\r\n";
-		$logdata .= $inhalt;
+		$logdata .= $inhaltgns;
 		$logdata .= "\r\n\r\n";
 		$logdata .= 'Allgemein: Art ('.( $gnsforce==1 ? 'Mail & GNS' : ( $gnsforce==2 ? 'nur GNS' : 'nur Mail' ) ).'); Type ('.$mime.');'."\r\n";
 		$logdata .= 'Mail Status: Signatur ('.( $this_signed ? 'true' : 'false' ).'); Versandt ('.( $return ? 'true' : 'false' ).');'."\r\n";
