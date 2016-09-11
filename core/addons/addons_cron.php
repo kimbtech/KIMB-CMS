@@ -107,7 +107,7 @@ $output['doneaddons'] = $i;
 $output['allgend'] = time();
 
 //Array $output als JSON ausgeben, einfache maschinelle Verarbeitung der Ausgaben möglich
-echo json_encode( $output );
+echo json_encode( $output, JSON_PRETTY_PRINT );
 
 //beenden
 die;
