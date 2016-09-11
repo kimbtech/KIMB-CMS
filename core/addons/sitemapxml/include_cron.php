@@ -55,10 +55,9 @@ else{
 
 //Array durchgehen
 foreach( $array as $val ){
-	
-	//nur aktivierte Menüpunkte	
-	if ( $val['status'] == 'on' ){
 		
+	//Seite vorhanden und aktiviert??
+	if( check_for_kimb_file( 'site/site_'.$val['siteid'].'.kimb' ) ){
 		//URL herausfinden
 		$url = make_path_outof_reqid( $val['requid'] );
 		//Seite des Menüpunktes laden	
