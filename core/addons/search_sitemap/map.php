@@ -29,7 +29,7 @@ defined('KIMB_CMS') or die('No clean Request');
 if( is_object($sitecache) ){
 
 	//Cache der Sitemap anfragen
-	$menuecache = $sitecache->get_cached_addon( $search_sitemap['searchsiteid'] , 'search_sitemap' );
+	$menuecache = $sitecache->get_cached_addon( $search_sitemap['searchsiteid'] , 'search_sitemap'.( isset($requestlang['id']) ? '-'.$requestlang['id'] : '' ) );
 
 	//Cache vorhanden?
 	if( $menuecache != false ){
@@ -112,8 +112,25 @@ if( $cacheload == 'no' ){
 				$thisulauf = $thisulauf - $i;
 			}
 
+			//Pfad je nach Sprache machen
+			if( !empty( $requestlang['tag'] ) ){
+				//URL Rew?
+				if( $allgsysconf['urlrewrite'] == 'on' ){
+					//per Tag in URL
+					$restpath = '/'.$requestlang['tag'].make_path_outof_reqid( $menuear['requid'] );
+				}
+				else{
+					//per ID in URL
+					$restpath = make_path_outof_reqid( $menuear['requid'] ).'&amp;langid='.$requestlang['id'];
+				}
+			}
+			else{
+				//ohne alles
+				$restpath = make_path_outof_reqid( $menuear['requid'] );
+			}
+
 			//Link zur Seite
-			$menue .=  '<a href="'.$allgsysconf['siteurl'].make_path_outof_reqid( $menuear['requid'] ).'">'.$menuear['menuname'].'</a>';
+			$menue .=  '<a href="'.$allgsysconf['siteurl'].$restpath.'">'.$menuear['menuname'].'</a>';
 			
 			//aktuelles Menü wird jetzt letztes
 			$thisniveau = $niveau;
@@ -131,7 +148,7 @@ if( $cacheload == 'no' ){
 
 	//wenn Cache aktiviert, Ausgaben cachen
 	if( is_object($sitecache) ){
-		$sitecache->cache_addon( $search_sitemap['searchsiteid'] , $menue , 'search_sitemap' );
+		$sitecache->cache_addon( $search_sitemap['searchsiteid'] , $menue , 'search_sitemap'.( isset($requestlang['id']) ? '-'.$requestlang['id'] : '' ) );
 	}
 
 }
