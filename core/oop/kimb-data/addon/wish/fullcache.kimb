@@ -8,3 +8,7 @@
 <[2-addon]>felogin<[2-addon]>
 <[2]>addon==array<[2]>
 <[2-array]>{"a":["off",{"POST":[],"GET":[],"COOKIE":[]}]}<[2-array]>
+<[allidslist3]>3<[allidslist3]>
+<[3-addon]>search_sitemap<[3-addon]>
+<[3]>addon==array<[3]>
+<[3-array]>{"1":["on",{"POST":["search"],"GET":["search"],"COOKIE":[]}]}<[3-array]>
