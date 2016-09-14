@@ -98,12 +98,30 @@ function gen_zufallszahl( $a, $e ){
 	
 }
 
-//E-Mail versenden
-//	Unterschrift per S/MIME, wenn im Backend des CMS aktiviert!	
-//		$to => Empfänger
-//		$inhalt => Inhalt
-//		$mime => MIME Type (text oder html)
-function send_mail($to, $inhalt, $mime = 'plain'){
+//E-Mail/ Mitteilung/ Nachricht versenden
+//	mit KIMB-GNS (https://www.kimb-technologies.eu/systeme/gns)
+//	Unterschrift per S/MIME, wenn im Backend des CMS aktiviert!
+//		Parameter E-Mail und KIMB-GNS:	
+//			$to => Empfänger *
+//			$inhalt => Inhalt *
+//			$mime => MIME Type (plain oder html)
+//		Parameter KIMB-GNS (alle optional):
+//			$gnsforce => (1/2/3)
+//				1: GNS und Mail verwenden
+//				2: nur GNS verwenden
+//				3: nur Mail verwenden
+//			$gnsurl => Array(
+//				'url' => 'Link zur Nachricht',
+//				'urlt' => 'Beschriftung für Link'
+//			); 
+//					nach KIMB-GNS Standard eine URL anhängen
+//			$gnsadd => Array(); 
+//					nach KIMB-GNS Standard "$ms_add"
+//
+//		* Pflichtparameter
+//
+//		Rückgabe: true/ false (immer erstmal von Mail, wenn nur GNS dann GNS)
+function send_mail($to, $inhalt, $mime = 'plain', $gnsforce = 1, $gnsurl = array(), $gnsadd = array() ){
 	global $allgsysconf;
 	
 	//In einigen Add-ons ist ein Bug, welcher die Umbrüche falsch ausgibt:
@@ -117,7 +135,9 @@ function send_mail($to, $inhalt, $mime = 'plain'){
 	if( empty( $inhalt ) || empty( $to ) ){
 		$return = false;
 	}
-	else{
+	//Mail machen?
+	//	immer, außer wenn nur GNS
+	elseif( $gnsforce != 2 ){
 		//erstmal S/MIME nehmen
 		$oldstyle = false;
 		//aber noch nicht signiert
@@ -230,6 +250,98 @@ function send_mail($to, $inhalt, $mime = 'plain'){
 		}
 	}
 
+	//KIMB-GNS
+	//	https://www.kimb-technologies.eu/systeme/gns
+
+	//nicht leer ?
+	if( empty( $inhalt ) || empty( $to ) ){
+		$gns_ret = false;
+	}
+	//GNS machen?
+	//	immer, außer wenn nur Mail
+	elseif( $gnsforce != 3 ){
+		//KIMB-GNS Datei gegeben in conf?
+		if( !empty( $allgsysconf['gns_extfile'] ) && $allgsysconf['gns_extfile'] != 'off' ){
+			//Pfad zu Datei erstellen
+			$gnsfile = __DIR__.'/../../'.$allgsysconf['gns_extfile'];
+
+			//GNS Limit okay?
+			if( !empty( $allgsysconf['gns_limit'] ) && is_numeric( $allgsysconf['gns_limit'] ) ){
+
+				//Anzahl erhöhen
+				if( isset( $_SESSION['GNS_LIMIT_ANZ'] ) ){
+					$_SESSION['GNS_LIMIT_ANZ']++;
+				}
+				else{
+					$_SESSION['GNS_LIMIT_ANZ'] = 1;
+				}
+
+				//Noch im Limit?
+				if( $_SESSION['GNS_LIMIT_ANZ'] <= $allgsysconf['gns_limit'] ){
+					//ja
+					$limitok = true;
+				}
+				else{
+					//nee
+					$limitok = false;
+				}
+			}
+			else{
+				//kein Limit in conf, also immer okay
+				$limitok = true;
+			}
+
+			//Limit lässt noch zu?
+			if( $limitok ){
+				//GNS wohl gewünscht
+				$gns_gew = true;
+
+				//GNS Datei vorhnaden?
+				if( is_file( $gnsfile ) ){
+					//GNS Datei laden
+					require_once( $gnsfile );
+
+					//GNS Funktion vorhanden?
+					if( function_exists( 'global_notify_system' ) ){
+					
+						//Array erstellen
+						$gns_data = array(
+							'an' => $to,
+							'titel' => $allgsysconf['sitename'],
+							'cont' => $inhalt, 
+							'type' => $mime
+						);
+
+						//URL ?
+						if( $gnsurl != array() ){
+							$gns_data['url'] = $gnsurl['url'];
+							$gns_data['urlt'] = $gnsurl['urlt'];
+						}
+
+						//machen
+						$gns_ret = global_notify_system( $gns_data, $gnsadd );
+					}
+				}
+			}
+		}
+	}
+	//GNS Return okay?
+	if(
+		!isset($gns_ret)
+		||
+		( $gns_ret != true && $gns_ret != false )
+	){
+		$gns_ret = false;
+	}
+	//GNS Return okay?
+	if(
+		!isset($gns_gew)
+		||
+		( $gns_gew != true && $gns_gew != false )
+	){
+		$gns_gew = false;
+	}
+
 	//Mail Logging?
 	if( isset( $allgsysconf['mail_log'] ) && $allgsysconf['mail_log'] == 'on' ){
 
@@ -241,7 +353,10 @@ function send_mail($to, $inhalt, $mime = 'plain'){
 		$logdata .= "\r\n";
 		$logdata .= $inhalt;
 		$logdata .= "\r\n\r\n";
-		$logdata .= 'Status: Signatur ('.( $this_signed ? 'true' : 'false' ).'); Versandt ('.( $return ? 'true' : 'false' ).'); Type ('.$mime.')'."\r\n";
+		$logdata .= 'Allgemein: Art ('.( $gnsforce==1 ? 'Mail & GNS' : ( $gnsforce==2 ? 'nur GNS' : 'nur Mail' ) ).'); Type ('.$mime.');'."\r\n";
+		$logdata .= 'Mail Status: Signatur ('.( $this_signed ? 'true' : 'false' ).'); Versandt ('.( $return ? 'true' : 'false' ).');'."\r\n";
+		$logdata .= 'GNS Status: Gefordert ('.( $gns_gew ? 'true' : 'false' ).'); Erfolg ('.( $gns_ret ? 'true' : 'false' ).');'."\r\n";
+		$logdata .= 'GNS Parameter: URL '.( $gnsurl != array() ? '('.$gnsurl['urlt'].')['.$gnsurl['url'].']' : '(keine)' ).'; ADD ('.( $gnsadd != array() ? json_encode( $gnsadd ) : 'keine' ).'); '."\r\n";
 		$logdata .= 'Zeitpunkt: '.date( 'd.m.Y H:i:s' )."\r\n";
 
 		$f = fopen( __DIR__.'/mail.log', 'a+' );
@@ -249,7 +364,15 @@ function send_mail($to, $inhalt, $mime = 'plain'){
 		fclose( $f );
 	}
 
-	return $return;
+	//Rückgabe
+	//	immer Mail, wenn verfügbar
+	if( isset( $return ) ){
+		return $return;
+	}
+	//	sonst GNS (ist immer gesetzt)
+	else{
+		return $gns_ret;
+	}
 }
 
 //Browser an  andere URL weiterleiten
