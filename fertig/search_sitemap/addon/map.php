@@ -56,6 +56,14 @@ if( $cacheload == 'no' ){
 	$menuenames = new KIMBdbf('menue/menue_names.kimb');
 	//Menue Array machen
 	make_menue_array();
+
+	//Menünamen Übersetzung?
+	if( $allgsysconf['lang'] == 'on' ){
+		//nicht Standardsprache?
+		if( $requestlang['id'] != 0 ){
+			$menuenametransdbf = new KIMBdbf( 'menue/menue_names_lang_'.$requestlang['id'].'.kimb' );
+		}
+	} 
 	
 	//Sitemap beginnen
 	$menue = '<ul id="sitemap">'."\r\n";
@@ -129,8 +137,23 @@ if( $cacheload == 'no' ){
 				$restpath = make_path_outof_reqid( $menuear['requid'] );
 			}
 
+			//Menüname evtl. übersetzen ?
+			if( is_object( $menuenametransdbf ) ){
+				//Übersetzung vorhnaden?
+				$menuenameshow = $menuenametransdbf->read_kimb_one( $menuear['requid'] );
+				//	wenn leer => nicht vorhanden
+				if( empty( $menuenameshow ) ){
+					//aus Vorgabe lesen
+					$menuenameshow = $menuear['menuname'];	
+				}
+			}
+			else{
+				//Standard
+				$menuenameshow = $menuear['menuname'];
+			}
+
 			//Link zur Seite
-			$menue .=  '<a href="'.$allgsysconf['siteurl'].$restpath.'">'.$menuear['menuname'].'</a>';
+			$menue .=  '<a href="'.$allgsysconf['siteurl'].$restpath.'">'.$menuenameshow.'</a>';
 			
 			//aktuelles Menü wird jetzt letztes
 			$thisniveau = $niveau;

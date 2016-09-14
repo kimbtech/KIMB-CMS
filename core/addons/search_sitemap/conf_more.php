@@ -116,7 +116,7 @@ $sitecontent->add_site_content('<input name="searchform" value="on" type="radio"
 $sitecontent->add_site_content('<input name="searchform" value="off" type="radio" '.$form['off'].'><span style="display:inline-block;" title="Das Formular nur auf der Such-Seite anzeigen." class="ui-icon ui-icon-closethick"></span><br />' );
 
 //Versuche und Ergebnisse Anzahlen
-$sitecontent->add_site_content('<input name="maxversuch" value="'.$conffile->read_kimb_one( 'maxversuch' ).'" type="number"> Maximale Versuche<b title="Geben Sie an, wie viele Seiten der Suchalgorithmus durchsuchen soll. (Achtung: Zuserst findet ein Durchlauf mit den Menuenamen statt, erst dann wird in den Seiteninhalten gesucht. (Einen Seite => 2 Versuche))">*</b><br />' );
+$sitecontent->add_site_content('<input name="maxversuch" value="'.$conffile->read_kimb_one( 'maxversuch' ).'" type="number"> Maximale Versuche<b title="Geben Sie an, wie viele Seiten der Suchalgorithmus durchsuchen soll. (Achtung: Zuserst findet ein Durchlauf mit den Menuenamen statt, erst dann wird in den Seiteninhalten gesucht. (Einen Seite => 2 Versuche => Alle Seiten des CMS durchsuchen => Maximale Versuche auf zweifache Anzahl an Seiten setzen))">*</b><br />' );
 $sitecontent->add_site_content('<input name="maxerg" value="'.$conffile->read_kimb_one( 'maxerg' ).'" type="number"> Maximale Ergebnisse<b title="Geben Sie an, nach wie vielen Ergebnissen der Suchalgorithmus abbrechen soll.">*</b><br />' );
 
 //Senden Button

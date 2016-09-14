@@ -55,7 +55,7 @@ if( !empty( $begriff ) ){
 
 	//Sprache aktiviert?
 	//	es sollen alle Sprachen durchsucht werden
-	if($allgsysconf['lang'] == 'on' ){
+	if( $allgsysconf['lang'] == 'on' ){
 	
 		//Sprachdatei lesen
 		$langfile = new KIMBdbf( 'site/langfile.kimb' );
@@ -93,20 +93,25 @@ if( !empty( $begriff ) ){
 	$begrifflen = mb_strlen( $begriff );
 	//	Array für alle Begriffe (Teile)
 	$allbeg = array();
-	//nur wenn Begriff nicht zu lang
-	if( $begrifflen <= 50 ){
+	//	Array mit Länge der Begriff (je Länger die Übereinstimmung je besser das Ergebnis)
+	$allbeg_len = array();
+	//nur wenn Begriff nicht zu lang oder zu kurz
+	if( $begrifflen <= 50 && $begrifflen >= 3 ){
 		//Ab einer Länge von min. 3 Buchstaben alle kombinieren
 		for( $i = 3; $i <= $begrifflen ; $i++ ){
 			for( $ii = 0; $ii <= ($begrifflen - $i ) ; $ii++ ){
 				$allbeg[] = mb_substr( $begriff, $ii, $i );
+				$allbeg_len[] = $i;
 			}	
 		}
 		//umdrehen (damit Beste zuerst)
 		$allbeg = array_reverse( $allbeg );
+		$allbeg_len = array_reverse( $allbeg_len );
 	}
 	else{
 		//sonst nur nach allem suchen
 		$allbeg = array( $begriff );
+		$allbeg_len = array( $begrifflen );
 	}
 
 	//Parts durchgehen
@@ -220,13 +225,13 @@ if( !empty( $begriff ) ){
 						$str = html_entity_decode( $str, ENT_COMPAT | ENT_HTML401 ,'UTF-8' );
 
 						//nach allen Begriffen suchen
-						foreach( $allbeg as $beg ){
+						foreach( $allbeg as $begi => $beg ){
 							//Suche
 							$posi = mb_stripos ( $str , $beg );
 
 							//etwas gefunden, dann hier aufhören
 							if( $posi !== false ){
-								$begriff_len = mb_strlen( $beg );			
+								$begriff_len = $allbeg_len[$begi];			
 								break;
 							}
 						}
@@ -253,13 +258,13 @@ if( !empty( $begriff ) ){
 					$string = html_entity_decode( $string, ENT_COMPAT | ENT_HTML401 ,'UTF-8' );
 					
 					//nach allen Begriffen suchen
-					foreach( $allbeg as $beg ){
+					foreach( $allbeg as $begi => $beg ){
 						//Suche
 						$posi = mb_stripos ( $string , $beg );
 
 						//etwas gefunden, dann hier aufhören
 						if( $posi !== false ){
-							$begriff_len = mb_strlen( $beg );			
+							$begriff_len = $allbeg_len[$begi];			
 							break;
 						}
 					}
@@ -315,11 +320,11 @@ if( !empty( $begriff ) ){
 					}
 
 					//Punkt der Liste hinzufügen
-					$resultate .= '<li style="margin:5px; background-color:#ddd;">'."\r\n";
+					$resultat_hier = '<li class="sucheliste">'."\r\n";
 					//Menüname
 					//	URL Sprachtag?
 					//		wenn mehrsprachig 
-					if( is_array( $strings ) ){
+					if( $allgsysconf['lang'] == 'on' ){
 						//URL-Rew?
 						if( $allgsysconf['urlrewrite'] == 'on' ){
 							$sprachtag = '/'.$allglangs[$key]['tag'];
@@ -331,17 +336,27 @@ if( !empty( $begriff ) ){
 						}
 					}
 					//	Ausgaben
-					$resultate .= '<b><u><a href="'.$allgsysconf['siteurl'].$sprachtag.make_path_outof_reqid( $requid ).$sprachparam.'" target="_blank">'.$sitename.'</a></u></b>'."\r\n";
+					$resultat_hier .= '<a class="suchelink" href="'.$allgsysconf['siteurl'].$sprachtag.make_path_outof_reqid( $requid ).$sprachparam.'" target="_blank">'.$sitename.'</a>'."\r\n";
 					//Flagge anzeigen bei mehrprachigen Seiten
-					if( is_array( $strings ) ){
-						$resultate .= '<sup><img src="'.$allglangs[$key]['flag'].'"></sup><br />'."\r\n";
+					if( $allgsysconf['lang'] == 'on' ){
+						$resultat_hier .= '<sup><img src="'.$allglangs[$key]['flag'].'"></sup>'."\r\n";
 					}
 					//Vorschau (Ausgabe des Resultats)
-					$resultate .= $inhalt."\r\n";
-					$resultate .= '</li>'."\r\n";
+					$resultat_hier .= '<div class="suchevorschau">'.$inhalt.'</div>'."\r\n";
+					//Übereinstimmung
+					$resultat_hier .= '<span class="sucheueberein">'.$allgsys_trans['addons']['search_sitemap']['ueberein'].': '.intval( ($begriff_len/$begrifflen) * 100 ).'%</span>'."\r\n";
+					$resultat_hier .= '</li>'."\r\n";
 
 					//Array mit gefundenen Seiten um diese erweitern
 					$foundsites[] = $teil['requestid'];
+
+					//Array mit Ergebnisse
+					$resultate[] = array(
+						//Ergebnis
+						'li' => $resultat_hier,
+						//Qualität
+						'lv' => $begriff_len
+					);
 
 					//Anzahl der Ergebnisse und Versuche erhöhen
 					$anzahl++;
@@ -383,6 +398,9 @@ if( !empty( $begriff ) ){
 	}
 
 	//Ergebnisse darstellen
+
+	//CSS für Auflistung
+	$sitecontent->add_html_header( '<link rel="stylesheet" type="text/css" href="'.$allgsysconf['siteurl'].'/load/addondata/search_sitemap/main.min.css" media="all">' );
 	
 	//Überschrift
 	$sitecontent->add_site_content( '<h2>'.$allgsys_trans['addons']['search_sitemap']['res'].'</h2>' );
@@ -390,9 +408,18 @@ if( !empty( $begriff ) ){
 	//Anzahl der Ergebnisse
 	$sitecontent->add_site_content( $allgsys_trans['addons']['search_sitemap']['anz'].': '.$anzahl );
 	$sitecontent->add_site_content( '<br /><br />' );
-	$sitecontent->add_site_content( '<ul>' );
+	$sitecontent->add_site_content( '<ul class="sucheergebnisse">' );
+
+	//Resultate Array aufbereiten
+	//	Inhalt 
+	$resultate_li = array_column( $resultate, 'li' );
+	//	Qualität
+	$resultate_lv = array_column( $resultate, 'lv' );
+	//	Sortieren
+	array_multisort( $resultate_lv, SORT_DESC, SORT_NUMERIC, $resultate_li );
+
 	//Liste der Resultate
-	$sitecontent->add_site_content( $resultate );
+	$sitecontent->add_site_content( implode( '',  $resultate_li ) );
 	$sitecontent->add_site_content( '</ul>' );
 	$sitecontent->add_site_content( '<hr />' );
 }
