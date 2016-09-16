@@ -45,9 +45,26 @@ $uconfs = array(
 		'auswer' => array( 'an', 'na' ),
 		'zugaus' => array( 'ad', 'oe' ),
 		'inform' => array( "## Umfrage 7 \r\n\r\nDiese Umfrage soll uns dabei helfen XXX zu verstehen. \r\n\r\n**Ihre Daten werden natürlich anonym ausgewertet!**" )
+	),
+	//Fragen
+	array(
+		//Fragentypen
+		'type' => array(
+			'au' => 'Auswahl',
+			'mc' => 'Multiple Choice',
+			'ab' => 'Abstufung',
+			'za' => 'Zahl',
+			'ft' => 'Freitext'
+		),
+		//Text der Frage
+		'frage' => 'Hier kommt eine schöne Frage hin!',
+		//Beschriftung der Felder
+		'felder' => array(
+			1 => 'A',
+			2 => 'B'
+		)
 	)
 );
-
 
 //Umfrage bearbeiten?
 //ID gegeben?
@@ -79,11 +96,66 @@ if(
 	if( $_SERVER['REQUEST_METHOD'] == 'POST' ){
 		if( $_GET['tab'] == 0 ){
 			//Allgemein
-			var_dump( 'ALLG', $_POST );
+
+			$changed = 0;
+			
+			//alle POST durchgehen
+			foreach( $uconfs[0] as $name => $vals ){
+				//definiert?
+				if( isset( $_POST[$name] ) ){
+					$value = $_POST[$name];
+					
+					if( $name == 'inform' ){
+						//bei Freitext Value immer okay
+						$valok = true;
+					}
+					else{
+						//Value in Array der möglichen Values?
+						$valok = in_array( $value , $vals );	
+					}
+					//wenn okay
+					if( $valok ){
+						//aktuelles lesen
+						$oldval = $ufile->read_kimb_one( $name );
+						//Änderung ?
+						if( $value != $oldval ){
+							if( $ufile->write_kimb_one( $name, $value ) ){
+								$changed++;
+
+								//Markdown
+								if( $name == 'inform' ){
+									//parsen
+									$valueh = parse_markdown( $value );
+									//ablegen
+									$ufile->write_kimb_one( $name.'-parsed', $valueh );
+								}
+							}
+						}
+					}
+				}
+			}
+
 		}
 		elseif( $_GET['tab'] == 1 ){
 			//Fragen
-			var_dump( 'FRAG', $_POST );
+			
+			//neu?
+			if( isset( $_POST['type'][0] ) ){
+				//Wert okay?
+				if( in_array( $_POST['type'][0], array_keys( $uconfs[1]['type'] ) ) ){
+					//Frage erstellen, mit Standardwerten
+					$id = $ufile->next_kimb_id();
+					$ufile->write_kimb_id( $id, 'add', 'type', $_POST['type'][0] );
+					$ufile->write_kimb_id( $id, 'add', 'frage', $uconfs[1]['frage'] );
+					$ufile->write_kimb_id( $id, 'add', 'felder', $uconfs[1]['felder'] );
+
+					$sitecontent->echo_message( 'Es wurde eine neue Frage erstellt!' );
+				}
+			}
+
+			//verändern
+
+			//...
 		}
 	}
 	
@@ -100,10 +172,64 @@ if(
 	//Fragen
 	$sitecontent->add_site_content( '<h4>Fragen</h4>' );
 
+	//alle lesen
+	$fragen = $ufile->read_kimb_id_all();
+
 	//Formular
 	$sitecontent->add_site_content('<form action="'.$addonurlhere.'&amp;tab=1" method="post">');
 
-	
+	//Liste
+	$sitecontent->add_html_header('<style>table#fragen{ border:1px solid; border-collapse:collapse; width: 100%; } table#fragen tr.borderbott{ border-bottom:1px solid; border-collapse:collapse; } table#fragen tr.borderbott div{ background-color: #fff; border-radius:5px; padding:10px; margin:5px; }</style>');
+	$sitecontent->add_site_content('<table id="fragen">');
+
+	//alle auflisten
+	foreach( $fragen as $id => $data ){
+		$sitecontent->add_site_content('<tr>');
+		//	Infos zur Frage
+		$sitecontent->add_site_content('<th>'.$id.'</th>');
+		$sitecontent->add_site_content('<td>'.$uconfs[1]['type'][$data['type']].'</td>');
+		//	Text der Frage
+		$sitecontent->add_site_content('<td><textarea name="frage['.$id.']" style="width:90%;">'.htmlentities( $data['frage'], ENT_COMPAT | ENT_HTML401,'UTF-8' ).'</textarea></td>');
+		$sitecontent->add_site_content('</tr>');
+		$sitecontent->add_site_content('<tr class="borderbott">');
+		$sitecontent->add_site_content('<td colspan="3"><div>');
+		//	Fragefelder
+		$sitecontent->add_site_content( nl2br( print_r( $data['felder'], true) ) );
+		$sitecontent->add_site_content('</div>');
+		//Löschen und verschieben Button
+		$sitecontent->add_site_content('<span class="ui-icon ui-icon-trash" style="display:inline-block;" onclick="delete_fra('.$id.');" title="Diese Frage löschen."></span>');
+		$sitecontent->add_site_content('<span class="ui-icon ui-icon-arrowthick-1-n" style="display:inline-block;" onclick="versch_fra('.$id.', \'hoch\');" title="Diese Frage nach oben schieben."></span>');
+		$sitecontent->add_site_content('<span class="ui-icon ui-icon-arrowthick-1-s" style="display:inline-block;" onclick="delete_fra('.$id.', \'runter\');" title="Diese Frage nach unten schieben."></span>');
+
+		$sitecontent->add_site_content('<td>');
+		$sitecontent->add_site_content('</tr>');
+	}
+
+	//Neu
+	$sitecontent->add_site_content('<tr>');
+	$sitecontent->add_site_content('<th>0</th>');
+	$sitecontent->add_site_content('<td>');
+	$sitecontent->add_site_content('<select name="type[0]">');
+	$sitecontent->add_site_content('<option value="none">Bitte wählen</option>');
+	foreach( $uconfs[1]['type'] as $value => $name ){
+		$sitecontent->add_site_content('<option value="'.$value.'">'.$name.'</option>');
+	}
+	$sitecontent->add_site_content('</select>');
+	$sitecontent->add_site_content('</td>');
+	$sitecontent->add_site_content('<td width="50%">');
+	$sitecontent->add_site_content('Bitte wählen Sie hier den Typ der neuen Frage.
+	<ul>
+	<li><b>Auswahl:</b> Sie geben verschiedene Optionen an und der User kann genau eine davon auswählen.</li>
+	<li><b>Multiple Choice:</b> Sie geben verschiedene Optionen an und der User kann beliebig viele davon auswählen.</li>
+	<li><b>Abstufung:</b> Sie nennen verschieden Punkte und der User kann diese bewerten. (1 [sehr gut] - 6 [schlecht] und keine Angabe)</li>
+	<li><b>Zahl:</b> Sie fragen den User und dieser kann frei eine Zahl eingeben.</li>
+	<li><b>Freitext:</b> Der User kann frei Text schreiben.</li>
+	</ul>');
+	$sitecontent->add_site_content('</td>');
+	$sitecontent->add_site_content('</tr>');
+
+	$sitecontent->add_site_content('</table>');
+
 	$sitecontent->add_site_content('<input type="submit" value="Speichern">');
 	$sitecontent->add_site_content('</form>');
 
@@ -159,10 +285,11 @@ if(
 		//Formular
 		$sitecontent->add_site_content('<tr>');
 		$sitecontent->add_site_content('<th>Links für Zugriff</th>');
-		$sitecontent->add_site_content('<td><input type="number" id="linksanz" min="1" max="500" placeholder="Anzahl">');
+		$sitecontent->add_site_content('<td><input type="number" id="linksanz" min="0" max="500" placeholder="Anzahl">');
 		$sitecontent->add_site_content('<button onclick="make_links(); return false;">Erstellen</button></td>');
 		$sitecontent->add_site_content('<td style="width:50%;">');
-		$sitecontent->add_site_content('Erstellen Sie hier eine CSV Liste mit einer von Ihnen gewünschten Anzahl an Zugriffslinks zur Umfrage.');
+		$sitecontent->add_site_content('Erstellen Sie hier eine CSV Liste mit einer von Ihnen gewünschten Anzahl an Zugriffslinks zur Umfrage.<br />');
+		$sitecontent->add_site_content('<em>(Sofern Sie 0 eingeben, werden alle Links gelöscht bzw. funktionieren nicht mehr.)</em>');
 		$sitecontent->add_site_content('</td>');
 		$sitecontent->add_site_content('</tr>');
 
