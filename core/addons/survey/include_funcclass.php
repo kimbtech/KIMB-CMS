@@ -57,48 +57,67 @@ function check_surveyrights( $uid, $ufile ){
 		||
 		( check_addon( 'felogin' ) != array(true, true) )
 	){
+		//schon teilgenommen?
+		if(
+			!isset( $_SESSION['addon_survey'][$uid]['teilgenommen'] )
+			||
+			( isset( $_SESSION['addon_survey'][$uid]['teilgenommen'] ) && $_SESSION['addon_survey'][$uid]['teilgenommen'] == 'ja' )
 
-		//Zugriff Auswertung
-		if( $ausw == 'oe' ){
-			$_SESSION['addon_survey']['ausw'][$uid]['zugriff'] = 'allowed';
-		}
-		else{
-			$_SESSION['addon_survey']['ausw'][$uid]['zugriff'] = 'notallowed';
-		}
+		){
+		
+			//Zugriff Auswertung
+			if( $ausw == 'oe' ){
+				$_SESSION['addon_survey']['ausw'][$uid]['zugriff'] = 'allowed';
+			}
+			else{
+				$_SESSION['addon_survey']['ausw'][$uid]['zugriff'] = 'notallowed';
+			}
 
-		//Teilnahme Umfrage
+			//Teilnahme Umfrage
 
-		//öffentlich?
-		if( $zug == 'oe' ){
-			$_SESSION['addon_survey'][$uid]['zugriff'] = 'allowed';
-			return true;
-		}
-		//per Link?
-		elseif( $zug == 'li' ){
-			if( isset( $_SESSION['addon_survey'][$uid]['zugriff'] ) ){
-				if( $_SESSION['addon_survey'][$uid]['zugriff'] == 'allowed' ){
-					return true;
+			//öffentlich?
+			if( $zug == 'oe' ){
+				$_SESSION['addon_survey'][$uid]['zugriff'] = 'allowed';
+				return true;
+			}
+			//per Link?
+			elseif( $zug == 'li' ){
+				if( isset( $_SESSION['addon_survey'][$uid]['zugriff'] ) ){
+					if( $_SESSION['addon_survey'][$uid]['zugriff'] == 'allowed' ){
+						return true;
+					}
 				}
 			}
-		}
-		elseif( $zug == 'fe' ){
-			//Add-on vorhanden und aktiviert
-			if( check_addon( 'felogin' ) == array(true, true) ){
-				//Login okay
-				if( check_felogin_login( '---session---', '---none---', true ) ){
-					$_SESSION['addon_survey'][$uid]['zugriff'] = 'allowed';
-					return true;
+			elseif( $zug == 'fe' ){
+				//Add-on vorhanden und aktiviert
+				if( check_addon( 'felogin' ) == array(true, true) ){
+					//Login okay
+					if( check_felogin_login( '---session---', '---none---', true ) ){
+						$_SESSION['addon_survey'][$uid]['zugriff'] = 'allowed';
+						return true;
+					}
 				}
 			}
 		}
 	}
 	else{
+		//nicht erlaubt (Auswetung sehen)
+		//	kein Zugriff auf Seite
 		$_SESSION['addon_survey']['ausw'][$uid]['zugriff'] = 'notallowed';
 	}
 
 	//sonst Fehler
 	$_SESSION['addon_survey'][$uid]['zugriff'] = 'notallowed';
 	return false;
+}
+
+//User per Session auf teilgenommen setzen
+//	$uid => UmfrageID
+function survey_teilgenommen( $uid ){
+	//schon teilgenommen
+	$_SESSION['addon_survey'][$uid]['teilgenommen'] = 'ja';
+	//nicht mehr erlaubt
+	$_SESSION['addon_survey'][$uid]['zugriff'] = 'notallowed';
 }
 
 ?>

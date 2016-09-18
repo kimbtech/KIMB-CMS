@@ -117,6 +117,8 @@ elseif(
 		if( $file->read_kimb_search_teilpl( 'links', $code ) ){
 			//freischalten (SESSION)
 			$_SESSION['addon_survey'][$uid]['zugriff'] = 'allowed';
+			//auch wenn schon teilgenommen, mit zwei Links doppelt erlaubt
+			$_SESSION['addon_survey'][$uid]['teilgenommen'] = 'nein';
 			//Code löschen
 			$file->write_kimb_teilpl( 'links', $code, 'del' );
 
@@ -154,6 +156,13 @@ elseif(
 
 	//Umfrage vorhanden?
 	if( check_for_kimb_file( 'addon/survey__'.$uid.'_conf.kimb' ) ){
+
+		//noch keine Fehler
+		$outerr = false;
+
+		//POST Daten von AJAX
+		$ajaxpost = $_POST['data'];
+
 		//Umfrage?
 		if( $_POST['task'] == 'umfrage' ){
 			//Session okay?
@@ -163,7 +172,12 @@ elseif(
 				$_SESSION['addon_survey'][$uid]['zugriff'] == 'allowed'
 			){
 				//do it
-				echo "Umfrage machen";
+				$out = "Umfrage machen";
+				$out .= nl2br( print_r( $ajaxpost, true ) );
+			}
+			else{
+				$out = "403 - Nicht erlaubt!";
+				$outerr = false;
 			}
 
 		}
@@ -176,9 +190,24 @@ elseif(
 				$_SESSION['addon_survey']['ausw'][$uid]['zugriff'] == 'allowed'
 			){
 				//do it
-				echo "Auswertung machen";
+				$out = "Auswertung machen";
+			}
+			else{
+				$out = "403 - Nicht erlaubt!";
+				$outerr = false;
 			}
 		}
+
+		//Ausgabe vorbereiten
+		$output = array(
+			'okay' => true,
+			'data' => $out,
+			'error' => $outerr
+		);
+		//Ausgabe machen
+		header('Content-Type: application\json; charset=utf-8');
+		echo json_encode( $output, JSON_PRETTY_PRINT );
+		die;
 	}
 	else{
 		echo "404 - Umfrage nicht gefunden!";

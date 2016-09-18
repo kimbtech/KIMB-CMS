@@ -12,6 +12,7 @@ div#addon_survey_main div#auswertung{
 	background-color:#fff;
 	padding:5px;
 	margin:5px;
+	border-radius:5px;
 }
 
 div#addon_survey_main div#fragen{
@@ -24,4 +25,20 @@ div#addon_survey_main div#navigation{
 
 div#addon_survey_main div#auswertung{
 	
+}
+
+span.fakebutton{
+	padding:2px;
+	border-radius:2px;
+	background-color:#eee;
+	margin:2px;
+	border:1px solid #ccc;
+}
+div.surveyerrorbox{
+	padding:2px;
+	border-radius:2px;
+	background-color:#f00;
+	margin:2px;
+	border:1px solid #000;
+	color:#fff;
 }
