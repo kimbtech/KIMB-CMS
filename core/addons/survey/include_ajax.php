@@ -98,15 +98,92 @@ if(
 	}
 }
 //Link für Umfrage aufgerufen?
-elseif( isset( $_GET['todo'] ) && $_GET['todo'] == 'link' ){
+elseif(
+	isset( $_GET['todo'] ) && $_GET['todo'] == 'link'
+	&&
+	isset( $_GET['uid'] ) && is_numeric( $_GET['uid'] )
+){
 
-	echo 'Umfragelink FWD - '.$_GET['uid'].' - '.$_GET['code'];
+	$uid = $_GET['uid'];
+	$code = $_GET['code'];
 
-	//Code prüfen
+	//Umfrage vorhnaden?
+	if(  check_for_kimb_file( 'addon/survey__'.$uid.'_conf.kimb' ) ){
 
-	//freischalten (SESSION)
+		//Datei laden
+		$file = new KIMBdbf( 'addon/survey__'.$uid.'_conf.kimb' );
 
-	//Weiterleiten
+		//Code prüfen
+		if( $file->read_kimb_search_teilpl( 'links', $code ) ){
+			//freischalten (SESSION)
+			$_SESSION['addon_survey'][$uid]['zugriff'] = 'allowed';
+			//Code löschen
+			$file->write_kimb_teilpl( 'links', $code, 'del' );
+
+			//Seiten ID zu RequestID umrechnen
+			//	ID Zuordnungen Datei laden
+			$idfile = new KIMBdbf('menue/allids.kimb');
+			//	rechnen
+			$requid = $idfile->search_kimb_xxxid( $uid , 'siteid' );
+
+			if( $requid != false ){
+				//Weiterleiten
+				open_url( make_path_outof_reqid( $requid ) );
+			}
+			else{
+				echo "404 - Umfrage nicht gefunden!";
+			}
+		}
+		else{
+			echo "403 - Code für die Umfrage ungültig!";
+		}
+	}
+	else{
+		echo "404 - Umfrage nicht gefunden!";
+	}
+	die;
+}
+elseif(
+	isset( $_POST['task'] )
+	&&
+	( $_POST['task'] == 'umfrage' || $_POST['task'] == 'auswertung' )
+	&&
+	isset( $_POST['uid'] ) && is_numeric( $_POST['uid'] )
+){
+	$uid = $_POST['uid'];
+
+	//Umfrage vorhanden?
+	if( check_for_kimb_file( 'addon/survey__'.$uid.'_conf.kimb' ) ){
+		//Umfrage?
+		if( $_POST['task'] == 'umfrage' ){
+			//Session okay?
+			if(
+				isset( $_SESSION['addon_survey'][$uid]['zugriff'] )
+				&&
+				$_SESSION['addon_survey'][$uid]['zugriff'] == 'allowed'
+			){
+				//do it
+				echo "Umfrage machen";
+			}
+
+		}
+		//Statistik?
+		else{
+			//Session okay
+			if(
+				isset( $_SESSION['addon_survey']['ausw'][$uid]['zugriff'] )
+				&&
+				$_SESSION['addon_survey']['ausw'][$uid]['zugriff'] == 'allowed'
+			){
+				//do it
+				echo "Auswertung machen";
+			}
+		}
+	}
+	else{
+		echo "404 - Umfrage nicht gefunden!";
+	}
+
 }
 else{
 	echo "400 - Fehlerhafter Request!";

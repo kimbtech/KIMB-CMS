@@ -27,7 +27,9 @@
 defined('KIMB_CMS') or die('No clean Request');
 
 //Fragen aus Fragedatei lesen
-//	korrekt sortiert
+//  korrekt sortiert
+//	$ufile => KIMBdbf Objekt der Umfragedatei
+//	Return: Array von KIMBdbf read all ID
 function read_and_sort_fragen( $ufile ){
 	//alle lesen
 	$fragen = $ufile->read_kimb_id_all();
@@ -35,6 +37,68 @@ function read_and_sort_fragen( $ufile ){
 	ksort( $fragen, SORT_NUMERIC );
 	//Ausgeben
 	return $fragen;
+}
+
+//Zugriffsrechte für Umfrage prüfen
+//  per Session
+//	$uid => Umfrage ID
+//	$ufile => KIMBdbf Objekt der Umfragedatei
+//	Return: Boolean
+function check_surveyrights( $uid, $ufile ){
+	//Zugriffsart lesen
+	$zug = $ufile->read_kimb_one( 'zugriff' );
+	//Auswertung
+	$ausw = $ufile->read_kimb_one( 'zugaus' );
+
+	//überhaupt Zugriff auf Seite?
+	//	Felogin Check
+	if(
+		( check_addon( 'felogin' ) == array(true, true) && check_felogin_login( '---session---', '---allgsiteid---', true ) )
+		||
+		( check_addon( 'felogin' ) != array(true, true) )
+	){
+
+		//Zugriff Auswertung
+		if( $ausw == 'oe' ){
+			$_SESSION['addon_survey']['ausw'][$uid]['zugriff'] = 'allowed';
+		}
+		else{
+			$_SESSION['addon_survey']['ausw'][$uid]['zugriff'] = 'notallowed';
+		}
+
+		//Teilnahme Umfrage
+
+		//öffentlich?
+		if( $zug == 'oe' ){
+			$_SESSION['addon_survey'][$uid]['zugriff'] = 'allowed';
+			return true;
+		}
+		//per Link?
+		elseif( $zug == 'li' ){
+			if( isset( $_SESSION['addon_survey'][$uid]['zugriff'] ) ){
+				if( $_SESSION['addon_survey'][$uid]['zugriff'] == 'allowed' ){
+					return true;
+				}
+			}
+		}
+		elseif( $zug == 'fe' ){
+			//Add-on vorhanden und aktiviert
+			if( check_addon( 'felogin' ) == array(true, true) ){
+				//Login okay
+				if( check_felogin_login( '---session---', '---none---', true ) ){
+					$_SESSION['addon_survey'][$uid]['zugriff'] = 'allowed';
+					return true;
+				}
+			}
+		}
+	}
+	else{
+		$_SESSION['addon_survey']['ausw'][$uid]['zugriff'] = 'notallowed';
+	}
+
+	//sonst Fehler
+	$_SESSION['addon_survey'][$uid]['zugriff'] = 'notallowed';
+	return false;
 }
 
 ?>
