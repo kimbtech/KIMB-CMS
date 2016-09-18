@@ -26,5 +26,15 @@
 
 defined('KIMB_CMS') or die('No clean Request');
 
+//Fragen aus Fragedatei lesen
+//	korrekt sortiert
+function read_and_sort_fragen( $ufile ){
+	//alle lesen
+	$fragen = $ufile->read_kimb_id_all();
+	//nach ID sortieren
+	ksort( $fragen, SORT_NUMERIC );
+	//Ausgeben
+	return $fragen;
+}
 
 ?>

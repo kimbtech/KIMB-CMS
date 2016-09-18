@@ -32,4 +32,73 @@ $addonurl = $allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=less&
 //Systemkonfigurationsdatei
 $sysfile = new KIMBdbf( 'addon/survey__conf.kimb' );
 
+//immer Tabelle
+$maketable = true;
+
+//Ergebnisse aufrufen?
+if( isset( $_GET['stat'] ) && is_numeric( $_GET['stat'] ) ){
+	//Ergebisse vorhanden?
+	if( check_for_kimb_file( 'addon/survey__'.$_GET['stat'].'_erg.kimb' ) ){
+		//auslesen
+		$uid = $_GET['stat'];
+
+		$sitecontent->add_site_content('<h2>Statistik für Umfrage <u>'.$uid.'</u></h2>');
+		
+
+		$maketable = false;
+	}
+	//keine Ergebnisse
+	else{
+		//norm. Tabelle
+		$maketable = true;
+	}
+}
+
+//Tabelle machen?
+if( $maketable ){
+	//alle UIDs lesen
+	$uids = $sysfile->read_kimb_all_teilpl( 'uid' );
+	//Array ( SeitenID => Seitenname ) erstellen
+	foreach( list_sites_array() as $array ){
+		$names[$array['id']] = $array['site'];
+	}
+
+	$sitecontent->add_site_content('<h2>Alle Umfragen</h2>');
+
+	//Tabelle
+	$sitecontent->add_site_content('<style>table#uliste{ width:100%; border:1px solid black; }</style>');
+	$sitecontent->add_site_content('<table id="uliste">');
+	$sitecontent->add_site_content('<tr>');
+	$sitecontent->add_site_content('<th>ID</th>');
+	$sitecontent->add_site_content('<th>Seite</th>');
+	$sitecontent->add_site_content('<th>Ergebisse &amp; Auswertung</th>');
+	$sitecontent->add_site_content('</tr>');
+	//alle Seiten mit Umfrage durchgehen
+	foreach( $uids as $uid ){
+		$sitecontent->add_site_content('<tr>');
+		$sitecontent->add_site_content('<td>'.$uid.'</td>');
+		$sitecontent->add_site_content('<td>'.$names[$uid].'</td>');
+		$sitecontent->add_site_content('<td>');
+		//schon Ergebnisse?
+		if( check_for_kimb_file( 'addon/survey__'.$uid.'_erg.kimb' ) ){
+			$sitecontent->add_site_content('<a href="'.$addonurl.'&amp;stat='.$uid.'"><span class="ui-icon ui-icon-image" title="Ergebnisse ansehen"></span></a>');
+		}
+		else{
+			$sitecontent->add_site_content('<span class="ui-icon ui-icon-cancel" title="Keine Ergebnisse"></span>');
+		}
+		$sitecontent->add_site_content('</td>');
+		$sitecontent->add_site_content('</tr>');
+	}
+	//leer ?
+	if( $uids == array () ){
+		$sitecontent->add_site_content('<tr><td colspan="3">&nbsp;</td></tr>');
+		$sitecontent->add_site_content('<tr>');
+		$sitecontent->add_site_content('<td colspan="3">Bisher keine Umfragen erstellt.</td>');
+		$sitecontent->add_site_content('</tr>');
+		$sitecontent->add_site_content('<tr><td colspan="3">&nbsp;</td></tr>');
+	}
+	$sitecontent->add_site_content('</table>');
+	$sitecontent->add_site_content('<p>Die Umfragen können Sie im Backend in der Add-on Konfiguration bearbeiten!</p>');
+}
+
 ?>

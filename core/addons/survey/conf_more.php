@@ -129,6 +129,12 @@ if(
 									//ablegen
 									$ufile->write_kimb_one( $name.'-parsed', $valueh );
 								}
+								//Auswertung
+								//	Name/ Anonym geändrt?
+								elseif( $name == 'auswer' ){
+									//Ergebnisse löschen
+									$deletethiserg = true;
+								}
 							}
 						}
 					}
@@ -155,9 +161,132 @@ if(
 
 			//verändern
 
-			//...
+			//für Meldungen
+			$message = array();
+
+			//alle Fragen durchgehen
+			//	mit Fragetext und Feldern
+			foreach( $_POST['frage'] as $id => $text ){
+				//Felder
+				$felder = $_POST['feld'][$id];
+				//aktuelles aus dbf lesen
+				$dbf = $ufile->read_kimb_id( $id );
+
+				//Veränderung bei Fragetext?
+				if( $text != $dbf['frage'] ){
+					//schreiben
+					if( $ufile->write_kimb_id( $id, 'add', 'frage', $text ) ){
+						$message[] = 'Fragetext der Frage <b>'.$id.'</b> wurde verändert.';
+					}
+				}
+
+				//Felder neu?
+				if( !empty( $felder[0] ) ){
+					//neues Feld
+					$newfeld = $felder[0];
+					//weg
+					unset( $felder[0] );
+					//passend hinzu
+					$felder[] = $newfeld;
+				}
+				else{
+					//weg
+					unset( $felder[0] );
+				}
+
+				//Änderungen?
+				if( $felder != $dbf['felder'] ){
+					//schreiben
+					if( $ufile->write_kimb_id( $id, 'add', 'felder', $felder ) ){
+						//Medlung
+						$message[] = 'Felder der Frage <b>'.$id.'</b> wurden verändert.';
+					}
+				}
+
+			}
+
+			//Änderungen
+			if( $message != array() ){
+				//Ergebnisse löschen
+				$deletethiserg = true;
+				//Meldung
+				$sitecontent->echo_message( implode( '<br />', $message ) );
+			}
+			
 		}
 	}
+	//GET Übergaben
+	//	nur Fragen
+	if( $_GET['tab'] == 1 ){ 
+		//Fragen löschen?
+		if( isset( $_GET['del'] ) && is_numeric( $_GET['del'] ) ){
+			//Frage löschen
+			if( $ufile->write_kimb_id( $_GET['del'], 'del' ) ){
+				//Ergebnisse löschen
+				$deletethiserg = true;
+				//Meldung
+				$sitecontent->echo_message( 'Die Frage <b>'.$_GET['del'].'</b> wurde gelöscht!' );
+			}
+		}
+		//Fragen verschieben?
+		if(
+			isset( $_GET['versch'] ) && is_numeric( $_GET['versch'] )
+		){
+				//extrahieren
+				$versch = intval( $_GET['versch'] );		
+
+				//alle lesen
+				$fragen = read_and_sort_fragen( $ufile );
+				// für neue
+				$newfragen = array();
+
+				//durchgehen
+				$i = 1;
+				foreach( $fragen as $id => $frage ){
+					//ID erstmal Löschen, um Fehler vorzubeugen
+					$ufile->write_kimb_id( $id, 'del' );
+
+					//zu verschiebende ID?
+					//das Erste kann nicht höher!
+					if(
+						$id == $versch
+						&&
+						$i > 1
+					){
+						//verschieben (hoch)
+						$newfragen[$i] = $newfragen[$i-1];
+						$newfragen[$i-1] = $frage;
+					}
+					//einfach beibehalten
+					else{
+						$newfragen[$i] = $frage;
+					}
+					//next
+					$i++;
+				}
+
+				//Änderungen speichern
+				if( $ufile->write_kimb_id_array( $newfragen ) ){
+					//Ergebnisse löschen
+					$deletethiserg = true;
+				}
+				else{
+					//Fehlermeldung
+					$sitecontent->echo_error( 'Konnte Frage nicht verschieben!' );
+				}
+		}
+	}
+
+	//Ergebnisse löschen?
+	if( isset( $deletethiserg ) && $deletethiserg ){
+		//schon Ergebnisse?
+		if( check_for_kimb_file( 'addon/survey__'.$uid.'_erg.kimb' ) ){
+			//Ergebnisse löschen
+			delete_kimb_datei( 'addon/survey__'.$uid.'_erg.kimb' );
+		}
+	}
+	//Schon Ergebnisse für diese Umfrage?
+	$schonergebnisse = check_for_kimb_file( 'addon/survey__'.$uid.'_erg.kimb' );
 	
 	//Links oben für Tabs
 	$sitecontent->add_site_content( '<div id="reiter" style="overflow:hidden;">
@@ -173,7 +302,52 @@ if(
 	$sitecontent->add_site_content( '<h4>Fragen</h4>' );
 
 	//alle lesen
-	$fragen = $ufile->read_kimb_id_all();
+	$fragen = read_and_sort_fragen( $ufile );
+
+	//Javascript
+	$sitecontent->add_html_header('<script>
+	function versch_fra( id ){
+		$( "div#fraverdia span" ).text( id );
+		$( "div#fraverdia" ).css( "display", "block" );
+		$( "div#fraverdia" ).dialog({
+			modal: true,
+			buttons:{
+				"Verschieben" : function (){
+					window.location.href = "'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=more&addon=survey&task=edit&uid='.$uid.'&tab=1&versch=" + id;
+					$( this ).dialog( "close" );
+				},
+				"Abbrechen" : function (){
+					$( this ).dialog( "close" );
+				}
+			}
+		});
+	}
+
+	function delete_fra( id ){
+		$( "div#fradeldia span" ).text( id );
+		$( "div#fradeldia" ).css( "display", "block" );
+		$( "div#fradeldia" ).dialog({
+			modal: true,
+			buttons:{
+				"Löschen" : function (){
+					window.location.href = "'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=more&addon=survey&task=edit&uid='.$uid.'&tab=1&del=" + id;
+					$( this ).dialog( "close" );
+				},
+				"Abbrechen" : function (){
+					$( this ).dialog( "close" );
+				}
+			}
+		});
+	}
+
+	function delete_fel( id, i ){
+		$( "input#feld"+id+"_"+i ).parent().remove();
+	}
+	</script>');
+	//Dialog fürs Löschen der Fragen
+	$sitecontent->add_site_content( '<div id="fradeldia" style="display:none;" title="Frage löschen">Möchten Sie die Frage <b><span>0</span></b> wirklich löschen? '.( $schonergebnisse ? '<p style="background-color:red; color:white; padding:5px; border-radius:4px;">Es werden alle Ergebnisse dieser Umfrage gelöscht!</p>' : '' ).'</div>' );
+	//Dialog fürs Löschen der Fragen
+	$sitecontent->add_site_content( '<div id="fraverdia" style="display:none;" title="Frage verschieben">Möchten Sie die Frage <b><span>0</span></b> wirklich nach oben verschieben? '.( $schonergebnisse ? '<p style="background-color:red; color:white; padding:5px; border-radius:4px;">Es werden alle Ergebnisse dieser Umfrage gelöscht!</p>' : '').'</div>' );
 
 	//Formular
 	$sitecontent->add_site_content('<form action="'.$addonurlhere.'&amp;tab=1" method="post">');
@@ -182,6 +356,9 @@ if(
 	$sitecontent->add_html_header('<style>table#fragen{ border:1px solid; border-collapse:collapse; width: 100%; } table#fragen tr.borderbott{ border-bottom:1px solid; border-collapse:collapse; } table#fragen tr.borderbott div{ background-color: #fff; border-radius:5px; padding:10px; margin:5px; }</style>');
 	$sitecontent->add_site_content('<table id="fragen">');
 
+	//ertser Durchlauf gleich
+	$first = true;
+
 	//alle auflisten
 	foreach( $fragen as $id => $data ){
 		$sitecontent->add_site_content('<tr>');
@@ -189,17 +366,76 @@ if(
 		$sitecontent->add_site_content('<th>'.$id.'</th>');
 		$sitecontent->add_site_content('<td>'.$uconfs[1]['type'][$data['type']].'</td>');
 		//	Text der Frage
-		$sitecontent->add_site_content('<td><textarea name="frage['.$id.']" style="width:90%;">'.htmlentities( $data['frage'], ENT_COMPAT | ENT_HTML401,'UTF-8' ).'</textarea></td>');
+		$sitecontent->add_site_content('<td><textarea name="frage['.$id.']" style="width:95%; resize:vertical;">'.htmlentities( $data['frage'], ENT_COMPAT | ENT_HTML401,'UTF-8' ).'</textarea></td>');
 		$sitecontent->add_site_content('</tr>');
 		$sitecontent->add_site_content('<tr class="borderbott">');
 		$sitecontent->add_site_content('<td colspan="3"><div>');
 		//	Fragefelder
-		$sitecontent->add_site_content( nl2br( print_r( $data['felder'], true) ) );
+		//		kein Freitext oder Zahl
+		if( $data['type'] != 'ft' && $data['type'] != 'za' ){
+			//Liste mit allen Feldern machen (+ hinzufügen und löschen)
+			$sitecontent->add_site_content( '<ul>' );
+			//Nummer
+			$i = 1;
+			//alle durchgehen
+			foreach( $data['felder'] as $feld ){
+				//aktuelle Inhalte ausgeben
+				$sitecontent->add_site_content( '<li><input type="text" name="feld['.$id.']['.$i.']" id="feld'.$id.'_'.$i.'" style="width:75%;" value="'.htmlentities( $feld, ENT_COMPAT | ENT_HTML401,'UTF-8' ).'">' );
+				//	Mülleimer
+				$sitecontent->add_site_content( '<span class="ui-icon ui-icon-trash" style="display:inline-block;" onclick="delete_fel( '.$id.', '.$i.' );" ></span></li>' );
+				//Index ++
+				$i++;
+			}
+			//neu Feld
+			$sitecontent->add_site_content( '<li><input type="text" name="feld['.$id.'][0]" style="width:75%;" placeholder="Hinzufügen"></li>' );
+			$sitecontent->add_site_content( '</ul>' );
+		}
+		//Zahl?
+		elseif( $data['type'] == 'za' ){
+			//Liste mit allen Feldern machen
+			$sitecontent->add_site_content( '<ul>' );
+			//Nummer
+			$i = 1;
+			//Beschriftung
+			$besch = array(
+				1 => 'Untere Grenze:',
+				2 => 'Obere Grenze:&nbsp;&nbsp;'
+			);
+			$stand = array(
+				1 => '1',
+				2 => '10'
+			);
+			//alle durchgehen
+			foreach( $data['felder'] as $feld ){
+				//Inhalt prüfen
+				//	Vorgabe setzen
+				if( !is_numeric( $feld ) ){
+					$feld = $stand[$i];
+				}
+				//aktuelle Inhalte ausgeben
+				$sitecontent->add_site_content( '<li>'.$besch[$i].' <input type="number" min="0" name="feld['.$id.']['.$i.']" style="width:75%;" value="'.$feld.'"></li>' );
+				//Index ++
+				$i++;
+				//nur 2 möglich
+				if( $i > 2 ){
+					break;
+				}
+			}
+			$sitecontent->add_site_content( '</ul>' );
+		}
+		//Freitext
+		else{
+			$sitecontent->add_site_content( '<em>Keine weiteren Angaben nötig.</em>' );
+		}
+
 		$sitecontent->add_site_content('</div>');
 		//Löschen und verschieben Button
 		$sitecontent->add_site_content('<span class="ui-icon ui-icon-trash" style="display:inline-block;" onclick="delete_fra('.$id.');" title="Diese Frage löschen."></span>');
-		$sitecontent->add_site_content('<span class="ui-icon ui-icon-arrowthick-1-n" style="display:inline-block;" onclick="versch_fra('.$id.', \'hoch\');" title="Diese Frage nach oben schieben."></span>');
-		$sitecontent->add_site_content('<span class="ui-icon ui-icon-arrowthick-1-s" style="display:inline-block;" onclick="delete_fra('.$id.', \'runter\');" title="Diese Frage nach unten schieben."></span>');
+		//	der Erste kann nicht höher!
+		if( !$first ){
+			$sitecontent->add_site_content('<span class="ui-icon ui-icon-arrowthick-1-n" style="display:inline-block;" onclick="versch_fra('.$id.');" title="Diese Frage nach oben schieben."></span>');
+		}
+		$first = false;
 
 		$sitecontent->add_site_content('<td>');
 		$sitecontent->add_site_content('</tr>');
@@ -232,6 +468,12 @@ if(
 
 	$sitecontent->add_site_content('<input type="submit" value="Speichern">');
 	$sitecontent->add_site_content('</form>');
+
+	//schon Ergebnisse?
+	if( $schonergebnisse ){
+		$sitecontent->add_site_content('<p style="background-color:red; color:white; padding:5px; border-radius:4px;">');
+		$sitecontent->add_site_content('Durch das Speichern der Änderungen werden alle Ergebnisse dieser Umfrage gelöscht!</p>');
+	}
 
 	//zweiter Tab
 	$sitecontent->add_site_content( '</div><div id="reiter_allg">');
@@ -313,7 +555,8 @@ if(
 	<ul>
 	<li><b>Anonym:</b> Alle Angaben werden anonym in die Statistik überführt.</li>
 	<li><b>(User-)Name:</b> Jeder User kann vor dem Ausfüllen einen Namen angeben, unter welchem dann seine Wahl zu sehen ist. (Sinvoll für z.B. Terminabstimmungen)</li>
-	</ul>');
+	</ul>
+	'.( $schonergebnisse ? '<p style="background-color:red; color:white; padding:5px; border-radius:4px;">Bei Änderungen an diesem Wert, werden alle Ergebnisse dieser Umfrage gelöscht!</p>' : ''));
 	$sitecontent->add_site_content('</td>');
 	$sitecontent->add_site_content('</tr>');
 

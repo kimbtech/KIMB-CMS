@@ -1,0 +1,17 @@
+<[about:doc]>KIMB dbf V4.5 - KIMB-technologies<[about:doc]>
+<[auswer]>an<[auswer]>
+<[allidslist_okay]>yes<[allidslist_okay]>
+<[zugriff]>oe<[zugriff]>
+<[zugaus]>oe<[zugaus]>
+<[inform]>## Test-Umfrage <!--UMBRUCH--><!--UMBRUCH-->Diese Umfrage soll uns dabei helfen das Add-on zu bauen. <!--UMBRUCH--><!--UMBRUCH-->**Ihre Daten werden natürlich anonym ausgewertet!**<[inform]>
+<[inform-parsed]><h2>Test-Umfrage</h2><!--UMBRUCH--><p>Diese Umfrage soll uns dabei helfen das Add-on zu bauen. </p><!--UMBRUCH--><p><strong>Ihre Daten werden natürlich anonym ausgewertet!</strong></p><[inform-parsed]>
+<[allidslist1]>1<[allidslist1]>
+<[1-type]>au<[1-type]>
+<[1]>type==frage==felder<[1]>
+<[1-frage]>Wähle A oder B<[1-frage]>
+<[1-felder]><!-- JSON TYPE -->{"1":"A","2":"B"}<[1-felder]>
+<[allidslist2]>2<[allidslist2]>
+<[2-type]>mc<[2-type]>
+<[2]>type==frage==felder<[2]>
+<[2-frage]>Wähle zwei aus A, B und C.<[2-frage]>
+<[2-felder]><!-- JSON TYPE -->{"1":"A","2":"B","3":"C"}<[2-felder]>
