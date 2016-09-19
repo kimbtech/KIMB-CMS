@@ -51,7 +51,8 @@ if( $ucfile->read_kimb_search_teilpl( 'uid', $allgsiteid ) ){
 	$sitecontent->add_html_header('<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/survey/chart.min.js"></script>');
 	//Vars
 	$sitecontent->add_html_header('<script language="javascript">var addsur = { su :"'.$allgsysconf['siteurl'].'", uid : "'.$uid.'",
-	zugaus : "'.$_SESSION['addon_survey']['ausw'][$uid]['zugriff'].'", zugriff: "'.$_SESSION['addon_survey'][$uid]['zugriff'].'" };</script>');
+	zugaus : "'.$_SESSION['addon_survey']['ausw'][$uid]['zugriff'].'", zugriff: "'.$_SESSION['addon_survey'][$uid]['zugriff'].'",
+	username : "'.( isset( $_SESSION['felogin']['name'] ) ? $_SESSION['felogin']['name'] : '' ).'" };</script>');
 	//JS für System
 	$sitecontent->add_html_header('<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/survey/main.dev.js"></script>');
 		

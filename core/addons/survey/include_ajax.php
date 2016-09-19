@@ -172,8 +172,37 @@ elseif(
 				$_SESSION['addon_survey'][$uid]['zugriff'] == 'allowed'
 			){
 				//do it
-				$out = "Umfrage machen";
-				$out .= nl2br( print_r( $ajaxpost, true ) );
+
+				//Datei laden
+				$ufile = new KIMBdbf( 'addon/survey__'.$uid.'_conf.kimb' );
+
+				//alle Daten holen?
+				if( $ajaxpost['action'] == "pull" ){
+
+					//Fragen laden
+					$umf = read_and_sort_fragen( $ufile );
+
+					//Ausgabe
+					//	Fragen
+					$out['fragen'] = $umf;
+					//	Anzahl Fragen
+					$out['fragenzahl'] = count( $umf );
+					//	nach Namen oder Anonym
+					$out['art'] = $ufile->read_kimb_one( 'auswer' );
+					//	Infotext
+					$out['about'] = $ufile->read_kimb_one( 'inform-parsed' );
+
+				}
+				elseif( $ajaxpost['action'] == "push" ){
+					$out = "Upload";
+				}
+				else{
+
+					/*
+					$out = "Umfrage machen";
+					$out .= nl2br( print_r( $ajaxpost, true ) );
+					*/
+				}
 			}
 			else{
 				$out = "403 - Nicht erlaubt!";
