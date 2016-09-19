@@ -115,11 +115,20 @@ function loadsite(){
 }
 
 //Fehlermeldung
+var errortimeout;
 function errormessage( meldung ){
+	//erstmal Timout weg
+	clearTimeout( errortimeout );
+	//Meldung
 	$( structur.mel ).html( '<div class="surveyerrorbox"><p>'+meldung+'</p><p><button id="closeerrboxsur">Schließen</button></p></div>' );
+	//Button Schließen
 	$( "button#closeerrboxsur" ).click( function(){
 		$( structur.mel ).html( '' );
 	});
+	//Tomout Schließen
+	errortimeout = setTimeout(function(){
+		$( structur.mel ).html( '' );
+	}, 5000);
 }
 
 /* ================================================================================================ */
@@ -190,6 +199,12 @@ var ergebnisse = {};
 var thisfrage = 0;
 var fragendata = {};
 
+//schon Ergebnisse im LocalStroage?
+if( localStorage.getItem( "survey_"+addsur.uid+"_ergebnisse" ) != null ){
+	//Ergebnis laden
+	ergebnisse = JSON.parse( localStorage.getItem( "survey_"+addsur.uid+"_ergebnisse" ) );
+} 
+
 //Umfrge anfangen
 function start_umf(){
 	//Feld anzeigen
@@ -205,8 +220,6 @@ function start_umf(){
 
 	//AJAX Test
 	ajaxrequest(  {action:"pull"}, umfragedo );
-
-	//ajaxrequest(  {action:"push"}, structur.fraarea );
 }
 
 //Umfrage machen
@@ -239,12 +252,15 @@ function umfragedo( data ){
 		'<button class="umfdobutt center" name="los">Los</button>'+
 		'<span class="fragenzahl">'+thisfrage+'/'+data.fragenzahl+'</span>'+
 		'<div class="umfdobutt center"><button class="umfdobutt" name="back">&larr; Zurück</button>'+
-		'<button class="umfdobutt" name="fwd">Weiter &rarr;</button></div>'
+		'<button class="umfdobutt" name="fwd">Weiter &rarr;</button></div>'+
+		'<button class="umfdobutt center" name="end">Abschicken</button>'
 	);
 	//Zurück & Weiter disabled
 	$( "div.umfdobutt.center button.umfdobutt" ).each(function(k,v){
 		$( this )[0].disabled = true;
 	});
+	//Absenden disabled
+	$( "button.umfdobutt[name=end]" )[0].disabled = true;
 
 	//Buttons Listener
 	$( "button.umfdobutt" ).unbind('click').click(function(){
@@ -260,6 +276,7 @@ function umfragedo( data ){
 			$( "button.umfdobutt[name=back]" )[0].disabled = true;
 			$( "button.umfdobutt[name=fwd]" )[0].disabled = false;
 			$( "button.umfdobutt[name=los]" )[0].disabled = true;
+			$( "button.umfdobutt[name=end]" )[0].disabled = true;
 
 			//Name holen?
 			if( data.art == "na" ){
@@ -288,6 +305,7 @@ function umfragedo( data ){
 			//Buttons anpassen
 			$( "button.umfdobutt[name=fwd]" )[0].disabled = ( thisfrage == fragendata.fragenzahl ? true : false );
 			$( "button.umfdobutt[name=back]" )[0].disabled = ( thisfrage < 1 ? true : false );
+			$( "button.umfdobutt[name=end]" )[0].disabled = ( thisfrage == fragendata.fragenzahl ? false : true );
 		}
 		//Zurück
 		else if( name == "back" ){
@@ -297,7 +315,64 @@ function umfragedo( data ){
 
 			//Buttons anpassen
 			$( "button.umfdobutt[name=fwd]" )[0].disabled = ( thisfrage == fragendata.fragenzahl ? true : false );
+			$( "button.umfdobutt[name=end]" )[0].disabled = ( thisfrage == fragendata.fragenzahl ? false : true );
 			$( "button.umfdobutt[name=back]" )[0].disabled = ( thisfrage <= 1 ? true : false );
+		}
+		//Absenden?
+		else if( name == "end" ){
+			//alle Fragen beantwortet
+			if( Object.keys( ergebnisse ).length == fragendata.fragenzahl ){
+
+				//Ergebnisse löschen
+				//	AJAX Callback
+				function delall( data ){
+					//okay?
+					if( data.pushokay ){
+						//alles auf null
+						ergebnisse = {};
+						addsur.zugriff = "notallowed";
+						localStorage.removeItem( "survey_"+addsur.uid+"_ergebnisse" );
+						fragendata = {};
+
+						//Meldung
+						var meld = "<p>Vielen Dank für die Teilnahme.</p>";
+						meld += '<p><button id="closeumfrage">Schließen</button></p>';
+						$( structur.fraarea ).html( meld );
+
+						//Buttons anpassen
+						$( "button.umfdobutt[name=back]" )[0].disabled = true;
+						$( "button.umfdobutt[name=fwd]" )[0].disabled = true;
+						$( "button.umfdobutt[name=los]" )[0].disabled = true;
+						$( "button.umfdobutt[name=end]" )[0].disabled = true;
+
+						//Button Schließen machen
+						$( "button#closeumfrage").click( function (){
+							//neu
+							loadsite();
+							//Fragen weg
+							$( structur.fra ).css( 'display', 'none' );
+						});
+					}
+					else{
+						//Fehler
+						errormessage("Konnte Ihre Ergebnisse nicht senden.");
+					}
+				}
+
+				//ergebnisse an den Server senden
+				ajaxrequest(  { action: "push", erg : ergebnisse }, delall );
+			}
+			else{
+				//Fehler
+				errormessage("Sie müssen alle Fragen beantworten, erst dann dürfen Sie absenden!");
+			}
+		}
+
+		//wenn alle Fragen beantwortet, Ende immer möglich
+		//	nur wenn nicht letzte Frage (da auch sonst möglich)
+		if( thisfrage != fragendata.fragenzahl ){
+			//Button an, wenn alle Ergebnisse okay
+			$( "button.umfdobutt[name=end]" )[0].disabled = ( ( Object.keys( ergebnisse ).length == fragendata.fragenzahl ) ? false : true );
 		}
 	});
 
@@ -559,6 +634,9 @@ function save_frage( butttask ){
 				thisfrage++;
 			}
 		}
+
+		//aktuelle Ergebnisse sichern (LocalStroage)
+		localStorage.setItem( "survey_"+addsur.uid+"_ergebnisse", JSON.stringify( ergebnisse ) );
 	}
 }
  

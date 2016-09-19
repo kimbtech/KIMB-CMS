@@ -193,20 +193,318 @@ elseif(
 					$out['about'] = $ufile->read_kimb_one( 'inform-parsed' );
 
 				}
-				elseif( $ajaxpost['action'] == "push" ){
-					$out = "Upload";
+				//Ergebnisse übernehmen?
+				elseif(
+					$ajaxpost['action'] == "push"
+					&&
+					//Hat User evtl. schon teilgenommen => darf nicht mehr
+					$_SESSION['addon_survey'][$uid]['teilgenommen'] != 'ja'
+				){
+					
+					//Ergebnisse
+					$erg = $ajaxpost['erg'];
+					//Fragen
+					$fra = read_and_sort_fragen( $ufile );
+
+					//Ergebnissdatei laden
+					$uefile = new KIMBdbf( 'addon/survey__'.$uid.'_erg.kimb' );
+
+					//Werte prüfen
+					//	Anzahl
+					if( count( $erg ) == count( $fra ) ){
+
+						//jedes Ergebnis in Array als Bool
+						$okayliste = array();
+
+						//alle Fragen durchgehen
+						foreach( $fra as $id => $frage ){
+
+							//vorhanden?
+							if( isset( $erg[$id] ) ){
+
+								//zu prüfendes Ergebnis
+								$erghier = $erg[$id];
+
+								//nach Type prüfen
+								//	Zahl?
+								if( $frage['type'] == 'za' ){
+									
+									if(
+										//nummerisch
+										is_numeric( $erghier )
+										&&
+										//nicht zu groß?
+										$erghier <= $frage["felder"][2]
+										&&
+										//nicht zu klein?
+										$erghier >= $frage["felder"][1]
+
+									){
+										//ok
+										$okayliste[$id] = true;
+									}
+									else{
+										//fehlerhaft!
+										$okayliste[$id] = false;
+									}
+								}
+								//	Freitext
+								elseif( $frage['type'] == 'ft' ){
+									//leer?
+									if( !empty( $erghier ) ){
+										//kein HTML!
+										$erg[$id] = strip_tags( $erg[$id] );
+										//ok
+										$okayliste[$id] = true;
+									}
+									else{
+										//fehlerhaft!
+										$okayliste[$id] = false;
+									}
+								}
+								//	Auswahl
+								elseif( $frage['type'] == 'au' ){
+
+									if(
+										//Zahl?
+										is_numeric( $erghier )
+										&&
+										//als Feld vorhanden?
+										in_array( $erghier, array_keys( $frage["felder"] ) )
+									){
+										
+										//ok
+										$okayliste[$id] = true;
+									}
+									else{
+										//fehlerhaft!
+										$okayliste[$id] = false;
+									}
+								}
+								//	Multiple Choice
+								elseif( $frage['type'] == 'mc' ){
+									if(
+										//Array
+										is_array( $erghier )
+									){
+										//alle Werte in Array okay?
+										foreach( $erghier as $choose){
+
+											//gewähltes Feld vorhnaden?
+											if(
+												!in_array( $choose, array_keys( $frage["felder"] ) )
+											){
+
+												//Fehler
+												$okayliste[$id] = false;
+												//raus
+												break;
+										
+											}
+										}
+										//keine Fehler
+										if( !isset( $okayliste[$id] ) ){
+											//okay
+											$okayliste[$id] = true;
+										}
+									}
+									else{
+										//fehlerhaft!
+										$okayliste[$id] = false;
+									}
+								}
+								//	Abstufung
+								elseif( $frage['type'] == 'ab' ){
+									if(
+										//Array
+										is_array( $erghier )
+										&&
+										count( $frage["felder"] ) == count( $erghier )
+									){
+										//Werte okay
+										$wok = array( 1, 2, 3, 4, 5, 6, 'ka' );
+
+										//alle Werte in Array okay?
+										foreach( $erghier as $id => $choose ){
+
+											if(
+												//Feld überhaupt vorhanden
+												!in_array( $id, array_keys( $frage["felder"] ) )
+												||
+												//Wert okay?
+												!in_array( $choose, $wok )
+											){
+												//Fehler
+												$okayliste[$id] = false;
+												//raus
+												break;
+											}
+										}
+
+										//keine Fehler
+										if( !isset( $okayliste[$id] ) ){
+											//okay
+											$okayliste[$id] = true;
+										}
+									}
+									else{
+										//fehlerhaft!
+										$okayliste[$id] = false;
+									}
+								}
+								else{
+									//fehlerhaft!
+									$okayliste[$id] = false;
+								}
+
+							}
+							else{
+								//es darf nichts fehlen!
+								$okayliste[$id] = false;
+							}
+
+						}
+
+						//Prüfung auswerten
+						if(
+							//Anzahl okay?
+							count( $okayliste ) == count( $fra )
+							&&
+							//und okay?
+							//	nie false herausbekommen
+							!in_array( false, $okayliste )
+						){
+							//nach Namen?
+							if( $ufile->read_kimb_one( 'auswer' ) == 'na' ){
+
+								//**
+								//**
+								//**
+								//**
+								//**
+								//**
+								//**
+
+							}
+							else{
+								//alle Ergebnisse laden
+								$allerg = $uefile->read_kimb_id_all();
+
+								$out['dsfs'][] = $allerg;
+
+								//noch leer?
+								if( $allerg == array() ){
+									//los
+									$allerg = array();
+									//passend bauen
+									foreach( $fra as $id => $val ){
+										//Freitext
+										if( $val['type'] == 'ft' ){
+											//einfach nur Array für die Texte
+											//und Anzahl
+											$allerg[$id] = array(
+												'anzahl' => 0,
+												'texte' => array()
+											);
+										}
+										//Zahlen
+										elseif( $val['type'] == 'za' ){
+											//Array mit jedem Wert
+											for( $i = $val["felder"][1]; $i <= $val["felder"][2] ; $i++ ){
+												$allerg[$id][$i] = 0; 
+											}
+										}
+										elseif( $val['type'] == 'ab' ){
+											//nur die IDs extrahieren
+											foreach( $val["felder"] as $i => $v ){
+												//noch keine Auswahlen
+												$allerg[$id][$i] = array(
+													1 => 0,
+													2 => 0,
+													3 => 0,
+													4 => 0,
+													5 => 0,
+													6 => 0,
+													'ka'  => 0
+												);
+											}
+										}
+										//Multiple Choice und Auswahl
+										else{
+											//nur die IDs extrahieren
+											foreach( $val["felder"] as $i => $v ){
+												//noch keine Auswahlen
+												$allerg[$id][$i] = 0;
+											}
+										} 
+										
+									}
+								}
+
+								//Diese Ergebnisse einbauen
+								foreach( $allerg as $id => $values ){
+									//**
+									//**
+									//**
+									//**
+									//**
+									//**
+									//**
+								}
+
+								$out['dsfs'][] = $allerg;
+
+								//schreiben
+								$allesokay = $uefile->write_kimb_id_array( $allerg );
+							}
+
+							//User nicht nochmal lassen
+							if( $allesokay ){
+								//Felogin User als teilgenommen in dbf
+								//	Add-on vorhanden und aktiviert?
+								if( check_addon( 'felogin' ) == array(true, true) ){
+									//Login okay?
+									if( check_felogin_login( '---session---', '---none---', true ) ){
+										//User reinschreiben
+										$uefile->write_kimb_teilpl( 'teilnahmeuser', $_SESSION['felogin']['user'], 'add' );
+									}
+								}
+
+								//User hat jetzt teilgenommen!
+								$_SESSION['addon_survey'][$uid]['teilgenommen'] = 'ja';
+
+								//okay 
+								$out['pushokay'] = true;
+							}
+							else{
+								//okay 
+								$out['pushokay'] = false;
+							}
+						}
+						else{
+							//Fehler
+							$out['pushokay'] = false;
+							$out['ermsg'] = 'Ergebnisse sind nicht korrekt!';
+						}
+
+					}
+					else{
+						//Fehler
+						$out['pushokay'] = false;
+						$out['ermsg'] = 'Anzahl der Ergebnisse stimmt nicht!';
+					}
+
+					
 				}
 				else{
 
-					/*
-					$out = "Umfrage machen";
-					$out .= nl2br( print_r( $ajaxpost, true ) );
-					*/
+					$out = "400 - Fehlerhafter Request!";
+					$outerr = true;
 				}
 			}
 			else{
 				$out = "403 - Nicht erlaubt!";
-				$outerr = false;
+				$outerr = true;
 			}
 
 		}
@@ -223,7 +521,7 @@ elseif(
 			}
 			else{
 				$out = "403 - Nicht erlaubt!";
-				$outerr = false;
+				$outerr = true;
 			}
 		}
 

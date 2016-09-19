@@ -61,7 +61,7 @@ function check_surveyrights( $uid, $ufile ){
 		if(
 			!isset( $_SESSION['addon_survey'][$uid]['teilgenommen'] )
 			||
-			( isset( $_SESSION['addon_survey'][$uid]['teilgenommen'] ) && $_SESSION['addon_survey'][$uid]['teilgenommen'] == 'ja' )
+			( isset( $_SESSION['addon_survey'][$uid]['teilgenommen'] ) && $_SESSION['addon_survey'][$uid]['teilgenommen'] != 'ja' )
 
 		){
 		
@@ -88,13 +88,31 @@ function check_surveyrights( $uid, $ufile ){
 					}
 				}
 			}
+			//Felogin
 			elseif( $zug == 'fe' ){
 				//Add-on vorhanden und aktiviert
 				if( check_addon( 'felogin' ) == array(true, true) ){
 					//Login okay
 					if( check_felogin_login( '---session---', '---none---', true ) ){
-						$_SESSION['addon_survey'][$uid]['zugriff'] = 'allowed';
-						return true;
+						//Ergebnisdatei vorhanden?
+						if( check_for_kimb_file( 'addon/survey__'.$uid.'_erg.kimb' ) ){
+							//Datei laden
+							$uefile = new KIMBdbf( 'addon/survey__'.$uid.'_erg.kimb' );
+
+							//User schon drin?
+							//	wenn nicht, dann okay
+							$teilnahme = ( $uefile->read_kimb_search_teilpl( 'teilnahmeuser', $_SESSION['felogin']['user'] ) ? false : true );
+						}
+						else{
+							//keine Ergebnisse => keien Teilnahmen
+							$teilnahme = true;	
+						}
+
+						//Teilnahme okay?
+						if( $teilnahme ){
+							$_SESSION['addon_survey'][$uid]['zugriff'] = 'allowed';
+							return true;
+						}
 					}
 				}
 			}

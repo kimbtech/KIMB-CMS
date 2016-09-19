@@ -14,15 +14,7 @@ div#addon_survey_main div#auswertung{
 	margin:5px;
 	border-radius:5px;
 }
-
-span.fakebutton{
-	padding:2px;
-	border-radius:2px;
-	background-color:#eee;
-	margin:2px;
-	border:1px solid #ccc;
-}
-div.surveyerrorbox{
+div#addon_survey_main div#meldungen div.surveyerrorbox{
 	padding:2px;
 	border-radius:2px;
 	background-color:#f00;
@@ -31,17 +23,26 @@ div.surveyerrorbox{
 	color:#fff;
 }
 
-button.umfdobutt.center,
-div.umfdobutt.center{
+div#addon_survey_main div#navigation span.fakebutton{
+	padding:2px;
+	border-radius:2px;
+	background-color:#eee;
+	margin:2px;
+	border:1px solid #ccc;
+}
+
+
+div#addon_survey_main div#fragen div#fragenav button.umfdobutt.center,
+div#addon_survey_main div#fragen div#fragenav div.umfdobutt.center{
 	width: 40%;
 	margin-left: 30%;
 	margin-right: 30%;
 }
-div.umfdobutt.center button{
+div#addon_survey_main div#fragen div#fragenav div.umfdobutt.center button{
 	width: 50%;
 }
 
-div.namefeld{
+div#addon_survey_main div#fragen div#fragearea div.namefeld{
 	padding:2px;
 	border-radius:2px;
 	background-color:orange;
@@ -50,23 +51,23 @@ div.namefeld{
 	color:#fff;
 }
 
-span.fragenzahl{
+div#addon_survey_main div#fragen div#fragenav span.fragenzahl{
 	float: right;
 }
 
-div#fragen div#fragearea div#fragetext,
-div#fragen div#fragearea div#felder{
+div#addon_survey_main div#fragen div#fragearea div#fragetext,
+div#addon_survey_main div#fragen div#fragearea div#felder{
 	border:1px solid black;
 	margin:5px;
 	padding:5px;
 	border-radius: 5px;
 }
-div#fragen div#fragearea div#felder p{
+div#addon_survey_main div#fragen div#fragearea div#felder p{
 	font-style: italic;
 }
-div#fragen div#fragearea div#felder table,
-div#fragen div#fragearea div#felder table tr,
-div#fragen div#fragearea div#felder table td{
+div#addon_survey_main div#fragen div#fragearea div#felder table,
+div#addon_survey_main div#fragen div#fragearea div#felder table tr,
+div#addon_survey_main div#fragen div#fragearea div#felder table td{
 	border: 1px solid black;
 	border-collapse: collapse;
 }
