@@ -459,7 +459,7 @@ if(
 	<li><b>Multiple Choice:</b> Sie geben verschiedene Optionen an und der User kann beliebig viele davon auswählen.</li>
 	<li><b>Abstufung:</b> Sie nennen verschieden Punkte und der User kann diese bewerten. (1 [sehr gut] - 6 [schlecht] und keine Angabe)</li>
 	<li><b>Zahl:</b> Sie fragen den User und dieser kann frei eine Zahl eingeben.</li>
-	<li><b>Freitext:</b> Der User kann frei Text schreiben.</li>
+	<li><b>Freitext:</b> Der User kann frei Text schreiben. (Der Text ist immer optional.)</li>
 	</ul>');
 	$sitecontent->add_site_content('</td>');
 	$sitecontent->add_site_content('</tr>');

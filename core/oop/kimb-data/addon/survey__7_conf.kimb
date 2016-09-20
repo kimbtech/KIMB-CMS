@@ -1,0 +1,32 @@
+<[about:doc]>KIMB dbf V4.5 - KIMB-technologies<[about:doc]>
+<[allidslist_okay]>yes<[allidslist_okay]>
+<[zugriff]>oe<[zugriff]>
+<[auswer]>na<[auswer]>
+<[zugaus]>oe<[zugaus]>
+<[inform]>## Umfrage 7 <!--UMBRUCH--><!--UMBRUCH-->Diese Umfrage soll uns dabei helfen XXX zu verstehen. <!--UMBRUCH--><!--UMBRUCH--><[inform]>
+<[inform-parsed]><h2>Umfrage 7</h2><!--UMBRUCH--><p>Diese Umfrage soll uns dabei helfen XXX zu verstehen. </p><[inform-parsed]>
+<[allidslist1]>1<[allidslist1]>
+<[1-type]>au<[1-type]>
+<[1]>type==frage==felder<[1]>
+<[1-frage]>Hier kommt eine schöne Frage hin!<[1-frage]>
+<[1-felder]><!-- JSON TYPE -->{"1":"A","2":"B"}<[1-felder]>
+<[allidslist2]>2<[allidslist2]>
+<[2-type]>mc<[2-type]>
+<[2]>type==frage==felder<[2]>
+<[2-frage]>Hier kommt eine schöne Frage hin!<[2-frage]>
+<[2-felder]><!-- JSON TYPE -->{"1":"A","2":"B","3":"C"}<[2-felder]>
+<[allidslist3]>3<[allidslist3]>
+<[3-type]>ab<[3-type]>
+<[3]>type==frage==felder<[3]>
+<[3-frage]>Hier kommt eine schöne Frage hin!<[3-frage]>
+<[3-felder]><!-- JSON TYPE -->{"1":"Aghghfgf gfgfhjg ghjhgjg ghj","2":"Bhg  ghjgh  hgjkghf","3":"ghjgh ghjghj ghjghj"}<[3-felder]>
+<[allidslist4]>4<[allidslist4]>
+<[4-type]>za<[4-type]>
+<[4]>type==frage==felder<[4]>
+<[4-frage]>Hier kommt eine schöne Frage hin!<[4-frage]>
+<[4-felder]><!-- JSON TYPE -->{"1":"1","2":"11"}<[4-felder]>
+<[allidslist5]>5<[allidslist5]>
+<[5-type]>ft<[5-type]>
+<[5]>type==frage==felder<[5]>
+<[5-frage]>Hier kommt eine schöne Frage hin!<[5-frage]>
+<[5-felder]><[5-felder]>

@@ -679,7 +679,13 @@ function make_ergeb(){
 	//Feld anzeigen
 	$( structur.aus ).css( "display", "block" );
 
-	$( structur.aus ).html('<canvas id="myChart" style="width:400px; height:400px;"></canvas>');
+	ajaxrequest( {}, logit );
+
+	function logit(data){
+		console.log( data );
+	}
+
+/*	$( structur.aus ).html('<canvas id="myChart" style="width:400px; height:400px;"></canvas>');
 
 	var ctx = document.getElementById("myChart");
 
@@ -703,5 +709,6 @@ function make_ergeb(){
 			]
 		}
 	});
+*/
 }
 

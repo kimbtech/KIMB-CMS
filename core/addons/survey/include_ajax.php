@@ -641,6 +641,9 @@ elseif(
 		}
 		//Statistik?
 		else{
+			//Umfrage Konfiguration laden
+			$ufile = new KIMBdbf( 'addon/survey__'.$uid.'_conf.kimb' );
+
 			//Session okay
 			if(
 				//per Session vom FE erlaubt?
@@ -663,24 +666,59 @@ elseif(
 
 				//schon Ergebnisse?
 				if( check_for_kimb_file( 'addon/survey__'.$uid.'_erg.kimb' ) ){
-					//Umfrage Konfiguration laden
-					$ufile = new KIMBdbf( 'addon/survey__'.$uid.'_conf.kimb' );
+					
 					//Fragen holen
 					$fragen = read_and_sort_fragen( $ufile );
 					//Umfrage Ergebnisse laden
 					$uefile = new KIMBdbf( 'addon/survey__'.$uid.'_erg.kimb' );
+					//Ergebnisse
+					$ergebnisse = $uefile->read_kimb_id_all();
+
+					//Array für Fragen mit Ergebnissen
+					$data = array();
+
+					//Fragen und Ergebnisse zusammen in ein Array
+					foreach( $fragen as $id => $frag ){
+						//dieses Ergebnis lesen
+						$erg = $ergebnisse[$id];
+						//Array für Browser
+						$erghier = array();
+
+						//Freitext oder Häufigkeit?
+						if( $frag['type'] == 'za' || $frag['type'] == 'ft'){
+							//Array mit Zahlen und Häufigkeit einfach anhängen
+							//bzw.
+							//Array mit Anzahl der Texte und Texten selbst einfach anhängen
+							$erghier = $erg;
+						}
+						else{
+							//alle Felder durchgehen
+							foreach( $frag['felder'] as $i => $feld ){
+								//immer Feldbeschriftung als Key
+								//und Anzahl als Value
+								$erghier[$feld] = $erg[$i];
+							}
+						}
+
+						//Daten für AJAX Output
+						$data[$id] = array(
+							'type' => $frag['type'],
+							'text' => $frag['frage'],
+							'ergebnisse' => $erghier
+						);
+
+					}
 
 					//Ausgabe vorbreiten
 					$erg = array(
 						'teilnehmeranzahl' => $uefile->read_kimb_one( 'teilnehmeranzahl' ),
 						'fragenanzahl' => count( $fragen ),
 						'auswertungstyp' => $ufile->read_kimb_one( 'auswer' ),
-						'fragen' => $fragen, 
-						'ergebnisse' => $uefile->read_kimb_id_all()
+						'data' => $data
 
 					);
 					//Auswertung nach Namen?
-					if( $erg['auswertungstyp'] = 'na' )
+					if( $erg['auswertungstyp'] == 'na' ){
 						//Liste der Teilnehmer deren ID
 						$erg['teilnehmerliste'] = $uefile->read_kimb_one( 'teilnehmerlist' );
 					}
@@ -691,7 +729,7 @@ elseif(
 				else{
 					//Fehler
 					$out['pullokay'] = false;
-					$out['ermsg'] = 'Es liegen für diese Umfrage keien Ergebnisse vor!';	
+					$out['ermsg'] = 'Es liegen für diese Umfrage keine Ergebnisse vor!';	
 				}
 			}
 			else{
