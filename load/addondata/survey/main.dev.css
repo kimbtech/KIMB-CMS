@@ -42,6 +42,10 @@ div#addon_survey_main div#fragen div#fragenav div.umfdobutt.center button{
 	width: 50%;
 }
 
+div#addon_survey_main div#fragen div#fragearea{
+	min-height: 300px;
+}
+
 div#addon_survey_main div#fragen div#fragearea div.namefeld{
 	padding:2px;
 	border-radius:2px;

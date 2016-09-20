@@ -321,7 +321,11 @@ function umfragedo( data ){
 		//Absenden?
 		else if( name == "end" ){
 			//alle Fragen beantwortet
-			if( Object.keys( ergebnisse ).length == fragendata.fragenzahl ){
+			if(
+				Object.keys( ergebnisse ).length == fragendata.fragenzahl
+				||
+				(data.art == "na" && Object.keys( ergebnisse ).length == fragendata.fragenzahl + 1 )
+			){
 
 				//Ergebnisse löschen
 				//	AJAX Callback
@@ -372,7 +376,7 @@ function umfragedo( data ){
 		//	nur wenn nicht letzte Frage (da auch sonst möglich)
 		if( thisfrage != fragendata.fragenzahl ){
 			//Button an, wenn alle Ergebnisse okay
-			$( "button.umfdobutt[name=end]" )[0].disabled = ( ( Object.keys( ergebnisse ).length == fragendata.fragenzahl ) ? false : true );
+			$( "button.umfdobutt[name=end]" )[0].disabled = ( ( Object.keys( ergebnisse ).length == fragendata.fragenzahl || (fragendata.art == "na" && Object.keys( ergebnisse ).length == fragendata.fragenzahl + 1 ) ) ? false : true );
 		}
 	});
 
@@ -418,8 +422,9 @@ function load_frage( nummer ){
 		}
 		
 		html += '<div id="felder">';
-		html += '<textarea class="savefeld">'+erge+'</textarea>'
-		html += '<p>Geben Sie einen Text ein.</p>'
+		html += '<textarea class="savefeld" style="width:90%; height:100px;">'+erge+'</textarea>'
+		html += '<p>Geben Sie einen Text ein. (optional)</p>'
+		html += '<p><input type="checkbox" id="freitextdeak"> Das Feld leer lassen.</p>'
 		html += '</div>';
 	}
 	//Abstufung
@@ -542,6 +547,33 @@ function load_frage( nummer ){
 
 	//an Seite anfügen
 	$( structur.fraarea ).html( html );
+
+	//Buttons Freitext
+	if( frage.type == 'ft' ){
+		
+		//Keine Angabe (ka)?
+		//	optionales Feld
+		if( erge == "ka" ){
+			//Textarea ausmachen
+			$( "textarea.savefeld" )[0].disabled = true;
+			//Input setzen
+			$( "input#freitextdeak" )[0].checked = true;
+		}
+
+		//auf Auswahlbutton hören
+		//	füllen oder nicht
+		$( "input#freitextdeak" ).click(function(){
+			//Textarea und Inhalt anpassen
+			if($(this).is(':checked')){
+				$( "textarea.savefeld" ).val( "ka" );
+        				$( "textarea.savefeld" )[0].disabled = true;
+    			}
+			else {
+				$( "textarea.savefeld" )[0].disabled = false;
+				$( "textarea.savefeld" ).val( "" );
+			}
+		});
+	}
 }
 
 //Frage Antwort sichern

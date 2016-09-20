@@ -211,7 +211,8 @@ elseif(
 
 					//Werte prüfen
 					//	Anzahl
-					if( count( $erg ) == count( $fra ) ){
+					$korrekturzahl = ( $ufile->read_kimb_one( 'auswer' ) == 'na' ? 1 : 0 );
+					if( count( $erg ) == count( $fra ) + $korrekturzahl ){
 
 						//jedes Ergebnis in Array als Bool
 						$okayliste = array();
@@ -374,89 +375,218 @@ elseif(
 							//	nie false herausbekommen
 							!in_array( false, $okayliste )
 						){
+							
+							//alle Ergebnisse laden
+							$allerg = $uefile->read_kimb_id_all();
+
+							//noch leer?
+							if( $allerg == array() ){
+								//los
+								$allerg = array();
+								//passend bauen
+								foreach( $fra as $id => $val ){
+									//Freitext
+									if( $val['type'] == 'ft' ){
+										//einfach nur Array für die Texte
+										//und Anzahl
+										$allerg[$id] = array(
+											'anzahl' => 0,
+											'texte' => array()
+										);
+									}
+									//Zahlen
+									elseif( $val['type'] == 'za' ){
+										//Array mit jedem Wert
+										for( $i = $val["felder"][1]; $i <= $val["felder"][2] ; $i++ ){
+											$allerg[$id][$i] = 0; 
+										}
+									}
+									elseif( $val['type'] == 'ab' ){
+										//nur die IDs extrahieren
+										foreach( $val["felder"] as $i => $v ){
+											//noch keine Auswahlen
+											$allerg[$id][$i] = array(
+												1 => 0,
+												2 => 0,
+												3 => 0,
+												4 => 0,
+												5 => 0,
+												6 => 0,
+												'ka'  => 0
+											);
+										}
+									}
+									//Multiple Choice und Auswahl
+									else{
+										//nur die IDs extrahieren
+										foreach( $val["felder"] as $i => $v ){
+											//noch keine Auswahlen
+											$allerg[$id][$i] = 0;
+										}
+									}
+								}
+							}
+
 							//nach Namen?
 							if( $ufile->read_kimb_one( 'auswer' ) == 'na' ){
 
-								//**
-								//**
-								//**
-								//**
-								//**
-								//**
-								//**
+								//Name gegeben?
+								if(
+									!empty( $erg['name'] )
+								){
+									//Name säubern
+									$teilname = htmlentities( strip_tags( $erg['name'] ), ENT_COMPAT | ENT_HTML401, 'UTF-8' );
+									//Liste der Teilnehmer lesen
+									$list = $uefile->read_kimb_one( 'teilnehmerlist' );
+									//schon gefüllt?
+									if( !is_array( $list ) ){
+										$list = array();
+									}
 
+									//Name schon drin?
+									//	erstmal ohne was
+									$append = '';
+									//	jetzt schon vorhanden?
+									while( in_array( $teilname.$append , $list ) ){
+										//Endung bauen
+										if( $append == '' ){
+											$append = 1;
+										} 
+										else{
+											$append++;
+										}
+									}
+									//Name neu setzen
+									$teilname = $teilname.$append;
+									//der Liste anfügen
+									$list[] = $teilname;
+
+									//Liste schreiben
+									if( $uefile->write_kimb_one( 'teilnehmerlist', $list ) ){
+										//ID für diesen Namen bestimmen
+										//	=> Array Key
+										$teilid = array_search( $teilname, $list );
+
+										//Diese Ergebnisse einbauen/ sichern
+										foreach( $fra as $id => $val ){
+											//Ergebnisse hier
+											$erghier = $erg[$id];
+
+											//Freitext?
+											//und nicht leer (ist optional!)
+											if( $val['type'] == 'ft' && $erghier != "ka" ){
+												//ein Text mehr
+												$allerg[$id]['anzahl']++;
+												//Text an Array
+												$allerg[$id]['texte'][$teilid] = $erghier;
+											}
+											//Zahl oder Freitext?
+											elseif( $val['type'] == 'za' || $val['type'] == 'au' ){
+												//passede Zahl einen mehr
+												if( is_array( $allerg[$id][$erghier] ) ){
+													$allerg[$id][$erghier][] = $teilid;
+												}
+												else{
+													$allerg[$id][$erghier] = array( $teilid );
+												}
+											}
+											//Multiple Choice oder Abstufung!
+											else{
+												//Ergebnis ist in Array
+												//	durchgehen
+												foreach( $erghier as $i => $value ){
+													//Abstufung?
+													if($val['type'] == 'ab'){
+														//passendes Array und richtigen Wert +1
+														if( is_array( $allerg[$id][$i][$value] ) ){ 
+															$allerg[$id][$i][$value][] = $teilid;
+														}
+														else{
+															$allerg[$id][$i][$value] = array( $teilid );
+														}
+													}
+													else{
+														//Array Wert +1
+														if( is_array( $allerg[$id][$value] ) ){
+															$allerg[$id][$value][] = $teilid;
+														}
+														else{
+															$allerg[$id][$value] = array( $teilid );
+														}
+													}
+												}
+											}
+
+										}
+									}
+									else{
+										$out['pushokay'] = false;
+										$out['ermsg'] = 'Konnte Namen nicht übernehmen!';
+									}
+									
+								}
+								else{
+									$out['pushokay'] = false;
+									$out['ermsg'] = 'Name erforderlich!';
+								}
 							}
 							else{
-								//alle Ergebnisse laden
-								$allerg = $uefile->read_kimb_id_all();
 
-								$out['dsfs'][] = $allerg;
+								//Diese Ergebnisse einbauen/ sichern
+								foreach( $fra as $id => $val ){
+									//Ergebnisse hier
+									$erghier = $erg[$id];
 
-								//noch leer?
-								if( $allerg == array() ){
-									//los
-									$allerg = array();
-									//passend bauen
-									foreach( $fra as $id => $val ){
-										//Freitext
-										if( $val['type'] == 'ft' ){
-											//einfach nur Array für die Texte
-											//und Anzahl
-											$allerg[$id] = array(
-												'anzahl' => 0,
-												'texte' => array()
-											);
-										}
-										//Zahlen
-										elseif( $val['type'] == 'za' ){
-											//Array mit jedem Wert
-											for( $i = $val["felder"][1]; $i <= $val["felder"][2] ; $i++ ){
-												$allerg[$id][$i] = 0; 
-											}
-										}
-										elseif( $val['type'] == 'ab' ){
-											//nur die IDs extrahieren
-											foreach( $val["felder"] as $i => $v ){
-												//noch keine Auswahlen
-												$allerg[$id][$i] = array(
-													1 => 0,
-													2 => 0,
-													3 => 0,
-													4 => 0,
-													5 => 0,
-													6 => 0,
-													'ka'  => 0
-												);
-											}
-										}
-										//Multiple Choice und Auswahl
-										else{
-											//nur die IDs extrahieren
-											foreach( $val["felder"] as $i => $v ){
-												//noch keine Auswahlen
-												$allerg[$id][$i] = 0;
-											}
-										} 
-										
+									//Freitext?
+									//und nicht leer (ist optional!)
+									if( $val['type'] == 'ft' && $erghier != "ka" ){
+										//ein Text mehr
+										$allerg[$id]['anzahl']++;
+										//Text an Array
+										$allerg[$id]['texte'][] = $erghier;
 									}
+									//Zahl oder Freitext?
+									elseif( $val['type'] == 'za' || $val['type'] == 'au' ){
+										//passede Zahl einen Mehr
+										$allerg[$id][$erghier]++;
+									}
+									//Multiple Choice oder Abstufung!
+									else{
+										//Ergebnis ist in Array
+										//	durchgehen
+										foreach( $erghier as $i => $value ){
+											//Abstufung?
+											if($val['type'] == 'ab'){
+												//passendes Array und richtigen Wert +1 
+												$allerg[$id][$i][$value]++;
+											}
+											else{
+												//Array Wert +1
+												$allerg[$id][$value]++;
+											}
+										}
+									}
+
 								}
-
-								//Diese Ergebnisse einbauen
-								foreach( $allerg as $id => $values ){
-									//**
-									//**
-									//**
-									//**
-									//**
-									//**
-									//**
-								}
-
-								$out['dsfs'][] = $allerg;
-
-								//schreiben
-								$allesokay = $uefile->write_kimb_id_array( $allerg );
 							}
+
+							//schreiben
+							$allesokay = $uefile->write_kimb_id_array( $allerg );
+
+							//Anzahl der Teilnehmer
+							//	aktuelle lesen
+							$anz = $uefile->read_kimb_one( 'teilnehmeranzahl' );
+							//	leer?
+							if( empty( $anz ) ){
+								//neu also erster
+								$anz = 1;
+							}
+							else{
+								//erhöhen
+								$anz++;
+							}
+							//schreiben
+							$uefile->write_kimb_one( 'teilnehmeranzahl', $anz );
 
 							//User nicht nochmal lassen
 							if( $allesokay ){
@@ -477,8 +607,9 @@ elseif(
 								$out['pushokay'] = true;
 							}
 							else{
-								//okay 
+								//Fehler
 								$out['pushokay'] = false;
+								$out['ermsg'] = 'Konnte Ergebnisse nicht schreiben!';
 							}
 						}
 						else{
@@ -512,12 +643,56 @@ elseif(
 		else{
 			//Session okay
 			if(
-				isset( $_SESSION['addon_survey']['ausw'][$uid]['zugriff'] )
-				&&
-				$_SESSION['addon_survey']['ausw'][$uid]['zugriff'] == 'allowed'
+				//per Session vom FE erlaubt?
+				(
+					//für die Umfrage erlaubt?
+					$ufile->read_kimb_one( 'zugaus' ) == 'oe'
+					&&
+					//Session okay?
+					isset( $_SESSION['addon_survey']['ausw'][$uid]['zugriff'] )
+					&&
+					$_SESSION['addon_survey']['ausw'][$uid]['zugriff'] == 'allowed'
+				)
+				||
+				//Backenduser?
+				(
+					check_backend_login( 'fourteen' , 'more', false )
+				)
 			){
-				//do it
-				$out = "Auswertung machen";
+				//Auswertung
+
+				//schon Ergebnisse?
+				if( check_for_kimb_file( 'addon/survey__'.$uid.'_erg.kimb' ) ){
+					//Umfrage Konfiguration laden
+					$ufile = new KIMBdbf( 'addon/survey__'.$uid.'_conf.kimb' );
+					//Fragen holen
+					$fragen = read_and_sort_fragen( $ufile );
+					//Umfrage Ergebnisse laden
+					$uefile = new KIMBdbf( 'addon/survey__'.$uid.'_erg.kimb' );
+
+					//Ausgabe vorbreiten
+					$erg = array(
+						'teilnehmeranzahl' => $uefile->read_kimb_one( 'teilnehmeranzahl' ),
+						'fragenanzahl' => count( $fragen ),
+						'auswertungstyp' => $ufile->read_kimb_one( 'auswer' ),
+						'fragen' => $fragen, 
+						'ergebnisse' => $uefile->read_kimb_id_all()
+
+					);
+					//Auswertung nach Namen?
+					if( $erg['auswertungstyp'] = 'na' )
+						//Liste der Teilnehmer deren ID
+						$erg['teilnehmerliste'] = $uefile->read_kimb_one( 'teilnehmerlist' );
+					}
+
+					//Ausgabe
+					$out['ergebnisse'] = $erg;
+				}
+				else{
+					//Fehler
+					$out['pullokay'] = false;
+					$out['ermsg'] = 'Es liegen für diese Umfrage keien Ergebnisse vor!';	
+				}
 			}
 			else{
 				$out = "403 - Nicht erlaubt!";
