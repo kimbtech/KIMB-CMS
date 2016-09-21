@@ -84,11 +84,24 @@ function make_ergeb(){
 
 			//HTML
 			var html = '<h2>Frage '+id+'</h2>';
+			html += '<button id="makejsonexp" style="float:right;">JSON Export (Frage '+id+')</button>';
 			html += '<h4>Fragestellung</h4>';
 			html += '<div><p>'+thiserg.text+'</p></div>';
 			html += '<h4>Antworten</h4>';
 			//	anfügen
 			$( structur.ausgra ).html( html );
+
+			//auf Exportbutton hören
+			$( "button#makejsonexp" ).click( function() {
+				//Var vorbereiten
+				var exportd = thiserg;
+				//User anhängen?
+				if( ergeb.auswertungstyp == 'na' ){
+					exportd['teilnehmerliste'] = ergeb.teilnehmerliste;
+				};
+				//Export
+				dataexport( exportd );
+			});
 
 			//Chart
 			//	sichtbar
@@ -147,7 +160,7 @@ function make_ergeb(){
 			html += '</table>';
 
 			//Export?
-			html += '<button id="makejsonexp">Export (JSON)</button>';
+			html += '<button id="makejsonexp">JSON Export (alles)</button>';
 
 			//Übersicht
 			$( structur.ausgra ).html( html );
@@ -167,35 +180,41 @@ function make_ergeb(){
 			//auf Exportbutton hören
 			$( "button#makejsonexp" ).click( function() {
 
-				$( "body" ).append(
-					'<div id="mainexportbox">'+
-					'<div style="position:fixed; top:0; left:0; background-color:black; opacity:0.6; width:100%; height:100%;"></div>'+
-					'<div style="position:absolute; top:5px; border-radius:5px; left:calc(50% - 300px); background-color:#5d7; padding:5px; width:600px;">'+
-					'<div><button style="width:100%;">Schließen</button></div>'+
-					'<div class="inner"></div>'+			
-					'<div><button style="width:100%;">Schließen</button></div>'+	
-					'</div>'+
-					'</div>'			
-				);
-
-				//DATA
-				dataexport( "div#mainexportbox .inner", ergeb );
-				//Button Schließen
-				$( "div#mainexportbox div button").click( function (){
-					//Kasten weg
-					$( "div#mainexportbox" ).remove();
-				});
+				//Eyport
+				dataexport( ergeb );
+				
 			});
 		}
 
 		//JSON in Exportkasten
-		//	dom => DOM Element für Kasten
 		//	data => JS OBJ
-		function dataexport( dom, data ){
-			//als Codebox rein
-			$( dom ).html( '<pre><code class="language-json">' + JSON.stringify( data , null, 2) + '</code></pre>' );
+		function dataexport( data ){
+
+			//Kasten bauen
+			$( "body" ).append(
+				'<div id="mainexportbox">'+
+					'<div style="position:fixed; top:0; left:0; background-color:black; opacity:0.6; width:100%; height:100%;"></div>'+
+					'<div style="position:absolute; top:5px; border-radius:5px; left:calc(50% - 300px); background-color:#5d7; padding:5px; width:600px;">'+
+						'<div><button style="width:100%;">Schließen</button></div>'+
+						'<div class="inner">'+
+							'<pre>'+
+								'<code class="language-json">'+
+									JSON.stringify( data , null, 2)+
+								'</code>'+
+							'</pre>'+
+						'</div>'+			
+						'<div><button style="width:100%;">Schließen</button></div>'+	
+					'</div>'+
+				'</div>'			
+			);
 			//Prism
 			Prism.highlightAll();
+
+			//Button Schließen
+			$( "div#mainexportbox div button").click( function (){
+				//Kasten weg
+				$( "div#mainexportbox" ).remove();
+			});
 		}
 	}
 
