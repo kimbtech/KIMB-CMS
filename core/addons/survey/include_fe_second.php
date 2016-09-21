@@ -46,7 +46,7 @@ if( $ucfile->read_kimb_search_teilpl( 'uid', $allgsiteid ) ){
 	//CSS für System
 	$sitecontent->add_html_header('<link rel="stylesheet" type="text/css" href="'.$allgsysconf['siteurl'].'/load/addondata/survey/main.dev.css" media="all">');
 	//jQuery UI wird benötigt
-	$sitecontent->add_html_header('<!-- jQuery -->');
+	$sitecontent->add_html_header('<!-- jQuery --><!-- PrismJS -->');
 	//Cart JS
 	$sitecontent->add_html_header('<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/survey/chart.min.js"></script>');
 	//Vars

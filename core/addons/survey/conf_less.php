@@ -46,6 +46,8 @@ if( isset( $_GET['stat'] ) && is_numeric( $_GET['stat'] ) ){
 
 		$sitecontent->add_site_content('<h2>Statistik für Umfrage <u>'.$uid.'</u></h2>');
 
+		//Prism JS
+		$sitecontent->add_html_header('<link rel="stylesheet" type="text/css" href="'.$allgsysconf['siteurl'].'/load/system/prism/prism.min.css">'."\r\n".'<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/system/prism/prism.min.js"></script>');
 		//CSS für System
 		$sitecontent->add_html_header('<link rel="stylesheet" type="text/css" href="'.$allgsysconf['siteurl'].'/load/addondata/survey/main.dev.css" media="all">');
 		//Cart JS

@@ -44,6 +44,7 @@ function make_ergeb(){
 			//Frage nach ID
 			html += '<button class="grafrabutts" fra="'+k+'">Frage '+k+'</button>'
 		});
+		html += '<br /><br />';
 		//	anfügen
 		$( structur.ausnav ).html( html );
 
@@ -77,8 +78,17 @@ function make_ergeb(){
 		//Graphen einer Frage machen
 		//	id der Frage
 		function make_graph( id ){
-			//Graph
-			$( structur.ausgra ).html( '<pre>' + JSON.stringify(ergeb.data[id], null, 2) + '</pre>' );
+
+			//Daten dieser Frage
+			var thiserg = ergeb.data[id];
+
+			//HTML
+			var html = '<h2>Frage '+id+'</h2>';
+			html += '<h4>Fragestellung</h4>';
+			html += '<div><p>'+thiserg.text+'</p></div>';
+			html += '<h4>Antworten</h4>';
+			//	anfügen
+			$( structur.ausgra ).html( html );
 
 			//Chart
 			//	sichtbar
@@ -110,25 +120,83 @@ function make_ergeb(){
 		function make_uebersicht(){
 
 			//HTML
-			var html = ergeb.teilnehmeranzahl+'<br />';
-			html += ergeb.fragenanzahl+'<br />';
-			html += ergeb.auswertungstyp+'<br />';
-			
+			var html = '<h2>Übersicht</h2>';
+			html += '<table id="uebertable">';
+			html += '<tr>';
+			html += '<th>Teilnehmer</th>';
+			html += '<td>'+ergeb.teilnehmeranzahl+'</td>';
+			html += '</tr>';
 			//Liste der Teilnehmer wenn nach Namen
+			if( ergeb.auswertungstyp == 'na' ){
+				html += '<tr>';
+				html += '<td colspan="2"><ul>';
+				$.each( ergeb.teilnehmerliste, function (k,v){
+					html += '<li>'+v+'</li>';
+				});
+				html += '</ul></td>';
+				html += '</tr>';
+			}
+			html += '<tr>';
+			html += '<th>Fragen</th>';
+			html += '<td>'+ergeb.fragenanzahl+'</td>';
+			html += '</tr>';
+			html += '<tr>';
+			html += '<th>Typ</th>';
+			html += '<td>'+( ergeb.auswertungstyp == 'na' ? 'Name' : 'Anonym' )+'</td>';
+			html += '</tr>';
+			html += '</table>';
+
+			//Export?
+			html += '<button id="makejsonexp">Export (JSON)</button>';
 
 			//Übersicht
 			$( structur.ausgra ).html( html );
 
+			//Tabelle Design
+			$( "table#uebertable, table#uebertable td, table#uebertable th" ).css({
+				'width' : '100%',
+				'max-width' : '500px',
+				'border' : '1px solid black',
+				'border-collapse' : 'collapse',
+				'padding' : '5px'
+			});
+
 			//kein Chart
 			$(structur.canv).css( 'display', 'none' );
 
-			//DATA Export ?
+			//auf Exportbutton hören
+			$( "button#makejsonexp" ).click( function() {
 
+				$( "body" ).append(
+					'<div id="mainexportbox">'+
+					'<div style="position:fixed; top:0; left:0; background-color:black; opacity:0.6; width:100%; height:100%;"></div>'+
+					'<div style="position:absolute; top:5px; border-radius:5px; left:calc(50% - 300px); background-color:#5d7; padding:5px; width:600px;">'+
+					'<div><button style="width:100%;">Schließen</button></div>'+
+					'<div class="inner"></div>'+			
+					'<div><button style="width:100%;">Schließen</button></div>'+	
+					'</div>'+
+					'</div>'			
+				);
+
+				//DATA
+				dataexport( "div#mainexportbox .inner", ergeb );
+				//Button Schließen
+				$( "div#mainexportbox div button").click( function (){
+					//Kasten weg
+					$( "div#mainexportbox" ).remove();
+				});
+			});
+		}
+
+		//JSON in Exportkasten
+		//	dom => DOM Element für Kasten
+		//	data => JS OBJ
+		function dataexport( dom, data ){
+			//als Codebox rein
+			$( dom ).html( '<pre><code class="language-json">' + JSON.stringify( data , null, 2) + '</code></pre>' );
+			//Prism
+			Prism.highlightAll();
 		}
 	}
 
-/*	var ctx = document.getElementById("myChart");
-
-	
-*/
 }
