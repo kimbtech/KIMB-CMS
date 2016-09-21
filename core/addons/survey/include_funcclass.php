@@ -3,7 +3,7 @@
 /*************************************************/
 //KIMB CMS Add-on
 //KIMB ContentManagementSystem Add-on
-//Copyright (c) 2016 by KIMB-technologies
+//Copyright (c) 2016 by KIMB-technologies.eu
 /*************************************************/
 //This program is free software: you can redistribute it and/or modify
 //it under the terms of the GNU General Public License version 3

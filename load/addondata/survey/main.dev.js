@@ -1,3 +1,11 @@
+/*
+//KIMB CMS Add-on
+//KIMB ContentManagementSystem Add-on
+//Copyright (c) 2016 by KIMB-technologies.eu
+//https://www.KIMB-technologies.eu
+//http://www.gnu.org/licenses/gpl-3.0
+*/
+
 //wenn Seite breit
 $( function () {
 	//Hauptstruktur machen
