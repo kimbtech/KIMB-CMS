@@ -75,6 +75,9 @@ function make_ergeb(){
 			}
 		});
 
+		//Graph Var für chart.js
+		var graph = null;
+
 		//Graphen einer Frage machen
 		//	id der Frage
 		function make_graph( id ){
@@ -103,30 +106,115 @@ function make_ergeb(){
 				dataexport( exportd );
 			});
 
-			//Chart
-			//	sichtbar
-			$(structur.canv).css( 'display', 'block' );
-			//	do
-			var myChart = new Chart( $(structur.canv)[0] , {
-				type: 'pie',
-				data: {
-					labels: [
-						"Red",
-						"Blue",
-						"Yellow",
-					],
-					datasets: [
-						{
-							data: [300, 50, 100],
-							backgroundColor: [
-								"#FF6384",
-								"#36A2EB",
-								"#FFCE56",
-							]
-						}
-					]
+			//sinvolle Farben
+			var colorindex = 'leer';
+			function makecolor( rand ){
+				//alle Farben
+				var color = [
+					'red',
+					'green',
+					'maroon',
+					'lime',
+					'yellow',
+					'gray',
+					'navy',
+					'olive',
+					'blue',
+					'aqua',
+					'purple',
+					'silver',
+					'fuchsia',
+					'teal'
+				];
+				//Zufallsfarbe ?
+				if(
+					( typeof rand !== "undefined" && rand )
+					||
+					colorindex == 'leer'
+				){
+					colorindex = Math.floor(Math.random() * ( color.length + 1));
 				}
-			});
+
+				//eine weiter
+				colorindex++;
+
+				//wieder von vorne ?
+				if( colorindex > color.length ){
+					//ja
+					colorindex = 0;
+				}
+				//Farbe machen
+				return color[colorindex];
+			}
+
+			//Chart
+			//	Daten
+
+			//OBJ machen
+			var c = {
+				type: '',
+				labels: [],
+				label: [],
+				data: [],
+				colors: [],
+				options: {}
+			};
+
+			//OBJ füllen
+			if( thiserg.type == 'au' ){
+				c.type = 'pie';
+
+				$.each( thiserg.ergebnisse, function (k,v){
+					c.labels.push( k );
+					c.data.push( v );
+					c.colors.push( makecolor() );
+				});
+
+				var graok = true;
+			}
+			else if( thiserg.type == 'mc' || thiserg.type == 'za' ){
+				c.type = 'bar';
+				c.options = { scales: { yAxes: [{ ticks: { stepSize: 1, beginAtZero: true } }] } };
+
+				c.colors = makecolor( true );
+				c.label = 'Frage '+id;
+
+				$.each( thiserg.ergebnisse, function (k,v){
+					c.labels.push( k );
+					c.data.push( v );
+				});
+
+				var graok = true;
+			}
+
+
+			if( graok ){
+				//sichtbar
+				$(structur.canv).css( 'display', 'block' );
+				//Graph evtl. nicht gelöscht?
+				if( graph !== null ){
+					graph.destroy();
+				}
+				//neu machen
+				graph = new Chart( $(structur.canv)[0] , {
+					type: c.type,
+					data: {
+						labels: c.labels,
+						datasets: [
+							{
+								data: c.data,
+								label: c.label,
+								backgroundColor: c.colors
+							}
+						]
+					},
+					options: c.options
+				});
+			}
+			else{
+				//nicht sichtbar
+				$(structur.canv).css( 'display', 'none' );
+			}
 		}
 
 		//Übersicht über alle machen
