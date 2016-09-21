@@ -46,7 +46,7 @@ if( $ucfile->read_kimb_search_teilpl( 'uid', $allgsiteid ) ){
 	//CSS für System
 	$sitecontent->add_html_header('<link rel="stylesheet" type="text/css" href="'.$allgsysconf['siteurl'].'/load/addondata/survey/main.dev.css" media="all">');
 	//jQuery UI wird benötigt
-	$sitecontent->add_html_header('<!-- jQuery UI -->');
+	$sitecontent->add_html_header('<!-- jQuery -->');
 	//Cart JS
 	$sitecontent->add_html_header('<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/survey/chart.min.js"></script>');
 	//Vars
@@ -54,7 +54,10 @@ if( $ucfile->read_kimb_search_teilpl( 'uid', $allgsiteid ) ){
 	zugaus : "'.$_SESSION['addon_survey']['ausw'][$uid]['zugriff'].'", zugriff: "'.$_SESSION['addon_survey'][$uid]['zugriff'].'",
 	username : "'.( isset( $_SESSION['felogin']['name'] ) ? $_SESSION['felogin']['name'] : '' ).'" };</script>');
 	//JS für System
+	//	Struktur und Fragen
 	$sitecontent->add_html_header('<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/survey/main.dev.js"></script>');
+	//	Auswertung
+	$sitecontent->add_html_header('<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/survey/stat.dev.js"></script>');
 		
 	//HTML Gerüst für System
 	$sitecontent->add_site_content('<div id="addon_survey_main" class="addon_survey_main">Bitte aktivieren Sie JavaScript für das Umfragesystem!</div>');

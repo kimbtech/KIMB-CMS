@@ -42,9 +42,25 @@ if( isset( $_GET['stat'] ) && is_numeric( $_GET['stat'] ) ){
 		//auslesen
 		$uid = $_GET['stat'];
 
-		$sitecontent->add_site_content('<h2>Statistik für Umfrage <u>'.$uid.'</u></h2>');
-		
+		$sitecontent->add_site_content('<a href="'.$addonurl.'">&larr; Zurück zur Liste</a>');
 
+		$sitecontent->add_site_content('<h2>Statistik für Umfrage <u>'.$uid.'</u></h2>');
+
+		//CSS für System
+		$sitecontent->add_html_header('<link rel="stylesheet" type="text/css" href="'.$allgsysconf['siteurl'].'/load/addondata/survey/main.dev.css" media="all">');
+		//Cart JS
+		$sitecontent->add_html_header('<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/survey/chart.min.js"></script>');
+		//Vars
+		$sitecontent->add_html_header('<script language="javascript">var addsur = { su :"'.$allgsysconf['siteurl'].'", uid : "'.$uid.'" };</script>');
+		//JS für System
+		//	Struktur
+		$sitecontent->add_html_header('<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/survey/bemain.dev.js"></script>');
+		//	Auswertung
+		$sitecontent->add_html_header('<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/survey/stat.dev.js"></script>');
+			
+		//HTML Gerüst für System
+		$sitecontent->add_site_content('<div id="addon_survey_main" class="addon_survey_main">Bitte aktivieren Sie JavaScript für das Umfragesystem!</div>');
+		
 		$maketable = false;
 	}
 	//keine Ergebnisse
