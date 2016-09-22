@@ -204,7 +204,16 @@ function ajaxrequest( padd, elem ){
 
 //alle Ergebnisse
 var ergebnisse = {};
+//ID der aktuellen Frage
 var thisfrage = 0;
+
+//Array mit allen IDs der Fragen
+//	0 => Übersicht, 1, 2, ... IDs der Frageb
+var thisfragen = [0];
+//aktueller Key im Array aller IDs der Fragen
+var thisfrageid = 0;
+
+//alle Fragen
 var fragendata = {};
 
 //schon Ergebnisse im LocalStroage?
@@ -235,6 +244,10 @@ function umfragedo( data ){
 
 	//Daten global
 	fragendata = data;
+	//Fragennummern zu OBJ IDs - Array für Zuordnung
+	thisfragen = [0].concat( Object.keys( fragendata.fragen ) );
+	//immer mit ID 0 (Übersicht) beginnen
+	thisfrageid = 0;
 
 	var html = '<div class="infotext">'+data.about+'</div>'; 
 	//Name abfragen?
@@ -258,7 +271,7 @@ function umfragedo( data ){
 	//Navigation
 	$( structur.franav ).html(
 		'<button class="umfdobutt center" name="los">Los</button>'+
-		'<span class="fragenzahl">'+thisfrage+'/'+data.fragenzahl+'</span>'+
+		'<span class="fragenzahl">'+thisfrageid+'/'+data.fragenzahl+'</span>'+
 		'<div class="umfdobutt center"><button class="umfdobutt" name="back">&larr; Zurück</button>'+
 		'<button class="umfdobutt" name="fwd">Weiter &rarr;</button></div>'+
 		'<button class="umfdobutt center" name="end">Abschicken</button>'
@@ -280,11 +293,8 @@ function umfragedo( data ){
 		
 		//Los?
 		if( name == "los" ){
-			//Buttons anpassen
-			$( "button.umfdobutt[name=back]" )[0].disabled = true;
-			$( "button.umfdobutt[name=fwd]" )[0].disabled = false;
+			//Button Los anpassen
 			$( "button.umfdobutt[name=los]" )[0].disabled = true;
-			$( "button.umfdobutt[name=end]" )[0].disabled = true;
 
 			//Name holen?
 			if( data.art == "na" ){
@@ -302,29 +312,22 @@ function umfragedo( data ){
 			}
 
 			//Erste Frage
-			load_frage( 1 );
+			//	FrageID muss 1 sein
+			thisfrageid = 1;
+			//	Frage laden
+			load_frage( thisfragen[thisfrageid] );
 		}
 		//Weiter
 		else if( name == "fwd" ){
 			//nächste Frage
-			thisfrage++;
-			load_frage( thisfrage );
-
-			//Buttons anpassen
-			$( "button.umfdobutt[name=fwd]" )[0].disabled = ( thisfrage == fragendata.fragenzahl ? true : false );
-			$( "button.umfdobutt[name=back]" )[0].disabled = ( thisfrage < 1 ? true : false );
-			$( "button.umfdobutt[name=end]" )[0].disabled = ( thisfrage == fragendata.fragenzahl ? false : true );
+			thisfrageid++;
+			load_frage( thisfragen[thisfrageid] );
 		}
 		//Zurück
 		else if( name == "back" ){
 			//nächste Frage
-			thisfrage--;
-			load_frage( thisfrage );
-
-			//Buttons anpassen
-			$( "button.umfdobutt[name=fwd]" )[0].disabled = ( thisfrage == fragendata.fragenzahl ? true : false );
-			$( "button.umfdobutt[name=end]" )[0].disabled = ( thisfrage == fragendata.fragenzahl ? false : true );
-			$( "button.umfdobutt[name=back]" )[0].disabled = ( thisfrage <= 1 ? true : false );
+			thisfrageid--;
+			load_frage( thisfragen[thisfrageid] );
 		}
 		//Absenden?
 		else if( name == "end" ){
@@ -380,9 +383,14 @@ function umfragedo( data ){
 			}
 		}
 
+		//Buttons anpassen
+		$( "button.umfdobutt[name=fwd]" )[0].disabled = ( thisfrageid == fragendata.fragenzahl ? true : false );
+		$( "button.umfdobutt[name=end]" )[0].disabled = ( thisfrageid == fragendata.fragenzahl ? false : true );
+		$( "button.umfdobutt[name=back]" )[0].disabled = ( thisfrageid <= 1 ? true : false );
+
 		//wenn alle Fragen beantwortet, Ende immer möglich
 		//	nur wenn nicht letzte Frage (da auch sonst möglich)
-		if( thisfrage != fragendata.fragenzahl ){
+		if( thisfrageid != fragendata.fragenzahl ){
 			//Button an, wenn alle Ergebnisse okay
 			$( "button.umfdobutt[name=end]" )[0].disabled = ( ( Object.keys( ergebnisse ).length == fragendata.fragenzahl || (fragendata.art == "na" && Object.keys( ergebnisse ).length == fragendata.fragenzahl + 1 ) ) ? false : true );
 		}
@@ -395,7 +403,7 @@ function load_frage( nummer ){
 	//Fragennummer setzen
 	thisfrage = nummer;
 	//Fragennummer
-	$( structur.franav+" span.fragenzahl" ).text( thisfrage+'/'+fragendata.fragenzahl );
+	$( structur.franav+" span.fragenzahl" ).text( thisfrageid+'/'+fragendata.fragenzahl );
 	//Fragendaten
 	var frage = fragendata.fragen[nummer];
 
@@ -587,7 +595,7 @@ function load_frage( nummer ){
 //Frage Antwort sichern
 function save_frage( butttask ){
 	//nicht die Übersichtsseite
-	if( thisfrage !== 0 ){
+	if( thisfrageid !== 0 ){
 		//Fragendaten
 		var frage = fragendata.fragen[thisfrage];
 
@@ -668,10 +676,10 @@ function save_frage( butttask ){
 			errormessage( "Sie müssen etwas eingeben bzw. auswählen!" );
 			//nochmal die gleiche Frage!
 			if( butttask == 'fwd' ){
-				thisfrage--;
+				thisfrageid--;
 			}
 			else if( butttask == 'back' ){
-				thisfrage++;
+				thisfrageid++;
 			}
 		}
 

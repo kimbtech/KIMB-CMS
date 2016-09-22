@@ -23,19 +23,30 @@ function make_ergeb(){
 	'<div id="graphareagroup">'+
 	'<div id="grapharea"></div>'+
 	'<canvas id="auswertchart" style="width:100%;"></canvas>'+
+	'<div id="freitextarea"></div>'+
 	'</div>';
 	$( structur.aus ).html( html );
 	//Struktur OBJ anpassen
 	structur.ausnav = structur.aus + " div#graphnav";
 	structur.ausgrag = structur.aus + " div#graphareagroup";
 	structur.ausgra = structur.ausgrag + " div#grapharea";
-	structur.canv = structur.ausgrag + " canvas#auswertchart"
+	structur.canv = structur.ausgrag + " canvas#auswertchart";
+	structur.ausfrt = structur.ausgrag + " div#freitextarea";
 
 	
 
 	function draw_stat( ergeb ){
 		//Nur das OBJ mit den Ergebnissen
 		ergeb = ergeb.ergebnisse;
+
+		//evtl. noch keine Ergebnisse?
+		if( typeof ergeb == "undefined" ){
+			//Fehlermeldung
+			errormessage( "Es sind noch keine Ergebnisse vorhanden!" );
+			$( structur.ausnav ).html( "<h3>Es sind noch keine Ergebnisse vorhanden!</h3>" );
+			//beenden
+			return false;
+		}
 
 		//Fragennavigation
 		//	Home => 0
@@ -111,20 +122,15 @@ function make_ergeb(){
 			function makecolor( rand ){
 				//alle Farben
 				var color = [
-					'red',
-					'green',
-					'maroon',
-					'lime',
-					'yellow',
-					'gray',
-					'navy',
-					'olive',
-					'blue',
-					'aqua',
-					'purple',
-					'silver',
-					'fuchsia',
-					'teal'
+					'#FAA43A',
+					'#F17CB0',
+					'#5DA5DA',
+					'#4D4D4D',
+					'#B276B2',
+					'#60BD68',
+					'#F15854',
+					'#B2912F',
+					'#DECF3F'
 				];
 				//Zufallsfarbe ?
 				if(
@@ -156,39 +162,188 @@ function make_ergeb(){
 				labels: [],
 				label: [],
 				data: [],
-				colors: [],
-				options: {}
+				bgcolor: [],
+				bocolor: [],
+				options: {},
+				use : true
 			};
 
 			//OBJ füllen
+			//	Auswahl => Torte
 			if( thiserg.type == 'au' ){
+				//Torte
 				c.type = 'pie';
 
+				//allgemeine Randfarbe
+				c.bocolor = makecolor( true );
+				//alle Ergebnisse an Graphdata
 				$.each( thiserg.ergebnisse, function (k,v){
 					c.labels.push( k );
 					c.data.push( v );
-					c.colors.push( makecolor() );
+					c.bgcolor.push( makecolor() );
 				});
 
+				//Graph machen
 				var graok = true;
 			}
+			//	Multiple Choice oder Zahl => Balken
 			else if( thiserg.type == 'mc' || thiserg.type == 'za' ){
-				c.type = 'bar';
-				c.options = { scales: { yAxes: [{ ticks: { stepSize: 1, beginAtZero: true } }] } };
+				//Zahl?
+				if(thiserg.type == 'za'){
+					//horizontale Balken
+					c.type = 'horizontalBar';
+					//Skala nur mit vollen Zahlen
+					c.options = { scales: { xAxes: [{ ticks: { stepSize: 1, beginAtZero: true } }] }, legend: { display: false } };
+				}
+				else{
+					//Balken
+					c.type = 'bar';
+					//Skala nur mit vollen Zahlen
+					c.options = { scales: { yAxes: [{ ticks: { stepSize: 1, beginAtZero: true } }] }, legend: { display: false } };
+				}
 
-				c.colors = makecolor( true );
-				c.label = 'Frage '+id;
-
+				//allgemeine Hintergrundfarbe
+				c.bgcolor = makecolor( true );
+				//Titel
+				c.label = 'Anzahl';
+				//alle Ergebnisse an Graphdata
 				$.each( thiserg.ergebnisse, function (k,v){
 					c.labels.push( k );
 					c.data.push( v );
+					c.bocolor.push(makecolor() );
 				});
 
+				//Graph machen
 				var graok = true;
 			}
+			//	Abstufung => Balken
+			else if( thiserg.type == 'ab' ){
+
+				//Balken
+				c.type = 'bar';
+				//Skala nur mit vollen Zahlen
+				c.options = { scales: { yAxes: [{ ticks: { stepSize: 1, beginAtZero: true } }] } };
+				//eigenes Dataset
+				c.use = false;
+
+				//eigenes Dataset bauen
+				var datasethere = {
+					//Labels 1-6 und ka
+					labels:[
+						'Sehr gut',
+						'Gut',
+						'Befriedigend',
+						'Ausreichend',
+						'Mangelhaft',
+						'Ungenügend',
+						'Keine Angabe'
+					],
+					//Dataset
+					datasets:[]
+				};
+				
+				//alle Ergebnisse an Graphdata
+				$.each( thiserg.ergebnisse, function (k,v){
+					//Datensatz bauen
+					var set = {
+						data: [],
+						label: k,
+						backgroundColor: makecolor(),
+						borderColor: makecolor(),
+						borderWidth: 2
+					};
+					//alle Ergebnisse an Graphdata
+					$.each( v , function (kk,vv){
+						//Daten anfügen
+						set.data.push( vv );
+					});
+
+					//Datensatz an Dataset
+					datasethere.datasets.push( set );
+				});
+
+				//Graph machen
+				var graok = true;
 
 
+			}
+			//	Freitext
+			else{
+				//DIV für Freitexte zeigen
+				$( structur.ausfrt ).css( 'display', 'block' );
+
+				//Übersicht
+				var html = '<h5>Übersicht</h5>'+ 
+				'<ul>'+
+				'<li><b>Gesamtzahl der Teilnehmer:</b> '+ergeb.teilnehmeranzahl+'</li>'+
+				'<li><b>Gesamtzahl der Texte:</b> '+thiserg.ergebnisse.anzahl+'</li>'+
+				'<li><b>Anteil Texte:</b> '+ Math.round( ( thiserg.ergebnisse.anzahl/ergeb.teilnehmeranzahl ) * 100 ) + '%</li>'+
+				'</ul>';
+
+				//Texte
+				html += '<h5>Texte</h5>';
+				html += '<table id="textetable">';
+				$.each( thiserg.ergebnisse.texte , function (k,v){
+					//nach Name?
+					//	Name zu Texte
+					var name = ( ( ergeb.auswertungstyp == 'na' ) ? '' : k );
+					//Tabellenzeile
+					html += '<tr>';
+					html += '<td class="first">'+name+'</td>';
+					html += '<td><div>'+v.replace( /(\r\n)|(\r)|(\n)/g, '<br />\r\n' )+'</div></td>';
+					html += '</tr>';
+				});
+				html += '</table>';
+
+				//anzeigen
+				$( structur.ausfrt ).html( html );
+
+				//Tabelle Design
+				$( "table#textetable, table#textetable td" ).css({
+					'width' : '100%',
+					'border' : '1px solid black',
+					'border-collapse' : 'collapse',
+					'padding' : '5px'
+				});
+				$( "table#textetable td.first" ).css({
+					'width' : '20%',
+					'min-width' : '100px'
+				});
+				$( "table#textetable td div" ).css({
+					'background-color' : 'grey',
+					'margin' : '5px',
+					'padding' : '5px',
+					'border-radius' : '5px'
+				});
+
+				//keinen Graph machen
+				var graok = false;
+			}
+
+			//Graph?
 			if( graok ){
+				//die Werte aus dem OBJ c nutzen?
+				if( c.use ){
+					//Datensätze für den Graphen
+					var datasets = {
+						labels: c.labels,
+						datasets: [
+							{
+								data: c.data,
+								label: c.label,
+								backgroundColor: c.bgcolor,
+								borderColor: c.bocolor,
+								borderWidth: 2
+							}
+						]
+					}
+				}
+				else{
+					var datasets = datasethere;
+				}
+
+				//DIV für Freitexte ausblenden
+				$( structur.ausfrt ).css( 'display', 'none' );
 				//sichtbar
 				$(structur.canv).css( 'display', 'block' );
 				//Graph evtl. nicht gelöscht?
@@ -198,16 +353,7 @@ function make_ergeb(){
 				//neu machen
 				graph = new Chart( $(structur.canv)[0] , {
 					type: c.type,
-					data: {
-						labels: c.labels,
-						datasets: [
-							{
-								data: c.data,
-								label: c.label,
-								backgroundColor: c.colors
-							}
-						]
-					},
+					data: datasets,
 					options: c.options
 				});
 			}
@@ -264,6 +410,8 @@ function make_ergeb(){
 
 			//kein Chart
 			$(structur.canv).css( 'display', 'none' );
+			//kein Freitext
+			$( structur.ausfrt ).css( 'display', 'none' );
 
 			//auf Exportbutton hören
 			$( "button#makejsonexp" ).click( function() {

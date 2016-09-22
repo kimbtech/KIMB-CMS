@@ -613,6 +613,14 @@ elseif(
 			//	schreiben
 			foreach( $uconfs[0] as $teil => $vala ){
 				$ufile->write_kimb_one( $teil, $vala[0] );
+
+				//Markdown
+				if( $teil == 'inform' ){
+					//parsen
+					$value = parse_markdown( $vala[0] );
+					//ablegen
+					$ufile->write_kimb_one( $teil.'-parsed', $value );
+				}
 			}
 
 			//weiter zu edit => FWD

@@ -5,12 +5,12 @@
 <[zugriff]>oe<[zugriff]>
 <[zugaus]>oe<[zugaus]>
 <[allidslist1]>1<[allidslist1]>
-<[1-type]>za<[1-type]>
+<[1-type]>ab<[1-type]>
 <[1]>type==frage==felder<[1]>
 <[1-frage]>Hier kommt eine schöne Frage hin!<[1-frage]>
-<[1-felder]><!-- JSON TYPE -->{"1":"1","2":"20"}<[1-felder]>
+<[1-felder]><!-- JSON TYPE -->{"1":"A","2":"B","3":"C","4":"D","5":"E","6":"F","7":"G"}<[1-felder]>
 <[allidslist2]>2<[allidslist2]>
-<[2-type]>ft<[2-type]>
+<[2-type]>za<[2-type]>
 <[2]>type==frage==felder<[2]>
 <[2-frage]>Hier kommt eine schöne Frage hin!<[2-frage]>
-<[2-felder]><!-- JSON TYPE -->{"1":"A","2":"B"}<[2-felder]>
+<[2-felder]><!-- JSON TYPE -->{"1":"1","2":"20"}<[2-felder]>
