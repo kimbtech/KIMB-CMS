@@ -89,6 +89,11 @@ function make_ergeb(){
 		//Graph Var für chart.js
 		var graph = null;
 
+		//Teilnehmer Array var
+		if( ergeb.auswertungstyp == 'na' ){
+			var teiln = ergeb.teilnehmerliste;
+		};
+
 		//Graphen einer Frage machen
 		//	id der Frage
 		function make_graph( id ){
@@ -174,12 +179,61 @@ function make_ergeb(){
 				//Torte
 				c.type = 'pie';
 
+				//Tooltip mit Namen der User Callback
+				if( ergeb.auswertungstyp == 'na' ){
+					//Callbackfunktion bei Graph anfügen
+					c.options['tooltips'] = { callbacks: { footer: maketooltiptext } };
+
+					//Array mit den Namen erstellen,
+					//welches die Namen für maketooltiptext() 
+					//sinvoll enthält
+					var namesarray = [];
+					//alle Ergebnisse durchgehen
+					//	jedes Feld
+					$.each( thiserg.ergebnisse, function (feld,user){
+						//Array pro Feld für User
+						var us = [];
+						//hier schon User?
+						if( typeof user == "object" ){
+							//alle User in Array
+							$.each( user , function (key,userid){
+								us.push( teiln[userid]  );
+							});
+						}
+						//zusammenfügen
+						namesarray.push( us );
+					});
+
+					//Funktion machen
+					function maketooltiptext(place, data) {
+						//Indexe bestimmen
+						var labelid = place[0].index;
+
+						return namesarray[labelid];
+					}
+				}
+
 				//allgemeine Randfarbe
 				c.bocolor = makecolor( true );
 				//alle Ergebnisse an Graphdata
 				$.each( thiserg.ergebnisse, function (k,v){
 					c.labels.push( k );
-					c.data.push( v );
+					//nach Namen?
+					if( ergeb.auswertungstyp == 'na' ){
+						//schon von einm gewählt
+						if( typeof v == "object" ){
+							//Anzahl bestimmen 
+							c.data.push( v.length );
+						}
+						else{
+							//noch nicht gewählt
+							c.data.push( 0 );
+						}
+					}
+					else{
+						//ganz normal (anonym)
+						c.data.push( v );
+					}
 					c.bgcolor.push( makecolor() );
 				});
 
@@ -193,13 +247,53 @@ function make_ergeb(){
 					//horizontale Balken
 					c.type = 'horizontalBar';
 					//Skala nur mit vollen Zahlen
-					c.options = { scales: { xAxes: [{ ticks: { stepSize: 1, beginAtZero: true } }] }, legend: { display: false } };
+					c.options = {
+						scales: { xAxes: [{ ticks: { stepSize: 1, beginAtZero: true } }] },
+						legend: { display: false }
+					};
 				}
 				else{
 					//Balken
 					c.type = 'bar';
 					//Skala nur mit vollen Zahlen
-					c.options = { scales: { yAxes: [{ ticks: { stepSize: 1, beginAtZero: true } }] }, legend: { display: false } };
+					c.options = {
+						scales: { yAxes: [{ ticks: { stepSize: 1, beginAtZero: true } }] },
+						legend: { display: false }
+			 		};
+				}
+
+				//Tooltip mit Namen der User Callback
+				if( ergeb.auswertungstyp == 'na' ){
+					//Callbackfunktion bei Graph anfügen
+					c.options['tooltips'] = { callbacks: { footer: maketooltiptext } };
+
+					//Array mit den Namen erstellen,
+					//welches die Namen für maketooltiptext() 
+					//sinvoll enthält
+					var namesarray = [];
+					//alle Ergebnisse durchgehen
+					//	jedes Feld
+					$.each( thiserg.ergebnisse, function (feld,user){
+						//Array pro Feld für User
+						var us = [];
+						//hier schon User?
+						if( typeof user == "object" ){
+							//alle User in Array
+							$.each( user , function (key,userid){
+								us.push( teiln[userid]  );
+							});
+						}
+						//zusammenfügen
+						namesarray.push( us );
+					});
+
+					//Funktion machen
+					function maketooltiptext(place, data) {
+						//Indexe bestimmen
+						var labelid = place[0].index;
+
+						return namesarray[labelid];
+					}
 				}
 
 				//allgemeine Hintergrundfarbe
@@ -209,7 +303,18 @@ function make_ergeb(){
 				//alle Ergebnisse an Graphdata
 				$.each( thiserg.ergebnisse, function (k,v){
 					c.labels.push( k );
-					c.data.push( v );
+					//nach Namen Weiche wie bei Auswahl
+					if( ergeb.auswertungstyp == 'na' ){
+						if( typeof v == "object" ){ 
+							c.data.push( v.length );
+						}
+						else{
+							c.data.push( 0 );
+						}
+					}
+					else{
+						c.data.push( v );
+					}
 					c.bocolor.push(makecolor() );
 				});
 
@@ -222,9 +327,55 @@ function make_ergeb(){
 				//Balken
 				c.type = 'bar';
 				//Skala nur mit vollen Zahlen
-				c.options = { scales: { yAxes: [{ ticks: { stepSize: 1, beginAtZero: true } }] } };
+				c.options = {
+					scales: { yAxes: [{ ticks: { stepSize: 1, beginAtZero: true } }] }
+				};
 				//eigenes Dataset
 				c.use = false;
+
+				//Tooltip mit Namen der User Callback
+				if( ergeb.auswertungstyp == 'na' ){
+					//Callbackfunktion bei Graph anfügen
+					c.options['tooltips'] = { callbacks: { footer: maketooltiptext } };
+
+					//Array mit den Namen erstellen,
+					//welches die Namen für maketooltiptext() 
+					//sinvoll enthält
+					var namesarray = [];
+					//alle Ergebnisse durchgehen
+					//	jedesFeld
+					$.each( thiserg.ergebnisse, function (feld,val){
+						//Array pro Feld
+						var add = [];
+						//alle Noten + ka durchgehen
+						$.each( val , function (id,user){
+							//Array pro Note für User
+							var us = [];
+							//hier schon User?
+							if( typeof user == "object" ){
+								//alle User in Array
+								$.each( user , function (key,userid){
+									us.push( teiln[userid]  );
+								});
+								
+							}
+							//zusammenfügen
+							add.push(us);
+						});
+						//zusammenfügen
+						namesarray.push( add );
+					});
+
+					//Funktion machen
+					function maketooltiptext( place, data) {
+						//Indexe bestimmen
+						var labelid = place[0].index;
+						var dataindex = place[0].datasetIndex;
+
+						//Array der User holen und zum Tooltip
+						return namesarray[dataindex][labelid];
+					}
+				}
 
 				//eigenes Dataset bauen
 				var datasethere = {
@@ -255,7 +406,19 @@ function make_ergeb(){
 					//alle Ergebnisse an Graphdata
 					$.each( v , function (kk,vv){
 						//Daten anfügen
-						set.data.push( vv );
+
+						//nach Namen Weiche wie bei Auswahl
+						if( ergeb.auswertungstyp == 'na' ){
+							if( typeof vv == "object" ){ 
+								set.data.push( vv.length );
+							}
+							else{
+								set.data.push( 0 );
+							}
+						}
+						else{
+							set.data.push( vv );
+						}
 					});
 
 					//Datensatz an Dataset
@@ -286,7 +449,7 @@ function make_ergeb(){
 				$.each( thiserg.ergebnisse.texte , function (k,v){
 					//nach Name?
 					//	Name zu Texte
-					var name = ( ( ergeb.auswertungstyp == 'na' ) ? '' : k );
+					var name = ( ( ergeb.auswertungstyp == 'na' ) ? teiln[k] : k );
 					//Tabellenzeile
 					html += '<tr>';
 					html += '<td class="first">'+name+'</td>';

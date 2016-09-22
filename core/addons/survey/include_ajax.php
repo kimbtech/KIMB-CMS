@@ -289,7 +289,7 @@ elseif(
 										is_array( $erghier )
 									){
 										//alle Werte in Array okay?
-										foreach( $erghier as $choose){
+										foreach( $erghier as $choose ){
 
 											//gewähltes Feld vorhnaden?
 											if(
@@ -326,11 +326,11 @@ elseif(
 										$wok = array( 1, 2, 3, 4, 5, 6, 'ka' );
 
 										//alle Werte in Array okay?
-										foreach( $erghier as $id => $choose ){
+										foreach( $erghier as $i => $choose ){
 
 											if(
 												//Feld überhaupt vorhanden
-												!in_array( $id, array_keys( $frage["felder"] ) )
+												!in_array( $i, array_keys( $frage["felder"] ) )
 												||
 												//Wert okay?
 												!in_array( $choose, $wok )
@@ -365,7 +365,7 @@ elseif(
 							}
 
 						}
-
+						
 						//Prüfung auswerten
 						if(
 							//Anzahl okay?
