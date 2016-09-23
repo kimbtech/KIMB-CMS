@@ -53,7 +53,7 @@ function check_surveyrights( $uid, $ufile ){
 	//überhaupt Zugriff auf Seite?
 	//	Felogin Check
 	if(
-		( check_addon( 'felogin' ) == array(true, true) && check_felogin_login( '---session---', '---allgsiteid---', true ) )
+		( check_addon( 'felogin' ) == array(true, true) && check_felogin_login( '---session---', $uid, false ) )
 		||
 		( check_addon( 'felogin' ) != array(true, true) )
 	){

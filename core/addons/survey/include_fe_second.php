@@ -37,12 +37,6 @@ if( $ucfile->read_kimb_search_teilpl( 'uid', $allgsiteid ) ){
 	//UID extrahieren
 	$uid = $allgsiteid;
 
-	//Datei der Umfrage laden
-	$ufile = new KIMBdbf( 'addon/survey__'.$uid.'_conf.kimb' );
-
-	//Zugriffsrechte in Session
-	check_surveyrights( $uid, $ufile );
-
 	//CSS für System
 	$sitecontent->add_html_header('<link rel="stylesheet" type="text/css" href="'.$allgsysconf['siteurl'].'/load/addondata/survey/main.min.css" media="all">');
 	//jQuery UI wird benötigt
@@ -51,8 +45,11 @@ if( $ucfile->read_kimb_search_teilpl( 'uid', $allgsiteid ) ){
 	$sitecontent->add_html_header('<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/survey/chart.min.js"></script>');
 	//Vars
 	$sitecontent->add_html_header('<script language="javascript">var addsur = { su :"'.$allgsysconf['siteurl'].'", uid : "'.$uid.'",
-	zugaus : "'.$_SESSION['addon_survey']['ausw'][$uid]['zugriff'].'", zugriff: "'.$_SESSION['addon_survey'][$uid]['zugriff'].'",
-	username : "'.( isset( $_SESSION['felogin']['name'] ) ? $_SESSION['felogin']['name'] : '' ).'" };</script>');
+	zugaus : "notallowed", zugriff: "notallowed", username : "'.( isset( $_SESSION['felogin']['name'] ) ? $_SESSION['felogin']['name'] : '' ).'" };</script>');
+	//	Hier werden die Zugriffsrechte erstmal auf nicht erlaubt gesetzt.
+	//	Beim Seitenaufruf werden diese immer zuerst per AJAX geprüft!
+	//	Setzen hier nicht dynamisch möglich, da Probleme mit FullHTMLCache.
+
 	//JS für System
 	//	Struktur und Fragen
 	$sitecontent->add_html_header('<script language="javascript" src="'.$allgsysconf['siteurl'].'/load/addondata/survey/main.min.js"></script>');

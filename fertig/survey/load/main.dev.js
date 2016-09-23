@@ -10,10 +10,18 @@
 $( function () {
 	//Hauptstruktur machen
 	makestructur();
+	//Rechte bestimmen (AJAX an Server)
+	ajaxrequest( {}, function ( rights ) {
 
-	//Seite laden
-	loadsite();
+		//Rechte aus AJAX Request global setzen
+		addsur.zugaus = rights.zugaus;
+		addsur.zugriff = rights.zugriff;
+		//jetzt Aufgabe auf Umfrage setzen 
+		ajaxpost.task = 'umfrage';
 
+		//Seite laden
+		loadsite();
+	} );
 });
 //Hauptstruktur der Elemente meken
 var structur = {
@@ -24,7 +32,7 @@ var ajaxpost = {
 	data : {
 
 	},
-	task : 'umfrage',
+	task : 'rights',
 	uid : addsur.uid
 }
 

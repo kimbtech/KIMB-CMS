@@ -148,7 +148,7 @@ elseif(
 elseif(
 	isset( $_POST['task'] )
 	&&
-	( $_POST['task'] == 'umfrage' || $_POST['task'] == 'auswertung' )
+	( $_POST['task'] == 'umfrage' || $_POST['task'] == 'auswertung' || $_POST['task'] == 'rights' )
 	&&
 	isset( $_POST['uid'] ) && is_numeric( $_POST['uid'] )
 ){
@@ -637,6 +637,20 @@ elseif(
 				$out = "403 - Nicht erlaubt!";
 				$outerr = true;
 			}
+
+		}
+		//Rechte in Session machen?
+		elseif( $_POST['task'] == 'rights' ){
+
+			//Datei der Umfrage laden
+			$ufile = new KIMBdbf( 'addon/survey__'.$uid.'_conf.kimb' );
+
+			//Zugriffsrechte in Session
+			check_surveyrights( $uid, $ufile );
+
+			//Rückgabe
+			$out['zugaus'] = $_SESSION['addon_survey']['ausw'][$uid]['zugriff'];
+			$out['zugriff'] = $_SESSION['addon_survey'][$uid]['zugriff'];
 
 		}
 		//Statistik?

@@ -195,7 +195,12 @@ if(
 				}
 
 				//Änderungen?
-				if( $felder != $dbf['felder'] ){
+				if(
+					$felder != $dbf['felder']
+					&&
+					//unterste Grenze für Zahlen ist 1
+					( $dbf['type'] != 'za' || ( $felder[1] > 0 && $felder[2] > 0 ) )
+				){
 					//schreiben
 					if( $ufile->write_kimb_id( $id, 'add', 'felder', $felder ) ){
 						//Medlung
@@ -413,7 +418,7 @@ if(
 					$feld = $stand[$i];
 				}
 				//aktuelle Inhalte ausgeben
-				$sitecontent->add_site_content( '<li>'.$besch[$i].' <input type="number" min="0" name="feld['.$id.']['.$i.']" style="width:75%;" value="'.$feld.'"></li>' );
+				$sitecontent->add_site_content( '<li>'.$besch[$i].' <input type="number" min="1" name="feld['.$id.']['.$i.']" style="width:75%;" value="'.$feld.'"></li>' );
 				//Index ++
 				$i++;
 				//nur 2 möglich
