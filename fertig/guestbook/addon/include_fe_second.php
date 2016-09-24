@@ -190,12 +190,36 @@ if( $guestbook['file']->read_kimb_search_teilpl( 'siteid' , $allgsiteid ) && $al
 					//Soll eine E-Mail gesendet werden?
 					//Ist die E-Mail-Adresse gesetzt?
 					if( $guestbook['file']->read_kimb_one( 'mailinfo' ) == 'on' && !empty($guestbook['file']->read_kimb_one( 'mailinfoto' )) ){
-						
-						//Text laden und Platzhalter ersetzen
-						$text = str_replace( array( '%name%', '%mail%', '%siteid%', '%cont%', '%br%' ) , array( $name, $mail, $allgsiteid, $cont, "\r\n" ) , $allgsys_trans['addons']['guestbook']['mailtext']['infomail'] );
+
+						//Zufallscode, um Status per Link ändern zu können
+						$statusauthcode = makepassw( 30, '', 'numaz' );
+						//	Statuscode merken
+						$addfile->write_kimb_id( $guestbook['newid'] , 'add' , 'statauth' , $statusauthcode );
+
+						//Status lesen
+						$newstatus = $guestbook['file']->read_kimb_one( 'newstatus' );
+						//Link für Status ändern
+						$link = $allgsysconf['siteurl'].'/ajax.php?addon=guestbook&review&site='.$allgsiteid.( $_POST['place'] != 'new' ? '&file='.$id : '' ).'&id='.$guestbook['newid'].'&auth='.$statusauthcode;
+								
+						//Text für Mail machen
+						$text = 'Hallo Admin,'."\r\n";
+						$text .= 'es gibt einen neuen Eintrag im Gästebuch der Seite '.$allgsiteid.'.'."\r\n";
+						$text .= 'Name: '.$name."\r\n";
+						$text .= 'E-Mail: '.$mail."\r\n";
+						$text .= '<= Mitteilung ===================================================>'."\r\n";
+						$text .= $cont."\r\n";
+						$text .= '<================================================================>'."\r\n";
+						$text .= 'Status: '.($newstatus == 'on' ? 'sichtbar' : 'verborgen' )."\r\n";
+						$text .= 'Status ändern: '.$link."\r\n";
+
+						//GNS URLadd
+						$urladd = array(
+							'url' => $link,
+							'urlt' => 'Status ändern'
+						); 
 						
 						//Mail absenden
-						send_mail( $guestbook['file']->read_kimb_one( 'mailinfoto' ) , $text );
+						send_mail( $guestbook['file']->read_kimb_one( 'mailinfoto' ) , $text, 'plain', 1, $urladd );
 					}
 
 					//wenn der Status auf off gesetzt wurde, User informieren

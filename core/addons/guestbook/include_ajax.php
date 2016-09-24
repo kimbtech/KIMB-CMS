@@ -274,6 +274,77 @@ elseif ( !empty( $_POST['site'] ) && !empty( $_POST['id'] ) ) {
 		
 	die;
 }
+//neuen Beitrag Status ändern?
+elseif(
+	isset( $_GET['review'] )
+
+){
+	//alle Parameter prüfen und zu vars
+	$site = preg_replace( '/[^0-9]/', '', $_GET['site'] );
+	$file = (isset($_GET['file']) ? preg_replace( '/[^0-9]/', '', $_GET['file'] ) : false );
+	$id = preg_replace( '/[^0-9]/', '',$_GET['id'] );
+	$auth = preg_replace( '/[^0-9A-Za-z]/', '', $_GET['auth'] );
+
+	//Dateiname
+	if( $file !== false ){
+		//Datei mit Antworten zu einem Eintrag in Hauptdatei der Seite
+		$datei = 'addon/guestbook__id_'.$site.'_answer_'.$file.'.kimb';
+	}
+	else{
+		//Hauptdatei der Seite
+		$datei = 'addon/guestbook__id_'.$site.'.kimb';
+	} 
+
+	//Datei vorhnaden?
+	if( check_for_kimb_file( $datei ) ){
+		//wenn ja, öffnen
+		$file = new KIMBdbf( $datei );
+
+		//Authcode für ID lesen
+		$code = $file->read_kimb_id( $id, 'statauth' );
+
+		//Zugriff okay?
+		if( !empty( $code ) && $code == $auth ){
+			//Status lesen
+			$status = $file->read_kimb_id( $id, 'status' );
+			//neuen Status bestimmen
+			$newstat = ( $status == 'on' ? 'off' : 'on' );
+			//neuen Status schreiben
+			if( $file->write_kimb_id( $id, 'add', 'status', $newstat ) ){
+				//Code löschen
+				$file->write_kimb_id( $id, 'del', 'statauth' );
+
+				//Seiten ID zu RequestID umrechnen
+				//	ID Zuordnungen Datei laden
+				$idfile = new KIMBdbf('menue/allids.kimb');
+				//	rechnen
+				$requid = $idfile->search_kimb_xxxid( $site , 'siteid' );
+
+				if( $requid != false ){
+					//Weiterleiten
+					open_url( make_path_outof_reqid( $requid ) );
+				}
+				else{
+					echo "200 - Status verändert, konnte aber nicht weiterleiten";
+				}
+			}
+			else{
+				echo "500 - Konnte Status nicht verändern!";
+			}
+		}
+		else{
+			echo "403 - Kein Zugriff!<br />\r\n";
+			echo "<small><em>(jeder Link funktioniert immer nur einmal)</em></small>";
+		}
+	}
+	else{
+		echo "404 - Eintrag nicht gefunden!";
+	}
+
+	//beenden
+	die;
+
+ }
 
 //Fehler wenn man hier landet, falsch auf AJAX zugegriffen
 echo 'Falscher Zugriff auf Guestbook AJAX';
