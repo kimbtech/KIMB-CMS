@@ -1,3 +1,10 @@
+/*
+//KIMB CMS Add-on
+//KIMB ContentManagementSystem Add-on
+//Copyright (c) 2014 by KIMB-technologies.eu
+//https://www.KIMB-technologies.eu
+//http://www.gnu.org/licenses/gpl-3.0
+*/
 function savesubmit(){
 	var cont = $( "textarea#cont" ).val();
 	var name = $( "input#name" ).val();
