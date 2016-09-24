@@ -220,12 +220,19 @@ if( isset( $siteschanged ) && $siteschanged ){
 		//Suche okay?
 		if( $requid != false ){
 			
-			//asd
+			//explizit zu INT
 			$requid = intval( $requid );
 		
-			//für diese Seite komplett deaktivieren
+			//für diese Seite erlauben, aber auf bestimmte Werte achten
 			$data[$requid] = array(
-				'off', array( 'POST' => array(), 'GET' => array(), 'COOKIE' => array() )
+				'on', array( 'POST' => array(
+					//alle Werte die für neue Einträge gesendet werden
+					'cont',
+					'mail',
+					'name',
+					'place',
+					'captcha_code'
+				), 'GET' => array(), 'COOKIE' => array() )
 			);
 			
 		}

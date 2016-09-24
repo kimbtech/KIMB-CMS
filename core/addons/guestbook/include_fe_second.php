@@ -227,6 +227,16 @@ if( $guestbook['file']->read_kimb_search_teilpl( 'siteid' , $allgsiteid ) && $al
 						//User soll sich nicht wundern, dass sein Beitrag nicht gezeigt wird
 						$sitecontent->add_site_content('<h3>'.$allgsys_trans['addons']['guestbook']['pruef'].'</h3>'."\r\n");
 					}
+
+					//FullHTMLCache aktiviert?
+					if($allgsysconf['fullcache'] == 'on'){
+						//diese Seite jetzt nicht cachen
+						$fullsitecache->end_cache();
+
+						//den FullHTMLCache leeren
+						//	jetzt muss ja alles mit dem neuen Eintrag erstellt werden
+						FullHTMLCache::clear_cache();
+					}
 				}
 				else{
 					//Fehlermeldung wenn Mail falsch
