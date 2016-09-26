@@ -32,6 +32,9 @@ $addonurl = $allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=more&
 //Konfigurationsdatei
 $html_out_konf = new KIMBdbf( 'addon/code_terminal__conf.kimb' );
 
+//Add-on API
+$addonapi = new ADDonAPI( 'code_terminal' );
+
 //mögliche Aufgaben (URL-Paramter)
 $tasks = array( 'fe', 'be', 'fc', 'tm' );
 //Aufrufe nur für Gruppe more 

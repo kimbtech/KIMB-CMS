@@ -1,14 +1,20 @@
 <[about:doc]>KIMB Datei V.4.5 KIMB CMS<[about:doc]>
 <[allidslist_okay]>yes<[allidslist_okay]>
-<[allidslist1]>1<[allidslist1]>
 <[1-addon]>auto_update_addons<[1-addon]>
 <[1]>addon==stelle==recht==site<[1]>
 <[1-stelle]>hinten<[1-stelle]>
 <[1-recht]>more,fourteen<[1-recht]>
 <[1-site]>addon_inst<[1-site]>
-<[allidslist2]>2<[allidslist2]>
 <[2-addon]>auto_update<[2-addon]>
 <[2]>addon==stelle==recht==site<[2]>
 <[2-stelle]>hinten<[2-stelle]>
 <[2-recht]>more,fourteen<[2-recht]>
 <[2-site]>all<[2-site]>
+<[allidslist1]>1<[allidslist1]>
+<[allidslist2]>2<[allidslist2]>
+<[allidslist3]>3<[allidslist3]>
+<[3-addon]>code_terminal<[3-addon]>
+<[3]>addon==stelle==recht==site<[3]>
+<[3-stelle]>hinten<[3-stelle]>
+<[3-recht]>no<[3-recht]>
+<[3-site]>addon_inst<[3-site]>

@@ -31,9 +31,6 @@ $sitecontent->add_site_content( '<h3>Funcclass</h3>' );
 //dbf für fc lesen
 $html_out_fc = new KIMBdbf( 'addon/code_terminal__fc.kimb' );
 
-//Add-on API
-$addonapi = new ADDonAPI( 'code_terminal' );
-
 //Code übergeben?
 if( isset( $_POST['exec_code'])){
 	

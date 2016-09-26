@@ -26,69 +26,86 @@
 
 defined('KIMB_CMS') or die('No clean Request');
 
-//dbf für Status lesen
-$html_out_konf = new KIMBdbf( 'addon/code_terminal__conf.kimb' );
+//dbf für be lesen
+$html_out_be = new KIMBdbf( 'addon/code_terminal__be.kimb' );
+	
+//aktuelle Seite bestimmen
+//	var
+$path;
+//	RegExp
+preg_match( '/(?<=\/kimb-cms-backend\/)[a-z\_]*(?<!\.php)/', get_req_url() , $path );
+//	nur das ganze
+$path = $path[0];
+// evtl. index.php?
+//	ohne Dateinamen aufgerufen
+if( empty( $path ) ){
+	$path = 'index';
+}
 
-//BE aktiviert?
-if( $html_out_konf->read_kimb_one( 'be' ) == 'on' ){
-	
-	//dbf für be lesen
-	$html_out_be = new KIMBdbf( 'addon/code_terminal__be.kimb' );
-	
-	//mögliche Felder in der dbf
-	$dos = array( 'mess_h', 'mess_cont', 'header', 'sitecont' );
-	
-	//alle durchgehen
-	foreach( $dos as $do ){
-		//Wert lesen
-		$val = $html_out_be->read_kimb_one( $do );
-		//Wert darf nicht leer sein (leer => nicht ausgeben)
-		if( !empty( $val ) ){
-			//Seiteninhalt?
-			if( $do == 'sitecont' ){
+//alles auslesen
+$alles = $html_out_be->read_kimb_id_all();
+
+//korrekte Seiten
+$korsites = array( 'all', $path );
+
+//durchgehen
+foreach( $alles as $id => $vals ){
+	//diesen Code nehmen?
+	if( in_array( $vals['site'], $korsites )){
+		
+		//Werte nicht leer?
+		//	Heading ist egal
+		if( 
+			(
+				( isset( $vals['code'] ) && !empty( $vals['code'] ) )
+				||
+				( !isset( $vals['code'] ) )
+			)
+			&&
+			(
+				( isset( $vals['inhalt'] ) && !empty( $vals['inhalt'] ) )
+				||
+				( !isset( $vals['inhalt'] ) )
+			)
+			&&
+			(
+				( isset( $vals['phpcode'] ) && !empty( $vals['phpcode'] ) )
+				||
+				( !isset( $vals['phpcode'] ) )
+			)
+
+
+		 ){
+
+			//Header?
+			if( $vals['type'] == 'header' ){
 				//ausgeben
-				$sitecontent->add_site_content( $val );
-			}
-			//Message Überschrift?
-			elseif( $do == 'mess_h' ){
-				//für Message speichern
-				$mess_h = $val;
+				$sitecontent->add_html_header( $vals['code'] );
 			}
 			//Message?
-			elseif( $do == 'mess_cont' ){
+			elseif( $vals['type'] == 'mess' ){
 				//Überschift leer?
-				if( empty( $mess_h ) ){
+				if( empty( $vals['heading'] ) ){
 					//mit Standardüberschrift ausgeben
-					$sitecontent->echo_message( $val );
+					$sitecontent->echo_message( $vals['inhalt'] );
 				}
 				else{
 					//mit Überschrift des Users ausgeben
-					$sitecontent->echo_message( $val, $mess_h );
+					$sitecontent->echo_message( $vals['inhalt'],  $vals['heading'] );
 				}
 			}
-			//Header?
-			elseif( $do == 'header' ){
+			//Seiteninhalt?
+			elseif( $vals['type'] == 'cont' ){
 				//Header ausgeben
-				$sitecontent->add_html_header( $val );
+				$sitecontent->add_html_header( $vals['inhalt'] );
 			}
-		}
+			//PHP?
+			elseif( $vals['type'] == 'php' ){
+				//ausführen
+				eval( $vals['phpcode'] );
+			}
+		 }
 	}
-	
-	//PHP-Code
-	
-	//Code lesen
-	$code = $html_out_be->read_kimb_one( 'code' );
-	
-	//Code gegeben?
-	if( !empty( $code ) ){
-		//ausführen
-		eval( $code );
-	}
-	
-	
 }
-
-//alle Vars löschen
-unset( $html_out_konf, $html_out_be, $dos, $val, $do, $mess_h, $code );
 	
 ?>
