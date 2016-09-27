@@ -29,9 +29,6 @@ defined('KIMB_CMS') or die('No clean Request');
 //URL
 $addonurl = $allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=more&addon=code_terminal';
 
-//Konfigurationsdatei
-$html_out_konf = new KIMBdbf( 'addon/code_terminal__conf.kimb' );
-
 //Add-on API
 $addonapi = new ADDonAPI( 'code_terminal' );
 

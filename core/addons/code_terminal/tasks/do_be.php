@@ -159,6 +159,8 @@ $sitecontent->add_site_content('</tr><tr><td></td><td></td><td>');
 $sitecontent->add_site_content('&uarr; Bitte geben Sie hier per Komma getrennte Userlevel (nur User mit diesen Rechten sehen dann die Ausgaben) an. Die einzelnen Werte können "more" &amp; "less" sein. Außderm können Sie die englischen Zahlen der Userlevel nehmen ("Other &rarr; Userlevel Backend"). Wenn alle die Meldungen sehen sollen, geben Sie bitte "no" an!<br />Beispiele: "more,less,one,two" oder "more,twenty,ten"');
 
 $sitecontent->add_site_content('</td></tr></table>');
+//Text Level der Einschränkungen
+$sitecontent->add_site_content('<hr />Bitte beachten Sie, dass die Auswahl der Einbindungsstelle &uarr; über der Auswahl der Seite jedes einzelnen Blocks &darr; steht. Das heißt, Sie müssen bei Einbindung <code>Überall</code> wählen, wenn Sie eine Meldung bei <code>Home/Login</code> und einen HTML-Header bei <code>Umzug</code> brauchen.');
 $sitecontent->add_site_content( '</div>');
 
 // # Inhalte
@@ -367,63 +369,6 @@ if( $leer ){
 	$sitecontent->add_site_content( 'Bisher noch keine Blöcke!' );
 	$sitecontent->add_site_content( '</div>' );
 }
-
-
-
-
-/*
-//Sitecontent
-$sitecontent->add_site_content( '<h4>Normaler Seiteninhalt</h4>' );
-//TinyMCE
-$arr['small'] = '#sitecont';
-add_tiny( false, true, $arr );
-$sitecontent->add_site_content('<textarea name="sitecont" id="sitecont" style="width:99%; height:200px;">'.htmlspecialchars( $sitecont, ENT_COMPAT | ENT_HTML401,'UTF-8').'</textarea><br />');
-$sitecontent->add_site_content('<button onclick="tinychange( \'sitecont\' ); return false;">Editor I/O</button>');
-
-//Message
-$sitecontent->add_site_content( '<h4>Medlung</h4>' );
-$sitecontent->add_site_content('Überschrift: <input type="text" name="mess_h" value="'.htmlspecialchars( $mess_h, ENT_COMPAT | ENT_HTML401,'UTF-8').'"><br />');
-//TinyMCE
-$arr['small'] = '#mess_cont';
-add_tiny( false, true, $arr );
-$sitecontent->add_site_content('<textarea name="mess_cont" id="mess_cont" style="width:99%; height:200px;">'.htmlspecialchars( $mess_cont, ENT_COMPAT | ENT_HTML401,'UTF-8').'</textarea><br />&uarr; Inhalt');
-$sitecontent->add_site_content('<button onclick="tinychange( \'mess_cont\' ); return false;">Editor I/O</button>');
-
-//Header
-$sitecontent->add_site_content( '<h4>HTML Header</h4>' );
-$sitecontent->add_site_content('<textarea name="header" id="htmlcodearea">'.htmlspecialchars( $header, ENT_COMPAT | ENT_HTML401,'UTF-8').'</textarea>');
-*/
-/*
-//PHP
-//nur User der Gruppe 'more' erlauben
-if( check_backend_login( 'no' , 'more', false ) ){
-	$sitecontent->add_site_content( '<h4>PHP-Code</h4>' );
-	
-	//Code übergeben?
-	if( isset( $_POST['exec_code'])){
-			
-		
-			
-		//ist der übergebene Code anders als der in der dbf?
-		if( $html_out_be->read_kimb_one( 'code' ) !=  $_POST['exec_code'] ){
-				
-			//Code speichern
-			$html_out_be->write_kimb_one( 'code', $_POST['exec_code'] );
-					
-			//Medlung
-			$sitecontent->echo_message( 'Der PHP-Code wurde angepasst');
-		}
-	}
-		
-	//Code aus dbf lesen
-	$code = $html_out_be->read_kimb_one( 'code' );
-	
-		
-	//Eingabe
-	$sitecontent->add_site_content( '<textarea id="phpcodearea" name="exec_code">'.htmlspecialchars( $code, ENT_COMPAT | ENT_HTML401,'UTF-8').'</textarea>');
-		
-}
-*/
 
 $sitecontent->add_site_content( '</div>');
 

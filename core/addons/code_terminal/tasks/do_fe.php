@@ -28,278 +28,439 @@ defined('KIMB_CMS') or die('No clean Request');
 
 $sitecontent->add_site_content( '<h3>Frontend</h3>' );
 
-//Status
-$oo = $html_out_konf->read_kimb_one( 'fe' );
-//	jQuery Icons HTML Code
-if( $oo == 'on' ){
-	$status = '<span style="display:inline-block;" title="Aktiviert" class="ui-icon ui-icon-check"></span>';
-}
-else{
-	$status = '<span style="display:inline-block;" title="Deaktiviert" class="ui-icon ui-icon-closethick"></span>';
-}
-//Status
-$sitecontent->add_site_content( 'Aktueller Status: '.$status.' <a href="'.$allgsysconf['siteurl'].'/kimb-cms-backend/addon_conf.php?todo=less&amp;addon=code_terminal" target="_blank">ändern</a>' );
+//design
+$sitecontent->add_html_header( '<style>div.block{ margin:5px; padding:5px; background-color:#ddd; border-radius:5px;}
+div.innerblock{ margin:5px; padding:5px; background-color:#fff; border-radius:5px;}</style>' );
 
-//dbf für be lesen
+//dbf für fe lesen
 $html_out_fe = new KIMBdbf( 'addon/code_terminal__fe.kimb' );
 
-//Auswahl ob first oder second
-//	gilt nur für Ausgaben, hier aber schon nötig für Formular URL
+// # Einbindung
 
-//Trennung
-$sitecontent->add_site_content( '<br /><br />' );
+//Übergabe?
+if( isset( $_POST['send'] ) ){
+	//noch nichts gemacht
+	$okay = 0;
+	$okaydo = 0;
 
-//für Wahlbuttons speichern
-$addonurlo = $addonurl;
-
-//First gewählt?
-if( isset( $_GET['first'] ) ){
-	//Vars anpassen
-	$part = 'first';
-	$addonurl = $addonurl.'&amp;first';
-	
-	//gewählten Button disable
-	$sitecontent->add_html_header( '<script> $(function() { $( "a#firstssecond.first" ).button({ disabled: true }); }); </script>');
-}
-//Second gewählt? 
-elseif( isset( $_GET['second'] ) ){
-	//Vars anpassen
-	$part = 'second';
-	$addonurl = $addonurl.'&amp;second';
-	
-	//gewählten Button disable
-	$sitecontent->add_html_header( '<script> $(function() { $( "a#firstssecond.second" ).button({ disabled: true }); }); </script>');
-}
-//keine Wahl?
-else{
-	//Wahl verlangen
-	$sitecontent->echo_message( 'Bitte wählen Sie welche Texte Sie bearbeiten wollen.', 'Auswahl erforderlich!' );
-	$part = false;
-	$sitecontent->add_site_content( '<br /><br />' );
-}
-
-//Wahlbuttons
-//	JS
-$sitecontent->add_html_header( '<script> $(function() { $( "a#firstssecond" ).button(); }); </script>');
-//	HTML
-$sitecontent->add_site_content( '<center>' );
-$sitecontent->add_site_content('<a href="'.$addonurlo.'&amp;first" title="Ausgabe vor dem Seiteninhalt" id="firstssecond" class="first" >Obere Ausgabe</a>');
-$sitecontent->add_site_content('<a href="'.$addonurlo.'&amp;second" title="Ausgabe nach dem Seiteninhalt" id="firstssecond" class="second" >Untere Ausgabe</a>');
-$sitecontent->add_site_content( '</center>' );
-
-//Trennung
-$sitecontent->add_site_content( '<br />' );
-
-if( $part != false ){
-	//Formular beginnen
-	$sitecontent->add_site_content('<form action="'.$addonurl.'" method="post" >');
-	
-	//Wish
-	$sitecontent->add_site_content( '<h4>Einbindung</h4>' );
-	$sitecontent->add_site_content( 'Bitte wählen Sie wo die Eingaben ausgegeben werden sollen:<br />' );
-	
 	//alle Teile
-	$wishdo = array( 'reihen', 'ids', 'error' );
-	
-	//Übergabe?
-	if( isset( $_POST['send'] ) ){
-		//noch nichts gemacht
-		$do = false;
-		
-		//alle Werte für wishes durchgehen
-		foreach( $wishdo as $wish ){
-			//Wert darf nicht leer sein!
-			if( empty( $_POST[$wish] ) ){
-				$error[] = true;	
-			}
-			else{
-				$error[] = false;
-			}
-			
-			//aktuellen Wert lesen
-			$dbfval = $html_out_fe->read_kimb_one( $wish );
-			//aktueller Wert anders als Übergabe?
-			if( $_POST[$wish] != $dbfval){
-				
-				//dbf anpassen
-				$html_out_fe->write_kimb_one( $wish, $_POST[$wish] );
-					
-				//etwas geändert
-				$do = true;
-			}
-			
-			//wish ids gewählt?
-			if( $wish == 'ids' && $_POST[$wish] != 'a' ){
-				//wish Wert anpassen, ID mit r versehen
-				$_POST[$wish] = 'r'.$_POST[$wish];
-			}
-		}
-		
-		if( !$error[0] && !$error[1] && !$error[2] && $do ){
-			//Add-on API wish
-			$a = new ADDonAPI( 'code_terminal' );
-			$a->set_fe( $_POST['reihen'], $_POST['ids'], $_POST['error'] );
-			
-			//Meldung
-			$sitecontent->echo_message( 'Die FE Einbindung wurde im CMS registriert.', 'Einbindung' );
-		}
-		elseif( $do ){
-			//Meldung
-			$sitecontent->echo_message( '<b>Bitte füllen Sie alle Felder unter Einbindung!</b>', 'Einbindung' );
-		}
-		
-		//wenn Meldungen vorhanden
-		if( $do ){
-			//ausgeben
-			$sitecontent->echo_message( 'Die Werte wurden angepasst!', 'Einbindung' );
-		}
-	}
-	
-	//aktelle Werte lesen
-	foreach( $wishdo as $wish ){
-		$$wish = $html_out_fe->read_kimb_one( $wish );
-	}
-	
-	//vorne oder hinten Dropdown
-	$sitecontent->add_html_header('<script>$(function(){ $( "[name=reihen]" ).val( "'.$reihen.'" ); }); </script>');
-	$sitecontent->add_site_content( '<select name="reihen" title="Stelle innerhalb der Add-ons."><option value="vorn">Vorne</option><option value="hinten">Hinten</option></select>' );
-	
-	//Auswahl IDs
-	$sitecontent->add_html_header('<script>$(function(){ $( "[name=ids]" ).append( "<option value=\'a\'>Alle</option>" ); $( "[name=ids]" ).val( "'.$ids.'" ); }); </script>');
-	$sitecontent->add_site_content( '<span title="Auf welcher Seite des Frontends soll ausgegeben werden?">'.id_dropdown( 'ids', 'requid' ).'</span>' );
-	
-	//Auswahl Fehler
-	$sitecontent->add_html_header('<script>$(function(){ $( "[name=error]" ).val( "'.$error.'" );  $( "option" ).tooltip( { position: { my: "left+15 center", at: "right center" } } ); }); </script>');
-	$sitecontent->add_site_content( '<select name="error" title="Wann soll ausgegeben werden?">
-		<option value="no" title="Immer ausgeben, sofern keine Fehler.">Keine Fehler</option>
-		<option value="all" title="Immer ausgeben, auch bei Fehlern">Immer</option>
-		<option value="403" title="Nur bei Fehler 403 ausgeben">Fehler 403</option>
-		<option value="404" title="Nur bei Fehler 404 ausgeben">Fehler 404</option>
-	</select>' );
-	
-	//Ausgaben
-	//	first und second beachten!!!
-	
-	//mögliche Felder in der dbf und Übertragungen
-	$names = array( 'sitecont' => 'Seiteninhalt', 'area_class' => 'CSS Class', 'area_cont' => 'Add-on Area Inhalt', 'header' => 'HTML-Header' );
-	//Übergabe?
-	if( isset( $_POST['send'] ) ){
-		//alle Möglichkeiten durchgehen
-		foreach( $names as $tag => $name ){
-			
-			//bei allen, außer header first/second an den dbf Tag ran
-			if( $tag != 'header' ){
-				$dbftag = $part.'_'.$tag;
-			}
-			else{
-				$dbftag = $tag;
-			}
-			
-			//aktuellen Wert lesen
-			$dbfval = $html_out_fe->read_kimb_one( $dbftag );
-			//aktueller Wert anders als Übergabe?
-			if( $_POST[$tag] != $dbfval){
-					
-				//dbf anpassen
-				$html_out_fe->write_kimb_one( $dbftag, $_POST[$tag] );
-					
-				//Medlung vorbereiten
-				$message .= '"'.$name.'" wurde angepasst!<br />';
-			}
-		}
-		
-		//wenn Medlungen vorhanden
-		if( !empty( $message ) ){
-			//ausgeben
-			$sitecontent->echo_message( $message );
-		}
-	}
-	
-	//alle Werte lesen
-	foreach( $names as $tag => $name ){
-		
-		//bei allen, außer header first/second an den dbf Tag ran
-		if( $tag != 'header' ){
-			$dbftag = $part.'_'.$tag;
-		}
-		else{
-			$dbftag = $tag;
-		}
-		
-		//in Variable nach Tagnamen lesen
-		$$tag = $html_out_fe->read_kimb_one( $dbftag );
+	$wishdo = array( 'stelle', 'ids', 'error' );
+
+	//Add-on API Daten lesen
+	$wish = $addonapi->read( 'fe' );
+	//	alles leer 
+	if( $wish === false ){
+		$wish = array( 'stelle' => '', 'ids' => '' , 'error' => '' );
 	}
 
-	//Hinweis
-	$sitecontent->add_site_content( '<br /><br />' );
-	$sitecontent->echo_message( 'Wenn Sie eine der Ausgabestellen nicht nutzen wollen, lassen Sie das Feld einfach leer!', 'Hinweis');
-	$sitecontent->add_site_content( '<br /><br />' );
+	//SiteID Prefix?
+	if( isset( $_POST['ids'] ) && !empty( $_POST['ids'] ) ){
+		if( $_POST['ids'] != 'a' && is_numeric( $_POST['ids'] )){
+			$_POST['ids'] = 's'.$_POST['ids'];
+		}
+	}
 	
-	//Sitecontent
-	$sitecontent->add_site_content( '<h4>Normaler Seiteninhalt</h4>' );
-	//TinyMCE
-	$arr['small'] = '#sitecont';
-	add_tiny( false, true, $arr );
-	$sitecontent->add_site_content('<textarea name="sitecont" id="sitecont" style="width:99%; height:200px;">'.htmlspecialchars( $sitecont, ENT_COMPAT | ENT_HTML401,'UTF-8').'</textarea><br />');
-	$sitecontent->add_site_content('<button onclick="tinychange( \'sitecont\' ); return false;">Editor I/O</button>');
+	//alle Werte für wishes durchgehen
+	foreach( $wishdo as $names ){
+		//Wert darf nicht leer sein!
+		if(!empty( $_POST[$names] ) ){
+			//Wert verändert?
+			if( $_POST[$names] != $wish[$names] ){
+				$okaydo++;
+			}
+			$okay++;
+		}
+	}
+	//alle Werte okay?
+	if( $okay == 3 && $okaydo != 0 ){
+		$addonapi->set_fe( $_POST['stelle'], $_POST['ids'], $_POST['error'] );
+
+		//Medlung
+		$sitecontent->echo_message( 'Die FE Einbindung wurde im CMS registriert.', 'Einbindung' );	
+	}
+	elseif( $okay != 3 ){
+		//Medlung
+		$sitecontent->echo_message( '<b>Bitte füllen Sie alle Felder unter Einbindung!</b>', 'Einbindung' );
+	}
+}
+//deaktivieren?
+elseif( isset( $_GET['disable'] ) ){
+	//löschen
+	if( !$addonapi->del( array( 'fe' ) ) ){
+		//Medlung (wenn Fehler)
+		$sitecontent->echo_message( '<b>Konnte nicht deaktiviert werden!</b>', 'Einbindung' );
+	}
+}
+
+//Add-on API Daten neu lesen
+$wish = $addonapi->read( 'fe' );
+//	noch leer?
+if( $wish === false ){
+	//Status
+	$status = '<span style="display:inline-block;" title="Deaktiviert" class="ui-icon ui-icon-closethick"></span>';
+	//Werte
+	$stelle = ''; 
+	$ids = '';
+	$error = '';
+}
+else{
+	//Werte aus API lesen
+	$stelle = $wish['stelle']; 
+	$ids = $wish['ids'];
+	//	Präfix weg, wenn nicht alles 
+	if( $ids != 'a' && !empty( $ids ) ){
+		//weg
+		$ids = substr( $ids, 1 );
+	}
+	$error = $wish['error'];
+	//Status
+	$status = '<span style="display:inline-block;" title="Aktiviert" class="ui-icon ui-icon-check"></span>';
+	$status .= ' <a href="'.$addonurl.'&disable">deaktivieren</a>';
+}
+
+$sitecontent->add_site_content( '<div class="block">');
+//Status
+$sitecontent->add_site_content( '<p>Aktueller Status: '.$status.'</p>' );
+$sitecontent->add_site_content( '</div>');
+
+//Formular beginnen
+$sitecontent->add_site_content('<form action="'.$addonurl.'" method="post" >');
+
+$sitecontent->add_site_content( '<div class="block">');
+//Wish
+$sitecontent->add_site_content( '<h4>Einbindung</h4>' );
+$sitecontent->add_site_content( 'Bitte wählen Sie wo die Eingaben ausgegeben werden sollen:<br />' );
+
+//vorne oder hinten Dropdown
+$sitecontent->add_html_header('<script>$(function(){ $( "[name=stelle]" ).val( "'.$stelle.'" ); }); </script>');
+$sitecontent->add_site_content( '<select name="stelle" title="Stelle innerhalb der Add-ons."><option value="vorn">Vorne</option><option value="hinten">Hinten</option></select>' );
 	
-	//Add-on Area
-	$sitecontent->add_site_content( '<h4>Add-on Area</h4>' );
-	$sitecontent->add_site_content('CSS Class: <input type="text" name="area_class" value="'.htmlspecialchars( $area_class, ENT_COMPAT | ENT_HTML401,'UTF-8').'"><br />');
-	//TinyMCE
-	$arr['small'] = '#area_cont';
-	add_tiny( false, true, $arr );
-	$sitecontent->add_site_content('<textarea name="area_cont" id="area_cont" style="width:99%; height:200px;">'.htmlspecialchars( $area_cont, ENT_COMPAT | ENT_HTML401,'UTF-8').'</textarea><br />&uarr; Inhalt');
-	$sitecontent->add_site_content('<button onclick="tinychange( \'area_cont\' ); return false;">Editor I/O</button>');
+//Auswahl IDs
+$sitecontent->add_html_header('<script>$(function(){ $( "[name=ids]" ).prepend( "<option value=\'a\'>Alle</option>" ); $( "[name=ids]" ).val( "'.$ids.'" ); }); </script>');
+$sitecontent->add_site_content( '<span title="Auf welcher Seite des Frontends soll ausgegeben werden?">'.id_dropdown( 'ids', 'siteid' ).'</span>' );
 	
-	//Header
-	$sitecontent->add_site_content( '<h4>HTML Header</h4>' );
-	$sitecontent->add_site_content('<textarea name="header" id="htmlcodearea">'.htmlspecialchars( $header, ENT_COMPAT | ENT_HTML401,'UTF-8').'</textarea>');
+//Auswahl Fehler
+$sitecontent->add_html_header('<script>$(function(){ $( "[name=error]" ).val( "'.$error.'" );  $( "option" ).tooltip( { position: { my: "left+15 center", at: "right center" } } ); }); </script>');
+$sitecontent->add_site_content( '<select name="error" title="Wann soll ausgegeben werden?">
+	<option value="no" title="Immer ausgeben, sofern keine Fehler.">Keine Fehler</option>
+	<option value="all" title="Immer ausgeben, auch bei Fehlern">Immer</option>
+	<option value="403" title="Nur bei Fehler 403 ausgeben">Fehler 403</option>
+	<option value="404" title="Nur bei Fehler 404 ausgeben">Fehler 404</option>
+</select>' );
+$sitecontent->add_site_content( '</div>');
 	
-	//PHP
-	//nur User der Gruppe 'more' erlauben
-		if( check_backend_login( 'no' , 'more', false ) ){
-			$sitecontent->add_site_content( '<h4>PHP-Code</h4>' );
-			
-			//Code übergeben?
-			if( isset( $_POST['exec_code'])){
-				
-				//bei eval gibt es keine <?php, weg damit
-				$_POST['exec_code'] = str_replace( array( '<?php', '?>' ), '', $_POST['exec_code']); 
-				
-				//ist der übergebene Code anders als der in der dbf?
-				if( $html_out_fe->read_kimb_one( $part.'_code' ) !=  $_POST['exec_code'] ){
-					
-					//Code speichern
-					$html_out_fe->write_kimb_one( $part.'_code', $_POST['exec_code'] );
-						
-					//Medlung
-					$sitecontent->echo_message( 'Der PHP-Code wurde angepasst');
+// # Inhalte
+
+//	Typen der Inhalte
+$types = array(
+	'header' => 'HTML Header',
+	'area' => 'Add-on Area',
+	'cont' => 'Seiteninhalt',
+	'php' => 'PHP-Code',
+);
+//	Vorgaben
+$types_struc = array(
+	'header' => array( 'site' => 'a', 'code' => '' ),
+	'area' => array( 'site' => 'a', 'place' => 'top', 'inhalt' => '', 'cssclass' => '' ),
+	'cont' => array( 'site' => 'a', 'place' => 'top', 'inhalt' => '' ),
+	'php' => array( 'site' => 'a', 'place' => 'top', 'phpcode' => '', 'fullcache' => 'on' )
+);
+
+$sitecontent->add_site_content( '<div class="block">');
+$sitecontent->add_site_content( '<h4>Inhalte</h4>');
+
+
+//für Meldungen
+$message = array();
+//Übergabe?
+if( isset( $_POST['send'] ) ){
+
+	//neu?
+	if(
+		$_POST['add'] !== 'none'
+		&&
+		in_array( $_POST['add'], array_keys( $types )  )
+	){
+		$type = $_POST['add'];
+
+		//ID holen
+		$id = $html_out_fe->next_kimb_id();
+		//schreiben
+		if( $html_out_fe->write_kimb_id( $id, 'add', 'type', $type ) ){
+			foreach( $types_struc[$type] as $teil => $val ){
+				$html_out_fe->write_kimb_id( $id, 'add', $teil, $val );
+			}
+			//Medlung
+			$message[] = 'Es wurde ein neuer Block eingefügt!';
+		}
+	}
+
+	//geändert?
+	//	alles lesen
+	$alles = $html_out_fe->read_kimb_id_all();
+	//	durchgehen
+	foreach( $alles as $id => $vals ){
+		//Daten zur ID übergeben?
+		if(
+			isset( $_POST['blocksite'][$id] ) && !empty( $_POST['blocksite'][$id] )
+			&&
+			isset( $_POST['blockvals'][$id] ) && !empty( $_POST['blockvals'][$id] )
+		){
+			//Daten in Vars.
+			$site = $_POST['blocksite'][$id];
+			$type = $vals['type'];
+			$newvals = $_POST['blockvals'][$id];
+			//Seite zu newvals
+			$newvals['site'] = $site;
+
+			//noch nichts
+			$done = false;
+
+			//Werte des Types
+			foreach( $types_struc[$type] as $name => $val ){
+
+				//hier nicht okay
+				$ok = false;
+
+				//PHP?
+				if( $name == 'phpcode' ){
+					//Rechte prüfen
+					if( check_backend_login( 'no' , 'more', false ) ){
+						//PHP Code okay?
+						if(
+							substr($newvals[$name], 0, 5 ) == '<?php'
+							&&
+							substr($newvals[$name], -2 ) == '?>'
+						){
+
+							//Code optimieren
+							//	\<\?\php und \?\> weg
+							$newvals[$name] = substr( $newvals[$name], 5, -2 );
+
+							//ok
+							$ok = true;
+						}
+						else{
+							$message[] = 'Fehlerhafter PHP-Code <small>(muss immer direkt mit <code>&lt;?php</code> beginnen und mit <code>?&gt;</code> enden)</small>!';
+						}
+					}
+				}	
+				else{
+					//sonst immer okay
+					$ok = true;
+				}
+
+				//FullCache anpassen?
+				if( $name == 'fullcache' ){
+
+					//aktuelle Daten lesen
+					$data = $addonapi->full_html_cache_wish();
+
+					//leer?
+					if( $data == $addonapi->emptyarray ){
+						$data = array();
+					}
+
+					//PHP-Code für überall und FullCache aktiviert?
+					if(
+						$site == 'a'
+						&&
+						$newvals[$name] == 'on'
+					){
+						unset( $data['a'] );
+					}
+					//PHP-Code für überall und FullCache deaktiviert?
+					elseif(
+						$site == 'a'
+						&&
+						$newvals[$name] == 'off'
+					){
+						$data['a'] = array('off', array( 'POST' => array(), 'GET' => array(), 'COOKIE' => array() ));
+					}
+
+					//SeitenID?
+					if( is_numeric( $site ) ){
+						//Seiten ID zu RequestID umrechnen
+						//	ID Zuordnungen Datei laden
+						$idfile = new KIMBdbf('menue/allids.kimb');
+						//	do it
+						$requid = $idfile->search_kimb_xxxid( $site , 'siteid' );
+
+						//gefunden?
+						if( $requid != false ){
+							//je nach Status Array apassen
+							if( $newvals[$name] == 'on' ){
+								//Cache an
+								unset( $data[$requid] );
+							}
+							elseif( $newvals[$name] == 'off' ){
+								//Cache aus
+								$data[$requid] = array('off', array( 'POST' => array(), 'GET' => array(), 'COOKIE' => array() ));
+							}
+						}
+					}
+
+					//leer?
+					if( empty( $data ) ){
+						//keine Wünsche!
+						$addonapi->del( array( 'fullcache' ) );
+					}
+					else{
+						//Array an API übergeben	
+						$addonapi->full_html_cache_wish( 'set', $data );
+					} 	
+
+				}
+
+				//erlaubt
+				if( $ok ){
+					//Übergabe nicht leer?
+					if( isset( $newvals[$name] ) && !empty( $newvals[$name] ) ){
+						//Änderungen?
+						if( $newvals[$name] != $vals[$name] ){
+							//sichern
+							$html_out_fe->write_kimb_id( $id, 'add', $name, $newvals[$name] );
+
+							$done = true;
+						}
+					}
 				}
 			}
-			
-			//Code aus dbf lesen
-			$code = $html_out_fe->read_kimb_one( $part.'_code' );
-			if(empty($code)){
-				//wenn leer, Beispiel
-				$code = '<?php'."\r\n\r\n".'?>';
+
+			//gemacht?
+			if( $done ){
+				$message[] = 'Änderungen an '.$types[$type].' ('.$id.') übernommen!';
 			}
-			else{
-				$code = '<?php'.$code.'?>';
-			}
-			
-			//Eingabe
-			$sitecontent->add_site_content( '<textarea id="phpcodearea" name="exec_code">'.htmlspecialchars( $code, ENT_COMPAT | ENT_HTML401,'UTF-8').'</textarea>');
-			
 		}
-	
-	//Button
-	$sitecontent->add_site_content( '<input type="hidden" name="send" value="yes">');
-	$sitecontent->add_site_content( '<input type="submit" value="Speichern">');
-	$sitecontent->add_site_content( '</form>');
-	
-	//Hinweis
-	$sitecontent->add_site_content( '<br /><br />' );
-	$sitecontent->echo_message( 'Sofern Ihr Code fehlerhaft ist, kann das Backend des CMS unbrauchbar werden. Bitte testen Sie PHP-Code im Terminal und HTML-Code z.B. mit Firebug!', 'Wichtig');
+
+	}
 }
+//Löschen?
+elseif( isset( $_GET['delblock'] ) && is_numeric( $_GET['delblock'] ) ){
+	//löschen
+	if( $html_out_fe->write_kimb_id( $_GET['delblock'] , 'del' ) ){
+		$message[] = 'Es wurde ein Block gelöscht!';
+	}
+	else{
+		$message[] = '<b>Konnte den Block nicht löschen!</b>';
+	}
+
+}
+
+//wenn Medlungen vorhanden
+if( !empty( $message ) ){
+	//ausgeben
+	$sitecontent->echo_message( implode( '<br />', $message ) );
+}
+
+//auslesen
+$alles = $html_out_fe->read_kimb_id_all();
+$leer = true;
+//alles durchgehen
+foreach( $alles as $id => $vals ){
+	//hinzufügen
+
+	$sitecontent->add_site_content( '<div class="innerblock">' );
+
+	//Typ
+	$sitecontent->add_site_content( 'Typ: '.$types[$vals['type']].'<br />' );
+	//Seite
+	//	Root?
+	if( isset( $vals['phpcode']) && !check_backend_login( 'no' , 'more', false ) ){
+		//keine Seite für PHP-Code wählen
+		$sitecontent->add_html_header('<script>$(function(){ $( "[name=\'blocksite['.$id.']\']" )[0].disabled = true; }); </script>');
+		//keine Stelle für PHP Code wählen
+		$sitecontent->add_html_header('<script>$(function(){ $( "[name=\'blockvals['.$id.'][place]\']" )[0].disabled = true; }); </script>');	
+	}
+	$sitecontent->add_html_header('<script>$(function(){ $( "[name=\'blocksite['.$id.']\']" ).prepend( "<option value=\'a\'>Alle</option>" ).val( "'.$vals['site'].'" ); }); </script>');
+	$sitecontent->add_site_content( 'Ausgabeseite: '.id_dropdown( 'blocksite['.$id.']', 'siteid' ).'<br />' );
+
+	//oben/ unten?
+	if( isset( $vals['place'] ) ){
+		$sitecontent->add_html_header( '<script>$(function(){ $( "[name=\'blockvals['.$id.'][place]\']" ).val( "'.$vals['place'].'" ); }); </script>');
+		$sitecontent->add_site_content( 'Ausgabestelle: <select name="blockvals['.$id.'][place]"><option value="top">Oben</option><option value="bottom">Unten</option></select><br />' );
+	}
+
+	//FullCache on/off
+	if( isset( $vals['fullcache'] ) ){
+		$sitecontent->add_site_content('FullHTMLCache: ');
+		$sitecontent->add_site_content( '<input type="radio" name="blockvals['.$id.'][fullcache]" value="on" '.($vals['fullcache'] == 'on' ? 'checked="checked"' : '' ).'> Aktiviert ' );
+		$sitecontent->add_site_content( '<input type="radio" name="blockvals['.$id.'][fullcache]" value="off" '.($vals['fullcache'] == 'off' ? 'checked="checked"' : '' ).'> Deaktiviert <br />' );
+	}
+
+	//Eingaben
+	if( isset( $vals['cssclass']) ){
+		//Input
+		$sitecontent->add_site_content( 'CSS Klasse: <input type="text" name="blockvals['.$id.'][cssclass]" value="'.htmlspecialchars( $vals['cssclass'], ENT_COMPAT | ENT_HTML401,'UTF-8').'"><br />' );
+	}
+	if( isset( $vals['inhalt']) ){
+		//Editor
+		add_content_editor( 'blvinh_'.$id );
+		//Textarea
+		$sitecontent->add_site_content( 'Inhalt: <textarea name="blockvals['.$id.'][inhalt]" id="blvinh_'.$id.'">'.htmlspecialchars( $vals['inhalt'], ENT_COMPAT | ENT_HTML401,'UTF-8').'</textarea><br />' );
+	}
+	if( isset( $vals['code']) ){
+		//Editor
+		add_content_editor( 'blvcod_'.$id, true );
+		//Textarea
+		$sitecontent->add_site_content( 'HTML-Code: <textarea name="blockvals['.$id.'][code]" id="blvcod_'.$id.'">'.htmlspecialchars( $vals['code'], ENT_COMPAT | ENT_HTML401,'UTF-8').'</textarea><br />' );
+	}
+	if( isset( $vals['phpcode']) ){
+
+		//Code optimieren
+		if( empty( $vals['phpcode'] ) ){
+			//wenn leer, Beispiel
+			$code = '<?php'."\r\n\r\n".'?>';
+		}
+		else{
+			$code = '<?php'.htmlspecialchars( $vals['phpcode'], ENT_COMPAT | ENT_HTML401,'UTF-8').'?>';
+		}
+
+		//Rechte okay?
+		if( check_backend_login( 'no' , 'more', false ) ){
+			make_code_terminal_phpedi( 'blvphp_'.$id );
+			$sitecontent->add_site_content( 'PHP-Code: <textarea name="blockvals['.$id.'][phpcode]" id="blvphp_'.$id.'">'.$code.'</textarea><br />' );
+		}
+		else{
+			$sitecontent->add_site_content( 'PHP-Code: <textarea style="width:95%; height:100px; resize:vertical;" disabled="disabled">'.$code.'</textarea><br />' );
+		}
+		
+	}
+	$sitecontent->add_site_content( '<a href="'.$addonurl.'&delblock='.$id.'" onclick="return confirm(\'Möchten Sie den Block wirklich löschen?\');"><span class="ui-icon ui-icon-trash" title="Diesen Ausgabeblock löschen?"></span></a>' );
+	$sitecontent->add_site_content( '</div>' );
+
+	//welche drin
+	$leer = false;
+}
+//leer?
+if( $leer ){
+	$sitecontent->add_site_content( '<div class="innerblock">' );
+	$sitecontent->add_site_content( 'Bisher noch keine Blöcke!' );
+	$sitecontent->add_site_content( '</div>' );
+}
+
+$sitecontent->add_site_content( '</div>');
+
+//neu
+$sitecontent->add_site_content( '<div class="block">');
+$sitecontent->add_site_content( '<h4>Inhalt hinzufügen</h4>');
+$sitecontent->add_site_content( '<select name="add">');
+$sitecontent->add_site_content( '<option value="none"></option>');
+foreach( $types as $key => $name ){
+	$sitecontent->add_site_content( '<option value="'.$key.'">'.$name.'</option>');
+}
+$sitecontent->add_site_content( '</select>');
+$sitecontent->add_site_content( '</div>');
+
+$sitecontent->add_site_content( '<div class="block">');
+//Button
+$sitecontent->add_site_content( '<input type="hidden" name="send" value="yes">');
+$sitecontent->add_site_content( '<input type="submit" value="Speichern">');
+$sitecontent->add_site_content( '</form>');
+
+//Hinweis
+$sitecontent->add_site_content( '<br /><br />' );
+$sitecontent->echo_message( 'Sofern Ihr Code fehlerhaft ist, kann das Backend des CMS unbrauchbar werden. Bitte testen Sie PHP-Code im Terminal und HTML-Code z.B. mit Firebug!', 'Wichtig');
+
+$sitecontent->add_site_content( '</div>');
 ?>
