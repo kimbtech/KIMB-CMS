@@ -147,13 +147,15 @@ $sitecontent->add_site_content( '<select name="error" title="Wann soll ausgegebe
 	<option value="403" title="Nur bei Fehler 403 ausgeben">Fehler 403</option>
 	<option value="404" title="Nur bei Fehler 404 ausgeben">Fehler 404</option>
 </select>' );
+//Text Level der Einschränkungen
+$sitecontent->add_site_content('<hr />Bitte beachten Sie, dass die Auswahl der Einbindungsstelle &uarr; über der Auswahl der Seite jedes einzelnen Blocks &darr; steht. Das heißt, Sie müssen bei Einbindung <code>Alle</code> wählen, wenn Sie eine Add-on Area auf Seite 1 und einen HTML-Header auf Seite 5 brauchen.');
 $sitecontent->add_site_content( '</div>');
 	
 // # Inhalte
 
 //	Typen der Inhalte
 $types = array(
-	'header' => 'HTML Header',
+	'header' => 'HTML-Header',
 	'area' => 'Add-on Area',
 	'cont' => 'Seiteninhalt',
 	'php' => 'PHP-Code',

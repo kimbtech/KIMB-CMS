@@ -167,7 +167,7 @@ $sitecontent->add_site_content( '</div>');
 
 //	Typen der Inhalte
 $types = array(
-	'header' => 'HTML Header',
+	'header' => 'HTML-Header',
 	'mess' => 'Meldung',
 	'cont' => 'Seiteninhalt',
 	'php' => 'PHP-Code'
