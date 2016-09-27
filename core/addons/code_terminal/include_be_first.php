@@ -97,7 +97,7 @@ foreach( $alles as $id => $vals ){
 			//Seiteninhalt?
 			elseif( $vals['type'] == 'cont' ){
 				//Header ausgeben
-				$sitecontent->add_html_header( $vals['inhalt'] );
+				$sitecontent->add_site_content( $vals['inhalt'] );
 			}
 			//PHP?
 			elseif( $vals['type'] == 'php' ){

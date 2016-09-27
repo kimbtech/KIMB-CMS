@@ -208,10 +208,82 @@ if( isset( $_POST['send'] ) ){
 	}
 
 	//geändert?
+	//	alles lesen
+	$alles = $html_out_be->read_kimb_id_all();
+	//	durchgehen
+	foreach( $alles as $id => $vals ){
+		//Daten zur ID übergeben?
+		if(
+			isset( $_POST['blocksite'][$id] ) && !empty( $_POST['blocksite'][$id] )
+			&&
+			isset( $_POST['blockvals'][$id] ) && !empty( $_POST['blockvals'][$id] )
+		){
+			//Daten in Vars.
+			$site = $_POST['blocksite'][$id];
+			$type = $vals['type'];
+			$newvals = $_POST['blockvals'][$id];
+			//Seite zu newvals
+			$newvals['site'] = $site;
 
-	//*
-	//*
-	//*
+			//noch nichts
+			$done = false;
+
+			//Werte des Types
+			foreach( $types_struc[$type] as $name => $val ){
+
+				//hier nicht okay
+				$ok = false;
+
+				//PHP?
+				if( $name == 'phpcode' ){
+					//Rechte prüfen
+					if( check_backend_login( 'no' , 'more', false ) ){
+						//PHP Code okay?
+						if(
+							substr($newvals[$name], 0, 5 ) == '<?php'
+							&&
+							substr($newvals[$name], -2 ) == '?>'
+						){
+
+							//Code optimieren
+							//	\<\?\php und \?\> weg
+							$newvals[$name] = substr( $newvals[$name], 5, -2 );
+
+							//ok
+							$ok = true;
+						}
+						else{
+							$message[] = 'Fehlerhafter PHP-Code <small>(muss immer direkt mit <code>&lt;?php</code> beginnen und mit <code>?&gt;</code> enden)</small>!';
+						}
+					}
+				}	
+				else{
+					//sonst immer okay
+					$ok = true;
+				}
+
+				//erlaubt
+				if( $ok ){
+					//Übergabe nicht leer?
+					if( isset( $newvals[$name] ) && !empty( $newvals[$name] ) ){
+						//Änderungen?
+						if( $newvals[$name] != $vals[$name] ){
+							//sichern
+							$html_out_be->write_kimb_id( $id, 'add', $name, $newvals[$name] );
+
+							$done = true;
+						}
+					}
+				}
+			}
+
+			//gemacht?
+			if( $done ){
+				$message[] = 'Änderungen an '.$types[$type].' ('.$id.') übernommen!';
+			}
+		}
+
+	}
 }
 //Löschen?
 elseif( isset( $_GET['delblock'] ) && is_numeric( $_GET['delblock'] ) ){
@@ -244,7 +316,7 @@ foreach( $alles as $id => $vals ){
 	$sitecontent->add_site_content( 'Typ: '.$types[$vals['type']].'<br />' );
 	//Seite
 	$sitecontent->add_html_header('<script>$(function(){ $( "select#blcsit_'.$id.'" ).val( "'.$vals['site'].'" ); }); </script>');
-	$sitecontent->add_site_content( '<select name="blocksite['.$id.']" id="blcsit_'.$id.'">'.$sitesopt.'</select><br />' );
+	$sitecontent->add_site_content( '<select name="blocksite['.$id.']" id="blcsit_'.$id.'" '.( isset( $vals['phpcode']) && !check_backend_login( 'no' , 'more', false ) ? 'disabled="disabled"' : '' ).'>'.$sitesopt.'</select><br />' );
 	//Eingaben
 	if( isset( $vals['heading']) ){
 		//Input
@@ -279,7 +351,7 @@ foreach( $alles as $id => $vals ){
 			$sitecontent->add_site_content( 'PHP-Code: <textarea name="blockvals['.$id.'][phpcode]" id="blvphp_'.$id.'">'.$code.'</textarea><br />' );
 		}
 		else{
-			$sitecontent->add_site_content( 'PHP-Code: <textarea disabled="disabled">'.$code.'</textarea><br />' );
+			$sitecontent->add_site_content( 'PHP-Code: <textarea style="width:95%; height:100px; resize:vertical;" disabled="disabled">'.$code.'</textarea><br />' );
 		}
 		
 	}
@@ -330,8 +402,7 @@ if( check_backend_login( 'no' , 'more', false ) ){
 	//Code übergeben?
 	if( isset( $_POST['exec_code'])){
 			
-		//bei eval gibt es keine <?php, weg damit
-		$_POST['exec_code'] = str_replace( array( '<?php', '?>' ), '', $_POST['exec_code']); 
+		
 			
 		//ist der übergebene Code anders als der in der dbf?
 		if( $html_out_be->read_kimb_one( 'code' ) !=  $_POST['exec_code'] ){
@@ -346,13 +417,7 @@ if( check_backend_login( 'no' , 'more', false ) ){
 		
 	//Code aus dbf lesen
 	$code = $html_out_be->read_kimb_one( 'code' );
-	if(empty($code)){
-		//wenn leer, Beispiel
-		$code = '<?php'."\r\n\r\n".'?>';
-	}
-	else{
-		$code = '<?php'.$code.'?>';
-	}
+	
 		
 	//Eingabe
 	$sitecontent->add_site_content( '<textarea id="phpcodearea" name="exec_code">'.htmlspecialchars( $code, ENT_COMPAT | ENT_HTML401,'UTF-8').'</textarea>');
