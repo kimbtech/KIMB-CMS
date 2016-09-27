@@ -26,18 +26,27 @@
 
 defined('KIMB_CMS') or die('No clean Request');
 
-//dbf für fe lesen
-$html_out_fe = new KIMBdbf( 'addon/code_terminal__fe.kimb' );
+//dbf für be lesen
+$html_out_be = new KIMBdbf( 'addon/code_terminal__be.kimb' );
 	
+//aktuelle Seite bestimmen
+//	var
+$path;
+//	RegExp
+preg_match( '/(?<=\/kimb-cms-backend\/)[a-z\_]*(?<!\.php)/', get_req_url() , $path );
+//	nur das ganze
+$path = $path[0];
+// evtl. index.php?
+//	ohne Dateinamen aufgerufen
+if( empty( $path ) ){
+	$path = 'index';
+}
+
 //alles auslesen
-$alles = $html_out_fe->read_kimb_id_all();
+$alles = $html_out_be->read_kimb_id_all();
 
 //korrekte Seiten
-$korsites = array( 'a', $allgsiteid );
-
-//aktuelle Stelle
-$now = 'top';
-//	$now = 'bottom';
+$korsites = array( 'all', $path );
 
 //durchgehen
 foreach( $alles as $id => $vals ){
@@ -45,7 +54,7 @@ foreach( $alles as $id => $vals ){
 	if( in_array( $vals['site'], $korsites )){
 		
 		//Werte nicht leer?
-		//	cssclass ist egal
+		//	Heading ist egal
 		if( 
 			(
 				( isset( $vals['code'] ) && !empty( $vals['code'] ) )
@@ -64,12 +73,6 @@ foreach( $alles as $id => $vals ){
 				||
 				( !isset( $vals['phpcode'] ) )
 			)
-			&&
-			(
-				( isset( $vals['place'] ) && ( $vals['place'] == 'top' || $vals['place'] == 'bottom' ) )
-				||
-				( !isset( $vals['place'] ) )
-			)
 
 
 		 ){
@@ -79,39 +82,30 @@ foreach( $alles as $id => $vals ){
 				//ausgeben
 				$sitecontent->add_html_header( $vals['code'] );
 			}
-			//Add-on Area?
-			elseif( $vals['type'] == 'area' ){
-				//Stelle okay?
-				if( $vals['place'] == $now ){
-					//Klasse leer?
-					if( empty( $vals['cssclass'] ) ){
-						//ohne Klasse ausgeben
-						$sitecontent->add_addon_area( $vals['inhalt'] );
-					}
-					else{
-						//mit Klasse ausgeben
-						$sitecontent->add_addon_area( $vals['inhalt'], '', $vals['cssclass'] );
-					}
+			//Message?
+			elseif( $vals['type'] == 'mess' ){
+				//Überschift leer?
+				if( empty( $vals['heading'] ) ){
+					//mit Standardüberschrift ausgeben
+					$sitecontent->echo_message( $vals['inhalt'] );
+				}
+				else{
+					//mit Überschrift des Users ausgeben
+					$sitecontent->echo_message( $vals['inhalt'],  $vals['heading'] );
 				}
 			}
 			//Seiteninhalt?
 			elseif( $vals['type'] == 'cont' ){
-				//Stelle okay?
-				if( $vals['place'] == $now ){
-					//Header ausgeben
-					$sitecontent->add_site_content( $vals['inhalt'] );
-				}
+				//Header ausgeben
+				$sitecontent->add_site_content( $vals['inhalt'] );
 			}
 			//PHP?
 			elseif( $vals['type'] == 'php' ){
-				//Stelle okay?
-				if( $vals['place'] == $now ){
-					//ausführen
-					eval( $vals['phpcode'] );
-				}
+				//ausführen
+				eval( $vals['phpcode'] );
 			}
 		 }
 	}
 }
-
+	
 ?>
