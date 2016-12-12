@@ -26,7 +26,3 @@ mit dem Add-on "Auto Update" durchführen.
 	- richtige Version in der Systemkonfiguration
 	- Sonst alles okay/ funktionstüchtig?
 
-#### Links
-
-[KIMB-CMS Update Wiki](https://cmswiki.kimb-technologies.eu/tutorials/updates)  
-[Add-on "Auto Update"](https://cmswiki.kimb-technologies.eu/addons/auto_update)  

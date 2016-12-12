@@ -1,5 +1,5 @@
 # KIMB-CMS
-> Ein einfaches und leichtgewichtiges CMS von KIMB-technologies.eu mit allen wichtigen Features.    
+> Ein einfaches und leichtgewichtiges CMS von KIMB-technologies mit allen wichtigen Features.    
 > Veröffentlicht unter der GPLv3.
 
 ## Features
