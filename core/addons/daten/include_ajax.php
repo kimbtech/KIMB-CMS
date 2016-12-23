@@ -280,11 +280,16 @@ function show_freig_file () {
 					//ausgeben
 					echo $html;
 				}
-				else{
+				//Datei öffnen
+				elseif( is_file( $openfolder ) ){
 					//Dateiname
 					$name = basename( $openfolder );
 					//kein Ordner, also als Datei öffnen
 					open_freigfile( $openfolder, $name );
+				}
+				else{
+					//Weder Datei noch Ordner => Fehler
+					echo 'Diese Datei existiert nicht!';
 				}
 			}	
 			else{
